@@ -1,0 +1,7 @@
+﻿Source file (read-only reference):
+C:\Users\MSI\OneDrive\Desktop\7000\Книга 1 (1).xlsx
+
+Local copy for convenience:
+c:\Users\MSI\Oracle-1001\7000\input\source.xlsx
+
+Sheet: 7000

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fleet Intelligence · Mission Control</title>
+<link rel="stylesheet" href="design_system.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<style>
+  html, body { height: 100%; }
+  .mc-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+  .mc-side { position: sticky; top: 72px; align-self: start; }
+  .mc-side .fi-pill { width: 100%; text-align: left; margin-bottom: 8px; }
+  .mc-telem { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .mc-telem .fi-card { cursor: pointer; padding: 18px 20px; transition: transform 160ms ease; }
+  .mc-telem .fi-card:hover { transform: scale(1.02); }
+  .mc-telem .fi-card.active { outline: 2px solid var(--accent); }
+  iframe.fi-frame { width: 100%; height: 62vh; border: 0; border-radius: 16px; background: var(--bg-elevated); }
+  .tabs-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  @media (max-width: 1100px) {
+    .mc-layout { grid-template-columns: 1fr; }
+    .mc-telem { grid-template-columns: 1fr 1fr; }
+    .mc-side { position: static; display: flex; gap: 8px; overflow: auto; }
+    .mc-side .fi-pill { width: auto; }
+  }
+  @media (max-width: 768px) { .mc-telem { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<a class="fi-skip" href="#content">Skip to content</a>
+<header class="fi-nav no-print">
+  <a class="fi-brand" href="mission_control.html"><span class="fi-brand-mark">FI</span> Fleet Intelligence</a>
+  <div class="fi-nav-links" id="status-pills"></div>
+  <button type="button" class="fi-theme-toggle" id="theme-toggle" aria-label="Toggle color theme">◐</button>
+</header>
+
+<div class="fi-page">
+  <div class="fi-skeleton-wrap">
+    <div class="fi-skeleton" style="height:88px;margin-bottom:16px"></div>
+    <div class="fi-grid"><div class="fi-skeleton"></div><div class="fi-skeleton"></div><div class="fi-skeleton"></div><div class="fi-skeleton"></div></div>
+  </div>
+
+  <div class="fi-ready-wrap">
+    <div style="margin-bottom:8px">
+      <h1 class="fi-title" id="title">Mission Control</h1>
+      <p class="fi-muted" id="stamp" style="margin:8px 0 0"></p>
+    </div>
+    <div class="fi-card" style="margin:16px 0 20px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center">
+      <div>
+        <div class="fi-card-title">System status</div>
+        <div class="fi-metric" id="agg" style="font-size:26px"></div>
+        <p class="fi-muted" style="margin:6px 0 0">Neutral summary — waiting modules are not failures.</p>
+      </div>
+      <button type="button" class="fi-pill" id="btn-howto">Что нужно для активации остальных</button>
+    </div>
+    <details class="fi-details">
+      <summary>Что нужно для активации остальных</summary>
+      <ul>
+        <li><strong>AIS Archive:</strong> создать <code>.env</code> с <code>AISSTREAM_API_KEY</code>, запустить <code>collector.py</code>, дождаться ~30 дней daily-снимков.</li>
+        <li><strong>Forecast:</strong> нужны наблюдения DWT-flow (пороги MIN_N: naive / ARIMA 40 / GBM 60 / LSTM 300).</li>
+        <li><strong>Causal:</strong> положить файл цен TTF/Brent в <code>paths.price_source</code> (по умолчанию <code>input/prices.csv</code>), затем <code>causal_analysis.py</code>.</li>
+      </ul>
+    </details>
+
+    <div class="mc-telem" id="telem" role="tablist" aria-label="Module status"></div>
+
+    <div class="mc-layout">
+      <nav class="mc-side no-print" id="nav" aria-label="Modules"></nav>
+      <main id="content" tabindex="-1"></main>
+    </div>
+  </div>
+</div>
+
+<script>
+const P = {"generated_at_utc": "2026-07-28T13:48:24Z", "system_title": "MISSION CONTROL — FLEET INTELLIGENCE SYSTEM", "aggregate": {"active_modules": 1, "total_modules": 4, "label": "1 из 4 модулей активны (LIVE)"}, "modules": [{"id": "fleet", "name": "FLEET REGISTRY", "status": "LIVE", "status_label": "LIVE", "tone": "live", "banner": "Данные статичны с момента последнего run_all.py · vessels=5908", "live": true, "metrics": {"vessel_count": 5908, "non_vessel": 1, "imo_mismatch": 24, "identity_conflicts": 1, "needs_review": 221, "invalid_imo": 3, "avg_fill": 59.96, "source_rows": 6036, "valid_imo": 5326}, "tables": {"identity_conflicts": [{"imo": 9474333, "vessel_name": "ALAM RUKUN", "vessel_type": "Балкер / Сухогруз (Bulk Carrier)", "mmsi": 273328440, "flag": "Сингапур 🇸🇬", "dwt_tons": null, "source_confidence": "identity_conflict_flagged", "identity_spoofing_suspected_imo": 9333670, "identity_spoofing_note": "л Ульянов», в регистры нужно ввести его честный идентификатор. Запишите его для финального отчета: Истинный IMO: 9333670 MMSI: 273328440 Позывной (Call Sign): UBAL3 Флаг: Российская Федерация 🇷🇺 Судовладелец / Операт", "imo_from_text": null}], "imo_mismatch": [{"imo": 9737204, "vessel_name": "SENWA MARU", "vessel_type": "Нефтеналивной танкер (маломерный)", "mmsi": null, "flag": "Япония", "dwt_tons": 1234.0, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9736808}, {"imo": 9367736, "vessel_name": "MRAIKH", "vessel_type": "LNG Tanker (Газовоз СПГ)", "mmsi": 228463600.0, "flag": "Франция (FRANCE)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9975507}, {"imo": 9360829, "vessel_name": "FSO AFRICA", "vessel_type": "Floating Storage/Production (Плавучее нефтехранилище/отгрузочный терминал)", "mmsi": 538002388.0, "flag": "MARSHALL ISLANDS (Маршалловы Острова)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9224764}, {"imo": 9892822, "vessel_name": "SEARAMBLER", "vessel_type": "LPG Tanker (Танкер для перевозки сжиженного газа)", "mmsi": 215956000.0, "flag": "MALTA (Мальта)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9692822}, {"imo": 9357640, "vessel_name": "CECILE", "vessel_type": "Oil/Chemical Tanker (Нефтеналивной танкер/Химовоз)", "mmsi": 371907000.0, "flag": "PANAMA (Панама)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9357676}, {"imo": 9357676, "vessel_name": "SIENE", "vessel_type": "Oil/Chemical Tanker (Нефтеналивной танкер/Химовоз)", "mmsi": 355958000.0, "flag": "PANAMA (Панама)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9357640}, {"imo": 1087639, "vessel_name": "MAERSK DETROIT.", "vessel_type": null, "mmsi": 338573000.0, "flag": "USA (США).", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9825439}, {"imo": 9786231, "vessel_name": "ELKA ATHINA.", "vessel_type": "Oil/Chemical Tanker (Танкер для перевозки нефти и химикатов).", "mmsi": 636021144.0, "flag": "LIBERIA (Либерия).", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9899727}, {"imo": 9290361, "vessel_name": "ELKA ATHINA.", "vessel_type": "Oil/Chemical Tanker (Танкер для перевозки нефти и химикатов).", "mmsi": 636021014.0, "flag": "LIBERIA (Либерия).", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9378876}, {"imo": 9380520, "vessel_name": "IKARIOTIKOS", "vessel_type": "Oil/Chemical Tanker (Танкер для перевозки нефти и химикатов)", "mmsi": 636015336.0, "flag": "LIBERIA (Либерия)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9455703}, {"imo": 9868120, "vessel_name": "CHANG HANG HONG TU", "vessel_type": "Oil Products Tanker (Танкер-продуктовоз)", "mmsi": 413372000.0, "flag": "CHINA (Китай)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9379777}, {"imo": 9330173, "vessel_name": "KOKUHO MARU", "vessel_type": "Oil/Chemical Tanker (Танкер для перевозки нефтепродуктов и химикатов)", "mmsi": null, "flag": "ЯПОНИЯ (JAPAN)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9517941}, {"imo": 9247194, "vessel_name": "STI OPERA", "vessel_type": "Chemical/Oil Products Tanker", "mmsi": 538005269.0, "flag": "Маршалловы Острова", "dwt_tons": 49990.0, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9669940}, {"imo": 9162163, "vessel_name": "SKIPPER (исторические названия: TOYO, MAERA, ADISA)", "vessel_type": "Crude Oil Tanker (Танкер для перевозки сырой нефти, класс VLCC)", "mmsi": 750330000.0, "flag": "Гайана (GY)", "dwt_tons": 310309.0, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9304667}, {"imo": 9280885, "vessel_name": null, "vessel_type": "Crude Oil Tanker (нефтеналивной танкер)", "mmsi": 352001692.0, "flag": "Панама", "dwt_tons": 159055.0, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9288088}, {"imo": 9360843, "vessel_name": "AL THUMAMA", "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker)", "mmsi": null, "flag": "Маршалловы острова", "dwt_tons": 113749.0, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9367437}, {"imo": 9723679, "vessel_name": "MARITIME JEWEL", "vessel_type": "Crude Oil Tanker", "mmsi": 613472250.0, "flag": "Камерун (AIS)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9184392}, {"imo": 9406350, "vessel_name": "MARITIME JEWEL", "vessel_type": "Crude Oil Tanker", "mmsi": 613472250.0, "flag": "Камерун (AIS)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9184392}, {"imo": 9610767, "vessel_name": "SEAWAYS WARWICK", "vessel_type": "Танкер-химовоз / нефтепродуктовоз", "mmsi": null, "flag": "Маршалловы Острова", "dwt_tons": 49990.0, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9717761}, {"imo": 9952983, "vessel_name": "BELLA TORTUM ST (ранее фигурировало в системе как HYUNDAI MIPO 8417)", "vessel_type": "Газовоз (LPG Tanker)", "mmsi": null, "flag": "Панама", "dwt_tons": 27506.0, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 1044900}, {"imo": 9898515, "vessel_name": "MARITIME JEWEL", "vessel_type": "Crude Oil Tanker (Танкер для перевозки сырой нефти)", "mmsi": 613472290.0, "flag": "Камерун", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9184392}, {"imo": 9210098, "vessel_name": "FALCON SILK", "vessel_type": "Product Tanker (Танкер-продуктовоз)", "mmsi": 538011250.0, "flag": "Маршалловы Острова (MARSHALL IS)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9387437}, {"imo": 9204336, "vessel_name": null, "vessel_type": "Oil Products Tanker (Танкер-продуктовоз)", "mmsi": 533130767.0, "flag": "Малайзия (MALAYSIA)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9204348}, {"imo": 9431379, "vessel_name": null, "vessel_type": "Oil/Chemical Tanker (Нефтехимический танкер)", "mmsi": 210445000.0, "flag": "Кипр (CYPRUS)", "dwt_tons": null, "source_confidence": "imo_mismatch", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9200081}], "needs_review_sample": [{"imo": 9213325, "vessel_name": "EVRETI (бывш. SEAWAYS PORTLAND)", "vessel_type": "Танкер для перевозки сырой нефти (Aframax).", "mmsi": null, "flag": null, "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9213325.0}, {"imo": 1025368, "vessel_name": "ENERGY TITAN", "vessel_type": "Oil Products Tanker (Танкер для нефтепродуктов)", "mmsi": 620999173.0, "flag": "COMOROS (Коморские острова)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 1025368.0}, {"imo": 9892808, "vessel_name": null, "vessel_type": null, "mmsi": null, "flag": null, "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9633434, "vessel_name": null, "vessel_type": null, "mmsi": null, "flag": null, "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 1019539, "vessel_name": "HIMALAYASAN", "vessel_type": "Crude Oil Tanker (Танкер для перевозки сырой нефти)", "mmsi": null, "flag": "ПАНАМА (PANAMA)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 1019539.0}, {"imo": 1013494, "vessel_name": "SEA ENERGY", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "mmsi": null, "flag": "ГОНКОНГ (HONG KONG)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 1013494.0}, {"imo": 9904704, "vessel_name": "KONSTANTIN POSIET", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "mmsi": null, "flag": "РОССИЯ (RUSSIA)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9904704.0}, {"imo": 9788617, "vessel_name": null, "vessel_type": null, "mmsi": null, "flag": null, "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 1073303, "vessel_name": "HAKURYO MARU", "vessel_type": "Oil/Chemical Tanker (Танкер для перевозки нефтепродуктов и химикатов)", "mmsi": null, "flag": "ЯПОНИЯ (JAPAN)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 1073303.0}, {"imo": 9925875, "vessel_name": "BUNGO CROWN", "vessel_type": "Oil/Chemical Tanker (Танкер для перевозки нефтепродуктов и химикатов)", "mmsi": null, "flag": "ДАНИЯ (DENMARK)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9925875.0}, {"imo": 9181869, "vessel_name": "SANMAR SRUTHI", "vessel_type": "Oil Products Tanker (Танкер для перевозки нефтепродуктов)", "mmsi": null, "flag": "ИНДИЯ (INDIA)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9181869.0}, {"imo": 9351634, "vessel_name": "ZONDAR", "vessel_type": "Oil/Chemical Tanker (Танкер для перевозки нефтепродуктов и химикатов)", "mmsi": null, "flag": "МАРШАЛЛОВЫ ОСТРОВА (MARSHALL ISLANDS)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9351634.0}, {"imo": 9263746, "vessel_name": "STI PUSAN", "vessel_type": "Oil/Chemical Tanker (Танкер для перевозки нефтепродуктов и химикатов)", "mmsi": null, "flag": "МАРШАЛЛОВЫ ОСТРОВА (MARSHALL ISLANDS)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9263746.0}, {"imo": 9337743, "vessel_name": "GAS CHEM ATLANTIC", "vessel_type": "LPG Tanker (Танкер для перевозки сжиженного нефтяного газа)", "mmsi": null, "flag": "ПАНАМА (PANAMA)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9337743.0}, {"imo": 9441245, "vessel_name": "GULF LOYALTY", "vessel_type": "Crude Oil Tanker (Танкер для перевозки сырой нефти)", "mmsi": null, "flag": "МАРШАЛЛОВЫ ОСТРОВА (MARSHALL ISLANDS)", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9441245.0}, {"imo": 9255684, "vessel_name": null, "vessel_type": "Crude Oil Tanker (Танкер для перевозки сырой нефти)", "mmsi": null, "flag": null, "dwt_tons": 105330.0, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": 9255684.0}, {"imo": 9794288, "vessel_name": null, "vessel_type": null, "mmsi": null, "flag": null, "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9874911, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Маршалловы Острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9969223, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker).", "mmsi": null, "flag": "Маршалловы Острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9799173, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Гонконг.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9986087, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker).", "mmsi": null, "flag": "Либерия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9986087, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker).", "mmsi": null, "flag": "Либерия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9457452, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Кипр.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9411939, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Мальта.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9997232, "vessel_name": null, "vessel_type": "Танкер для перевозки химических и нефтепродуктов (Chemical/Oil Products Tanker).", "mmsi": null, "flag": "Панама.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9948724, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker).", "mmsi": null, "flag": "Маршалловы Острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9752280, "vessel_name": null, "vessel_type": "LPG Tanker (танкер для перевозки сжиженного нефтяного газа).", "mmsi": null, "flag": "Маршалловы Острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9590711, "vessel_name": null, "vessel_type": "Танкер для перевозки химических грузов и нефтепродуктов (Chemical/Oil Products Tanker).", "mmsi": null, "flag": "Либерия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9994008, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker).", "mmsi": null, "flag": "Мальта.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9705902, "vessel_name": null, "vessel_type": "Танкер для перевозки химических грузов и нефтепродуктов (Chemical/Oil Products Tanker).", "mmsi": null, "flag": "Либерия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9859387, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти.", "mmsi": null, "flag": "Либерия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9701229, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker).", "mmsi": null, "flag": "Греция.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9708617, "vessel_name": null, "vessel_type": null, "mmsi": null, "flag": null, "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9941518, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker).", "mmsi": null, "flag": "Греция.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9364394, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного газа (LPG Tanker).", "mmsi": null, "flag": "Индонезия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9800491, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного газа (LPG Tanker).", "mmsi": null, "flag": "Япония.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9492139, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Багамские острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 1049546, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Маршалловы Острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9923748, "vessel_name": null, "vessel_type": "Танкер для перевозки химических грузов и нефтепродуктов (Chemical/Oil Products Tanker), классификация HAZ-B.", "mmsi": null, "flag": "Кипр.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9956616, "vessel_name": null, "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker), классификация HAZ-D.", "mmsi": null, "flag": "Либерия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9290608, "vessel_name": null, "vessel_type": "Танкер для перевозки химических грузов и нефтепродуктов (Chemical/Oil Products Tanker, классификация HAZ-C).", "mmsi": null, "flag": "Норвегия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9407407, "vessel_name": null, "vessel_type": "Танкер для перевозки химических грузов и нефтепродуктов (Chemical/Oil Products Tanker).", "mmsi": null, "flag": "Мальта.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9551868, "vessel_name": null, "vessel_type": "Танкер для перевозки химических грузов и нефтепродуктов (Chemical/Oil Products Tanker).", "mmsi": null, "flag": "Либерия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9114244, "vessel_name": null, "vessel_type": "Танкер для перевозки химических грузов и нефтепродуктов (Chemical/Oil Products Tanker), классификация HAZ-B.", "mmsi": null, "flag": "Маршалловы Острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9637698, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Багамские острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9902237, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Багамские острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9505924, "vessel_name": null, "vessel_type": "Танкер для перевозки химических грузов и нефтепродуктов (Chemical/Oil Products Tanker, классификация HAZ-B).", "mmsi": null, "flag": "Сингапур.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9838242, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Маршалловы Острова.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9830800, "vessel_name": null, "vessel_type": "Танкер для перевозки сырой нефти (Crude Oil Tanker).", "mmsi": null, "flag": "Саудовская Аравия.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}, {"imo": 9792591, "vessel_name": null, "vessel_type": "Плавучая установка для добычи, хранения и отгрузки (Floating Storage/Production), классифицирована как танкер повышенной опасности (Tanker - Hazard D).", "mmsi": null, "flag": "Сингапур.", "dwt_tons": null, "source_confidence": "needs_review", "identity_spoofing_suspected_imo": null, "identity_spoofing_note": null, "imo_from_text": null}]}, "links": {"full_dashboard": "dashboard.html", "note": "Полная таблица 5908 судов — в dashboard.html (iframe ниже при LIVE)"}}, {"id": "ais", "name": "AIS TRACKING ARCHIVE", "status": "STANDBY", "status_label": "STANDBY", "tone": "red", "banner": "Ожидание активации коллектора — архив пуст (0 дней). Нужны .env с AISSTREAM_API_KEY и запуск collector.py", "live": false, "days_accumulated": 0, "target_days": 30, "daily_files": [], "n_tracked_mmsi": 2711, "progress_pct": 0.0, "links": {"full_dashboard": "history_dashboard.html"}, "data_state": "no_data"}, {"id": "forecast", "name": "FORECAST ENSEMBLE", "status": "NO_FORECAST", "status_label": "NO FORECAST", "tone": "red", "banner": "ПРОГНОЗ НЕ ВЫДАН — недостаточно данных (0 наблюдений, требуется минимум 8 для baseline; ARIMA≥40, GBM≥60, LSTM≥300)", "live": false, "issued": false, "n_observations": 0, "coverage_pct": null, "min_n_gates": {"naive": 8, "arima": 40, "gbm": 60, "lstm": 300}, "progress": {"naive": {"required": 8, "current": 0, "pct": 0.0, "met": false}, "arima": {"required": 40, "current": 0, "pct": 0.0, "met": false}, "gbm": {"required": 60, "current": 0, "pct": 0.0, "met": false}, "lstm": {"required": 300, "current": 0, "pct": 0.0, "met": false}}, "reason": "n=0 < MIN_N_NAIVE=8 — forecast refused (insufficient sample for even the naive baseline)", "when_not_to_trust": ["Короткая история архива (≪ 60–90 дней): сезонные и марковские сигналы нестабильны.", "Низкое покрытие MMSI / высокий % no_signal: индекс DWT-flow смещён к береговым судам.", "Структурные сдвиги рынка (санкции, закрытие проливов, OPEC+) вне признаков модели.", "Elliott-flag — discretionary heuristic, не статистически валидирован.", "Granger/causal flags отражают предсказательную ассоциацию, не физическую причинность.", "Если ML не бьёт naive baseline на walk-forward — не доверяйте «сложному» прогнозу."], "links": {"full_dashboard": "forecast_dashboard.html"}, "data_state": "no_data"}, {"id": "causal", "name": "CAUSAL LINK · FLEET ↔ TTF/BRENT", "status": "AWAITING", "status_label": "AWAITING DATA SOURCE", "tone": "red", "banner": "Загрузите файл цен TTF/Brent, укажите путь в config.yaml → paths.price_source (PRICE_SOURCE_PATH), перезапустите causal_analysis.py", "live": false, "price_source": "C:\\Users\\MSI\\Oracle-1001\\7000\\input\\prices.csv", "price_exists": false, "disclaimer": "DISCLAIMER — Granger 'causality' is a test of whether lagged values of X improve the prediction of Y beyond Y's own lags. It is NOT proof of physical or structural causation. A common hidden factor (e.g. a geopolitical shock) can move fleet activity and prices together. Report results as: 'X statistically predicts Y at lag N days (adjusted p < α)', never 'X causes Y'.", "instruction": "1) Положите CSV/XLSX с колонками date + ttf/brent (или long: symbol+value)\n2) config.yaml → paths.price_source: input/prices.csv\n3) .\\venv\\Scripts\\python.exe causal_analysis.py", "data_state": "no_data"}]};
+
+(function themeInit(){
+  const root = document.documentElement;
+  const saved = localStorage.getItem("fi-theme");
+  if(saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
+  document.getElementById("theme-toggle").onclick = () => {
+    const cur = root.getAttribute("data-theme");
+    const preferDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const nowDark = cur === "dark" || (!cur && preferDark);
+    const next = nowDark ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    localStorage.setItem("fi-theme", next);
+  };
+})();
+
+function esc(s){ return String(s??"").replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
+function tone(t){ return t === "live" ? "live" : (t === "amber" || t === "wait") ? "wait" : (t === "red" || t === "danger") ? "wait" : "wait"; }
+/* Map legacy red standby to wait (Apple orange), keep danger only if explicitly critical */
+function statusTone(m){
+  if(m.tone === "live" || m.status === "LIVE") return "live";
+  if(m.status === "NO_FORECAST" || m.status === "STANDBY" || m.status === "AWAITING" || m.status === "INSUFFICIENT_OVERLAP" || m.status === "ACCUMULATING") return "wait";
+  return m.live ? "live" : "wait";
+}
+
+document.getElementById("title").textContent = "Mission Control";
+document.getElementById("stamp").textContent = "Updated " + P.generated_at_utc + " UTC";
+document.getElementById("agg").textContent = P.aggregate.label;
+document.getElementById("btn-howto").onclick = () => {
+  const d = document.getElementById("howto");
+  d.open = !d.open;
+};
+
+const telem = document.getElementById("telem");
+const nav = document.getElementById("nav");
+const pills = document.getElementById("status-pills");
+
+P.modules.forEach((m, i) => {
+  const t = statusTone(m);
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = "fi-card";
+  card.setAttribute("role", "tab");
+  card.setAttribute("data-id", m.id);
+  card.innerHTML = `<div class="fi-card-title">Module ${i+1}</div>
+    <div style="font-weight:600;margin-bottom:10px">${esc(m.name)}</div>
+    <div class="fi-status ${t}"><span class="fi-dot ${t}"></span>${esc(m.status_label)}</div>`;
+  card.onclick = () => selectModule(m.id);
+  telem.appendChild(card);
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "fi-pill";
+  btn.setAttribute("data-id", m.id);
+  btn.textContent = (i+1) + ". " + m.name.split("·")[0].trim();
+  btn.onclick = () => selectModule(m.id);
+  nav.appendChild(btn);
+
+  const pill = document.createElement("span");
+  pill.className = `fi-status ${t}`;
+  pill.style.marginLeft = "8px";
+  pill.innerHTML = `<span class="fi-dot ${t}"></span><span style="font-size:12px">${esc(m.status_label)}</span>`;
+  pills.appendChild(pill);
+});
+
+let activeId = P.modules[0].id;
+
+function progressBlock(title, current, required, pct, met){
+  const fillCls = met ? "done" : "";
+  return `<div class="fi-progress"><div class="fi-progress-meta"><span>${esc(title)}</span><span>${current} / ${required}</span></div>
+    <div class="fi-progress-track"><div class="fi-progress-fill ${fillCls}" style="width:${Math.min(100,pct)}%"></div></div></div>`;
+}
+
+function renderTable(id, rows){
+  if(!rows || !rows.length) return `<p class="fi-muted">No rows to display (absence of records — not zeroed fake data).</p>`;
+  const cols = Object.keys(rows[0]);
+  const head = cols.map(c=>`<th>${esc(c)}</th>`).join("");
+  const body = rows.map(r=>`<tr>${cols.map(c=>`<td>${esc(r[c])}</td>`).join("")}</tr>`).join("");
+  return `<div class="fi-table-wrap"><table id="${id}" class="display" style="width:100%"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function selectModule(id){
+  activeId = id;
+  document.querySelectorAll(".mc-telem .fi-card, .mc-side .fi-pill").forEach(n => {
+    const on = n.getAttribute("data-id") === id;
+    n.classList.toggle("active", on);
+    if(n.classList.contains("fi-pill")) n.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+  renderModule(P.modules.find(m => m.id === id));
+}
+
+function renderModule(m){
+  const root = document.getElementById("content");
+  const t = statusTone(m);
+  let html = `<div class="fi-banner ${t} ${m.id==="forecast" && !m.issued ? "hero":""}"><span class="fi-status ${t}"><span class="fi-dot ${t}"></span>${esc(m.status_label)}</span>
+    <div style="margin-top:10px;font-size:16px;color:var(--text)">${esc(m.banner)}</div></div>`;
+
+  if(m.id === "fleet"){
+    const mt = m.metrics || {};
+    html += `<div class="fi-grid">
+      <div class="fi-card"><div class="fi-card-title">Vessels</div><div class="fi-metric">${esc(mt.vessel_count)}</div></div>
+      <div class="fi-card"><div class="fi-card-title">Non-vessel</div><div class="fi-metric">${esc(mt.non_vessel)}</div></div>
+      <div class="fi-card"><div class="fi-card-title">IMO mismatch</div><div class="fi-metric">${esc(mt.imo_mismatch)}</div></div>
+      <div class="fi-card"><div class="fi-card-title">Identity conflicts</div><div class="fi-metric danger">${esc(mt.identity_conflicts)}</div></div>
+      <div class="fi-card"><div class="fi-card-title">Needs review</div><div class="fi-metric">${esc(mt.needs_review)}</div></div>
+      <div class="fi-card"><div class="fi-card-title">Invalid IMO</div><div class="fi-metric">${esc(mt.invalid_imo)}</div></div>
+    </div>
+    <div class="tabs-row">
+      <button type="button" class="fi-pill active" data-t="identity">Identity conflicts</button>
+      <button type="button" class="fi-pill" data-t="mismatch">IMO mismatch</button>
+      <button type="button" class="fi-pill" data-t="review">Needs review (sample)</button>
+      <button type="button" class="fi-pill" data-t="full">Full registry</button>
+    </div>
+    <div class="fi-card" id="fleet-panel"></div>`;
+    root.innerHTML = html;
+    const panel = document.getElementById("fleet-panel");
+    const show = (key) => {
+      if(key==="full"){
+        if(!m.live){ panel.innerHTML = `<p class="fi-muted">Full registry unavailable — module not LIVE.</p>`; return; }
+        panel.innerHTML = `<div class="fi-card-title">Full fleet dashboard</div><iframe class="fi-frame" title="Fleet dashboard" src="${esc(m.links.full_dashboard)}"></iframe>`;
+        return;
+      }
+      const map = {identity:"identity_conflicts", mismatch:"imo_mismatch", review:"needs_review_sample"};
+      panel.innerHTML = `<div class="fi-card-title">${key}</div>` + renderTable("dt-"+key, (m.tables||{})[map[key]]);
+      const table = document.getElementById("dt-"+key);
+      if(table && !$.fn.dataTable.isDataTable(table)) $(table).DataTable({pageLength:10, order:[]});
+    };
+    root.querySelectorAll(".tabs-row .fi-pill").forEach(btn => btn.onclick = () => {
+      root.querySelectorAll(".tabs-row .fi-pill").forEach(x=>x.classList.remove("active"));
+      btn.classList.add("active"); show(btn.getAttribute("data-t"));
+    });
+    show("identity");
+    return;
+  }
+
+  if(m.id === "ais"){
+    html += progressBlock("Archive days", m.days_accumulated, m.target_days, m.progress_pct, m.days_accumulated>=m.target_days);
+    html += `<div class="fi-grid">
+      <div class="fi-card"><div class="fi-card-title">Days accumulated</div><div class="fi-metric wait">${esc(m.days_accumulated)}</div></div>
+      <div class="fi-card"><div class="fi-card-title">Target for stable analytics</div><div class="fi-metric">${esc(m.target_days)}</div></div>
+      <div class="fi-card"><div class="fi-card-title">Tracked MMSI</div><div class="fi-metric">${esc(m.n_tracked_mmsi)}</div></div>
+    </div>`;
+    if(m.data_state === "no_data"){
+      html += `<div class="fi-card" style="margin-top:16px"><div class="fi-card-title">Data state</div>
+        <p><strong>No data yet</strong> — the archive has not started. This is not “0 km sailed” and not an empty map with zeros.
+        Activate <code>.env</code> + <code>collector.py</code>.</p></div>`;
+    } else if(m.live){
+      html += `<div class="fi-card" style="margin-top:16px"><div class="fi-card-title">AIS archive</div><iframe class="fi-frame" title="AIS archive" src="${esc(m.links.full_dashboard)}"></iframe></div>`;
+    } else {
+      html += `<div class="fi-card" style="margin-top:16px"><div class="fi-card-title">Partial archive</div>
+        <p class="fi-muted">Accumulated ${esc(m.days_accumulated)} daily file(s). Module remains ACCUMULATING until ~${esc(m.target_days)} days.
+        <a href="${esc(m.links.full_dashboard)}">Open history dashboard</a></p></div>`;
+    }
+    root.innerHTML = html; return;
+  }
+
+  if(m.id === "forecast"){
+    if(!m.issued){
+      html += `<div class="fi-card"><div class="fi-card-title">MIN_N gates — progress to model eligibility</div>`;
+      const prog = m.progress || {};
+      Object.keys(m.min_n_gates||{}).forEach(k=>{
+        const p = prog[k] || {current:m.n_observations||0, required:m.min_n_gates[k], pct:0, met:false};
+        html += progressBlock(k.toUpperCase(), p.current, p.required, p.pct, p.met);
+      });
+      html += `<p class="fi-muted">Current DWT-flow observations: <strong>${esc(m.n_observations)}</strong>. Forecast is not simulated. ${esc(m.reason||"")}</p></div>`;
+    } else {
+      html += `<div class="fi-grid">
+        <div class="fi-card"><div class="fi-card-title">N train</div><div class="fi-metric">${esc(m.n_observations)}</div></div>
+        <div class="fi-card"><div class="fi-card-title">Coverage %</div><div class="fi-metric">${esc(m.coverage_pct)}</div></div>
+        <div class="fi-card"><div class="fi-card-title">Issued</div><div class="fi-metric success">TRUE</div></div>
+      </div>
+      <div class="fi-card" style="margin-top:16px"><iframe class="fi-frame" title="Forecast" src="${esc(m.links.full_dashboard)}"></iframe></div>`;
+    }
+    root.innerHTML = html; return;
+  }
+
+  if(m.id === "causal"){
+    html += `<div class="fi-disclaimer"><strong>Disclaimer:</strong> ${esc(m.disclaimer)}</div>`;
+    if(!m.price_exists){
+      html += `<div class="fi-card" style="margin-top:16px"><div class="fi-card-title">How to activate</div>
+        <pre style="white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;color:var(--text-secondary)">${esc(m.instruction||"")}</pre>
+        <p class="fi-muted">PRICE_SOURCE_PATH: ${esc(m.price_source||"(not set)")}</p></div>`;
+    } else if(m.status === "INSUFFICIENT_OVERLAP"){
+      html += progressBlock("Intersection points", m.best_intersection_n||0, m.min_intersection_points||30, m.progress_pct||0, false);
+      html += `<div class="fi-card"><p class="fi-muted">${esc(m.note||"")}<br/>File: ${esc(m.price_source)}</p></div>`;
+    } else if(m.live){
+      html += `<div class="fi-card" style="margin-top:16px"><div class="fi-card-title">Granger pair summaries</div>`;
+      (m.pairs||[]).forEach(p=>{
+        html += `<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--separator)">
+          <div style="font-weight:600">${esc(p.pair)} · ${esc(p.status)} · n=${esc(p.n_intersection)}</div>
+          ${(p.summary_statements||[]).map(s=>`<div class="fi-muted">• ${esc(s)}</div>`).join("")}
+        </div>`;
+      });
+      html += `</div>`;
+    } else {
+      html += `<div class="fi-card" style="margin-top:16px"><p class="fi-muted">Price file: ${esc(m.price_source)} · re-run causal_analysis.py</p></div>`;
+    }
+    root.innerHTML = html; return;
+  }
+  root.innerHTML = html;
+}
+
+selectModule(activeId);
+document.body.classList.add("is-ready");
+</script>
+</body>
+</html>

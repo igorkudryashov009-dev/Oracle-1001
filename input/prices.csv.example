@@ -1,0 +1,15 @@
+# Example price file for causal_analysis.py (replace with real TTF/Brent history).
+# Point config.yaml paths.price_source (or env PRICE_SOURCE_PATH) at your file.
+#
+# Wide format (aliases resolved automatically):
+#   date, ttf, brent
+#   Trade Date, TTF_EUR, Brent_Close
+#
+# Long format also supported:
+#   date, symbol, close
+#   2025-01-02, ICE Brent, 74.2
+#   2025-01-02, Dutch TTF, 32.1
+#
+# date,ttf,brent
+# 2025-01-02,31.5,74.1
+# 2025-01-03,32.0,74.8

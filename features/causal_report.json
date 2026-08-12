@@ -1,0 +1,16 @@
+{
+  "generated_at_utc": "2026-07-28T12:38:16Z",
+  "disclaimer": "DISCLAIMER — Granger 'causality' is a test of whether lagged values of X improve the prediction of Y beyond Y's own lags. It is NOT proof of physical or structural causation. A common hidden factor (e.g. a geopolitical shock) can move fleet activity and prices together. Report results as: 'X statistically predicts Y at lag N days (adjusted p < α)', never 'X causes Y'.",
+  "config": {
+    "price_source": "C:\\Users\\MSI\\Oracle-1001\\7000\\input\\prices.csv",
+    "max_ffill_days": 3,
+    "min_intersection_points": 30,
+    "granger_max_lag": 14,
+    "multiple_testing": "fdr",
+    "alpha": 0.05,
+    "dwt_value_col": "laden_dwt_sum"
+  },
+  "pairs": [],
+  "status": "refused",
+  "message": "PRICE_SOURCE_PATH not found: C:\\Users\\MSI\\Oracle-1001\\7000\\input\\prices.csv"
+}

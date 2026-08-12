@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fleet Intelligence · Forecast</title>
+<link rel="stylesheet" href="design_system.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  .fc-grid { display:grid; grid-template-columns: 2fr 1fr; gap:16px; }
+  @media (max-width:1000px){ .fc-grid { grid-template-columns:1fr; } }
+  .fi-chart { height:360px; }
+  .barline { height:8px; background:var(--bg-elevated-2); border-radius:999px; margin:4px 0 12px; overflow:hidden; }
+  .barline > span { display:block; height:100%; background:var(--accent); border-radius:999px; }
+  .beat { color: var(--success); font-weight:600; }
+  .lose { color: var(--wait); font-weight:600; }
+</style>
+</head>
+<body>
+<a class="fi-skip" href="#main">Skip to content</a>
+<header class="fi-nav no-print">
+  <a class="fi-brand" href="mission_control.html"><span class="fi-brand-mark">FI</span> Fleet Intelligence</a>
+  <div class="fi-nav-links">
+    <a class="fi-pill" href="mission_control.html">Mission Control</a>
+    <a class="fi-pill" href="dashboard.html">Fleet</a>
+    <a class="fi-pill" href="history_dashboard.html">AIS Archive</a>
+    <a class="fi-pill active" href="forecast_dashboard.html">Forecast</a>
+    <button type="button" class="fi-theme-toggle" id="theme-toggle" aria-label="Toggle color theme">◐</button>
+  </div>
+</header>
+<div class="fi-page" id="main">
+  <div class="fi-skeleton-wrap"><div class="fi-skeleton" style="height:72px;margin-bottom:16px"></div><div class="fi-grid"><div class="fi-skeleton"></div><div class="fi-skeleton"></div><div class="fi-skeleton"></div><div class="fi-skeleton"></div></div></div>
+  <div class="fi-ready-wrap">
+    <h1 class="fi-title">Forecast Ensemble</h1>
+    <p class="fi-muted" style="margin-top:8px">Fact + forecast with residual-bootstrap intervals — never a lone magic number</p>
+    <div id="banner" class="fi-banner wait" style="margin-top:16px"></div>
+    <div class="fi-grid" id="metrics" style="margin:16px 0"></div>
+    <div class="fc-grid">
+      <section class="fi-card">
+        <div class="fi-card-title">Fact · ensemble forecast · CI band</div>
+        <div class="fi-chart"><canvas id="chart"></canvas></div>
+      </section>
+      <aside class="fi-card">
+        <div class="fi-card-title">Feature importance / signal sources</div>
+        <div id="importance"></div>
+        <div class="fi-card-title" style="margin-top:16px">Walk-forward vs baseline</div>
+        <div id="wf"></div>
+      </aside>
+    </div>
+    <div class="fi-card" style="margin-top:16px">
+      <div class="fi-card-title">Model gates &amp; honest limits</div>
+      <div id="gates"></div>
+    </div>
+  </div>
+</div>
+<script>
+const P = {"generated_at_utc": "2026-07-28T13:43:06Z", "horizon": 7, "training_sample": {"n_observations": 0, "coverage_pct_vessels_mean": null, "date_start": null, "date_end": null}, "model_min_n_gates": {"naive": "horizon+1 = 8 (persistence needs last obs + horizon)", "arima": "40 (ARIMA/SARIMA unstable on shorter daily samples)", "gbm": "60 (boosted trees overfit / high variance below this)", "lstm": "300 (deep nets refused below hundreds of points)"}, "when_not_to_trust": ["Короткая история архива (≪ 60–90 дней): сезонные и марковские сигналы нестабильны.", "Низкое покрытие MMSI / высокий % no_signal: индекс DWT-flow смещён к береговым судам.", "Структурные сдвиги рынка (санкции, закрытие проливов, OPEC+) вне признаков модели.", "Elliott-flag — discretionary heuristic, не статистически валидирован.", "Granger/causal flags отражают предсказательную ассоциацию, не физическую причинность.", "Если ML не бьёт naive baseline на walk-forward — не доверяйте «сложному» прогнозу."], "signals_used": {"dwt_flow_lags": [1, 2, 3, 7, 14], "fourier_periods": [7.0], "markov_laden_p": null, "elliott_flag": 0, "elliott_method_type": "discretionary_heuristic_not_statistically_validated", "causal_flags": {"causal_ttf_any": 0, "causal_brent_any": 0}}, "forecast": {"issued": false, "reason": "n=0 < MIN_N_NAIVE=8 — forecast refused (insufficient sample for even the naive baseline)"}, "walk_forward": null, "history": {"dates": [], "values": []}, "feature_importance": {}};
+(function themeInit(){
+  const root = document.documentElement;
+  const saved = localStorage.getItem("fi-theme");
+  if(saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
+  document.getElementById("theme-toggle").onclick = () => {
+    const cur = root.getAttribute("data-theme");
+    const preferDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const nowDark = cur === "dark" || (!cur && preferDark);
+    const next = nowDark ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    localStorage.setItem("fi-theme", next);
+  };
+})();
+function fmt(x,d=2){ if(x===null||x===undefined||Number.isNaN(x)) return "—"; return Number(x).toLocaleString(undefined,{maximumFractionDigits:d}); }
+function chartColors(){
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    accent: cs.getPropertyValue("--accent").trim()||"#0071E3",
+    forecast: cs.getPropertyValue("--forecast").trim()||"#FF9F0A",
+    tick: cs.getPropertyValue("--chart-tick").trim()||"#6E6E73",
+    grid: cs.getPropertyValue("--chart-grid").trim()||"rgba(0,0,0,.06)",
+    text: cs.getPropertyValue("--text").trim()||"#1D1D1F",
+  };
+}
+
+const nObs = P.training_sample?.n_observations ?? 0;
+const cov = P.training_sample?.coverage_pct_vessels_mean;
+const refused = P.forecast?.issued === false;
+const banner = document.getElementById("banner");
+banner.className = "fi-banner " + (refused ? "wait hero" : "live");
+banner.innerHTML = refused
+  ? `<span class="fi-status wait"><span class="fi-dot wait"></span>NO FORECAST</span>
+     <div style="margin-top:10px;font-size:17px"><strong>Forecast not issued</strong> — insufficient data (N=${nObs}). ${P.forecast?.reason || ""}</div>`
+  : `<span class="fi-status live"><span class="fi-dot live"></span>LIVE</span>
+     <div style="margin-top:10px">Model trained on <strong>N=${nObs}</strong> observations · fleet coverage ~${fmt(cov,1)}% · horizon T+${P.horizon} · CI: ${P.forecast?.interval?.ci_level || "bootstrap"}</div>`;
+
+document.getElementById("metrics").innerHTML = [
+  ["N TRAIN", nObs],
+  ["COVERAGE %", cov==null?"—":fmt(cov,1)],
+  ["HORIZON", "T+"+(P.horizon||"—")],
+  ["ENSEMBLE", refused ? "REFUSED" : "OK"]
+].map(([l,v])=>`<div class="fi-card"><div class="fi-card-title">${l}</div><div class="fi-metric ${refused&&l==="ENSEMBLE"?"wait":""}">${v}</div></div>`).join("");
+
+const hist = P.history || {};
+const fc = P.forecast || {};
+const labels = (hist.dates||[]).concat(fc.dates||[]);
+const yHist = (hist.values||[]).concat((fc.point||[]).map(_=>null));
+const yFc = (hist.values||[]).map(_=>null).concat(fc.point||[]);
+const yLo = (hist.values||[]).map(_=>null).concat(fc.interval?.ci_low||[]);
+const yHi = (hist.values||[]).map(_=>null).concat(fc.interval?.ci_high||[]);
+const c = chartColors();
+new Chart(document.getElementById("chart"), {
+  type: "line",
+  data: {
+    labels,
+    datasets: [
+      {label:"FACT", data:yHist, borderColor:c.accent, backgroundColor:"transparent", tension:.25, pointRadius:0, borderWidth:2},
+      {label:"FORECAST", data:yFc, borderColor:c.forecast, borderDash:[6,4], tension:.25, pointRadius:2, borderWidth:2},
+      {label:"CI HIGH", data:yHi, borderColor:c.forecast+"55", pointRadius:0, borderWidth:1, fill:false},
+      {label:"CI LOW", data:yLo, borderColor:c.forecast+"55", pointRadius:0, borderWidth:1, fill:"-1", backgroundColor:c.forecast+"18"}
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ labels:{ color:c.tick, font:{ size:12 } } } },
+    scales:{
+      x:{ ticks:{ color:c.tick, maxTicksLimit:10 }, grid:{ color:c.grid } },
+      y:{ ticks:{ color:c.tick }, grid:{ color:c.grid } }
+    }
+  }
+});
+
+const imp = P.feature_importance || {};
+const items = Object.entries(imp).sort((a,b)=>b[1]-a[1]).slice(0,12);
+const maxImp = Math.max(1e-9, ...items.map(x=>x[1]));
+const impEl = document.getElementById("importance");
+if(!items.length){
+  impEl.innerHTML = '<p class="fi-muted">No GBM importance yet (model refused or not trained).</p>';
+} else {
+  impEl.innerHTML = items.map(([k,v])=>{
+    const src = k.startsWith("fourier") ? "Fourier" : k.startsWith("markov") ? "Markov" : k.startsWith("causal") ? "Causal" : k.startsWith("elliott") ? "Elliott*" : "DWT lags";
+    return `<div style="display:flex;justify-content:space-between;gap:8px"><div><strong>${k}</strong><div class="fi-muted" style="font-size:12px">${src}</div></div><div>${fmt(v,3)}</div></div>
+      <div class="barline"><span style="width:${(100*v/maxImp).toFixed(1)}%"></span></div>`;
+  }).join("") + '<p class="fi-muted" style="font-size:12px">* Elliott — discretionary heuristic only.</p>';
+}
+
+const wf = P.walk_forward?.models || {};
+let rows = Object.entries(wf).map(([name,sc])=>{
+  const beat = sc.beats_baseline===true ? '<span class="beat">beats baseline</span>' :
+               sc.beats_baseline===false ? '<span class="lose">loses to baseline</span>' : '—';
+  return `<tr><td>${name}</td><td>${fmt(sc.mae,3)}</td><td>${fmt(sc.mape,2)}%</td><td>${beat}</td></tr>`;
+}).join("");
+document.getElementById("wf").innerHTML = `<table class="fi-table"><thead><tr><th>Model</th><th>MAE</th><th>MAPE</th><th>vs naive</th></tr></thead><tbody>${rows||"<tr><td colspan=4>no folds</td></tr>"}</tbody></table>
+  <p class="fi-muted" style="margin-top:8px;font-size:13px">${P.walk_forward?.note||""}</p>`;
+
+const gates = P.model_min_n_gates || {};
+document.getElementById("gates").innerHTML = `
+  <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">naive</span><strong>${gates.naive||"—"}</strong></div>
+  <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">arima/sarima</span><strong>${gates.arima||"—"}</strong></div>
+  <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">gbm</span><strong>${gates.gbm||"—"}</strong></div>
+  <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">lstm</span><strong>${gates.lstm||"—"}</strong></div>
+  <div class="fi-muted" style="margin-top:12px">${(P.when_not_to_trust||[]).map(x=>"• "+x).join("<br/>")}</div>`;
+document.body.classList.add("is-ready");
+</script>
+</body>
+</html>

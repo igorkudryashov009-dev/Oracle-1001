@@ -1,0 +1,9 @@
+venv/
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+история1/raw_positions.db
+история1/raw_positions.db-*
+logs/collector_log.txt
+logs/snapshot_log.txt

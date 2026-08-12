@@ -1,0 +1,9 @@
+{
+  "method_type": "discretionary_heuristic_not_statistically_validated",
+  "run": true,
+  "disclaimer": "Discretionary Elliott Wave heuristic. Not statistically validated. Do not combine with Fourier/normality results into a single score.",
+  "separated_from_spectral_scores": true,
+  "status": "skipped",
+  "reason": "need ≥15 non-NaN points for even a fragile extrema scan",
+  "waves": null
+}

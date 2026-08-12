@@ -1,0 +1,549 @@
+/* Oracle-1001 · Apple HIG design system
+   Light-first + prefers-color-scheme dark + [data-theme] override
+   System fonts only — no webfont CDN.
+*/
+
+:root {
+  --bg: #FFFFFF;
+  --bg-elevated: #F5F5F7; /* System Gray 6 */
+  --bg-elevated-2: #EFEFF1;
+  --text: #1D1D1F;
+  --text-secondary: #6E6E73;
+  --accent: #0071E3; /* Apple Blue */
+  --success: #30D158; /* LIVE dots/fills */
+  --wait: #FF9F0A; /* STANDBY dots/fills — not an error */
+  --danger: #FF3B30; /* real failure dots/fills */
+  /* Text colors darkened for WCAG AA on light backgrounds */
+  --success-text: #1F7A34;
+  --wait-text: #B25000;
+  --danger-text: #D70015;
+  --forecast: #FF9F0A;
+  --separator: rgba(0, 0, 0, 0.08);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --focus-ring: 0 0 0 3px rgba(0, 113, 227, 0.35);
+  --chart-grid: rgba(0, 0, 0, 0.06);
+  --chart-tick: #6E6E73;
+  --map-track: #0071E3;
+  --map-forecast: #FF9F0A;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000;
+    --bg-elevated: #1C1C1E;
+    --bg-elevated-2: #2C2C2E;
+    --text: #F5F5F7;
+    --text-secondary: #98989D;
+    --separator: rgba(255, 255, 255, 0.12);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+    --chart-grid: rgba(255, 255, 255, 0.08);
+    --chart-tick: #98989D;
+    --success-text: #30D158;
+    --wait-text: #FF9F0A;
+    --danger-text: #FF453A;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --bg-elevated: #1C1C1E;
+  --bg-elevated-2: #2C2C2E;
+  --text: #F5F5F7;
+  --text-secondary: #98989D;
+  --separator: rgba(255, 255, 255, 0.12);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --chart-grid: rgba(255, 255, 255, 0.08);
+  --chart-tick: #98989D;
+  --success-text: #30D158;
+  --wait-text: #FF9F0A;
+  --danger-text: #FF453A;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+.fi-title {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+h1,
+.fi-title {
+  font-size: 28px;
+}
+h2 {
+  font-size: 22px;
+}
+h3 {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 8px;
+}
+
+.fi-skip {
+  position: absolute;
+  left: -9999px;
+}
+.fi-skip:focus {
+  left: 12px;
+  top: 12px;
+  z-index: 1000;
+  background: var(--bg-elevated);
+  padding: 8px 12px;
+}
+
+/* Sticky Apple-like nav */
+.fi-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  border-bottom: 1px solid var(--separator);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.fi-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-size: 17px;
+  color: var(--text);
+  text-decoration: none;
+}
+.fi-brand:hover {
+  text-decoration: none;
+}
+.fi-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fi-nav-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.fi-pill {
+  appearance: none;
+  border: 0;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+}
+.fi-pill:hover {
+  transform: scale(1.02);
+  background: var(--bg-elevated-2);
+}
+.fi-pill.active,
+.fi-pill[aria-pressed="true"] {
+  background: var(--accent);
+  color: #fff;
+}
+.fi-pill:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.fi-theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--separator);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 160ms ease;
+}
+.fi-theme-toggle:hover {
+  transform: scale(1.02);
+}
+
+/* Cards */
+.fi-card {
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--separator);
+  padding: 24px 28px;
+  animation: fi-enter 220ms ease both;
+}
+
+@keyframes fi-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fi-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.fi-metric {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  line-height: 1.1;
+}
+.fi-metric.danger {
+  color: var(--danger-text);
+}
+.fi-metric.success {
+  color: var(--success-text);
+}
+.fi-metric.wait {
+  color: var(--wait-text);
+}
+
+.fi-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 1440px) {
+  .fi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 768px) {
+  .fi-grid {
+    grid-template-columns: 1fr;
+  }
+  .fi-nav {
+    padding: 12px 16px;
+  }
+  .fi-page {
+    padding: 16px !important;
+  }
+}
+
+.fi-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+}
+
+.fi-muted {
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+/* Status dots — distinct, not alarming-red for waiting */
+.fi-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.fi-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--text-secondary);
+}
+.fi-dot.live {
+  background: var(--success);
+  animation: fi-pulse 2.5s ease-in-out infinite;
+}
+.fi-dot.wait {
+  background: var(--wait);
+}
+.fi-dot.danger {
+  background: var(--danger);
+}
+.fi-status.live {
+  color: var(--success-text);
+}
+.fi-status.wait {
+  color: var(--wait-text);
+}
+.fi-status.danger {
+  color: var(--danger-text);
+}
+
+@keyframes fi-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.15);
+  }
+}
+
+/* Callouts */
+.fi-banner {
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  border: 1px solid var(--separator);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+.fi-banner.wait {
+  border-color: color-mix(in srgb, var(--wait) 45%, var(--separator));
+  background: color-mix(in srgb, var(--wait) 10%, var(--bg-elevated));
+}
+.fi-banner.live {
+  border-color: color-mix(in srgb, var(--success) 40%, var(--separator));
+  background: color-mix(in srgb, var(--success) 8%, var(--bg-elevated));
+}
+.fi-banner.danger {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--separator));
+  background: color-mix(in srgb, var(--danger) 8%, var(--bg-elevated));
+}
+.fi-banner.hero {
+  padding: 24px;
+  font-size: 17px;
+}
+
+/* Progress */
+.fi-progress {
+  margin: 12px 0 16px;
+}
+.fi-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.fi-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg-elevated-2);
+  overflow: hidden;
+}
+.fi-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--wait);
+  transition: width 200ms ease;
+}
+.fi-progress-fill.done {
+  background: var(--success);
+}
+
+/* Skeleton */
+.fi-skeleton {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 0%,
+    var(--bg-elevated-2) 50%,
+    var(--bg-elevated) 100%
+  );
+  background-size: 200% 100%;
+  animation: fi-shimmer 1.2s ease-in-out infinite;
+  min-height: 72px;
+}
+@keyframes fi-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+body.is-ready .fi-skeleton-wrap {
+  display: none;
+}
+body:not(.is-ready) .fi-ready-wrap {
+  display: none;
+}
+
+/* Tables */
+.fi-table-wrap {
+  overflow: auto;
+  border-radius: var(--radius-sm);
+}
+table.dataTable,
+.fi-table {
+  width: 100% !important;
+  color: var(--text);
+  font-size: 14px;
+  border-collapse: collapse;
+}
+table.dataTable thead th,
+.fi-table th {
+  background: var(--bg-elevated-2) !important;
+  color: var(--text-secondary) !important;
+  border-bottom: 1px solid var(--separator) !important;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+table.dataTable tbody td,
+.fi-table td {
+  border-bottom: 1px solid var(--separator) !important;
+  vertical-align: top;
+}
+table.dataTable tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 6%, transparent) !important;
+}
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--separator);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+  color: var(--text-secondary) !important;
+  font-size: 13px;
+}
+
+.fi-disclaimer {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed color-mix(in srgb, var(--wait) 50%, var(--separator));
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.fi-details {
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  border: 1px solid var(--separator);
+  padding: 4px 16px 12px;
+  margin-top: 16px;
+}
+.fi-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 0;
+  list-style: none;
+}
+.fi-details summary::-webkit-details-marker {
+  display: none;
+}
+.fi-details ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-secondary);
+}
+
+/* Chart containers */
+.fi-chart {
+  height: 320px;
+  position: relative;
+}
+
+/* Print */
+@media print {
+  .fi-nav,
+  .fi-theme-toggle,
+  .fi-pill,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 12pt;
+  }
+  .fi-card,
+  .fi-banner {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    break-inside: avoid;
+  }
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+}

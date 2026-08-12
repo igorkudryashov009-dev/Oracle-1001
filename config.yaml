@@ -1,0 +1,49 @@
+# AIS collector deployment mode
+# local_scheduled  — Windows Task Scheduler on your PC ($0/mo; gaps when PC off)
+# vps_always_on    — cheap VPS ~$5/mo for true 24/7 continuity
+mode: local_scheduled
+
+aisstream:
+  # Official limit: max 50 MMSI per WebSocket FiltersShipMMSI
+  # https://aisstream.io/documentation
+  mmsi_batch_size: 50
+  websocket_url: wss://stream.aisstream.io/v0/stream
+  # For smoke tests, limit parallel batches (null = all batches)
+  max_batches: null
+  # No published concurrent-connection limit exists (docs only mention
+  # unspecified "throttling at the api key/user level") -- collector.py
+  # therefore staggers batch startup and caps in-flight handshakes.
+  # These are the defaults baked into collector.py; override via its
+  # --stagger-seconds / --max-concurrent-handshakes CLI flags if a real
+  # limit is discovered empirically during testing.
+  stagger_seconds: 2.5
+  max_concurrent_handshakes: 20
+  unreachable_after_consecutive_failures: 3
+
+paths:
+  history_dir: история1
+  targets: targets.json
+  db: история1/raw_positions.db
+  # External TTF (gas) / Brent (oil) prices — user-supplied file, offline.
+  # Alias: PRICE_SOURCE_PATH. Supported: .csv / .xlsx / .json
+  # Wide: date + ttf + brent columns (flexible name aliases).
+  # Long: date + symbol/name + value/price/close.
+  price_source: input/prices.csv
+
+causal:
+  max_ffill_days: 3          # forward-fill market holidays; never infinite
+  min_intersection_points: 30
+  granger_max_lag: 14
+  multiple_testing: fdr      # fdr | bonferroni
+  alpha: 0.05
+  dwt_value_col: laden_dwt_sum
+
+schedule:
+  # daily snapshot at 00:05 UTC
+  snapshot_utc: "00:05"
+  archive_start: "2026-07-28"
+
+budget:
+  aisstream: 0          # free tier
+  vps_optional_usd: 5   # only if mode=vps_always_on
+  total_cap_usd: 30

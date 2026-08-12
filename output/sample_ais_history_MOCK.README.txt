@@ -1,0 +1,33 @@
+sample_ais_history_MOCK.csv — SYNTHETIC DATA
+==================================================
+
+This file contains DEMO / MOCK AIS positions generated for UI
+development of trajectories.html. Coordinates are interpolated
+along plausible great-circle routes with jitter — NOT real AIS.
+
+DO NOT use for operational, compliance, or sanctions analysis.
+
+Vessels included (18):
+  - IMO 9292979: HISTRIA CORAL.
+  - IMO 9467732: SWARNA KAMAL
+  - IMO 9958999: CELSIUS GALWAY
+  - IMO 9742807: CASTILLO DE MERIDA
+  - IMO 9282481: ELKA ATHINA.
+  - IMO 9846017: YUAN ZHANG HU
+  - IMO 9378371: FANTASIA
+  - IMO 9771913: LNG SCHNEEWEISSCHEN
+  - IMO 9294575: LILA JAMNAGAR.
+  - IMO 8795871: JIAN XING 15
+  - IMO 9981477: TOUBKAL PARKIMO номер: 9981477
+  - IMO 1040447: PING HU 3
+  - IMO 9389265: IVORY COAST PROSPERITY
+  - IMO 9333656: ICE FIGHTER
+  - IMO 9889590: KIPPO MARU
+  - IMO 9508158: HISTRIA CORAL.
+  - IMO 9610779: ASIA ENDEAVOUR
+  - IMO 9413004: HORAE
+
+To switch to a real AIS history file:
+  1. Set AIS_SOURCE_PATH in run_trajectories.py
+  2. Re-run: python run_trajectories.py
+  3. ais_loader.py will auto-detect columns by alias
