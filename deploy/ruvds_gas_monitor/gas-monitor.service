@@ -1,0 +1,23 @@
+[Unit]
+Description=Oracle-1001 weekly gas-carrier paid monitor (oneshot)
+Documentation=file:///opt/oracle1001/weekly_monitor/README_VPS_GAS_MONITOR.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/oracle1001/weekly_monitor
+EnvironmentFile=-/opt/oracle1001/weekly_monitor/.env
+# Secrets come only from EnvironmentFile / .env — never hardcode keys here.
+ExecStart=/opt/oracle1001/weekly_monitor/bin/run_gas_monitor.sh
+# After a successful paid/dry run, stage JSON for pull (never .env)
+OnSuccess=gas-monitor-export.service
+Nice=10
+# 1GB RAM host: keep the job modest
+MemoryMax=700M
+TasksMax=64
+TimeoutStartSec=2h
+# oneshot + RemainAfterExit=no: timer may start again next week cleanly
+
+[Install]
+WantedBy=multi-user.target

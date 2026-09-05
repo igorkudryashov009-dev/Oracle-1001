@@ -1,0 +1,19 @@
+[Unit]
+Description=Oracle-1001 Sentinel AISStream Live Connector (LD8 London Primary)
+After=network-online.target
+Wants=network-online.target
+OnFailure=sentinel-alert@%n.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/oracle1001/ais_ingest
+EnvironmentFile=-/opt/oracle1001/ais_ingest/.env
+ExecStart=/opt/oracle1001/ais_ingest/venv/bin/python -m services.aisstream_connector
+Restart=always
+RestartSec=8s
+StandardOutput=append:/var/log/oracle1001/aisstream_connector.log
+StandardError=append:/var/log/oracle1001/aisstream_connector.err
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9021 @@
+{
+  "generated_for": "sentinel_aisstream",
+  "count": 1001,
+  "tier_counts": {
+    "ALPHA": 116,
+    "BRAVO": 206,
+    "CHARLIE": 317,
+    "DELTA": 362
+  },
+  "targets": [
+    {
+      "imo": "9648714",
+      "mmsi": "503000101",
+      "name": "PRELUDE",
+      "tier": "ALPHA",
+      "rank": 1,
+      "dwt_tons": 394330.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9930806",
+      "mmsi": "241819000",
+      "name": "MARAN DIONE",
+      "tier": "ALPHA",
+      "rank": 2,
+      "dwt_tons": 320916.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9937127",
+      "mmsi": "239497571",
+      "name": "MARITIME 7127",
+      "tier": "ALPHA",
+      "rank": 3,
+      "dwt_tons": 317053.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9262211",
+      "mmsi": "239106886",
+      "name": "ATLAS 2211",
+      "tier": "ALPHA",
+      "rank": 4,
+      "dwt_tons": 317053.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9251274",
+      "mmsi": "239971471",
+      "name": "MARITIME 1274",
+      "tier": "ALPHA",
+      "rank": 5,
+      "dwt_tons": 317053.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9727194",
+      "mmsi": "477252100",
+      "name": "COSWISDOM LAKE",
+      "tier": "ALPHA",
+      "rank": 6,
+      "dwt_tons": 308019.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9928645",
+      "mmsi": "241815000",
+      "name": "HELLAS FOS",
+      "tier": "ALPHA",
+      "rank": 7,
+      "dwt_tons": 299999.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9928023",
+      "mmsi": "636634364",
+      "name": "ARZANAH",
+      "tier": "ALPHA",
+      "rank": 8,
+      "dwt_tons": 299425.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9723679",
+      "mmsi": "613472250",
+      "name": "MARITIME JEWEL",
+      "tier": "ALPHA",
+      "rank": 9,
+      "dwt_tons": 299364.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9862346",
+      "mmsi": "215573000",
+      "name": "PEARL LNG",
+      "tier": "ALPHA",
+      "rank": 10,
+      "dwt_tons": 172700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9321732",
+      "mmsi": "229970902",
+      "name": "MILAHA QATAR",
+      "tier": "ALPHA",
+      "rank": 11,
+      "dwt_tons": 172100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9397327",
+      "mmsi": "538003352",
+      "name": "AL KHARAITIYAT",
+      "tier": "ALPHA",
+      "rank": 12,
+      "dwt_tons": 172050.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9948695",
+      "mmsi": "9948695",
+      "name": "ENERGY ENDURANCE",
+      "tier": "ALPHA",
+      "rank": 13,
+      "dwt_tons": 171350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9636723",
+      "mmsi": "229482292",
+      "name": "KITA LNG",
+      "tier": "ALPHA",
+      "rank": 14,
+      "dwt_tons": 170050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9762273",
+      "mmsi": "538010101",
+      "name": "FLEX ENTERPRISE",
+      "tier": "ALPHA",
+      "rank": 15,
+      "dwt_tons": 169950.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1045112",
+      "mmsi": "636023651",
+      "name": "NGUYA FLNG",
+      "tier": "ALPHA",
+      "rank": 16,
+      "dwt_tons": 168967.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9750256",
+      "mmsi": "477180400",
+      "name": "ARCTIC 0256",
+      "tier": "ALPHA",
+      "rank": 17,
+      "dwt_tons": 168800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9074640",
+      "mmsi": "636789443",
+      "name": "AL HAMRA",
+      "tier": "ALPHA",
+      "rank": 18,
+      "dwt_tons": 168150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9388821",
+      "mmsi": "538177482",
+      "name": "AL SAMRIYA",
+      "tier": "ALPHA",
+      "rank": 19,
+      "dwt_tons": 167300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9333618",
+      "mmsi": "215673106",
+      "name": "COOL ROVER",
+      "tier": "ALPHA",
+      "rank": 20,
+      "dwt_tons": 167100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9431214",
+      "mmsi": "538700110",
+      "name": "ZARGA",
+      "tier": "ALPHA",
+      "rank": 21,
+      "dwt_tons": 167000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9360855",
+      "mmsi": "9360855",
+      "name": "AL SAHLA",
+      "tier": "ALPHA",
+      "rank": 22,
+      "dwt_tons": 166550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9750232",
+      "mmsi": "477142700",
+      "name": "GAS 0232",
+      "tier": "ALPHA",
+      "rank": 23,
+      "dwt_tons": 165350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9621077",
+      "mmsi": "308338244",
+      "name": "PACIFIC ARCADIA",
+      "tier": "ALPHA",
+      "rank": 24,
+      "dwt_tons": 164550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9325685",
+      "mmsi": "308235122",
+      "name": "AL MARROUNA",
+      "tier": "ALPHA",
+      "rank": 25,
+      "dwt_tons": 161150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9250713",
+      "mmsi": "215533000",
+      "name": "DISHA",
+      "tier": "ALPHA",
+      "rank": 26,
+      "dwt_tons": 160850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9953509",
+      "mmsi": "273690662",
+      "name": "BURAN",
+      "tier": "ALPHA",
+      "rank": 27,
+      "dwt_tons": 160350.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9388833",
+      "mmsi": "9388833",
+      "name": "BU SAMRA",
+      "tier": "ALPHA",
+      "rank": 28,
+      "dwt_tons": 159750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9965435",
+      "mmsi": "636023768",
+      "name": "ENERGY 5435",
+      "tier": "ALPHA",
+      "rank": 29,
+      "dwt_tons": 159400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9972373",
+      "mmsi": "9972373",
+      "name": "HL SEA EAGLE",
+      "tier": "ALPHA",
+      "rank": 30,
+      "dwt_tons": 158200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1023425",
+      "mmsi": "538011161",
+      "name": "OCEAN 3425",
+      "tier": "ALPHA",
+      "rank": 31,
+      "dwt_tons": 157930.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9210828",
+      "mmsi": "636022142",
+      "name": "ENERGY 0828",
+      "tier": "ALPHA",
+      "rank": 32,
+      "dwt_tons": 154100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9325697",
+      "mmsi": "311038000",
+      "name": "AL AREESH",
+      "tier": "ALPHA",
+      "rank": 33,
+      "dwt_tons": 153000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9980540",
+      "mmsi": "228508816",
+      "name": "ELISA ARDEA",
+      "tier": "ALPHA",
+      "rank": 34,
+      "dwt_tons": 152600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9917567",
+      "mmsi": "353954409",
+      "name": "SM GOLDEN EAGLE",
+      "tier": "ALPHA",
+      "rank": 35,
+      "dwt_tons": 151850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9904209",
+      "mmsi": "311001093",
+      "name": "ENERGY 4209",
+      "tier": "ALPHA",
+      "rank": 36,
+      "dwt_tons": 146950.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9317200",
+      "mmsi": "432187089",
+      "name": "NORTH PIONEER",
+      "tier": "ALPHA",
+      "rank": 37,
+      "dwt_tons": 146100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9888481",
+      "mmsi": "9888481",
+      "name": "PRISM COURAGE",
+      "tier": "ALPHA",
+      "rank": 38,
+      "dwt_tons": 145550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9873852",
+      "mmsi": "563803048",
+      "name": "BW HELIOS",
+      "tier": "ALPHA",
+      "rank": 39,
+      "dwt_tons": 145250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "5233573",
+      "mmsi": "432278000",
+      "name": "LNG JAMAL",
+      "tier": "ALPHA",
+      "rank": 40,
+      "dwt_tons": 144900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9981427",
+      "mmsi": "226328151",
+      "name": "AL NIGYAN",
+      "tier": "ALPHA",
+      "rank": 41,
+      "dwt_tons": 144300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9690145",
+      "mmsi": "310722000",
+      "name": "LNG FINIMA II",
+      "tier": "ALPHA",
+      "rank": 42,
+      "dwt_tons": 143900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9864667",
+      "mmsi": "215574000",
+      "name": "VIVIT AMERICAS LNG",
+      "tier": "ALPHA",
+      "rank": 43,
+      "dwt_tons": 143150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9962421",
+      "mmsi": "636152051",
+      "name": "WOODSIDE JIRRUBAKURA",
+      "tier": "ALPHA",
+      "rank": 44,
+      "dwt_tons": 140350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9986635",
+      "mmsi": "563274300",
+      "name": "MIHZEM",
+      "tier": "ALPHA",
+      "rank": 45,
+      "dwt_tons": 137850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9397303",
+      "mmsi": "538003365",
+      "name": "MEKAINES",
+      "tier": "ALPHA",
+      "rank": 46,
+      "dwt_tons": 136740.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9377547",
+      "mmsi": "249700000",
+      "name": "ASEEM",
+      "tier": "ALPHA",
+      "rank": 47,
+      "dwt_tons": 135800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9862918",
+      "mmsi": "9862918",
+      "name": "ARISTARCHOS",
+      "tier": "ALPHA",
+      "rank": 48,
+      "dwt_tons": 133400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9969388",
+      "mmsi": "9969388",
+      "name": "IGNACY JAN PADEREWSKI",
+      "tier": "ALPHA",
+      "rank": 49,
+      "dwt_tons": 132750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9834296",
+      "mmsi": "9834296",
+      "name": "LNG DUBHE",
+      "tier": "ALPHA",
+      "rank": 50,
+      "dwt_tons": 132700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9945435",
+      "mmsi": "538066585",
+      "name": "CELSIUS GENEVA",
+      "tier": "ALPHA",
+      "rank": 51,
+      "dwt_tons": 132450.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9904704",
+      "mmsi": "273156011",
+      "name": "KONSTANTIN POSIET",
+      "tier": "ALPHA",
+      "rank": 52,
+      "dwt_tons": 131050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9397315",
+      "mmsi": "538003357",
+      "name": "AL MAFYAR",
+      "tier": "ALPHA",
+      "rank": 53,
+      "dwt_tons": 130441.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9443413",
+      "mmsi": "538676936",
+      "name": "RASHEEDA",
+      "tier": "ALPHA",
+      "rank": 54,
+      "dwt_tons": 130208.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9418365",
+      "mmsi": "538732362",
+      "name": "SHAGRA",
+      "tier": "ALPHA",
+      "rank": 55,
+      "dwt_tons": 130102.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9337755",
+      "mmsi": "538441628",
+      "name": "MOZAH",
+      "tier": "ALPHA",
+      "rank": 56,
+      "dwt_tons": 130102.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9360843",
+      "mmsi": "538263067",
+      "name": "AL SHEEHAN",
+      "tier": "ALPHA",
+      "rank": 57,
+      "dwt_tons": 127500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9994046",
+      "mmsi": "565951614",
+      "name": "NEW FRONTIER 2",
+      "tier": "ALPHA",
+      "rank": 58,
+      "dwt_tons": 126150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9086734",
+      "mmsi": "538009768",
+      "name": "AL RAYYAN",
+      "tier": "ALPHA",
+      "rank": 59,
+      "dwt_tons": 124900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9397339",
+      "mmsi": "9397339",
+      "name": "AL REKAYYAT",
+      "tier": "ALPHA",
+      "rank": 60,
+      "dwt_tons": 124700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9974606",
+      "mmsi": "308953626",
+      "name": "LAKE MODRO",
+      "tier": "ALPHA",
+      "rank": 61,
+      "dwt_tons": 124350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9373008",
+      "mmsi": "372855811",
+      "name": "K.JASMINE",
+      "tier": "ALPHA",
+      "rank": 62,
+      "dwt_tons": 124150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9957737",
+      "mmsi": "636022987",
+      "name": "APOSTOLOSIMO: 9957737",
+      "tier": "ALPHA",
+      "rank": 63,
+      "dwt_tons": 122250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9360790",
+      "mmsi": "538003072",
+      "name": "AL ORAIQ",
+      "tier": "ALPHA",
+      "rank": 64,
+      "dwt_tons": 122079.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9431123",
+      "mmsi": "538003358",
+      "name": "AL KARAANA",
+      "tier": "ALPHA",
+      "rank": 65,
+      "dwt_tons": 122052.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9360831",
+      "mmsi": "538134978",
+      "name": "AL SHEEHANIYA.IMO номер: 9360831.Тип судна: LNG Tanker (газовоз для перевозки сжиженного природного газа).Год постройки: 2009 (17 лет).Флаг: Маршалловы Острова.Размерения: 315.00 м (длина) × 50.00 м (ширина).Дедвейт (DWT): 122 006 т.Валовая вместимость (GT): 136 980.2. Операционные показатели (на 16 июля 2026 г.)Текущий навигационный статус: На якорной стоянке / в режиме ожидания (основано на данных AIS).История заходов: Интенсивная эксплуатация на глобальных маршрутах (включая порты Катара, Индии, Китая и Южной Кореи). Последние значимые портовые операции зафиксированы в Мумбаи, Индия.Текущее состояние: Судно находится в активной эксплуатации, используется для транспортировки СПГ в рамках долгосрочных контрактов.3. Комплаенс-профильОператор: Nakilat (Qatar Gas Transport Company) — ведущий мировой оператор в сфере транспортировки СПГ. Судно находится в управлении дочерней структуры NSQL (Nakilat Shipping Qatar Ltd). Статус: НИЗКИЙ РИСК.Санкционный статус: Судно не числится в санкционных списках (OFAC, ЕС, Великобритания).Анализ: AL SHEEHANIYA является абсолютно прозрачным промышленным активом. Судно принадлежит крупнейшей государственной транспортной компании Катара (Nakilat) и обслуживает стратегические энергетические цепочки поставок. Паттерны поведения судна полностью соответствуют статусу легитимного коммерческого актива мирового уровня.4. РезюмеAL SHEEHANIYA (IMO 9360831) — это первоклассный газовоз, входящий в состав флота государственной компании Nakilat. Актив является «Белым списком». Комплаенс-риски при взаимодействии отсутствуют; эксплуатация судна соответствует самым высоким международным стандартам безопасности и регуляторной прозрачности",
+      "tier": "ALPHA",
+      "rank": 66,
+      "dwt_tons": 122006.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9337963",
+      "mmsi": "308768343",
+      "name": "AL SAFLIYA",
+      "tier": "ALPHA",
+      "rank": 67,
+      "dwt_tons": 121963.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9397353",
+      "mmsi": "538027562",
+      "name": "ONAIZA",
+      "tier": "ALPHA",
+      "rank": 68,
+      "dwt_tons": 121939.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9338266",
+      "mmsi": "538003099",
+      "name": "AL AAMRIYA",
+      "tier": "ALPHA",
+      "rank": 69,
+      "dwt_tons": 121935.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9360817",
+      "mmsi": "538842862",
+      "name": "FRAIHA",
+      "tier": "ALPHA",
+      "rank": 70,
+      "dwt_tons": 121914.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9397341",
+      "mmsi": "538139526",
+      "name": "AL SADD",
+      "tier": "ALPHA",
+      "rank": 71,
+      "dwt_tons": 121913.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9337951",
+      "mmsi": "309904000",
+      "name": "AL RUWAIS (ранее также упоминается как Alexandra)",
+      "tier": "ALPHA",
+      "rank": 72,
+      "dwt_tons": 121823.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9337975",
+      "mmsi": "308585174",
+      "name": "DUHAIL",
+      "tier": "ALPHA",
+      "rank": 73,
+      "dwt_tons": 121639.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9965423",
+      "mmsi": "636022749",
+      "name": "GAS 5423",
+      "tier": "ALPHA",
+      "rank": 74,
+      "dwt_tons": 119850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9200316",
+      "mmsi": "432278000",
+      "name": "LNG JAMAL",
+      "tier": "ALPHA",
+      "rank": 75,
+      "dwt_tons": 119850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9211872",
+      "mmsi": "533735000",
+      "name": "PACIFIC 1872",
+      "tier": "ALPHA",
+      "rank": 76,
+      "dwt_tons": 118050.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9748899",
+      "mmsi": "310723000",
+      "name": "AZURE 8899",
+      "tier": "ALPHA",
+      "rank": 77,
+      "dwt_tons": 116450.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9307190",
+      "mmsi": "525901876",
+      "name": "ENERGY 7190",
+      "tier": "ALPHA",
+      "rank": 78,
+      "dwt_tons": 116300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9213416",
+      "mmsi": "636022727",
+      "name": "AZURE 3416",
+      "tier": "ALPHA",
+      "rank": 79,
+      "dwt_tons": 116200.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9626273",
+      "mmsi": "636574179",
+      "name": "GASLOG SYDNEY",
+      "tier": "ALPHA",
+      "rank": 80,
+      "dwt_tons": 115800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9976927",
+      "mmsi": "636024601",
+      "name": "LEBRETHAH",
+      "tier": "ALPHA",
+      "rank": 81,
+      "dwt_tons": 115250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9801524",
+      "mmsi": "308707178",
+      "name": "VESSEL 1524",
+      "tier": "ALPHA",
+      "rank": 82,
+      "dwt_tons": 114674.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9337717",
+      "mmsi": "461000261",
+      "name": "AL GHARRAFA",
+      "tier": "ALPHA",
+      "rank": 83,
+      "dwt_tons": 113861.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9360867",
+      "mmsi": "538174902",
+      "name": "AL UTOURIYA",
+      "tier": "ALPHA",
+      "rank": 84,
+      "dwt_tons": 113609.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9337705",
+      "mmsi": "461000261",
+      "name": "AL GATTARA",
+      "tier": "ALPHA",
+      "rank": 85,
+      "dwt_tons": 113590.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9795062",
+      "mmsi": "567660993",
+      "name": "EAGLE BRASILIA",
+      "tier": "ALPHA",
+      "rank": 86,
+      "dwt_tons": 113416.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9554729",
+      "mmsi": "432558821",
+      "name": "AKEBONO MARU",
+      "tier": "ALPHA",
+      "rank": 87,
+      "dwt_tons": 111500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9207039",
+      "mmsi": "369222000",
+      "name": "PACIFIC 7039",
+      "tier": "ALPHA",
+      "rank": 88,
+      "dwt_tons": 110850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9923437",
+      "mmsi": "563173900",
+      "name": "PROTEUS BOHEMIA",
+      "tier": "ALPHA",
+      "rank": 89,
+      "dwt_tons": 109999.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9360893",
+      "mmsi": "308961401",
+      "name": "AL SHAMAL",
+      "tier": "ALPHA",
+      "rank": 90,
+      "dwt_tons": 109662.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9360881",
+      "mmsi": "309480580",
+      "name": "AL KHARSAAH",
+      "tier": "ALPHA",
+      "rank": 91,
+      "dwt_tons": 109484.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9477593",
+      "mmsi": "259082000",
+      "name": "RIBERA DEL DUERO KNUTSEN",
+      "tier": "ALPHA",
+      "rank": 92,
+      "dwt_tons": 108200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9970569",
+      "mmsi": "538145861",
+      "name": "VENTURE PELICAN",
+      "tier": "ALPHA",
+      "rank": 93,
+      "dwt_tons": 107840.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9886732",
+      "mmsi": "229014124",
+      "name": "CLEAN CAJUNТип судна: Газовоз для перевозки СПГ (LNG Tanker)",
+      "tier": "ALPHA",
+      "rank": 94,
+      "dwt_tons": 107662.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9943504",
+      "mmsi": "256223000",
+      "name": "CLEAN FUTURE",
+      "tier": "ALPHA",
+      "rank": 95,
+      "dwt_tons": 107661.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1013494",
+      "mmsi": "477495181",
+      "name": "SEA ENERGY",
+      "tier": "ALPHA",
+      "rank": 96,
+      "dwt_tons": 107650.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9943475",
+      "mmsi": "229705017",
+      "name": "CLEAN RESOLUTIONТип судна: Газовоз для перевозки сжиженного природного газа (LNG Tanker / Large)",
+      "tier": "ALPHA",
+      "rank": 97,
+      "dwt_tons": 107573.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9994008",
+      "mmsi": "215668204",
+      "name": "AZURE 4008",
+      "tier": "ALPHA",
+      "rank": 98,
+      "dwt_tons": 107544.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9994034",
+      "mmsi": "215394390",
+      "name": "CLEAN RIO GRANDE",
+      "tier": "ALPHA",
+      "rank": 99,
+      "dwt_tons": 107499.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9967342",
+      "mmsi": "249229000",
+      "name": "CLEAN SIROCCO",
+      "tier": "ALPHA",
+      "rank": 100,
+      "dwt_tons": 107398.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9967328",
+      "mmsi": "229233267",
+      "name": "CLEAN MISTRAL",
+      "tier": "BRAVO",
+      "rank": 101,
+      "dwt_tons": 107386.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9372963",
+      "mmsi": "9372963",
+      "name": "LNG KOLT",
+      "tier": "BRAVO",
+      "rank": 102,
+      "dwt_tons": 106200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9074638",
+      "mmsi": "636898097",
+      "name": "MRAWEH",
+      "tier": "BRAVO",
+      "rank": 103,
+      "dwt_tons": 105250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9759252",
+      "mmsi": "9759252",
+      "name": "MARVEL PELICAN",
+      "tier": "BRAVO",
+      "rank": 104,
+      "dwt_tons": 104950.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9253703",
+      "mmsi": "229037863",
+      "name": "RAAHI",
+      "tier": "BRAVO",
+      "rank": 105,
+      "dwt_tons": 104900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9383900",
+      "mmsi": "566914543",
+      "name": "BW ENN CRYSTAL SKY",
+      "tier": "BRAVO",
+      "rank": 106,
+      "dwt_tons": 100800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9413327",
+      "mmsi": "563223100",
+      "name": "BW CLEAR SKY",
+      "tier": "BRAVO",
+      "rank": 107,
+      "dwt_tons": 100395.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9401295",
+      "mmsi": "224493706",
+      "name": "ENERGY 1295",
+      "tier": "BRAVO",
+      "rank": 108,
+      "dwt_tons": 100121.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9613135",
+      "mmsi": "477084222",
+      "name": "PAPUA",
+      "tier": "BRAVO",
+      "rank": 109,
+      "dwt_tons": 100030.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9414632",
+      "mmsi": "224869344",
+      "name": "SEVILLA KNUTSEN",
+      "tier": "BRAVO",
+      "rank": 110,
+      "dwt_tons": 100002.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9918016",
+      "mmsi": "373386825",
+      "name": "LEV LANDAUIMO номер: 9918016",
+      "tier": "BRAVO",
+      "rank": 111,
+      "dwt_tons": 99824.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9918004",
+      "mmsi": "353147114",
+      "name": "PYOTR KAPITSAТип судна: LNG танкер (LNG Tanker)",
+      "tier": "BRAVO",
+      "rank": 112,
+      "dwt_tons": 99824.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9200926",
+      "mmsi": "636371985",
+      "name": "LION II",
+      "tier": "BRAVO",
+      "rank": 113,
+      "dwt_tons": 99650.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9200859",
+      "mmsi": "356577000",
+      "name": "ANNECY",
+      "tier": "BRAVO",
+      "rank": 114,
+      "dwt_tons": 99500.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9337729",
+      "mmsi": "538003360",
+      "name": "MESAIMEER",
+      "tier": "BRAVO",
+      "rank": 115,
+      "dwt_tons": 99300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9692014",
+      "mmsi": "636548567",
+      "name": "LNG LAGOS II",
+      "tier": "BRAVO",
+      "rank": 116,
+      "dwt_tons": 99025.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9771913",
+      "mmsi": "373447266",
+      "name": "LNG SCHNEEWEISSCHEN",
+      "tier": "BRAVO",
+      "rank": 117,
+      "dwt_tons": 98747.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9877145",
+      "mmsi": "210420597",
+      "name": "GAIL BHUWAN",
+      "tier": "BRAVO",
+      "rank": 118,
+      "dwt_tons": 98396.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9761841",
+      "mmsi": "373332744",
+      "name": "AZURE 1841",
+      "tier": "BRAVO",
+      "rank": 119,
+      "dwt_tons": 98344.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9761827",
+      "mmsi": "351052155",
+      "name": "SM EAGLE",
+      "tier": "BRAVO",
+      "rank": 120,
+      "dwt_tons": 97975.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9796793",
+      "mmsi": "309894667",
+      "name": "BUSHU MARU",
+      "tier": "BRAVO",
+      "rank": 121,
+      "dwt_tons": 97955.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9774628",
+      "mmsi": "308476030",
+      "name": "ATLAS 4628",
+      "tier": "BRAVO",
+      "rank": 122,
+      "dwt_tons": 97917.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1018676",
+      "mmsi": "538281786",
+      "name": "CELSIUS GEORGETOWN",
+      "tier": "BRAVO",
+      "rank": 123,
+      "dwt_tons": 97552.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9810549",
+      "mmsi": "355992852",
+      "name": "PRISM AGILITY",
+      "tier": "BRAVO",
+      "rank": 124,
+      "dwt_tons": 97494.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9768368",
+      "mmsi": "212654000",
+      "name": "MARITIME 8368",
+      "tier": "ALPHA",
+      "rank": 125,
+      "dwt_tons": 96958.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9200835",
+      "mmsi": "268251384",
+      "name": "DENNIE",
+      "tier": "BRAVO",
+      "rank": 126,
+      "dwt_tons": 96900.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9768382",
+      "mmsi": "212770000",
+      "name": "PACIFIC 8382",
+      "tier": "BRAVO",
+      "rank": 127,
+      "dwt_tons": 96847.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9750701",
+      "mmsi": "477150100",
+      "name": "VESSEL 0701",
+      "tier": "BRAVO",
+      "rank": 128,
+      "dwt_tons": 96844.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9750737",
+      "mmsi": "308431784",
+      "name": "VLADIMIR VORONIN",
+      "tier": "BRAVO",
+      "rank": 129,
+      "dwt_tons": 96840.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9768370",
+      "mmsi": "212660000",
+      "name": "OCEAN 8370",
+      "tier": "BRAVO",
+      "rank": 130,
+      "dwt_tons": 96839.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9750672",
+      "mmsi": "309024296",
+      "name": "YAKOV GAKKEL",
+      "tier": "BRAVO",
+      "rank": 131,
+      "dwt_tons": 96839.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9750725",
+      "mmsi": "308559093",
+      "name": "NIKOLAY YEVGENOV",
+      "tier": "BRAVO",
+      "rank": 132,
+      "dwt_tons": 96821.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9750749",
+      "mmsi": "309776312",
+      "name": "GEORGIY USHAKOV",
+      "tier": "BRAVO",
+      "rank": 133,
+      "dwt_tons": 96796.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9750713",
+      "mmsi": "311000627",
+      "name": "OCEAN 0713",
+      "tier": "BRAVO",
+      "rank": 134,
+      "dwt_tons": 96703.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9360908",
+      "mmsi": "308924306",
+      "name": "AL KHUWAIR",
+      "tier": "BRAVO",
+      "rank": 135,
+      "dwt_tons": 96550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9434266",
+      "mmsi": "224127094",
+      "name": "VALENCIA KNUTSEN",
+      "tier": "BRAVO",
+      "rank": 136,
+      "dwt_tons": 96450.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9831220",
+      "mmsi": "259833546",
+      "name": "ADRIANO KNUTSEN",
+      "tier": "BRAVO",
+      "rank": 137,
+      "dwt_tons": 96354.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9854765",
+      "mmsi": "259079942",
+      "name": "MARITIME 4765",
+      "tier": "BRAVO",
+      "rank": 138,
+      "dwt_tons": 96354.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9018555",
+      "mmsi": "440002769",
+      "name": "HYUNDAI UTOPIA",
+      "tier": "BRAVO",
+      "rank": 139,
+      "dwt_tons": 96350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9613161",
+      "mmsi": "477946002",
+      "name": "KUMUL",
+      "tier": "BRAVO",
+      "rank": 140,
+      "dwt_tons": 96311.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9958640",
+      "mmsi": "477922500",
+      "name": "GAS 8640",
+      "tier": "BRAVO",
+      "rank": 141,
+      "dwt_tons": 96300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1018688",
+      "mmsi": "412726000",
+      "name": "ZHAOSHANG 28202 (ранее обозначалось в судостроительных документах как CHINA MERCHANTS JIANGSU CMHI-282-02)",
+      "tier": "BRAVO",
+      "rank": 142,
+      "dwt_tons": 96000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9926908",
+      "mmsi": "636024019",
+      "name": "NEW BRAVE",
+      "tier": "BRAVO",
+      "rank": 143,
+      "dwt_tons": 95819.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9917579",
+      "mmsi": "372828681",
+      "name": "OCEAN 7579",
+      "tier": "BRAVO",
+      "rank": 144,
+      "dwt_tons": 95817.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9947627",
+      "mmsi": "636497071",
+      "name": "ORION HUGO",
+      "tier": "BRAVO",
+      "rank": 145,
+      "dwt_tons": 95751.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9926922",
+      "mmsi": "228474700",
+      "name": "ORION SINEAD",
+      "tier": "ALPHA",
+      "rank": 146,
+      "dwt_tons": 95749.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9947500",
+      "mmsi": "636024356",
+      "name": "NEW GREEN",
+      "tier": "BRAVO",
+      "rank": 147,
+      "dwt_tons": 95746.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9785158",
+      "mmsi": "636502057",
+      "name": "KINISIS",
+      "tier": "BRAVO",
+      "rank": 148,
+      "dwt_tons": 95673.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9902914",
+      "mmsi": "370271820",
+      "name": "SM BLUEBIRD",
+      "tier": "BRAVO",
+      "rank": 149,
+      "dwt_tons": 95641.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9672832",
+      "mmsi": "477528040",
+      "name": "CESI QINGDAO",
+      "tier": "BRAVO",
+      "rank": 150,
+      "dwt_tons": 95641.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9672820",
+      "mmsi": "477947612",
+      "name": "CESI GLADSTONE",
+      "tier": "BRAVO",
+      "rank": 151,
+      "dwt_tons": 95634.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9902902",
+      "mmsi": "372453705",
+      "name": "SM ALBATROSS",
+      "tier": "BRAVO",
+      "rank": 152,
+      "dwt_tons": 95606.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9672844",
+      "mmsi": "477884800",
+      "name": "CESI BEIHAI",
+      "tier": "ALPHA",
+      "rank": 153,
+      "dwt_tons": 95599.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9946350",
+      "mmsi": "228444700",
+      "name": "PARIS KNUTSEN",
+      "tier": "BRAVO",
+      "rank": 154,
+      "dwt_tons": 95548.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9918157",
+      "mmsi": "228420800",
+      "name": "EXTREMADURA KNUTSEN",
+      "tier": "ALPHA",
+      "rank": 155,
+      "dwt_tons": 95548.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9918145",
+      "mmsi": "228420700",
+      "name": "FERROL KNUTSEN",
+      "tier": "BRAVO",
+      "rank": 156,
+      "dwt_tons": 95548.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9694751",
+      "mmsi": "477121700",
+      "name": "CESI WENZHOU",
+      "tier": "BRAVO",
+      "rank": 157,
+      "dwt_tons": 95530.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9946374",
+      "mmsi": "228211712",
+      "name": "GORDON WATERS KNUTSEN",
+      "tier": "BRAVO",
+      "rank": 158,
+      "dwt_tons": 95501.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9972218",
+      "mmsi": "228819675",
+      "name": "AMARYLLIS KNUTSEN",
+      "tier": "BRAVO",
+      "rank": 159,
+      "dwt_tons": 95501.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9862308",
+      "mmsi": "538008814",
+      "name": "FLEX FREEDOM",
+      "tier": "BRAVO",
+      "rank": 160,
+      "dwt_tons": 95488.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9851646",
+      "mmsi": "538691248",
+      "name": "FLEX RESOLUTEТип судна: Газовоз для перевозки сжиженного природного газа (LNG Tanker / Large)",
+      "tier": "BRAVO",
+      "rank": 161,
+      "dwt_tons": 95456.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9825427",
+      "mmsi": "538356391",
+      "name": "FLEX CONSTELLATION",
+      "tier": "BRAVO",
+      "rank": 162,
+      "dwt_tons": 95453.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9681687",
+      "mmsi": "308326404",
+      "name": "MARITIME 1687",
+      "tier": "BRAVO",
+      "rank": 163,
+      "dwt_tons": 95452.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9705641",
+      "mmsi": "311000475",
+      "name": "MUREX",
+      "tier": "BRAVO",
+      "rank": 164,
+      "dwt_tons": 95452.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9770945",
+      "mmsi": "311000478",
+      "name": "MEGARA",
+      "tier": "ALPHA",
+      "rank": 165,
+      "dwt_tons": 95452.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9851634",
+      "mmsi": "538996250",
+      "name": "AZURE 1634",
+      "tier": "BRAVO",
+      "rank": 166,
+      "dwt_tons": 95450.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9946398",
+      "mmsi": "226776292",
+      "name": "IGNACY LUKASIEWICZ",
+      "tier": "BRAVO",
+      "rank": 167,
+      "dwt_tons": 95440.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9980552",
+      "mmsi": "226847531",
+      "name": "ELISA HALCYON",
+      "tier": "BRAVO",
+      "rank": 168,
+      "dwt_tons": 95418.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9852975",
+      "mmsi": "228385600",
+      "name": "ELISA LARUS",
+      "tier": "BRAVO",
+      "rank": 169,
+      "dwt_tons": 95418.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9917543",
+      "mmsi": "256512000",
+      "name": "PACIFIC 7543",
+      "tier": "BRAVO",
+      "rank": 170,
+      "dwt_tons": 95400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9770933",
+      "mmsi": "308629618",
+      "name": "MYRINA",
+      "tier": "BRAVO",
+      "rank": 171,
+      "dwt_tons": 95378.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9771080",
+      "mmsi": "636415958",
+      "name": "SEAPEAK BAHRAIN (ранее: BAHRAIN SPIRIT)",
+      "tier": "BRAVO",
+      "rank": 172,
+      "dwt_tons": 95289.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9705653",
+      "mmsi": "311000472",
+      "name": "MACOMA",
+      "tier": "BRAVO",
+      "rank": 173,
+      "dwt_tons": 95253.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9721401",
+      "mmsi": "636979170",
+      "name": "PACIFIC 1401",
+      "tier": "BRAVO",
+      "rank": 174,
+      "dwt_tons": 95253.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9701229",
+      "mmsi": "240640862",
+      "name": "PACIFIC 1229",
+      "tier": "BRAVO",
+      "rank": 175,
+      "dwt_tons": 95194.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9732369",
+      "mmsi": "241467000",
+      "name": "MARAN GAS VERGINA",
+      "tier": "BRAVO",
+      "rank": 176,
+      "dwt_tons": 95194.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9701217",
+      "mmsi": "240045232",
+      "name": "OCEAN 1217",
+      "tier": "BRAVO",
+      "rank": 177,
+      "dwt_tons": 95194.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9732371",
+      "mmsi": "241452000",
+      "name": "MARAN GAS OLYMPIAS",
+      "tier": "ALPHA",
+      "rank": 178,
+      "dwt_tons": 95194.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9540089",
+      "mmsi": "538255766",
+      "name": "ENERGY FIDELITYТип судна: Газовоз для перевозки СПГ (LNG Tanker)",
+      "tier": "BRAVO",
+      "rank": 179,
+      "dwt_tons": 95165.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9948700",
+      "mmsi": "538440373",
+      "name": "OCEAN 8700",
+      "tier": "BRAVO",
+      "rank": 180,
+      "dwt_tons": 95165.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9884473",
+      "mmsi": "228772960",
+      "name": "ELISA AQUILAIMO номер: 9884473",
+      "tier": "BRAVO",
+      "rank": 181,
+      "dwt_tons": 95132.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9284192",
+      "mmsi": "259698780",
+      "name": "ARCTIC LADY",
+      "tier": "BRAVO",
+      "rank": 182,
+      "dwt_tons": 95100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9970662",
+      "mmsi": "477156600",
+      "name": "SEA NAVIGATOR",
+      "tier": "ALPHA",
+      "rank": 183,
+      "dwt_tons": 95029.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9970650",
+      "mmsi": "477140700",
+      "name": "SEA SPIRIT",
+      "tier": "BRAVO",
+      "rank": 184,
+      "dwt_tons": 95005.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9753014",
+      "mmsi": "240415500",
+      "name": "MARAN GAS CHIOS",
+      "tier": "BRAVO",
+      "rank": 185,
+      "dwt_tons": 94945.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9767950",
+      "mmsi": "241579000",
+      "name": "MARAN GAS SPETSES",
+      "tier": "BRAVO",
+      "rank": 186,
+      "dwt_tons": 94945.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9767962",
+      "mmsi": "240655517",
+      "name": "MARAN GAS HYDRA",
+      "tier": "BRAVO",
+      "rank": 187,
+      "dwt_tons": 94945.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9753026",
+      "mmsi": "237449426",
+      "name": "WOODSIDE CHANEY",
+      "tier": "BRAVO",
+      "rank": 188,
+      "dwt_tons": 94945.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9941013",
+      "mmsi": "229343464",
+      "name": "HLS BILBAO",
+      "tier": "BRAVO",
+      "rank": 189,
+      "dwt_tons": 94927.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9854363",
+      "mmsi": "248103982",
+      "name": "MINERVA PSARA",
+      "tier": "BRAVO",
+      "rank": 190,
+      "dwt_tons": 94834.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9859741",
+      "mmsi": "538009028",
+      "name": "GLOBAL STAR",
+      "tier": "BRAVO",
+      "rank": 191,
+      "dwt_tons": 94732.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9844863",
+      "mmsi": "241692000",
+      "name": "MARAN GAS PSARA",
+      "tier": "BRAVO",
+      "rank": 192,
+      "dwt_tons": 94732.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9859753",
+      "mmsi": "240435898",
+      "name": "WOODSIDE CHARLES ALLENТип судна: Газовоз для перевозки СПГ (LNG Tanker)",
+      "tier": "BRAVO",
+      "rank": 193,
+      "dwt_tons": 94732.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9810367",
+      "mmsi": "239207971",
+      "name": "WOODSIDE REES WITHERS",
+      "tier": "BRAVO",
+      "rank": 194,
+      "dwt_tons": 94732.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9336737",
+      "mmsi": "311000135",
+      "name": "SEAPEAK METHANE",
+      "tier": "BRAVO",
+      "rank": 195,
+      "dwt_tons": 94700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9881201",
+      "mmsi": "538165060",
+      "name": "ENERGY INTELLIGENCE",
+      "tier": "BRAVO",
+      "rank": 196,
+      "dwt_tons": 94649.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9854624",
+      "mmsi": "538373458",
+      "name": "ENERGY ENDEAVOUR",
+      "tier": "BRAVO",
+      "rank": 197,
+      "dwt_tons": 94649.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9859739",
+      "mmsi": "249044000",
+      "name": "ENERGY INTEGRITY",
+      "tier": "ALPHA",
+      "rank": 198,
+      "dwt_tons": 94648.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9810379",
+      "mmsi": "239584786",
+      "name": "MARAN GAS ANDROSIMO номер: 9810379",
+      "tier": "BRAVO",
+      "rank": 199,
+      "dwt_tons": 94638.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9766554",
+      "mmsi": "636710069",
+      "name": "BRITISH CONTRIBUTOR",
+      "tier": "BRAVO",
+      "rank": 200,
+      "dwt_tons": 94558.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9964182",
+      "mmsi": "636697044",
+      "name": "ATLAS 4182",
+      "tier": "BRAVO",
+      "rank": 201,
+      "dwt_tons": 94540.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9766578",
+      "mmsi": "232006296",
+      "name": "BRITISH MENTOR",
+      "tier": "BRAVO",
+      "rank": 202,
+      "dwt_tons": 94528.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9766566",
+      "mmsi": "232006297",
+      "name": "BRITISH LISTENER",
+      "tier": "ALPHA",
+      "rank": 203,
+      "dwt_tons": 94494.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9766530",
+      "mmsi": "636047197",
+      "name": "BRITISH PARTNER",
+      "tier": "BRAVO",
+      "rank": 204,
+      "dwt_tons": 94442.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9975521",
+      "mmsi": "636024082",
+      "name": "PUTERI SABAH",
+      "tier": "BRAVO",
+      "rank": 205,
+      "dwt_tons": 94409.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9976109",
+      "mmsi": "636024084",
+      "name": "PUTERI SELANGOR",
+      "tier": "BRAVO",
+      "rank": 206,
+      "dwt_tons": 94409.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9976111",
+      "mmsi": "636024080",
+      "name": "PUTERI TERENGGANU",
+      "tier": "ALPHA",
+      "rank": 207,
+      "dwt_tons": 94409.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9766580",
+      "mmsi": "636094722",
+      "name": "BRITISH SPONSOR",
+      "tier": "BRAVO",
+      "rank": 208,
+      "dwt_tons": 94360.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9986116",
+      "mmsi": "636378728",
+      "name": "SHAFALLAH",
+      "tier": "BRAVO",
+      "rank": 209,
+      "dwt_tons": 94326.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9986087",
+      "mmsi": "636574239",
+      "name": "LNG 6087",
+      "tier": "BRAVO",
+      "rank": 210,
+      "dwt_tons": 94326.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9976939",
+      "mmsi": "636796037",
+      "name": "AL KHARRARAH",
+      "tier": "BRAVO",
+      "rank": 211,
+      "dwt_tons": 94326.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9986063",
+      "mmsi": "636139137",
+      "name": "BU NAKHLAH",
+      "tier": "BRAVO",
+      "rank": 212,
+      "dwt_tons": 94326.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9976915",
+      "mmsi": "636024551",
+      "name": "PACIFIC 6915",
+      "tier": "BRAVO",
+      "rank": 213,
+      "dwt_tons": 94326.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9986075",
+      "mmsi": "636025940",
+      "name": "HASBAH",
+      "tier": "BRAVO",
+      "rank": 214,
+      "dwt_tons": 94325.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9766542",
+      "mmsi": "232146863",
+      "name": "AZURE 6542",
+      "tier": "BRAVO",
+      "rank": 215,
+      "dwt_tons": 94303.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9873840",
+      "mmsi": "565375344",
+      "name": "BW LESMES",
+      "tier": "BRAVO",
+      "rank": 216,
+      "dwt_tons": 94167.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9269180",
+      "mmsi": "431740320",
+      "name": "ENERGY ADVANCE",
+      "tier": "BRAVO",
+      "rank": 217,
+      "dwt_tons": 94150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9779238",
+      "mmsi": "564103315",
+      "name": "DIAMOND GAS ROSE",
+      "tier": "BRAVO",
+      "rank": 218,
+      "dwt_tons": 94145.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9960590",
+      "mmsi": "636254015",
+      "name": "VENTURE CREOLEIMO номер: 9960590",
+      "tier": "BRAVO",
+      "rank": 219,
+      "dwt_tons": 94069.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9968932",
+      "mmsi": "563315500",
+      "name": "BW NIVALIS",
+      "tier": "BRAVO",
+      "rank": 220,
+      "dwt_tons": 94068.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9779226",
+      "mmsi": "564017263",
+      "name": "DIAMOND GAS ORCHID",
+      "tier": "BRAVO",
+      "rank": 221,
+      "dwt_tons": 94028.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9896933",
+      "mmsi": "565755969",
+      "name": "BW CASSIA",
+      "tier": "BRAVO",
+      "rank": 222,
+      "dwt_tons": 94000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9896921",
+      "mmsi": "563162500",
+      "name": "BW ENN SNOW LOTUS",
+      "tier": "BRAVO",
+      "rank": 223,
+      "dwt_tons": 93980.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9962433",
+      "mmsi": "636352237",
+      "name": "WOODSIDE BARRUMBARA",
+      "tier": "BRAVO",
+      "rank": 224,
+      "dwt_tons": 93900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9961477",
+      "mmsi": "567807757",
+      "name": "GREENERGY OCEAN",
+      "tier": "BRAVO",
+      "rank": 225,
+      "dwt_tons": 93876.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9956953",
+      "mmsi": "538011095",
+      "name": "MOL AZURE",
+      "tier": "BRAVO",
+      "rank": 226,
+      "dwt_tons": 93835.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9947639",
+      "mmsi": "636988286",
+      "name": "VANTAGE LNG (Correction: Реестровое имя — LNG INDUS)",
+      "tier": "BRAVO",
+      "rank": 227,
+      "dwt_tons": 93800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9961506",
+      "mmsi": "565686372",
+      "name": "GREENERGY MOON",
+      "tier": "BRAVO",
+      "rank": 228,
+      "dwt_tons": 93784.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9961491",
+      "mmsi": "563255800",
+      "name": "GREENERGY STAR",
+      "tier": "BRAVO",
+      "rank": 229,
+      "dwt_tons": 93777.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9857365",
+      "mmsi": "538155066",
+      "name": "FLEX AURORAIMO номер: 9857365",
+      "tier": "BRAVO",
+      "rank": 230,
+      "dwt_tons": 93775.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9957725",
+      "mmsi": "538010316",
+      "name": "ASSOS",
+      "tier": "BRAVO",
+      "rank": 231,
+      "dwt_tons": 93771.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9862475",
+      "mmsi": "538407916",
+      "name": "FLEX VIGILANT",
+      "tier": "BRAVO",
+      "rank": 232,
+      "dwt_tons": 93764.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9949027",
+      "mmsi": "538010799",
+      "name": "GAIL URJA",
+      "tier": "BRAVO",
+      "rank": 233,
+      "dwt_tons": 93758.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9943853",
+      "mmsi": "636475707",
+      "name": "AXIOS II",
+      "tier": "BRAVO",
+      "rank": 234,
+      "dwt_tons": 93736.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9861031",
+      "mmsi": "229243695",
+      "name": "COOL DISCOVERER",
+      "tier": "BRAVO",
+      "rank": 235,
+      "dwt_tons": 93668.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9862463",
+      "mmsi": "538865187",
+      "name": "FLEX VOLUNTEER",
+      "tier": "BRAVO",
+      "rank": 236,
+      "dwt_tons": 93624.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9857377",
+      "mmsi": "538747446",
+      "name": "FLEX AMBER",
+      "tier": "BRAVO",
+      "rank": 237,
+      "dwt_tons": 93624.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9879698",
+      "mmsi": "229708838",
+      "name": "ADAMASTOS",
+      "tier": "BRAVO",
+      "rank": 238,
+      "dwt_tons": 93566.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9943841",
+      "mmsi": "538232676",
+      "name": "AMORE MIO I",
+      "tier": "BRAVO",
+      "rank": 239,
+      "dwt_tons": 93541.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9845776",
+      "mmsi": "229634026",
+      "name": "AMBERJACK LNG",
+      "tier": "BRAVO",
+      "rank": 240,
+      "dwt_tons": 93535.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9869306",
+      "mmsi": "215583000",
+      "name": "COBIA LNG",
+      "tier": "BRAVO",
+      "rank": 241,
+      "dwt_tons": 93535.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9872949",
+      "mmsi": "215762000",
+      "name": "PACIFIC 2949",
+      "tier": "BRAVO",
+      "rank": 242,
+      "dwt_tons": 93534.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9963449",
+      "mmsi": "538011088",
+      "name": "MARVEL SWALLOW",
+      "tier": "BRAVO",
+      "rank": 243,
+      "dwt_tons": 93510.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9962419",
+      "mmsi": "310850000",
+      "name": "MARVEL PHOENIX",
+      "tier": "BRAVO",
+      "rank": 244,
+      "dwt_tons": 93417.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9947598",
+      "mmsi": "538778438",
+      "name": "PUTERI LEDANG",
+      "tier": "BRAVO",
+      "rank": 245,
+      "dwt_tons": 93414.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9937969",
+      "mmsi": "538010568",
+      "name": "PUTERI SEJINJANG",
+      "tier": "BRAVO",
+      "rank": 246,
+      "dwt_tons": 93414.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9937957",
+      "mmsi": "538010567",
+      "name": "PUTERI SANTUBONG",
+      "tier": "BRAVO",
+      "rank": 247,
+      "dwt_tons": 93414.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9947615",
+      "mmsi": "538010571",
+      "name": "PUTERI MAYANG",
+      "tier": "BRAVO",
+      "rank": 248,
+      "dwt_tons": 93414.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9629536",
+      "mmsi": "277587000",
+      "name": "INDEPENDENCE",
+      "tier": "BRAVO",
+      "rank": 249,
+      "dwt_tons": 93372.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9862906",
+      "mmsi": "215121407",
+      "name": "ARISTIDIS I",
+      "tier": "BRAVO",
+      "rank": 250,
+      "dwt_tons": 93368.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9884021",
+      "mmsi": "239981566",
+      "name": "ASKLIPIOS",
+      "tier": "BRAVO",
+      "rank": 251,
+      "dwt_tons": 93352.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9600528",
+      "mmsi": "636613591",
+      "name": "GASLOG SHANGHAI",
+      "tier": "BRAVO",
+      "rank": 252,
+      "dwt_tons": 93350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9659725",
+      "mmsi": "636254044",
+      "name": "MARIA ENERGY",
+      "tier": "BRAVO",
+      "rank": 253,
+      "dwt_tons": 93301.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9958298",
+      "mmsi": "563631100",
+      "name": "NORTH LIGHT",
+      "tier": "BRAVO",
+      "rank": 254,
+      "dwt_tons": 93286.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9654880",
+      "mmsi": "636016378",
+      "name": "KOOL BOREAS",
+      "tier": "BRAVO",
+      "rank": 255,
+      "dwt_tons": 93286.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9742807",
+      "mmsi": "248759936",
+      "name": "CASTILLO DE MERIDA",
+      "tier": "BRAVO",
+      "rank": 256,
+      "dwt_tons": 93241.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9761815",
+      "mmsi": "636222213",
+      "name": "SK SPICA",
+      "tier": "BRAVO",
+      "rank": 257,
+      "dwt_tons": 93167.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9630028",
+      "mmsi": "636563799",
+      "name": "PERLE (бывшее название: PSKOV, PEARL)",
+      "tier": "BRAVO",
+      "rank": 258,
+      "dwt_tons": 93152.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9981374",
+      "mmsi": "228992309",
+      "name": "WADI AL SAIL",
+      "tier": "BRAVO",
+      "rank": 259,
+      "dwt_tons": 93124.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9872987",
+      "mmsi": "229618115",
+      "name": "HELLAS DIANA",
+      "tier": "BRAVO",
+      "rank": 260,
+      "dwt_tons": 93098.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9956408",
+      "mmsi": "239125926",
+      "name": "MARAN GAS KASTELORIZO",
+      "tier": "BRAVO",
+      "rank": 261,
+      "dwt_tons": 93087.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9961398",
+      "mmsi": "239679075",
+      "name": "MARAN GAS SYROS",
+      "tier": "BRAVO",
+      "rank": 262,
+      "dwt_tons": 93087.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9963827",
+      "mmsi": "237180452",
+      "name": "MARAN GAS ANTIPAROS",
+      "tier": "BRAVO",
+      "rank": 263,
+      "dwt_tons": 93087.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9880477",
+      "mmsi": "538947403",
+      "name": "GLOBAL SEALINEТип судна: Газовоз для перевозки СПГ (LNG Tanker)",
+      "tier": "BRAVO",
+      "rank": 264,
+      "dwt_tons": 93080.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9883742",
+      "mmsi": "237143679",
+      "name": "MARAN GAS KALYMNOS",
+      "tier": "BRAVO",
+      "rank": 265,
+      "dwt_tons": 93080.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9880465",
+      "mmsi": "538514183",
+      "name": "OCEAN 0465",
+      "tier": "BRAVO",
+      "rank": 266,
+      "dwt_tons": 93080.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9874820",
+      "mmsi": "241747000",
+      "name": "VESSEL 4820",
+      "tier": "BRAVO",
+      "rank": 267,
+      "dwt_tons": 93080.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9853137",
+      "mmsi": "636228122",
+      "name": "GASLOG WALESIMO номер: 9853137",
+      "tier": "BRAVO",
+      "rank": 268,
+      "dwt_tons": 93076.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9953248",
+      "mmsi": "636670060",
+      "name": "ARCTIC 3248",
+      "tier": "BRAVO",
+      "rank": 269,
+      "dwt_tons": 93076.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9953250",
+      "mmsi": "636023558",
+      "name": "UMM GHUWAILINA",
+      "tier": "BRAVO",
+      "rank": 270,
+      "dwt_tons": 93058.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9986623",
+      "mmsi": "563268400",
+      "name": "FATH AL KHAIR",
+      "tier": "BRAVO",
+      "rank": 271,
+      "dwt_tons": 93043.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9864746",
+      "mmsi": "636183569",
+      "name": "KOOL FIRN",
+      "tier": "BRAVO",
+      "rank": 272,
+      "dwt_tons": 93026.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9953262",
+      "mmsi": "636522812",
+      "name": "HLAITAN",
+      "tier": "ALPHA",
+      "rank": 273,
+      "dwt_tons": 93025.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9961518",
+      "mmsi": "565672048",
+      "name": "GREENERGY WINDТип судна: Газовоз СПГ (LNG Tanker)",
+      "tier": "ALPHA",
+      "rank": 274,
+      "dwt_tons": 93000.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9975337",
+      "mmsi": "215553085",
+      "name": "AGAMEMNON",
+      "tier": "BRAVO",
+      "rank": 275,
+      "dwt_tons": 93000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9975325",
+      "mmsi": "248997662",
+      "name": "ARCHIMIDISIMO номер: 9975325",
+      "tier": "BRAVO",
+      "rank": 276,
+      "dwt_tons": 93000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9997672",
+      "mmsi": "563326800",
+      "name": "PUTERI KEDAH",
+      "tier": "ALPHA",
+      "rank": 277,
+      "dwt_tons": 93000.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9986609",
+      "mmsi": "565255264",
+      "name": "AL TUWAR",
+      "tier": "BRAVO",
+      "rank": 278,
+      "dwt_tons": 92996.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9816763",
+      "mmsi": "237842851",
+      "name": "GASLOG WARSAWIMO номер: 9816763",
+      "tier": "BRAVO",
+      "rank": 279,
+      "dwt_tons": 92996.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9953274",
+      "mmsi": "636023560",
+      "name": "LIMAIL",
+      "tier": "ALPHA",
+      "rank": 280,
+      "dwt_tons": 92982.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9762962",
+      "mmsi": "565721431",
+      "name": "HOEGH GIANTIMO номер: 9762962",
+      "tier": "BRAVO",
+      "rank": 281,
+      "dwt_tons": 92969.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9976147",
+      "mmsi": "636818168",
+      "name": "GAIL SAGAR",
+      "tier": "BRAVO",
+      "rank": 282,
+      "dwt_tons": 92924.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9976135",
+      "mmsi": "636683176",
+      "name": "KOOL TIGERТип судна: Газовоз для перевозки сжиженного природного газа (LNG Tanker)",
+      "tier": "BRAVO",
+      "rank": 283,
+      "dwt_tons": 92924.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9849887",
+      "mmsi": "273279530",
+      "name": "LA PEROUSE",
+      "tier": "BRAVO",
+      "rank": 284,
+      "dwt_tons": 92923.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9895238",
+      "mmsi": "636304348",
+      "name": "VIVIRT CITY LNG",
+      "tier": "BRAVO",
+      "rank": 285,
+      "dwt_tons": 92855.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9902756",
+      "mmsi": "636882431",
+      "name": "VIVIT ARABIA LNG",
+      "tier": "BRAVO",
+      "rank": 286,
+      "dwt_tons": 92855.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9721724",
+      "mmsi": "224844074",
+      "name": "LA MANCHA KNUTSEN",
+      "tier": "BRAVO",
+      "rank": 287,
+      "dwt_tons": 92802.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9855812",
+      "mmsi": "636174420",
+      "name": "GASLOG WESTMINSTER",
+      "tier": "BRAVO",
+      "rank": 288,
+      "dwt_tons": 92800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9770438",
+      "mmsi": "563370060",
+      "name": "MARVEL CRANE",
+      "tier": "BRAVO",
+      "rank": 289,
+      "dwt_tons": 92799.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9709489",
+      "mmsi": "239988482",
+      "name": "MARAN GAS PERICLES",
+      "tier": "BRAVO",
+      "rank": 290,
+      "dwt_tons": 92776.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9682590",
+      "mmsi": "241405000",
+      "name": "MARAN GAS AGAMEMNON",
+      "tier": "ALPHA",
+      "rank": 291,
+      "dwt_tons": 92762.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9770440",
+      "mmsi": "370232409",
+      "name": "MARVEL HERON",
+      "tier": "BRAVO",
+      "rank": 292,
+      "dwt_tons": 92659.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9682605",
+      "mmsi": "241425000",
+      "name": "MARAN GAS HECTOR",
+      "tier": "BRAVO",
+      "rank": 293,
+      "dwt_tons": 92640.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9709491",
+      "mmsi": "241404000",
+      "name": "MARAN GAS ULYSSES",
+      "tier": "BRAVO",
+      "rank": 294,
+      "dwt_tons": 92621.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9879674",
+      "mmsi": "241743000",
+      "name": "YIANNIS",
+      "tier": "BRAVO",
+      "rank": 295,
+      "dwt_tons": 92619.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9991939",
+      "mmsi": "636348762",
+      "name": "AL THURAYYA",
+      "tier": "BRAVO",
+      "rank": 296,
+      "dwt_tons": 92600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1023657",
+      "mmsi": "565075612",
+      "name": "GREENERGY WHALE",
+      "tier": "BRAVO",
+      "rank": 297,
+      "dwt_tons": 92600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9991915",
+      "mmsi": "566784251",
+      "name": "SERI DIAN",
+      "tier": "BRAVO",
+      "rank": 298,
+      "dwt_tons": 92600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9901350",
+      "mmsi": "241744000",
+      "name": "JOHN A. ANGELICOUSSIS",
+      "tier": "ALPHA",
+      "rank": 299,
+      "dwt_tons": 92599.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9864784",
+      "mmsi": "538585884",
+      "name": "CELSIUS COPENHAGEN",
+      "tier": "BRAVO",
+      "rank": 300,
+      "dwt_tons": 92473.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9864796",
+      "mmsi": "538207482",
+      "name": "CELSIUS CANBERRAТип судна: Газовоз для перевозки сжиженного природного газа (LNG Tanker / Large)",
+      "tier": "CHARLIE",
+      "rank": 301,
+      "dwt_tons": 92454.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9948736",
+      "mmsi": "538010912",
+      "name": "CELSIUS GRANADA",
+      "tier": "CHARLIE",
+      "rank": 302,
+      "dwt_tons": 92385.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9945459",
+      "mmsi": "538010613",
+      "name": "CELSIUS GLARUS",
+      "tier": "CHARLIE",
+      "rank": 303,
+      "dwt_tons": 92385.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9958999",
+      "mmsi": "538599283",
+      "name": "CELSIUS GALWAY",
+      "tier": "CHARLIE",
+      "rank": 304,
+      "dwt_tons": 92385.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9988700",
+      "mmsi": "538432024",
+      "name": "CELSIUS GREENLANDТип судна: Газовоз для перевозки СПГ (LNG Tanker)",
+      "tier": "CHARLIE",
+      "rank": 305,
+      "dwt_tons": 92385.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9945447",
+      "mmsi": "538968958",
+      "name": "CELSIUS GIZA",
+      "tier": "CHARLIE",
+      "rank": 306,
+      "dwt_tons": 92385.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9981520",
+      "mmsi": "564067794",
+      "name": "HALWAN",
+      "tier": "CHARLIE",
+      "rank": 307,
+      "dwt_tons": 92377.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9981532",
+      "mmsi": "567346748",
+      "name": "AL THUMAID",
+      "tier": "CHARLIE",
+      "rank": 308,
+      "dwt_tons": 92377.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9981518",
+      "mmsi": "565263065",
+      "name": "SHRA'OUH",
+      "tier": "CHARLIE",
+      "rank": 309,
+      "dwt_tons": 92377.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9981506",
+      "mmsi": "563295200",
+      "name": "SHARQ (экс-Ras Laffan)",
+      "tier": "CHARLIE",
+      "rank": 310,
+      "dwt_tons": 92377.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9981415",
+      "mmsi": "228798806",
+      "name": "UMM WISHAH",
+      "tier": "CHARLIE",
+      "rank": 311,
+      "dwt_tons": 92323.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9981403",
+      "mmsi": "228464700",
+      "name": "BARZANIMO: 9981403",
+      "tier": "CHARLIE",
+      "rank": 312,
+      "dwt_tons": 92323.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9277462",
+      "mmsi": "311711000",
+      "name": "SANHA LPG FPSO",
+      "tier": "CHARLIE",
+      "rank": 313,
+      "dwt_tons": 92271.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9748904",
+      "mmsi": "310773000",
+      "name": "GASLOG HONG KONG",
+      "tier": "CHARLIE",
+      "rank": 314,
+      "dwt_tons": 92266.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9992244",
+      "mmsi": "538314981",
+      "name": "FRONTIER LNG",
+      "tier": "CHARLIE",
+      "rank": 315,
+      "dwt_tons": 92232.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9992232",
+      "mmsi": "538223923",
+      "name": "OLYMPUS LNG",
+      "tier": "CHARLIE",
+      "rank": 316,
+      "dwt_tons": 92232.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9992220",
+      "mmsi": "538151664",
+      "name": "PARTHENON LNG",
+      "tier": "CHARLIE",
+      "rank": 317,
+      "dwt_tons": 92232.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9981398",
+      "mmsi": "226972627",
+      "name": "AL FAT'H",
+      "tier": "CHARLIE",
+      "rank": 318,
+      "dwt_tons": 92124.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9992880",
+      "mmsi": "538108399",
+      "name": "MUSCAT",
+      "tier": "CHARLIE",
+      "rank": 319,
+      "dwt_tons": 92040.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9992878",
+      "mmsi": "538011791",
+      "name": "MUSANDAM LNG",
+      "tier": "CHARLIE",
+      "rank": 320,
+      "dwt_tons": 92040.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9970686",
+      "mmsi": "538435775",
+      "name": "HARMONIC BREEZE",
+      "tier": "CHARLIE",
+      "rank": 321,
+      "dwt_tons": 92000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9975519",
+      "mmsi": "226045093",
+      "name": "GASLOG RIVIERA",
+      "tier": "CHARLIE",
+      "rank": 322,
+      "dwt_tons": 92000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9915894",
+      "mmsi": "477870831",
+      "name": "SHAOLIN",
+      "tier": "CHARLIE",
+      "rank": 323,
+      "dwt_tons": 91752.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9958664",
+      "mmsi": "477945700",
+      "name": "KONGTONG",
+      "tier": "BRAVO",
+      "rank": 324,
+      "dwt_tons": 91682.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9915911",
+      "mmsi": "477990300",
+      "name": "KUNLUN",
+      "tier": "CHARLIE",
+      "rank": 325,
+      "dwt_tons": 91509.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9963815",
+      "mmsi": "239477076",
+      "name": "ROTMISTRZ WITOLD PILECKI",
+      "tier": "CHARLIE",
+      "rank": 326,
+      "dwt_tons": 91500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9915909",
+      "mmsi": "477846500",
+      "name": "WUDANG",
+      "tier": "CHARLIE",
+      "rank": 327,
+      "dwt_tons": 91466.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9834325",
+      "mmsi": "477380842",
+      "name": "LNG MEGREZ",
+      "tier": "CHARLIE",
+      "rank": 328,
+      "dwt_tons": 91430.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9892121",
+      "mmsi": "477895800",
+      "name": "WEN CHENG (文成)",
+      "tier": "BRAVO",
+      "rank": 329,
+      "dwt_tons": 91218.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9331660",
+      "mmsi": "533998877",
+      "name": "SERI BALHAF",
+      "tier": "CHARLIE",
+      "rank": 330,
+      "dwt_tons": 91201.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9331672",
+      "mmsi": "533003377",
+      "name": "SERI BALQIS",
+      "tier": "CHARLIE",
+      "rank": 331,
+      "dwt_tons": 91198.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1023865",
+      "mmsi": "477558317",
+      "name": "QINGCHENG",
+      "tier": "CHARLIE",
+      "rank": 332,
+      "dwt_tons": 91160.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9979761",
+      "mmsi": "477981682",
+      "name": "OCEAN INSPIRATION",
+      "tier": "CHARLIE",
+      "rank": 333,
+      "dwt_tons": 91157.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1024754",
+      "mmsi": "477320442",
+      "name": "TIANSHAN",
+      "tier": "CHARLIE",
+      "rank": 334,
+      "dwt_tons": 91033.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9501186",
+      "mmsi": "538547363",
+      "name": "AZURE 1186",
+      "tier": "CHARLIE",
+      "rank": 335,
+      "dwt_tons": 90986.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9649328",
+      "mmsi": "256647000",
+      "name": "ENERGY ATLANTICIMO: 9649328",
+      "tier": "CHARLIE",
+      "rank": 336,
+      "dwt_tons": 90783.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9850666",
+      "mmsi": "636405755",
+      "name": "ATLAS 0666",
+      "tier": "CHARLIE",
+      "rank": 337,
+      "dwt_tons": 90625.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9654701",
+      "mmsi": "538753213",
+      "name": "KOOL KELVIN (ранее: GOLAR KELVIN)",
+      "tier": "CHARLIE",
+      "rank": 338,
+      "dwt_tons": 90580.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9758064",
+      "mmsi": "563041600",
+      "name": "BW TULIP",
+      "tier": "CHARLIE",
+      "rank": 339,
+      "dwt_tons": 90522.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9792606",
+      "mmsi": "563082400",
+      "name": "VESSEL 2606",
+      "tier": "CHARLIE",
+      "rank": 340,
+      "dwt_tons": 90381.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9723801",
+      "mmsi": "563178000",
+      "name": "PRACHI",
+      "tier": "CHARLIE",
+      "rank": 341,
+      "dwt_tons": 90328.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9627485",
+      "mmsi": "240689066",
+      "name": "WOODSIDE ROGERS",
+      "tier": "CHARLIE",
+      "rank": 342,
+      "dwt_tons": 90327.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9654696",
+      "mmsi": "538379705",
+      "name": "ATLAS 4696",
+      "tier": "CHARLIE",
+      "rank": 343,
+      "dwt_tons": 90248.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9633161",
+      "mmsi": "636025567",
+      "name": "WOODSIDE GOODE",
+      "tier": "CHARLIE",
+      "rank": 344,
+      "dwt_tons": 90125.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9331658",
+      "mmsi": "533051000",
+      "name": "SERI BIJAKSANA",
+      "tier": "CHARLIE",
+      "rank": 345,
+      "dwt_tons": 89953.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9637507",
+      "mmsi": "538005351",
+      "name": "CLEAN PLANET",
+      "tier": "CHARLIE",
+      "rank": 346,
+      "dwt_tons": 89848.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9636747",
+      "mmsi": "229583000",
+      "name": "YARI LNG",
+      "tier": "CHARLIE",
+      "rank": 347,
+      "dwt_tons": 89804.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9903920",
+      "mmsi": "308916749",
+      "name": "GRACE FREESIA",
+      "tier": "CHARLIE",
+      "rank": 348,
+      "dwt_tons": 89790.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9874466",
+      "mmsi": "567417625",
+      "name": "DIAMOND GAS VICTORIA",
+      "tier": "CHARLIE",
+      "rank": 349,
+      "dwt_tons": 89760.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9884174",
+      "mmsi": "308589715",
+      "name": "GRACE EMILIA",
+      "tier": "CHARLIE",
+      "rank": 350,
+      "dwt_tons": 89730.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9874454",
+      "mmsi": "563253042",
+      "name": "DIAMOND GAS CRYSTAL",
+      "tier": "CHARLIE",
+      "rank": 351,
+      "dwt_tons": 89686.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9633173",
+      "mmsi": "239721571",
+      "name": "MARAN GAS DELPHI",
+      "tier": "CHARLIE",
+      "rank": 352,
+      "dwt_tons": 89670.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9636711",
+      "mmsi": "229471000",
+      "name": "MARITIME 6711",
+      "tier": "CHARLIE",
+      "rank": 353,
+      "dwt_tons": 89624.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9941520",
+      "mmsi": "241891000",
+      "name": "MARAN GAS ANTIBES",
+      "tier": "CHARLIE",
+      "rank": 354,
+      "dwt_tons": 89469.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9760770",
+      "mmsi": "567389227",
+      "name": "MARVEL HAWK",
+      "tier": "CHARLIE",
+      "rank": 355,
+      "dwt_tons": 89432.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9760768",
+      "mmsi": "563048500",
+      "name": "MARVEL FALCON",
+      "tier": "CHARLIE",
+      "rank": 356,
+      "dwt_tons": 89431.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9627502",
+      "mmsi": "240077235",
+      "name": "MARAN GAS LINDOS",
+      "tier": "CHARLIE",
+      "rank": 357,
+      "dwt_tons": 89343.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9924869",
+      "mmsi": "241840000",
+      "name": "MARAN GAS MARSEILLE",
+      "tier": "CHARLIE",
+      "rank": 358,
+      "dwt_tons": 89301.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9941518",
+      "mmsi": "239874931",
+      "name": "GAS 1518",
+      "tier": "CHARLIE",
+      "rank": 359,
+      "dwt_tons": 89292.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9658238",
+      "mmsi": "240700330",
+      "name": "MARAN GAS MYSTRAS",
+      "tier": "CHARLIE",
+      "rank": 360,
+      "dwt_tons": 89269.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9658240",
+      "mmsi": "237476749",
+      "name": "MARAN GAS TROY",
+      "tier": "CHARLIE",
+      "rank": 361,
+      "dwt_tons": 89240.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9974151",
+      "mmsi": "636039965",
+      "name": "PUTERI PERAK",
+      "tier": "CHARLIE",
+      "rank": 362,
+      "dwt_tons": 89183.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9974149",
+      "mmsi": "636025078",
+      "name": "PUTERI PAHANG",
+      "tier": "CHARLIE",
+      "rank": 363,
+      "dwt_tons": 89183.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9972385",
+      "mmsi": "636025069",
+      "name": "HL PUFFIN",
+      "tier": "CHARLIE",
+      "rank": 364,
+      "dwt_tons": 89033.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9972361",
+      "mmsi": "636182732",
+      "name": "HL EDWARD AUSTIN",
+      "tier": "CHARLIE",
+      "rank": 365,
+      "dwt_tons": 89033.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9972359",
+      "mmsi": "636173482",
+      "name": "HL ALYSSA WARNER",
+      "tier": "CHARLIE",
+      "rank": 366,
+      "dwt_tons": 89033.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9880192",
+      "mmsi": "309053717",
+      "name": "MARVEL SWAN",
+      "tier": "BRAVO",
+      "rank": 367,
+      "dwt_tons": 88831.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9988023",
+      "mmsi": "241981000",
+      "name": "MINERVA ELEONORA",
+      "tier": "CHARLIE",
+      "rank": 368,
+      "dwt_tons": 88821.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9953523",
+      "mmsi": "273268340",
+      "name": "IRIS",
+      "tier": "CHARLIE",
+      "rank": 369,
+      "dwt_tons": 88809.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9972684",
+      "mmsi": "636731264",
+      "name": "SPIRIT LNG",
+      "tier": "CHARLIE",
+      "rank": 370,
+      "dwt_tons": 88808.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9972672",
+      "mmsi": "636023851",
+      "name": "ATHOS LNG",
+      "tier": "CHARLIE",
+      "rank": 371,
+      "dwt_tons": 88808.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9953511",
+      "mmsi": "273265340",
+      "name": "VOSKHOD",
+      "tier": "CHARLIE",
+      "rank": 372,
+      "dwt_tons": 88798.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9893606",
+      "mmsi": "226632184",
+      "name": "LNG ENDEAVOUR",
+      "tier": "CHARLIE",
+      "rank": 373,
+      "dwt_tons": 88798.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9988035",
+      "mmsi": "241980000",
+      "name": "MINERVA ROXANNE",
+      "tier": "CHARLIE",
+      "rank": 374,
+      "dwt_tons": 88790.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9982677",
+      "mmsi": "636024758",
+      "name": "AL KHEESAH",
+      "tier": "CHARLIE",
+      "rank": 375,
+      "dwt_tons": 88788.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9888766",
+      "mmsi": "228451800",
+      "name": "ORION MONET (экс-Orion Star)",
+      "tier": "CHARLIE",
+      "rank": 376,
+      "dwt_tons": 88779.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9874492",
+      "mmsi": "226519580",
+      "name": "LNG MEKONG",
+      "tier": "CHARLIE",
+      "rank": 377,
+      "dwt_tons": 88775.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9874480",
+      "mmsi": "228343154",
+      "name": "LNG ENTERPRISE",
+      "tier": "CHARLIE",
+      "rank": 378,
+      "dwt_tons": 88744.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9758844",
+      "mmsi": "353363199",
+      "name": "ENERGY 8844",
+      "tier": "CHARLIE",
+      "rank": 379,
+      "dwt_tons": 88700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9709037",
+      "mmsi": "538007620",
+      "name": "FLEX RAINBOW",
+      "tier": "BRAVO",
+      "rank": 380,
+      "dwt_tons": 88684.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9752565",
+      "mmsi": "431776000",
+      "name": "ENERGY GLORY",
+      "tier": "CHARLIE",
+      "rank": 381,
+      "dwt_tons": 88677.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9736092",
+      "mmsi": "431964426",
+      "name": "ENERGY LIBERTY",
+      "tier": "CHARLIE",
+      "rank": 382,
+      "dwt_tons": 88676.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9758832",
+      "mmsi": "431071073",
+      "name": "ATLAS 8832",
+      "tier": "CHARLIE",
+      "rank": 383,
+      "dwt_tons": 88668.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9750220",
+      "mmsi": "636683513",
+      "name": "PAN ASIA",
+      "tier": "CHARLIE",
+      "rank": 384,
+      "dwt_tons": 88613.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9886744",
+      "mmsi": "215226512",
+      "name": "CLEAN COPANO",
+      "tier": "CHARLIE",
+      "rank": 385,
+      "dwt_tons": 88600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9889904",
+      "mmsi": "229917359",
+      "name": "ORION SEA",
+      "tier": "CHARLIE",
+      "rank": 386,
+      "dwt_tons": 88592.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9889916",
+      "mmsi": "215089672",
+      "name": "ORION SUN",
+      "tier": "CHARLIE",
+      "rank": 387,
+      "dwt_tons": 88592.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9863182",
+      "mmsi": "215578000",
+      "name": "DORADO LNGI MO номер: 9863182",
+      "tier": "CHARLIE",
+      "rank": 388,
+      "dwt_tons": 88592.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9851787",
+      "mmsi": "215524000",
+      "name": "QOGIR",
+      "tier": "CHARLIE",
+      "rank": 389,
+      "dwt_tons": 88592.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9875800",
+      "mmsi": "248903117",
+      "name": "LNGSHIPS EMPRESSIMO номер: 9875800",
+      "tier": "CHARLIE",
+      "rank": 390,
+      "dwt_tons": 88592.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9885855",
+      "mmsi": "256047000",
+      "name": "MINERVA AMORGOS",
+      "tier": "CHARLIE",
+      "rank": 391,
+      "dwt_tons": 88235.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9864916",
+      "mmsi": "636463010",
+      "name": "GASLOG GEORGETOWN",
+      "tier": "CHARLIE",
+      "rank": 392,
+      "dwt_tons": 88184.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9977244",
+      "mmsi": "636004819",
+      "name": "UMM AL HOULТип судна: Газовоз для перевозки сжиженного природного газа (LNG Tanker / Large)",
+      "tier": "CHARLIE",
+      "rank": 393,
+      "dwt_tons": 88090.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9977282",
+      "mmsi": "636653078",
+      "name": "SIMSIMAH",
+      "tier": "CHARLIE",
+      "rank": 394,
+      "dwt_tons": 88024.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9744013",
+      "mmsi": "636352123",
+      "name": "GASLOG GENOA",
+      "tier": "CHARLIE",
+      "rank": 395,
+      "dwt_tons": 88016.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9977268",
+      "mmsi": "636797621",
+      "name": "LESHATT",
+      "tier": "CHARLIE",
+      "rank": 396,
+      "dwt_tons": 88000.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9977270",
+      "mmsi": "636530359",
+      "name": "AL SAILIYA",
+      "tier": "CHARLIE",
+      "rank": 397,
+      "dwt_tons": 87986.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9707510",
+      "mmsi": "636760703",
+      "name": "GASLOG GIBRALTAR",
+      "tier": "CHARLIE",
+      "rank": 398,
+      "dwt_tons": 87981.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9687019",
+      "mmsi": "636125543",
+      "name": "GASLOG GREECE",
+      "tier": "CHARLIE",
+      "rank": 399,
+      "dwt_tons": 87975.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9956616",
+      "mmsi": "636444134",
+      "name": "GAS 6616",
+      "tier": "CHARLIE",
+      "rank": 400,
+      "dwt_tons": 87968.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9744025",
+      "mmsi": "636233678",
+      "name": "GASLOG GLADSTONE",
+      "tier": "CHARLIE",
+      "rank": 401,
+      "dwt_tons": 87955.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9687021",
+      "mmsi": "636994779",
+      "name": "GASLOG GLASGOW",
+      "tier": "CHARLIE",
+      "rank": 402,
+      "dwt_tons": 87889.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9956587",
+      "mmsi": "256920000",
+      "name": "ORION SPIRIT",
+      "tier": "CHARLIE",
+      "rank": 403,
+      "dwt_tons": 87886.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9977311",
+      "mmsi": "636318245",
+      "name": "UMM AL ZUBAR",
+      "tier": "CHARLIE",
+      "rank": 404,
+      "dwt_tons": 87883.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9896452",
+      "mmsi": "563183600",
+      "name": "SERI DAYA",
+      "tier": "CHARLIE",
+      "rank": 405,
+      "dwt_tons": 87782.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9627954",
+      "mmsi": "256276000",
+      "name": "WILFORCE",
+      "tier": "CHARLIE",
+      "rank": 406,
+      "dwt_tons": 87750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9783124",
+      "mmsi": "9783124",
+      "name": "CORAL ENERGICE",
+      "tier": "CHARLIE",
+      "rank": 407,
+      "dwt_tons": 87750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9627966",
+      "mmsi": "229358798",
+      "name": "WILPRIDEТип судна: Газовоз (LNG Tanker / Large)",
+      "tier": "CHARLIE",
+      "rank": 408,
+      "dwt_tons": 87677.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9692002",
+      "mmsi": "310720000",
+      "name": "LNG BONNY II",
+      "tier": "BRAVO",
+      "rank": 409,
+      "dwt_tons": 87674.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9981386",
+      "mmsi": "228422691",
+      "name": "AL ZORE",
+      "tier": "CHARLIE",
+      "rank": 410,
+      "dwt_tons": 87405.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9482299",
+      "mmsi": "308275222",
+      "name": "SONANGOL ETOSHA",
+      "tier": "CHARLIE",
+      "rank": 411,
+      "dwt_tons": 87294.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9483877",
+      "mmsi": "432807000",
+      "name": "ENERGY HORIZON",
+      "tier": "BRAVO",
+      "rank": 412,
+      "dwt_tons": 87257.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9360922",
+      "mmsi": "309415000",
+      "name": "GIGIRA LAITEBO",
+      "tier": "BRAVO",
+      "rank": 413,
+      "dwt_tons": 87194.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9690169",
+      "mmsi": "310730000",
+      "name": "LNG ABUJA II",
+      "tier": "CHARLIE",
+      "rank": 414,
+      "dwt_tons": 87147.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9690157",
+      "mmsi": "636774775",
+      "name": "LNG PORT-HARCOURT IIIMO номер: 9690157",
+      "tier": "CHARLIE",
+      "rank": 415,
+      "dwt_tons": 87139.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9361639",
+      "mmsi": "311013700",
+      "name": "SPIRIT OF HELA",
+      "tier": "CHARLIE",
+      "rank": 416,
+      "dwt_tons": 87130.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9475600",
+      "mmsi": "309757691",
+      "name": "SONANGOL SAMBIZANGA",
+      "tier": "CHARLIE",
+      "rank": 417,
+      "dwt_tons": 87104.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9690171",
+      "mmsi": "636554517",
+      "name": "LNG ABALAMABIE",
+      "tier": "CHARLIE",
+      "rank": 418,
+      "dwt_tons": 86925.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9743875",
+      "mmsi": "431778000",
+      "name": "PACIFIC MIMOSA",
+      "tier": "CHARLIE",
+      "rank": 419,
+      "dwt_tons": 86497.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9640437",
+      "mmsi": "565513000",
+      "name": "BW PAVILION VANDA",
+      "tier": "CHARLIE",
+      "rank": 420,
+      "dwt_tons": 86401.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9640645",
+      "mmsi": "563681286",
+      "name": "BW PAVILION LEEARAТип судна: Танкер для перевозки сжиженного природного газа (LNG Tanker)",
+      "tier": "CHARLIE",
+      "rank": 421,
+      "dwt_tons": 86383.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9520376",
+      "mmsi": "352346000",
+      "name": "METHANE MICKIE HARPER",
+      "tier": "CHARLIE",
+      "rank": 422,
+      "dwt_tons": 86170.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9645748",
+      "mmsi": "431238191",
+      "name": "LNG MARS",
+      "tier": "CHARLIE",
+      "rank": 423,
+      "dwt_tons": 86161.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9666998",
+      "mmsi": "309215352",
+      "name": "LNG JUROJIN",
+      "tier": "CHARLIE",
+      "rank": 424,
+      "dwt_tons": 86121.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9696149",
+      "mmsi": "308030936",
+      "name": "LNG SATURN",
+      "tier": "CHARLIE",
+      "rank": 425,
+      "dwt_tons": 86044.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9431147",
+      "mmsi": "538971892",
+      "name": "AL BAHIYA",
+      "tier": "CHARLIE",
+      "rank": 426,
+      "dwt_tons": 85550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9323687",
+      "mmsi": "538002742",
+      "name": "CLEAN ENERGY",
+      "tier": "CHARLIE",
+      "rank": 427,
+      "dwt_tons": 85513.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9323675",
+      "mmsi": "636024872",
+      "name": "GRAND COSMOS (экс-Grace Cosmos)",
+      "tier": "CHARLIE",
+      "rank": 428,
+      "dwt_tons": 85224.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9315707",
+      "mmsi": "308136000",
+      "name": "GRACE ACACIA",
+      "tier": "CHARLIE",
+      "rank": 429,
+      "dwt_tons": 85214.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9655042",
+      "mmsi": "538004975",
+      "name": "KOOL FROST",
+      "tier": "CHARLIE",
+      "rank": 430,
+      "dwt_tons": 85000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9970674",
+      "mmsi": "538958366",
+      "name": "VANTAGE LNG",
+      "tier": "CHARLIE",
+      "rank": 431,
+      "dwt_tons": 85000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9325893",
+      "mmsi": "567441584",
+      "name": "TANGGUH TOWUTI",
+      "tier": "CHARLIE",
+      "rank": 432,
+      "dwt_tons": 84992.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9271248",
+      "mmsi": "259685756",
+      "name": "ARCTIC PRINCESS",
+      "tier": "CHARLIE",
+      "rank": 433,
+      "dwt_tons": 84878.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9320374",
+      "mmsi": "538185648",
+      "name": "ENERGOS MARIA (исторически: GOLAR MARIA)IMO номер: 9320374",
+      "tier": "CHARLIE",
+      "rank": 434,
+      "dwt_tons": 84823.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9315692",
+      "mmsi": "538002846",
+      "name": "OB RIVER (ранее — Clean Power)",
+      "tier": "BRAVO",
+      "rank": 435,
+      "dwt_tons": 84682.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9317999",
+      "mmsi": "538719664",
+      "name": "AMUR RIVER",
+      "tier": "CHARLIE",
+      "rank": 436,
+      "dwt_tons": 84598.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9629598",
+      "mmsi": "538900726",
+      "name": "LENA RIVERIMO номер: 9629598",
+      "tier": "CHARLIE",
+      "rank": 437,
+      "dwt_tons": 84585.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9629586",
+      "mmsi": "538633965",
+      "name": "YENISEI RIVER",
+      "tier": "CHARLIE",
+      "rank": 438,
+      "dwt_tons": 84565.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9975533",
+      "mmsi": "636529135",
+      "name": "PUTERI SARAWAK",
+      "tier": "CHARLIE",
+      "rank": 439,
+      "dwt_tons": 84500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9333632",
+      "mmsi": "309787000",
+      "name": "TANGGUH HIRI",
+      "tier": "CHARLIE",
+      "rank": 440,
+      "dwt_tons": 84467.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9714276",
+      "mmsi": "533007120",
+      "name": "SERI CAMELLIA",
+      "tier": "CHARLIE",
+      "rank": 441,
+      "dwt_tons": 84333.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9333591",
+      "mmsi": "273270890",
+      "name": "ARCTIC EXPRESS (ранее British Emerald)",
+      "tier": "CHARLIE",
+      "rank": 442,
+      "dwt_tons": 84303.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9714288",
+      "mmsi": "533061703",
+      "name": "SERI CENDERAWASIH",
+      "tier": "CHARLIE",
+      "rank": 443,
+      "dwt_tons": 84303.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9333606",
+      "mmsi": "256492000",
+      "name": "COOL RANGER (ранее Golar Frost, Grace Acacia)",
+      "tier": "BRAVO",
+      "rank": 444,
+      "dwt_tons": 84155.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9926714",
+      "mmsi": "9926714",
+      "name": "NANTES KNUTSEN",
+      "tier": "CHARLIE",
+      "rank": 445,
+      "dwt_tons": 84050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9269960",
+      "mmsi": "636014506",
+      "name": "VESSEL 9960",
+      "tier": "CHARLIE",
+      "rank": 446,
+      "dwt_tons": 83965.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9311567",
+      "mmsi": "310534000",
+      "name": "LNG KANO",
+      "tier": "CHARLIE",
+      "rank": 447,
+      "dwt_tons": 83961.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9372999",
+      "mmsi": "370983000",
+      "name": "HYUNDAI ECOPIA",
+      "tier": "CHARLIE",
+      "rank": 448,
+      "dwt_tons": 83959.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9691137",
+      "mmsi": "374216000",
+      "name": "BISHU MARU",
+      "tier": "CHARLIE",
+      "rank": 449,
+      "dwt_tons": 83752.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9311579",
+      "mmsi": "310550000",
+      "name": "LNG ONDO",
+      "tier": "CHARLIE",
+      "rank": 450,
+      "dwt_tons": 83688.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9311581",
+      "mmsi": "310565000",
+      "name": "LNG",
+      "tier": "CHARLIE",
+      "rank": 451,
+      "dwt_tons": 83688.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9759240",
+      "mmsi": "372659090",
+      "name": "MARVEL EAGLE",
+      "tier": "CHARLIE",
+      "rank": 452,
+      "dwt_tons": 83571.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9969376",
+      "mmsi": "353994220",
+      "name": "ENEOS GLORY",
+      "tier": "CHARLIE",
+      "rank": 453,
+      "dwt_tons": 83400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9329679",
+      "mmsi": "533942000",
+      "name": "SERI AYU",
+      "tier": "CHARLIE",
+      "rank": 454,
+      "dwt_tons": 83365.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9799305",
+      "mmsi": "9799305",
+      "name": "NAN YU 6",
+      "tier": "CHARLIE",
+      "rank": 455,
+      "dwt_tons": 83350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9266994",
+      "mmsi": "636405228",
+      "name": "LNG ENUGU",
+      "tier": "CHARLIE",
+      "rank": 456,
+      "dwt_tons": 83160.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1049871",
+      "mmsi": "538123212",
+      "name": "ETHANE CORAL",
+      "tier": "CHARLIE",
+      "rank": 457,
+      "dwt_tons": 83100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9267003",
+      "mmsi": "636531408",
+      "name": "LNG OYO",
+      "tier": "CHARLIE",
+      "rank": 458,
+      "dwt_tons": 83068.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9141962",
+      "mmsi": "511101895",
+      "name": "GAS RGA",
+      "tier": "CHARLIE",
+      "rank": 459,
+      "dwt_tons": 83050.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9397286",
+      "mmsi": "538003353",
+      "name": "AL GHASHAMIYA",
+      "tier": "CHARLIE",
+      "rank": 460,
+      "dwt_tons": 83000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9267015",
+      "mmsi": "636288012",
+      "name": "LNG BENUE",
+      "tier": "CHARLIE",
+      "rank": 461,
+      "dwt_tons": 82971.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9490961",
+      "mmsi": "309424516",
+      "name": "LNG 0961",
+      "tier": "CHARLIE",
+      "rank": 462,
+      "dwt_tons": 82929.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9491812",
+      "mmsi": "308308399",
+      "name": "CUBAL",
+      "tier": "CHARLIE",
+      "rank": 463,
+      "dwt_tons": 82834.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9490959",
+      "mmsi": "311038600",
+      "name": "MALANJE (ранее MAHANJA)",
+      "tier": "CHARLIE",
+      "rank": 464,
+      "dwt_tons": 82729.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9680190",
+      "mmsi": "309826708",
+      "name": "ASIA VENTURE",
+      "tier": "CHARLIE",
+      "rank": 465,
+      "dwt_tons": 82564.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9606948",
+      "mmsi": "308947230",
+      "name": "ASIA VISION",
+      "tier": "CHARLIE",
+      "rank": 466,
+      "dwt_tons": 82487.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9610779",
+      "mmsi": "311000185",
+      "name": "ASIA ENDEAVOUR",
+      "tier": "CHARLIE",
+      "rank": 467,
+      "dwt_tons": 82434.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9606950",
+      "mmsi": "309075490",
+      "name": "ASIA ENERGY",
+      "tier": "CHARLIE",
+      "rank": 468,
+      "dwt_tons": 82424.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9877341",
+      "mmsi": "9877341",
+      "name": "MINERVA CHIOS",
+      "tier": "CHARLIE",
+      "rank": 469,
+      "dwt_tons": 82350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9352860",
+      "mmsi": "636517251",
+      "name": "GASLOG SAVANNAH",
+      "tier": "CHARLIE",
+      "rank": 470,
+      "dwt_tons": 82291.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9791200",
+      "mmsi": "311000845",
+      "name": "SHINSHU MARU",
+      "tier": "CHARLIE",
+      "rank": 471,
+      "dwt_tons": 82287.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9342487",
+      "mmsi": "636123130",
+      "name": "SEAPEAK MAGELLAN (ранее: MAGELLAN SPIRIT, MAERSK MAGELLAN)",
+      "tier": "CHARLIE",
+      "rank": 472,
+      "dwt_tons": 82265.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9791212",
+      "mmsi": "309891492",
+      "name": "SOHSHU MARU",
+      "tier": "CHARLIE",
+      "rank": 473,
+      "dwt_tons": 82254.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9958315",
+      "mmsi": "564271268",
+      "name": "NORTH OCEAN",
+      "tier": "CHARLIE",
+      "rank": 474,
+      "dwt_tons": 82250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9339260",
+      "mmsi": "538996902",
+      "name": "SEAPEAK ARWA",
+      "tier": "CHARLIE",
+      "rank": 475,
+      "dwt_tons": 82187.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9624938",
+      "mmsi": "538004979",
+      "name": "NFE PENGUIN (бывш. Golar Penguin до июля 2023 года)",
+      "tier": "CHARLIE",
+      "rank": 476,
+      "dwt_tons": 82181.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9600530",
+      "mmsi": "636664222",
+      "name": "GASLOG SANTIAGO",
+      "tier": "CHARLIE",
+      "rank": 477,
+      "dwt_tons": 82178.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9774135",
+      "mmsi": "308755002",
+      "name": "LNG SAKURA",
+      "tier": "CHARLIE",
+      "rank": 478,
+      "dwt_tons": 82137.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9336749",
+      "mmsi": "538001576",
+      "name": "SEAPEAK MARIB (историческое название: Marib Spirit)",
+      "tier": "BRAVO",
+      "rank": 479,
+      "dwt_tons": 82095.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9122253",
+      "mmsi": "431138095",
+      "name": "STAR PHENIX",
+      "tier": "CHARLIE",
+      "rank": 480,
+      "dwt_tons": 82050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9624914",
+      "mmsi": "563216800",
+      "name": "HOEGH GANDRIA",
+      "tier": "BRAVO",
+      "rank": 481,
+      "dwt_tons": 82048.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9322803",
+      "mmsi": "310543000",
+      "name": "LNG BORNO",
+      "tier": "CHARLIE",
+      "rank": 482,
+      "dwt_tons": 82030.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9638915",
+      "mmsi": "310699000",
+      "name": "GASLOG SALEM",
+      "tier": "BRAVO",
+      "rank": 483,
+      "dwt_tons": 82023.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9995727",
+      "mmsi": "538061037",
+      "name": "ALCAIOS I",
+      "tier": "CHARLIE",
+      "rank": 484,
+      "dwt_tons": 82000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9995739",
+      "mmsi": "248111370",
+      "name": "ANTAIOS I",
+      "tier": "CHARLIE",
+      "rank": 485,
+      "dwt_tons": 82000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9341689",
+      "mmsi": "309402047",
+      "name": "LNG JUPITER",
+      "tier": "CHARLIE",
+      "rank": 486,
+      "dwt_tons": 81950.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9640023",
+      "mmsi": "215138624",
+      "name": "COOL EXPLORER",
+      "tier": "CHARLIE",
+      "rank": 487,
+      "dwt_tons": 81893.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9636797",
+      "mmsi": "248414663",
+      "name": "COOL RUNNER",
+      "tier": "CHARLIE",
+      "rank": 488,
+      "dwt_tons": 81891.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9636785",
+      "mmsi": "229553000",
+      "name": "COOL VOYAGER",
+      "tier": "CHARLIE",
+      "rank": 489,
+      "dwt_tons": 81890.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9638903",
+      "mmsi": "636514457",
+      "name": "GASLOG SARATOGA",
+      "tier": "CHARLIE",
+      "rank": 490,
+      "dwt_tons": 81855.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9634098",
+      "mmsi": "310679000",
+      "name": "SOLARIS",
+      "tier": "CHARLIE",
+      "rank": 491,
+      "dwt_tons": 81853.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9785500",
+      "mmsi": "538007148",
+      "name": "ENERGOS NANOOK (бывш. GOLAR NANOOK)",
+      "tier": "CHARLIE",
+      "rank": 492,
+      "dwt_tons": 81747.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9637325",
+      "mmsi": "538004976",
+      "name": "KOOL ICE (ранее GOLAR ICE)",
+      "tier": "CHARLIE",
+      "rank": 493,
+      "dwt_tons": 81534.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "1051642",
+      "mmsi": "636025680",
+      "name": "ENERGIA SOLEIL",
+      "tier": "CHARLIE",
+      "rank": 494,
+      "dwt_tons": 81250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9878876",
+      "mmsi": "636754163",
+      "name": "MU LAN",
+      "tier": "CHARLIE",
+      "rank": 495,
+      "dwt_tons": 81100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9300817",
+      "mmsi": "273476720",
+      "name": "KOSMOS",
+      "tier": "CHARLIE",
+      "rank": 496,
+      "dwt_tons": 81034.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9904699",
+      "mmsi": "273074194",
+      "name": "ZVEZDA 044",
+      "tier": "CHARLIE",
+      "rank": 497,
+      "dwt_tons": 81000.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9904687",
+      "mmsi": "273203454",
+      "name": "SERGEI WITTEIMO номер: 9904687",
+      "tier": "CHARLIE",
+      "rank": 498,
+      "dwt_tons": 81000.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9275347",
+      "mmsi": "308118742",
+      "name": "LALLA FATMA N'SOUMERIMO номер: 9275347",
+      "tier": "CHARLIE",
+      "rank": 499,
+      "dwt_tons": 80920.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9595539",
+      "mmsi": "432427012",
+      "name": "PHENIX LEGEND",
+      "tier": "CHARLIE",
+      "rank": 500,
+      "dwt_tons": 80900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9277620",
+      "mmsi": "308308229",
+      "name": "LNG DREAM",
+      "tier": "CHARLIE",
+      "rank": 501,
+      "dwt_tons": 80889.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9217967",
+      "mmsi": "432724372",
+      "name": "RYOKA MARU NO.103",
+      "tier": "CHARLIE",
+      "rank": 502,
+      "dwt_tons": 80850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9469235",
+      "mmsi": "431972761",
+      "name": "KAKUREI MARU",
+      "tier": "CHARLIE",
+      "rank": 503,
+      "dwt_tons": 80750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9443683",
+      "mmsi": "9443683",
+      "name": "AL DAFNA",
+      "tier": "CHARLIE",
+      "rank": 504,
+      "dwt_tons": 80300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9876737",
+      "mmsi": "9876737",
+      "name": "GASLOG WINCHESTER",
+      "tier": "CHARLIE",
+      "rank": 505,
+      "dwt_tons": 80150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9372779",
+      "mmsi": "433354715",
+      "name": "KOSHIN MARU NO.21",
+      "tier": "CHARLIE",
+      "rank": 506,
+      "dwt_tons": 80100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9351971",
+      "mmsi": "308099308",
+      "name": "PACIFIC ENLIGHTEN",
+      "tier": "CHARLIE",
+      "rank": 507,
+      "dwt_tons": 80023.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9977323",
+      "mmsi": "636217493",
+      "name": "UMM HEESH",
+      "tier": "CHARLIE",
+      "rank": 508,
+      "dwt_tons": 80000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9977335",
+      "mmsi": "636539266",
+      "name": "UMM AL SHUBRUM",
+      "tier": "CHARLIE",
+      "rank": 509,
+      "dwt_tons": 80000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1023401",
+      "mmsi": "565577190",
+      "name": "DIAMOND GAS JADE",
+      "tier": "CHARLIE",
+      "rank": 510,
+      "dwt_tons": 80000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9216298",
+      "mmsi": "273975809",
+      "name": "ARCTIC VOSTOK (ранее: ASYA ENERGY, EAST ENERGY, TRADER IV)",
+      "tier": "CHARLIE",
+      "rank": 511,
+      "dwt_tons": 79885.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9262209",
+      "mmsi": "636275356",
+      "name": "LNG AKWA IBOM",
+      "tier": "CHARLIE",
+      "rank": 512,
+      "dwt_tons": 79633.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9350927",
+      "mmsi": "372469851",
+      "name": "TRINITY GLORY",
+      "tier": "CHARLIE",
+      "rank": 513,
+      "dwt_tons": 79605.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9375721",
+      "mmsi": "370833000",
+      "name": "POINT FORTIN (экс-GDF Suez Point Fortin)",
+      "tier": "CHARLIE",
+      "rank": 514,
+      "dwt_tons": 79592.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9331048",
+      "mmsi": "352006723",
+      "name": "MARAN GAS CORONIS",
+      "tier": "CHARLIE",
+      "rank": 515,
+      "dwt_tons": 79576.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9319404",
+      "mmsi": "273121500",
+      "name": "AVACHA (Авача)",
+      "tier": "CHARLIE",
+      "rank": 516,
+      "dwt_tons": 79556.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9262235",
+      "mmsi": "310479000",
+      "name": "LNG RIVER NIGER",
+      "tier": "BRAVO",
+      "rank": 517,
+      "dwt_tons": 79541.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9675200",
+      "mmsi": "432913598",
+      "name": "KAKUYU MARU",
+      "tier": "CHARLIE",
+      "rank": 518,
+      "dwt_tons": 79450.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9230048",
+      "mmsi": "525121118",
+      "name": "GAS POLARIS (историческое наименование: Hyundai Utopia)",
+      "tier": "BRAVO",
+      "rank": 519,
+      "dwt_tons": 79363.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9849277",
+      "mmsi": "636246166",
+      "name": "VEGA SAGE",
+      "tier": "CHARLIE",
+      "rank": 520,
+      "dwt_tons": 79300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9321744",
+      "mmsi": "310528000",
+      "name": "SHANDONG REDWOOD (историческое название: METHANE HEATHER SALLY)",
+      "tier": "CHARLIE",
+      "rank": 521,
+      "dwt_tons": 79084.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9321768",
+      "mmsi": "310540000",
+      "name": "EXCELERATE SHENANDOAH",
+      "tier": "BRAVO",
+      "rank": 522,
+      "dwt_tons": 79058.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9202039",
+      "mmsi": "304050864",
+      "name": "PIONEER 2039",
+      "tier": "CHARLIE",
+      "rank": 523,
+      "dwt_tons": 79050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9307188",
+      "mmsi": "477248600",
+      "name": "GRAND REACH (экс-Methane Rita Andrea)",
+      "tier": "CHARLIE",
+      "rank": 524,
+      "dwt_tons": 79046.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9936537",
+      "mmsi": "9936537",
+      "name": "CHRYSOPIGI LADY",
+      "tier": "CHARLIE",
+      "rank": 525,
+      "dwt_tons": 78700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9307176",
+      "mmsi": "309520251",
+      "name": "AL DEEBEL",
+      "tier": "CHARLIE",
+      "rank": 526,
+      "dwt_tons": 78594.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9298399",
+      "mmsi": "309657954",
+      "name": "AL THAKHIRAТип судна: Танкер для перевозки сжиженного природного газа (LNG Tanker)",
+      "tier": "CHARLIE",
+      "rank": 527,
+      "dwt_tons": 78542.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9285952",
+      "mmsi": "311628000",
+      "name": "LUSAIL (ранее — Al Wosail)",
+      "tier": "BRAVO",
+      "rank": 528,
+      "dwt_tons": 78489.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9878711",
+      "mmsi": "9878711",
+      "name": "CELSIUS CHARLOTTE",
+      "tier": "CHARLIE",
+      "rank": 529,
+      "dwt_tons": 78200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9315719",
+      "mmsi": "525817543",
+      "name": "LNG NOBLEТип судна: Танкер для перевозки сжиженного природного газа (LNG Tanker)",
+      "tier": "CHARLIE",
+      "rank": 530,
+      "dwt_tons": 77969.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9230050",
+      "mmsi": "636687365",
+      "name": "EXCALIBUR",
+      "tier": "CHARLIE",
+      "rank": 531,
+      "dwt_tons": 77822.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9246621",
+      "mmsi": "273744411",
+      "name": "PORTOVYY",
+      "tier": "CHARLIE",
+      "rank": 532,
+      "dwt_tons": 77777.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9256602",
+      "mmsi": "273340210",
+      "name": "ARCTIC PIONEER",
+      "tier": "CHARLIE",
+      "rank": 533,
+      "dwt_tons": 77712.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9253715",
+      "mmsi": "538319219",
+      "name": "ENERGOS PRINCESS",
+      "tier": "CHARLIE",
+      "rank": 534,
+      "dwt_tons": 77707.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9243148",
+      "mmsi": "273163325",
+      "name": "GAS 3148",
+      "tier": "CHARLIE",
+      "rank": 535,
+      "dwt_tons": 77551.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9183269",
+      "mmsi": "538009542",
+      "name": "HYUNDAI OCEANPIA",
+      "tier": "CHARLIE",
+      "rank": 536,
+      "dwt_tons": 77512.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9230062",
+      "mmsi": "538429778",
+      "name": "MARIGOLD LNGТип судна: Газовоз (LNG Tanker)",
+      "tier": "CHARLIE",
+      "rank": 537,
+      "dwt_tons": 77410.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9317315",
+      "mmsi": "273099916",
+      "name": "LUCH",
+      "tier": "BRAVO",
+      "rank": 538,
+      "dwt_tons": 77282.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9246578",
+      "mmsi": "224740171",
+      "name": "CADIZ KNUTSEN",
+      "tier": "CHARLIE",
+      "rank": 539,
+      "dwt_tons": 77228.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9338797",
+      "mmsi": "224363353",
+      "name": "SESTAO KNUTSEN",
+      "tier": "CHARLIE",
+      "rank": 540,
+      "dwt_tons": 77204.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9197624",
+      "mmsi": "431315641",
+      "name": "HOUYOSHI MARU",
+      "tier": "CHARLIE",
+      "rank": 541,
+      "dwt_tons": 77200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9403671",
+      "mmsi": "372195000",
+      "name": "TAITAR NO. 3",
+      "tier": "CHARLIE",
+      "rank": 542,
+      "dwt_tons": 77089.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9403645",
+      "mmsi": "372307000",
+      "name": "TAITAR NO. 2",
+      "tier": "BRAVO",
+      "rank": 543,
+      "dwt_tons": 77089.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9403669",
+      "mmsi": "371846000",
+      "name": "TAITAR NO. 1",
+      "tier": "CHARLIE",
+      "rank": 544,
+      "dwt_tons": 77089.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "1030234",
+      "mmsi": "1030234",
+      "name": "GAS ORCHID",
+      "tier": "CHARLIE",
+      "rank": 545,
+      "dwt_tons": 76850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9296688",
+      "mmsi": "433434436",
+      "name": "HAKUSEI MARU NO.15",
+      "tier": "CHARLIE",
+      "rank": 546,
+      "dwt_tons": 76700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9940978",
+      "mmsi": "9940978",
+      "name": "TSUBAKI",
+      "tier": "CHARLIE",
+      "rank": 547,
+      "dwt_tons": 76500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9512836",
+      "mmsi": "432917615",
+      "name": "SHORYU MARU",
+      "tier": "CHARLIE",
+      "rank": 548,
+      "dwt_tons": 76500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9909390",
+      "mmsi": "432954784",
+      "name": "HOSEI MARU NO.3",
+      "tier": "CHARLIE",
+      "rank": 549,
+      "dwt_tons": 76300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9261205",
+      "mmsi": "616057388",
+      "name": "MUTIARA",
+      "tier": "CHARLIE",
+      "rank": 550,
+      "dwt_tons": 76229.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9201126",
+      "mmsi": "457900595",
+      "name": "GAS 1126",
+      "tier": "CHARLIE",
+      "rank": 551,
+      "dwt_tons": 75950.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9276389",
+      "mmsi": "309700193",
+      "name": "ARCTIC DISCOVERER",
+      "tier": "CHARLIE",
+      "rank": 552,
+      "dwt_tons": 75485.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9522415",
+      "mmsi": "9522415",
+      "name": "GAS POWER",
+      "tier": "CHARLIE",
+      "rank": 553,
+      "dwt_tons": 75150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9238040",
+      "mmsi": "538690071",
+      "name": "SINGAPORE ENERGY",
+      "tier": "CHARLIE",
+      "rank": 554,
+      "dwt_tons": 75074.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9250191",
+      "mmsi": "538426115",
+      "name": "MERCHANT",
+      "tier": "CHARLIE",
+      "rank": 555,
+      "dwt_tons": 75059.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9863223",
+      "mmsi": "567292954",
+      "name": "VESSEL 3223",
+      "tier": "CHARLIE",
+      "rank": 556,
+      "dwt_tons": 74999.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9307748",
+      "mmsi": "603914000",
+      "name": "ASTRAM",
+      "tier": "CHARLIE",
+      "rank": 557,
+      "dwt_tons": 74950.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9853383",
+      "mmsi": "431606496",
+      "name": "NIKKO MARU NO.28",
+      "tier": "CHARLIE",
+      "rank": 558,
+      "dwt_tons": 74750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9799379",
+      "mmsi": "229649456",
+      "name": "INEOS MARLIN",
+      "tier": "CHARLIE",
+      "rank": 559,
+      "dwt_tons": 74650.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9338929",
+      "mmsi": "210155657",
+      "name": "GRAND MEREYA",
+      "tier": "CHARLIE",
+      "rank": 560,
+      "dwt_tons": 74497.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9789324",
+      "mmsi": "9789324",
+      "name": "WEPION",
+      "tier": "CHARLIE",
+      "rank": 561,
+      "dwt_tons": 74150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9332054",
+      "mmsi": "209407000",
+      "name": "GRAND ELENA",
+      "tier": "CHARLIE",
+      "rank": 562,
+      "dwt_tons": 74127.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9256200",
+      "mmsi": "311605000",
+      "name": "FUWAIRIT",
+      "tier": "BRAVO",
+      "rank": 563,
+      "dwt_tons": 74067.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9338955",
+      "mmsi": "212883000",
+      "name": "GRAND ANIVA",
+      "tier": "CHARLIE",
+      "rank": 564,
+      "dwt_tons": 74044.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9706504",
+      "mmsi": "309136192",
+      "name": "CHEYENNE",
+      "tier": "CHARLIE",
+      "rank": 565,
+      "dwt_tons": 74000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9256793",
+      "mmsi": "525401281",
+      "name": "PRIMA CONCORD",
+      "tier": "CHARLIE",
+      "rank": 566,
+      "dwt_tons": 73989.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9255854",
+      "mmsi": "229401097",
+      "name": "MILAHA RAS LAFFAN",
+      "tier": "BRAVO",
+      "rank": 567,
+      "dwt_tons": 73705.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9250725",
+      "mmsi": "538966026",
+      "name": "HONGKONG ENERGY",
+      "tier": "CHARLIE",
+      "rank": 568,
+      "dwt_tons": 73659.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9074652",
+      "mmsi": "636430129",
+      "name": "UMM AL ASHTAN",
+      "tier": "CHARLIE",
+      "rank": 569,
+      "dwt_tons": 73100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9904194",
+      "mmsi": "228420100",
+      "name": "AZURE 4194",
+      "tier": "CHARLIE",
+      "rank": 570,
+      "dwt_tons": 73100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9172636",
+      "mmsi": "626613043",
+      "name": "GAS STRENGTH",
+      "tier": "CHARLIE",
+      "rank": 571,
+      "dwt_tons": 73050.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9431111",
+      "mmsi": "9431111",
+      "name": "AL KHATTIYA",
+      "tier": "CHARLIE",
+      "rank": 572,
+      "dwt_tons": 73050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9014420",
+      "mmsi": "620800004",
+      "name": "SARAH",
+      "tier": "CHARLIE",
+      "rank": 573,
+      "dwt_tons": 72950.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9253222",
+      "mmsi": "567399443",
+      "name": "SHANDONG JUNIPER",
+      "tier": "CHARLIE",
+      "rank": 574,
+      "dwt_tons": 72727.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "7382720",
+      "mmsi": "538004197",
+      "name": "GAS 2720",
+      "tier": "CHARLIE",
+      "rank": 575,
+      "dwt_tons": 72703.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9264910",
+      "mmsi": "525301553",
+      "name": "PRIMA CARRIER",
+      "tier": "BRAVO",
+      "rank": 576,
+      "dwt_tons": 72571.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9247962",
+      "mmsi": "311573000",
+      "name": "PACIFIC NOTUS",
+      "tier": "BRAVO",
+      "rank": 577,
+      "dwt_tons": 72490.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9260603",
+      "mmsi": "433851960",
+      "name": "SHINJU MARU NO.1",
+      "tier": "CHARLIE",
+      "rank": 578,
+      "dwt_tons": 72450.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9780732",
+      "mmsi": "9780732",
+      "name": "ALBERT II",
+      "tier": "CHARLIE",
+      "rank": 579,
+      "dwt_tons": 72400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9941453",
+      "mmsi": "563208200",
+      "name": "MAOMING PAN",
+      "tier": "CHARLIE",
+      "rank": 580,
+      "dwt_tons": 72250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9989376",
+      "mmsi": "432740007",
+      "name": "KOUAN MARU",
+      "tier": "CHARLIE",
+      "rank": 581,
+      "dwt_tons": 72200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9158240",
+      "mmsi": "511101848",
+      "name": "MD 23",
+      "tier": "CHARLIE",
+      "rank": 582,
+      "dwt_tons": 72200.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9139696",
+      "mmsi": "613003392",
+      "name": "G YMM",
+      "tier": "CHARLIE",
+      "rank": 583,
+      "dwt_tons": 71550.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "1030272",
+      "mmsi": "563087750",
+      "name": "GAS SYRINGA",
+      "tier": "CHARLIE",
+      "rank": 584,
+      "dwt_tons": 71400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9264908",
+      "mmsi": "477223600",
+      "name": "LUMINA POLARIS",
+      "tier": "CHARLIE",
+      "rank": 585,
+      "dwt_tons": 71250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9196450",
+      "mmsi": "352005323",
+      "name": "XIN MING LONG",
+      "tier": "CHARLIE",
+      "rank": 586,
+      "dwt_tons": 70300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9905978",
+      "mmsi": "566341814",
+      "name": "LAGENDA SURIA",
+      "tier": "CHARLIE",
+      "rank": 587,
+      "dwt_tons": 70000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1014113",
+      "mmsi": "370696350",
+      "name": "ENEOS OCEAN",
+      "tier": "CHARLIE",
+      "rank": 588,
+      "dwt_tons": 69750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9750244",
+      "mmsi": "477157200",
+      "name": "LNG 0244",
+      "tier": "CHARLIE",
+      "rank": 589,
+      "dwt_tons": 69700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9229233",
+      "mmsi": "351143000",
+      "name": "ARD HORIZON",
+      "tier": "CHARLIE",
+      "rank": 590,
+      "dwt_tons": 69300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9203758",
+      "mmsi": "636907214",
+      "name": "PACIFIC 3758",
+      "tier": "CHARLIE",
+      "rank": 591,
+      "dwt_tons": 68400.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "8589038",
+      "mmsi": "413384010",
+      "name": "BAO LE",
+      "tier": "CHARLIE",
+      "rank": 592,
+      "dwt_tons": 68150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9748227",
+      "mmsi": "9748227",
+      "name": "BW VAR",
+      "tier": "CHARLIE",
+      "rank": 593,
+      "dwt_tons": 68050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1042562",
+      "mmsi": "538666235",
+      "name": "GAZ RONIN",
+      "tier": "CHARLIE",
+      "rank": 594,
+      "dwt_tons": 67633.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9719410",
+      "mmsi": "636021773",
+      "name": "POINTIS",
+      "tier": "CHARLIE",
+      "rank": 595,
+      "dwt_tons": 67500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1050117",
+      "mmsi": "538390513",
+      "name": "ENERGY GUARDIANIMO номер: 1050117",
+      "tier": "CHARLIE",
+      "rank": 596,
+      "dwt_tons": 67026.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9329722",
+      "mmsi": "447087000",
+      "name": "GAS AL NEGEH",
+      "tier": "CHARLIE",
+      "rank": 597,
+      "dwt_tons": 67000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9354612",
+      "mmsi": "355250102",
+      "name": "PINAR GAS",
+      "tier": "CHARLIE",
+      "rank": 598,
+      "dwt_tons": 66900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "8608872",
+      "mmsi": "636370075",
+      "name": "KARMOL LNGT POWERSHIP ANTARCTICA",
+      "tier": "CHARLIE",
+      "rank": 599,
+      "dwt_tons": 66810.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "8608884",
+      "mmsi": "636658185",
+      "name": "KARADENIZ LNGT POWERSHIP OCEANIA",
+      "tier": "CHARLIE",
+      "rank": 600,
+      "dwt_tons": 66695.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "1017103",
+      "mmsi": "636026044",
+      "name": "IVY COVE",
+      "tier": "DELTA",
+      "rank": 601,
+      "dwt_tons": 66615.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1042574",
+      "mmsi": "538012175",
+      "name": "GAZ GOTHAM",
+      "tier": "DELTA",
+      "rank": 602,
+      "dwt_tons": 66350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9388819",
+      "mmsi": "9388819",
+      "name": "LIJMILIYA",
+      "tier": "DELTA",
+      "rank": 603,
+      "dwt_tons": 66050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9974591",
+      "mmsi": "432103710",
+      "name": "KAYOH",
+      "tier": "DELTA",
+      "rank": 604,
+      "dwt_tons": 65900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9734525",
+      "mmsi": "9734525",
+      "name": "SANSOVINO",
+      "tier": "DELTA",
+      "rank": 605,
+      "dwt_tons": 65050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9206396",
+      "mmsi": "477227800",
+      "name": "MIGHTY NAVIGATOR",
+      "tier": "DELTA",
+      "rank": 606,
+      "dwt_tons": 64550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1054163",
+      "mmsi": "636742135",
+      "name": "GAS ALTAIR",
+      "tier": "DELTA",
+      "rank": 607,
+      "dwt_tons": 64423.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9256597",
+      "mmsi": "9256597",
+      "name": "BERGE ARZEW",
+      "tier": "DELTA",
+      "rank": 608,
+      "dwt_tons": 64350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9002908",
+      "mmsi": "373502000",
+      "name": "GLOBAL VIVIAN",
+      "tier": "DELTA",
+      "rank": 609,
+      "dwt_tons": 64220.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9405875",
+      "mmsi": "419451470",
+      "name": "HISUI",
+      "tier": "DELTA",
+      "rank": 610,
+      "dwt_tons": 64200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1030246",
+      "mmsi": "563294500",
+      "name": "GAS LOTUS",
+      "tier": "DELTA",
+      "rank": 611,
+      "dwt_tons": 64197.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1030301",
+      "mmsi": "565946060",
+      "name": "GAS PEONY",
+      "tier": "DELTA",
+      "rank": 612,
+      "dwt_tons": 64135.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9918171",
+      "mmsi": "636495519",
+      "name": "STL YANGTZE",
+      "tier": "DELTA",
+      "rank": 613,
+      "dwt_tons": 64012.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9935480",
+      "mmsi": "636021212",
+      "name": "STL HUANGPU",
+      "tier": "DELTA",
+      "rank": 614,
+      "dwt_tons": 63824.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9864306",
+      "mmsi": "564977003",
+      "name": "SERI EMORY",
+      "tier": "DELTA",
+      "rank": 615,
+      "dwt_tons": 63770.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1076276",
+      "mmsi": "563322200",
+      "name": "ACS SP VOYAGER",
+      "tier": "DELTA",
+      "rank": 616,
+      "dwt_tons": 63500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9468437",
+      "mmsi": "210478000",
+      "name": "TITAN UNIKUM",
+      "tier": "DELTA",
+      "rank": 617,
+      "dwt_tons": 63250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9655949",
+      "mmsi": "416904284",
+      "name": "NAVIGATOR 5949",
+      "tier": "DELTA",
+      "rank": 618,
+      "dwt_tons": 62150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9431252",
+      "mmsi": "352002364",
+      "name": "PIONEER 1252",
+      "tier": "DELTA",
+      "rank": 619,
+      "dwt_tons": 61100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9964546",
+      "mmsi": "563221400",
+      "name": "GAS CHANGJIANG",
+      "tier": "DELTA",
+      "rank": 620,
+      "dwt_tons": 60648.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9964558",
+      "mmsi": "566334855",
+      "name": "GAS HUANGHEТип судна: Газовоз (LPG Tanker)",
+      "tier": "DELTA",
+      "rank": 621,
+      "dwt_tons": 60551.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1050571",
+      "mmsi": "538670777",
+      "name": "ENERGY PIONEER",
+      "tier": "DELTA",
+      "rank": 622,
+      "dwt_tons": 60538.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9965710",
+      "mmsi": "477040088",
+      "name": "PACIFIC SP MINERVAТип судна: Газовоз СУГ (LPG Tanker)",
+      "tier": "DELTA",
+      "rank": 623,
+      "dwt_tons": 60526.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9974759",
+      "mmsi": "564052150",
+      "name": "GAS JESSAMINE",
+      "tier": "DELTA",
+      "rank": 624,
+      "dwt_tons": 60506.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9002491",
+      "mmsi": "650000169",
+      "name": "PYRA",
+      "tier": "DELTA",
+      "rank": 625,
+      "dwt_tons": 60500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9990519",
+      "mmsi": "636025257",
+      "name": "PACIFIC INEOS SELA",
+      "tier": "DELTA",
+      "rank": 626,
+      "dwt_tons": 60463.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9990533",
+      "mmsi": "636408069",
+      "name": "PACIFIC INEOS MIO",
+      "tier": "DELTA",
+      "rank": 627,
+      "dwt_tons": 60435.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1013846",
+      "mmsi": "636024976",
+      "name": "GAS MINJIANG",
+      "tier": "DELTA",
+      "rank": 628,
+      "dwt_tons": 60322.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9919175",
+      "mmsi": "564204682",
+      "name": "GAS BLUEBONNET",
+      "tier": "DELTA",
+      "rank": 629,
+      "dwt_tons": 60206.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1030260",
+      "mmsi": "1030260",
+      "name": "GAS VIOLET",
+      "tier": "DELTA",
+      "rank": 630,
+      "dwt_tons": 59800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9707508",
+      "mmsi": "9707508",
+      "name": "GASLOG GENEVA",
+      "tier": "DELTA",
+      "rank": 631,
+      "dwt_tons": 59700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9864966",
+      "mmsi": "563123800",
+      "name": "SERI ERLANG",
+      "tier": "DELTA",
+      "rank": 632,
+      "dwt_tons": 59654.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9864954",
+      "mmsi": "563119500",
+      "name": "SERI EVEREST",
+      "tier": "DELTA",
+      "rank": 633,
+      "dwt_tons": 59642.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9443401",
+      "mmsi": "9443401",
+      "name": "AAMIRA",
+      "tier": "DELTA",
+      "rank": 634,
+      "dwt_tons": 59400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9932581",
+      "mmsi": "538735524",
+      "name": "KAEDE",
+      "tier": "DELTA",
+      "rank": 635,
+      "dwt_tons": 59320.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9945203",
+      "mmsi": "636023667",
+      "name": "BOREAL VOYAGER",
+      "tier": "DELTA",
+      "rank": 636,
+      "dwt_tons": 59206.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9752280",
+      "mmsi": "538439057",
+      "name": "GAS 2280",
+      "tier": "DELTA",
+      "rank": 637,
+      "dwt_tons": 59138.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9849629",
+      "mmsi": "447275000",
+      "name": "GAS AL AHMADIAH",
+      "tier": "DELTA",
+      "rank": 638,
+      "dwt_tons": 59100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9752278",
+      "mmsi": "538695900",
+      "name": "ETHANE CRYSTALIMO номер: 9752278",
+      "tier": "DELTA",
+      "rank": 639,
+      "dwt_tons": 59087.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9752307",
+      "mmsi": "538006977",
+      "name": "ETHANE PEARL",
+      "tier": "DELTA",
+      "rank": 640,
+      "dwt_tons": 59083.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9752618",
+      "mmsi": "538006979",
+      "name": "ETHANE TOPAZ",
+      "tier": "DELTA",
+      "rank": 641,
+      "dwt_tons": 59069.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9938511",
+      "mmsi": "636021070",
+      "name": "PACIFICATOR",
+      "tier": "DELTA",
+      "rank": 642,
+      "dwt_tons": 58995.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9415698",
+      "mmsi": "419469826",
+      "name": "GAS SHAKTI",
+      "tier": "DELTA",
+      "rank": 643,
+      "dwt_tons": 58950.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9347504",
+      "mmsi": "255915947",
+      "name": "CAPTAIN JOHN N (исторические наименования: BW Empress, Berge Empress)",
+      "tier": "DELTA",
+      "rank": 644,
+      "dwt_tons": 58691.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9938054",
+      "mmsi": "636022185",
+      "name": "HLS EMERALD",
+      "tier": "DELTA",
+      "rank": 645,
+      "dwt_tons": 58607.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9249049",
+      "mmsi": "354453000",
+      "name": "KODAIJISAN",
+      "tier": "DELTA",
+      "rank": 646,
+      "dwt_tons": 58591.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9315680",
+      "mmsi": "419915068",
+      "name": "PINE GAS",
+      "tier": "DELTA",
+      "rank": 647,
+      "dwt_tons": 58585.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9387750",
+      "mmsi": "538010314",
+      "name": "VISHVAKARMAA",
+      "tier": "DELTA",
+      "rank": 648,
+      "dwt_tons": 58560.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9387762",
+      "mmsi": "351367222",
+      "name": "GALVIN",
+      "tier": "CHARLIE",
+      "rank": 649,
+      "dwt_tons": 58551.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9555008",
+      "mmsi": "636021172",
+      "name": "OCEANUS AURORA",
+      "tier": "DELTA",
+      "rank": 650,
+      "dwt_tons": 58495.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9407122",
+      "mmsi": "538010305",
+      "name": "FRITZIN",
+      "tier": "DELTA",
+      "rank": 651,
+      "dwt_tons": 58448.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9744776",
+      "mmsi": "636024861",
+      "name": "GASCHEM DOLLART",
+      "tier": "DELTA",
+      "rank": 652,
+      "dwt_tons": 58400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9360879",
+      "mmsi": "308701952",
+      "name": "AL HUWAILA",
+      "tier": "DELTA",
+      "rank": 653,
+      "dwt_tons": 58400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9350290",
+      "mmsi": "419001720",
+      "name": "BW LOYALTY",
+      "tier": "CHARLIE",
+      "rank": 654,
+      "dwt_tons": 58400.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9937074",
+      "mmsi": "352003540",
+      "name": "PERTAMINA GAS DAHLIA",
+      "tier": "DELTA",
+      "rank": 655,
+      "dwt_tons": 58265.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9930296",
+      "mmsi": "538611974",
+      "name": "GAS 0296",
+      "tier": "DELTA",
+      "rank": 656,
+      "dwt_tons": 58247.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9337731",
+      "mmsi": "636040328",
+      "name": "TEMBEK",
+      "tier": "DELTA",
+      "rank": 657,
+      "dwt_tons": 58200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9320764",
+      "mmsi": "419001669",
+      "name": "BW OAK",
+      "tier": "DELTA",
+      "rank": 658,
+      "dwt_tons": 58159.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9969845",
+      "mmsi": "565870542",
+      "name": "GAS VELA",
+      "tier": "DELTA",
+      "rank": 659,
+      "dwt_tons": 58155.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9320752",
+      "mmsi": "419252731",
+      "name": "PACIFIC 0752",
+      "tier": "DELTA",
+      "rank": 660,
+      "dwt_tons": 58136.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9320740",
+      "mmsi": "419001563",
+      "name": "BW BIRCH",
+      "tier": "DELTA",
+      "rank": 661,
+      "dwt_tons": 58123.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9320738",
+      "mmsi": "636596480",
+      "name": "FAS GAS (бывш. GAS SERENITY, GAS PRINCESS)",
+      "tier": "DELTA",
+      "rank": 662,
+      "dwt_tons": 58063.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9933509",
+      "mmsi": "567954204",
+      "name": "HENBIT",
+      "tier": "DELTA",
+      "rank": 663,
+      "dwt_tons": 58060.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9353242",
+      "mmsi": "538011959",
+      "name": "HAANA",
+      "tier": "DELTA",
+      "rank": 664,
+      "dwt_tons": 58000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9922768",
+      "mmsi": "563181500",
+      "name": "HARZAND",
+      "tier": "DELTA",
+      "rank": 665,
+      "dwt_tons": 57975.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9941441",
+      "mmsi": "563200900",
+      "name": "MADAM XIAN",
+      "tier": "DELTA",
+      "rank": 666,
+      "dwt_tons": 57961.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9904091",
+      "mmsi": "228406700",
+      "name": "JEAN RASPAIL",
+      "tier": "DELTA",
+      "rank": 667,
+      "dwt_tons": 57847.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9953535",
+      "mmsi": "273735889",
+      "name": "ZARYA",
+      "tier": "DELTA",
+      "rank": 668,
+      "dwt_tons": 57800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9904211",
+      "mmsi": "228406800",
+      "name": "FREYCINET",
+      "tier": "DELTA",
+      "rank": 669,
+      "dwt_tons": 57749.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9212577",
+      "mmsi": "341705001",
+      "name": "CARGO 2577",
+      "tier": "DELTA",
+      "rank": 670,
+      "dwt_tons": 57700.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "1014058",
+      "mmsi": "352005692",
+      "name": "GAS KING",
+      "tier": "DELTA",
+      "rank": 671,
+      "dwt_tons": 57447.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1013377",
+      "mmsi": "636465589",
+      "name": "ANTWERPEN",
+      "tier": "DELTA",
+      "rank": 672,
+      "dwt_tons": 57150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9952983",
+      "mmsi": "636224695",
+      "name": "ATLAS 2983",
+      "tier": "DELTA",
+      "rank": 673,
+      "dwt_tons": 57050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9866017",
+      "mmsi": "431778289",
+      "name": "HOURIN MARU NO.1",
+      "tier": "DELTA",
+      "rank": 674,
+      "dwt_tons": 57050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9397298",
+      "mmsi": "538003356",
+      "name": "AL MAYEDA",
+      "tier": "DELTA",
+      "rank": 675,
+      "dwt_tons": 56900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9719288",
+      "mmsi": "636881652",
+      "name": "KRUIBEKE",
+      "tier": "DELTA",
+      "rank": 676,
+      "dwt_tons": 56900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9193733",
+      "mmsi": "477212200",
+      "name": "RONG HAO (ранее: GAS COUGAR, GAS ECLIPSE)",
+      "tier": "DELTA",
+      "rank": 677,
+      "dwt_tons": 56745.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9947483",
+      "mmsi": "352002825",
+      "name": "PHOENIX HARMONIA",
+      "tier": "DELTA",
+      "rank": 678,
+      "dwt_tons": 56711.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9833199",
+      "mmsi": "9833199",
+      "name": "CRYSTAL ANGEL",
+      "tier": "DELTA",
+      "rank": 679,
+      "dwt_tons": 56600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9984728",
+      "mmsi": "636022843",
+      "name": "CORFU GAS",
+      "tier": "DELTA",
+      "rank": 680,
+      "dwt_tons": 56549.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9993626",
+      "mmsi": "636022845",
+      "name": "BONNEVILLE",
+      "tier": "DELTA",
+      "rank": 681,
+      "dwt_tons": 56495.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9987550",
+      "mmsi": "636022844",
+      "name": "ITHACA GAS",
+      "tier": "DELTA",
+      "rank": 682,
+      "dwt_tons": 56457.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9978781",
+      "mmsi": "564414112",
+      "name": "CRYSTAL EXPLORERТип судна: Газовоз (LPG/Ammonia Carrier)",
+      "tier": "DELTA",
+      "rank": 683,
+      "dwt_tons": 56415.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9980150",
+      "mmsi": "352005790",
+      "name": "LUNA PATHFINDER",
+      "tier": "DELTA",
+      "rank": 684,
+      "dwt_tons": 56380.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9997189",
+      "mmsi": "538929134",
+      "name": "NAVIGATOR 7189",
+      "tier": "DELTA",
+      "rank": 685,
+      "dwt_tons": 56378.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9997177",
+      "mmsi": "565224300",
+      "name": "CRYSTAL ODYSSEY",
+      "tier": "DELTA",
+      "rank": 686,
+      "dwt_tons": 56331.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9733533",
+      "mmsi": "565502000",
+      "name": "EPIC SENTOSA",
+      "tier": "DELTA",
+      "rank": 687,
+      "dwt_tons": 56300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1051630",
+      "mmsi": "636794583",
+      "name": "ATLAS 1630",
+      "tier": "DELTA",
+      "rank": 688,
+      "dwt_tons": 56192.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1026829",
+      "mmsi": "257492850",
+      "name": "CLIPPER GALLEON",
+      "tier": "DELTA",
+      "rank": 689,
+      "dwt_tons": 56171.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9983504",
+      "mmsi": "9983504",
+      "name": "COURCHEVEL",
+      "tier": "DELTA",
+      "rank": 690,
+      "dwt_tons": 55750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9996020",
+      "mmsi": "308708135",
+      "name": "ATLANTIC VOYAGER",
+      "tier": "DELTA",
+      "rank": 691,
+      "dwt_tons": 55711.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9989651",
+      "mmsi": "538011339",
+      "name": "HELLAS PROSPERITY",
+      "tier": "DELTA",
+      "rank": 692,
+      "dwt_tons": 55711.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9989649",
+      "mmsi": "538011340",
+      "name": "HELLAS BLISSIMO номер: 9989649",
+      "tier": "DELTA",
+      "rank": 693,
+      "dwt_tons": 55711.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9987081",
+      "mmsi": "636023948",
+      "name": "ROSA BLANCHE (в реестрах: ROSABLANCHE)",
+      "tier": "DELTA",
+      "rank": 694,
+      "dwt_tons": 55593.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9923097",
+      "mmsi": "636989889",
+      "name": "BAYNOUNAHТип судна: Газовоз (LPG Tanker / VLGC)",
+      "tier": "DELTA",
+      "rank": 695,
+      "dwt_tons": 55495.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9889552",
+      "mmsi": "355437000",
+      "name": "GAS PLANET",
+      "tier": "CHARLIE",
+      "rank": 696,
+      "dwt_tons": 55432.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9832808",
+      "mmsi": "566216071",
+      "name": "REFERENCE POINT",
+      "tier": "DELTA",
+      "rank": 697,
+      "dwt_tons": 55427.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9889564",
+      "mmsi": "232491643",
+      "name": "DURHAM",
+      "tier": "DELTA",
+      "rank": 698,
+      "dwt_tons": 55408.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9938585",
+      "mmsi": "636663259",
+      "name": "HLS CITRINE",
+      "tier": "CHARLIE",
+      "rank": 699,
+      "dwt_tons": 55383.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9940605",
+      "mmsi": "636021823",
+      "name": "HLS DIAMOND",
+      "tier": "DELTA",
+      "rank": 700,
+      "dwt_tons": 55383.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9847944",
+      "mmsi": "563236700",
+      "name": "GAS BOMBAX (экс-China Gas Legend)",
+      "tier": "DELTA",
+      "rank": 701,
+      "dwt_tons": 55368.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9940966",
+      "mmsi": "538381391",
+      "name": "MIZAR",
+      "tier": "DELTA",
+      "rank": 702,
+      "dwt_tons": 55354.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1024584",
+      "mmsi": "538244405",
+      "name": "MIZAR",
+      "tier": "DELTA",
+      "rank": 703,
+      "dwt_tons": 55354.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1024572",
+      "mmsi": "538273569",
+      "name": "MERAK",
+      "tier": "DELTA",
+      "rank": 704,
+      "dwt_tons": 55354.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9943528",
+      "mmsi": "538010751",
+      "name": "NORTH GAS",
+      "tier": "DELTA",
+      "rank": 705,
+      "dwt_tons": 55231.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9939917",
+      "mmsi": "311001157",
+      "name": "CAPTAIN MARKOS",
+      "tier": "DELTA",
+      "rank": 706,
+      "dwt_tons": 55206.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9876490",
+      "mmsi": "565307770",
+      "name": "GAS VENUSТип судна: Газовоз (LPG Tanker / VLGC — Very Large Gas Carrier)",
+      "tier": "DELTA",
+      "rank": 707,
+      "dwt_tons": 55182.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9933444",
+      "mmsi": "352001822",
+      "name": "LANTANA PLANET",
+      "tier": "DELTA",
+      "rank": 708,
+      "dwt_tons": 55153.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9916836",
+      "mmsi": "636610123",
+      "name": "RABDAN",
+      "tier": "DELTA",
+      "rank": 709,
+      "dwt_tons": 55145.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9795672",
+      "mmsi": "431200000",
+      "name": "LAUREL PRIME",
+      "tier": "DELTA",
+      "rank": 710,
+      "dwt_tons": 55115.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9929209",
+      "mmsi": "373760080",
+      "name": "LUPINUS PLANET",
+      "tier": "DELTA",
+      "rank": 711,
+      "dwt_tons": 55091.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9915806",
+      "mmsi": "567299319",
+      "name": "VESSEL 5806",
+      "tier": "DELTA",
+      "rank": 712,
+      "dwt_tons": 55090.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9902794",
+      "mmsi": "563140200",
+      "name": "GAS SAGITTARIUS",
+      "tier": "DELTA",
+      "rank": 713,
+      "dwt_tons": 55087.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9902809",
+      "mmsi": "563144300",
+      "name": "GAS CAPRICORN",
+      "tier": "DELTA",
+      "rank": 714,
+      "dwt_tons": 55081.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9940992",
+      "mmsi": "370557548",
+      "name": "ATLAS 0992",
+      "tier": "DELTA",
+      "rank": 715,
+      "dwt_tons": 55076.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9415662",
+      "mmsi": "565238000",
+      "name": "AYAME",
+      "tier": "DELTA",
+      "rank": 716,
+      "dwt_tons": 55076.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9906269",
+      "mmsi": "563144100",
+      "name": "CRYSTAL TRINITY",
+      "tier": "DELTA",
+      "rank": 717,
+      "dwt_tons": 55068.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9849289",
+      "mmsi": "636024434",
+      "name": "VEGA SKY (бывш. Keegan No. 2)",
+      "tier": "DELTA",
+      "rank": 718,
+      "dwt_tons": 55065.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9889588",
+      "mmsi": "431752753",
+      "name": "EIHO MARU",
+      "tier": "DELTA",
+      "rank": 719,
+      "dwt_tons": 55050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9415648",
+      "mmsi": "372470000",
+      "name": "MUSANAH",
+      "tier": "DELTA",
+      "rank": 720,
+      "dwt_tons": 55028.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9765562",
+      "mmsi": "374345000",
+      "name": "GAS STELLA",
+      "tier": "DELTA",
+      "rank": 721,
+      "dwt_tons": 55001.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9941221",
+      "mmsi": "636022279",
+      "name": "JIRISAN EXPLORER",
+      "tier": "DELTA",
+      "rank": 722,
+      "dwt_tons": 54994.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9941233",
+      "mmsi": "636022939",
+      "name": "LOGAN EXPLORER",
+      "tier": "DELTA",
+      "rank": 723,
+      "dwt_tons": 54994.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9352963",
+      "mmsi": "525413930",
+      "name": "GAS CAMELOT",
+      "tier": "DELTA",
+      "rank": 724,
+      "dwt_tons": 54994.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9958262",
+      "mmsi": "563245474",
+      "name": "OCEAN 8262",
+      "tier": "DELTA",
+      "rank": 725,
+      "dwt_tons": 54994.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9958274",
+      "mmsi": "636778452",
+      "name": "SOBAEK EXPLORERIMO номер: 9958274",
+      "tier": "DELTA",
+      "rank": 726,
+      "dwt_tons": 54994.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9889576",
+      "mmsi": "563134600",
+      "name": "CRYSTAL ASTERIA",
+      "tier": "DELTA",
+      "rank": 727,
+      "dwt_tons": 54922.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9405083",
+      "mmsi": "564818000",
+      "name": "BW KYOTO",
+      "tier": "DELTA",
+      "rank": 728,
+      "dwt_tons": 54920.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9875408",
+      "mmsi": "370360000",
+      "name": "ETERNAL GLORY",
+      "tier": "DELTA",
+      "rank": 729,
+      "dwt_tons": 54903.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9625152",
+      "mmsi": "352005658",
+      "name": "TETHYS (ранее — Manifesto)",
+      "tier": "DELTA",
+      "rank": 730,
+      "dwt_tons": 54901.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9604392",
+      "mmsi": "352004310",
+      "name": "MARITIME 4392",
+      "tier": "DELTA",
+      "rank": 731,
+      "dwt_tons": 54901.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9608300",
+      "mmsi": "538946600",
+      "name": "BADRINATHI MO номер: 9608300",
+      "tier": "DELTA",
+      "rank": 732,
+      "dwt_tons": 54901.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9776341",
+      "mmsi": "372052312",
+      "name": "LEO GREEN",
+      "tier": "DELTA",
+      "rank": 733,
+      "dwt_tons": 54893.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9810056",
+      "mmsi": "355908564",
+      "name": "FUTURE ACEТип судна: Газовоз (LPG Tanker / VLGC)",
+      "tier": "DELTA",
+      "rank": 734,
+      "dwt_tons": 54868.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9534614",
+      "mmsi": "352255000",
+      "name": "HH GLORY",
+      "tier": "DELTA",
+      "rank": 735,
+      "dwt_tons": 54867.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9415650",
+      "mmsi": "567891139",
+      "name": "AQUAMARINE PROGRESSТип судна: Газовоз (LPG Tanker / VLGC)",
+      "tier": "DELTA",
+      "rank": 736,
+      "dwt_tons": 54866.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9897559",
+      "mmsi": "205104000",
+      "name": "FLANDERS PIONEER",
+      "tier": "DELTA",
+      "rank": 737,
+      "dwt_tons": 54857.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9611955",
+      "mmsi": "355147000",
+      "name": "G. SWAN",
+      "tier": "DELTA",
+      "rank": 738,
+      "dwt_tons": 54842.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9867102",
+      "mmsi": "355670731",
+      "name": "FUTURE ENERGYТип судна: Газовоз СУГ (LPG Tanker / VLGC)",
+      "tier": "DELTA",
+      "rank": 739,
+      "dwt_tons": 54827.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9810044",
+      "mmsi": "563101300",
+      "name": "BW YUSHI",
+      "tier": "DELTA",
+      "rank": 740,
+      "dwt_tons": 54823.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9208239",
+      "mmsi": "616862403",
+      "name": "GAFUS",
+      "tier": "DELTA",
+      "rank": 741,
+      "dwt_tons": 54800.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9409302",
+      "mmsi": "441125000",
+      "name": "G. FOREVER",
+      "tier": "DELTA",
+      "rank": 742,
+      "dwt_tons": 54800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9364394",
+      "mmsi": "525555340",
+      "name": "CARGO 4394",
+      "tier": "DELTA",
+      "rank": 743,
+      "dwt_tons": 54789.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9656888",
+      "mmsi": "356117000",
+      "name": "G. PARAGON",
+      "tier": "DELTA",
+      "rank": 744,
+      "dwt_tons": 54776.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9739953",
+      "mmsi": "477129700",
+      "name": "PACIFIC QINGDAO",
+      "tier": "DELTA",
+      "rank": 745,
+      "dwt_tons": 54747.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9778480",
+      "mmsi": "477778909",
+      "name": "PACIFIC SHANGHAIТип судна: Танкер для перевозки сжиженного газа (LPG Tanker / VLGC)",
+      "tier": "DELTA",
+      "rank": 746,
+      "dwt_tons": 54747.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9778478",
+      "mmsi": "477035900",
+      "name": "PACIFIC HONG KONG",
+      "tier": "DELTA",
+      "rank": 747,
+      "dwt_tons": 54747.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9743722",
+      "mmsi": "477620900",
+      "name": "CYH QUANZHOU (ранее — Pacific Dongying)",
+      "tier": "DELTA",
+      "rank": 748,
+      "dwt_tons": 54747.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9682447",
+      "mmsi": "9682447",
+      "name": "ALBERT",
+      "tier": "DELTA",
+      "rank": 749,
+      "dwt_tons": 54700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9350604",
+      "mmsi": "636524186",
+      "name": "NY LORD",
+      "tier": "DELTA",
+      "rank": 750,
+      "dwt_tons": 54691.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9685217",
+      "mmsi": "525008121",
+      "name": "PERTAMINA GAS 2",
+      "tier": "DELTA",
+      "rank": 751,
+      "dwt_tons": 54683.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9754824",
+      "mmsi": "374797000",
+      "name": "JAGANNATH (ранее — AEOLIAN PEARL, GAS TIGERS)",
+      "tier": "DELTA",
+      "rank": 752,
+      "dwt_tons": 54675.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9730139",
+      "mmsi": "259127000",
+      "name": "TP PERSEVERANCE (экс-Perseverance V)",
+      "tier": "DELTA",
+      "rank": 753,
+      "dwt_tons": 54669.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9780005",
+      "mmsi": "477634476",
+      "name": "GAS AQUARIUS",
+      "tier": "DELTA",
+      "rank": 754,
+      "dwt_tons": 54656.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9706516",
+      "mmsi": "311000375",
+      "name": "COPERNICUS",
+      "tier": "DELTA",
+      "rank": 755,
+      "dwt_tons": 54656.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9800099",
+      "mmsi": "370565759",
+      "name": "GAS YOUNG",
+      "tier": "CHARLIE",
+      "rank": 756,
+      "dwt_tons": 54645.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9694622",
+      "mmsi": "538010974",
+      "name": "MADOIMO: 9694622",
+      "tier": "DELTA",
+      "rank": 757,
+      "dwt_tons": 54627.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9779991",
+      "mmsi": "636022458",
+      "name": "GAS GEMINI",
+      "tier": "DELTA",
+      "rank": 758,
+      "dwt_tons": 54605.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9726102",
+      "mmsi": "563895955",
+      "name": "PIONEER 6102",
+      "tier": "DELTA",
+      "rank": 759,
+      "dwt_tons": 54603.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9726126",
+      "mmsi": "565962000",
+      "name": "SINNDAR",
+      "tier": "DELTA",
+      "rank": 760,
+      "dwt_tons": 54596.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9726114",
+      "mmsi": "567874308",
+      "name": "SHAAMITТип судна: Газовоз для перевозки сжиженного нефтяного газа (LPG Tanker)",
+      "tier": "DELTA",
+      "rank": 761,
+      "dwt_tons": 54595.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9762118",
+      "mmsi": "259899495",
+      "name": "TP TENACITY",
+      "tier": "DELTA",
+      "rank": 762,
+      "dwt_tons": 54593.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9176369",
+      "mmsi": "636999747",
+      "name": "DJANET",
+      "tier": "DELTA",
+      "rank": 763,
+      "dwt_tons": 54584.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9722223",
+      "mmsi": "567596089",
+      "name": "SILVIO",
+      "tier": "DELTA",
+      "rank": 764,
+      "dwt_tons": 54576.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9726061",
+      "mmsi": "538012251",
+      "name": "JAG VIJAY (экс-Navigare Generosa, Sea Bird)",
+      "tier": "DELTA",
+      "rank": 765,
+      "dwt_tons": 54564.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9699995",
+      "mmsi": "538840592",
+      "name": "KEDARNATH (бывш. SPREAD EAGLE)",
+      "tier": "DELTA",
+      "rank": 766,
+      "dwt_tons": 54557.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9377781",
+      "mmsi": "311001930",
+      "name": "GAS ESPOIR",
+      "tier": "DELTA",
+      "rank": 767,
+      "dwt_tons": 54550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9359466",
+      "mmsi": "538005255",
+      "name": "AL WUKIRIMO: 9359466",
+      "tier": "DELTA",
+      "rank": 768,
+      "dwt_tons": 54534.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9849617",
+      "mmsi": "447084516",
+      "name": "GAS AL MUBARAKIAH",
+      "tier": "CHARLIE",
+      "rank": 769,
+      "dwt_tons": 54520.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9388687",
+      "mmsi": "370653000",
+      "name": "OCEAN GAS",
+      "tier": "DELTA",
+      "rank": 770,
+      "dwt_tons": 54517.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9694634",
+      "mmsi": "219654000",
+      "name": "NAVIGARE GAIA",
+      "tier": "DELTA",
+      "rank": 771,
+      "dwt_tons": 54516.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9722792",
+      "mmsi": "308647131",
+      "name": "CHALLENGER",
+      "tier": "DELTA",
+      "rank": 772,
+      "dwt_tons": 54509.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9734513",
+      "mmsi": "636026801",
+      "name": "AL RAWDAH",
+      "tier": "DELTA",
+      "rank": 773,
+      "dwt_tons": 54505.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9797876",
+      "mmsi": "374993000",
+      "name": "G. SPIRIT",
+      "tier": "DELTA",
+      "rank": 774,
+      "dwt_tons": 54502.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9702015",
+      "mmsi": "477248800",
+      "name": "CYH FUJIAN (ранее Jiangsu)",
+      "tier": "DELTA",
+      "rank": 775,
+      "dwt_tons": 54501.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9238284",
+      "mmsi": "352004997",
+      "name": "BRIZO",
+      "tier": "DELTA",
+      "rank": 776,
+      "dwt_tons": 54500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9307736",
+      "mmsi": "574005390",
+      "name": "NV AQUAMARINE (ранее — BW Confidence, British Confidence)",
+      "tier": "DELTA",
+      "rank": 777,
+      "dwt_tons": 54490.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9714381",
+      "mmsi": "311000346",
+      "name": "CONTINENTAL",
+      "tier": "DELTA",
+      "rank": 778,
+      "dwt_tons": 54490.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9307750",
+      "mmsi": "419556672",
+      "name": "JAG VASANTТип судна: Газовоз СПГ/СУГ (LPG Tanker)",
+      "tier": "DELTA",
+      "rank": 779,
+      "dwt_tons": 54478.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9721138",
+      "mmsi": "9721138",
+      "name": "HELLAS HERCULES",
+      "tier": "DELTA",
+      "rank": 780,
+      "dwt_tons": 54409.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9732503",
+      "mmsi": "248715608",
+      "name": "HELLAS GLADIATORТип судна: Газовоз для перевозки сжиженного нефтяного газа (LPG Tanker / VLGC — Very Large Gas Carrier)",
+      "tier": "DELTA",
+      "rank": 781,
+      "dwt_tons": 54376.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9804253",
+      "mmsi": "477281306",
+      "name": "ORIENTAL KING",
+      "tier": "DELTA",
+      "rank": 782,
+      "dwt_tons": 54373.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9794288",
+      "mmsi": "351659502",
+      "name": "ALBERT III",
+      "tier": "DELTA",
+      "rank": 783,
+      "dwt_tons": 54365.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9721140",
+      "mmsi": "256732000",
+      "name": "HELLAS POSEIDON",
+      "tier": "DELTA",
+      "rank": 784,
+      "dwt_tons": 54361.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9703837",
+      "mmsi": "311000255",
+      "name": "CORVETTE",
+      "tier": "DELTA",
+      "rank": 785,
+      "dwt_tons": 54336.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9734680",
+      "mmsi": "311000388",
+      "name": "CONSTELLATION",
+      "tier": "DELTA",
+      "rank": 786,
+      "dwt_tons": 54336.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9752723",
+      "mmsi": "477988301",
+      "name": "GAS SCORPIO",
+      "tier": "CHARLIE",
+      "rank": 787,
+      "dwt_tons": 54312.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9795919",
+      "mmsi": "538007631",
+      "name": "GAZ IMPERIAL",
+      "tier": "DELTA",
+      "rank": 788,
+      "dwt_tons": 54304.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9735036",
+      "mmsi": "232003788",
+      "name": "BW MAGELLAN",
+      "tier": "DELTA",
+      "rank": 789,
+      "dwt_tons": 54268.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9879703",
+      "mmsi": "370666692",
+      "name": "GLOBE POLARIS",
+      "tier": "DELTA",
+      "rank": 790,
+      "dwt_tons": 54238.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9780641",
+      "mmsi": "353466851",
+      "name": "CRYSTAL RIVERТип судна: Газовоз (LPG Tanker / VLGC)",
+      "tier": "DELTA",
+      "rank": 791,
+      "dwt_tons": 54171.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9113379",
+      "mmsi": "350179000",
+      "name": "DA LI (ранее эксплуатировалось под именами VICTORIA, FORTUNA, ATHENA, MING DE, GAS MIRACLE)",
+      "tier": "CHARLIE",
+      "rank": 792,
+      "dwt_tons": 54155.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9719501",
+      "mmsi": "636077125",
+      "name": "BW ORION",
+      "tier": "DELTA",
+      "rank": 793,
+      "dwt_tons": 54116.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9719496",
+      "mmsi": "235111639",
+      "name": "BW LIBRA",
+      "tier": "DELTA",
+      "rank": 794,
+      "dwt_tons": 54116.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9735660",
+      "mmsi": "235115082",
+      "name": "BW VOLANS",
+      "tier": "DELTA",
+      "rank": 795,
+      "dwt_tons": 54116.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9735658",
+      "mmsi": "235115081",
+      "name": "BW TUCANA",
+      "tier": "DELTA",
+      "rank": 796,
+      "dwt_tons": 54116.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9703019",
+      "mmsi": "235109137",
+      "name": "BW LEO",
+      "tier": "DELTA",
+      "rank": 797,
+      "dwt_tons": 54116.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9800491",
+      "mmsi": "432411428",
+      "name": "CARGO 0491",
+      "tier": "DELTA",
+      "rank": 798,
+      "dwt_tons": 54112.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9631682",
+      "mmsi": "564713538",
+      "name": "CRYSTAL SUNRISE",
+      "tier": "DELTA",
+      "rank": 799,
+      "dwt_tons": 54070.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9732539",
+      "mmsi": "538006837",
+      "name": "BW BRAGE",
+      "tier": "DELTA",
+      "rank": 800,
+      "dwt_tons": 54053.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9733325",
+      "mmsi": "538589431",
+      "name": "BW FREYJAТип судна: Газовоз СУГ (LPG Tanker / VLGC)",
+      "tier": "DELTA",
+      "rank": 801,
+      "dwt_tons": 54053.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9741827",
+      "mmsi": "538459982",
+      "name": "BW NJORDТип судна: Газовоз для перевозки сжиженного нефтяного газа (LPG Tanker / VLGC)",
+      "tier": "DELTA",
+      "rank": 802,
+      "dwt_tons": 54053.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9732527",
+      "mmsi": "538006835",
+      "name": "BW BALDER",
+      "tier": "DELTA",
+      "rank": 803,
+      "dwt_tons": 54053.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9379399",
+      "mmsi": "352003378",
+      "name": "ATLANTIC VICTORY",
+      "tier": "DELTA",
+      "rank": 804,
+      "dwt_tons": 54048.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9379404",
+      "mmsi": "603922000",
+      "name": "CELESTE (исторические названия: CLIPPER SIRIUS, SOLINA GAS, GAS DIOR)",
+      "tier": "CHARLIE",
+      "rank": 805,
+      "dwt_tons": 54048.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9386299",
+      "mmsi": "636377094",
+      "name": "GAS CONCEPT",
+      "tier": "DELTA",
+      "rank": 806,
+      "dwt_tons": 54004.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9719408",
+      "mmsi": "636593910",
+      "name": "DELMA",
+      "tier": "CHARLIE",
+      "rank": 807,
+      "dwt_tons": 53991.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9902172",
+      "mmsi": "371222889",
+      "name": "WHITE CLIFFS",
+      "tier": "DELTA",
+      "rank": 808,
+      "dwt_tons": 53971.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9809540",
+      "mmsi": "353727000",
+      "name": "LILAC PROMENADE",
+      "tier": "DELTA",
+      "rank": 809,
+      "dwt_tons": 53938.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9892406",
+      "mmsi": "352913127",
+      "name": "GAS GALA",
+      "tier": "DELTA",
+      "rank": 810,
+      "dwt_tons": 53910.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9667540",
+      "mmsi": "538005576",
+      "name": "BW MISTRAL",
+      "tier": "DELTA",
+      "rank": 811,
+      "dwt_tons": 53854.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9809552",
+      "mmsi": "370503000",
+      "name": "LILY PROMENADE",
+      "tier": "DELTA",
+      "rank": 812,
+      "dwt_tons": 53844.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9674842",
+      "mmsi": "538005615",
+      "name": "BW BREEZE",
+      "tier": "DELTA",
+      "rank": 813,
+      "dwt_tons": 53781.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9903762",
+      "mmsi": "373510947",
+      "name": "GAS BARBAROSSA",
+      "tier": "DELTA",
+      "rank": 814,
+      "dwt_tons": 53759.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9667564",
+      "mmsi": "538005614",
+      "name": "BW MONSOON",
+      "tier": "DELTA",
+      "rank": 815,
+      "dwt_tons": 53752.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9686388",
+      "mmsi": "538388933",
+      "name": "BW LEVANT",
+      "tier": "CHARLIE",
+      "rank": 816,
+      "dwt_tons": 53658.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9202132",
+      "mmsi": "457900523",
+      "name": "M.T.GGAS 101",
+      "tier": "CHARLIE",
+      "rank": 817,
+      "dwt_tons": 53600.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9744922",
+      "mmsi": "9744922",
+      "name": "ELLINGTON",
+      "tier": "DELTA",
+      "rank": 818,
+      "dwt_tons": 53600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9523586",
+      "mmsi": "432241953",
+      "name": "MEISYO MARU",
+      "tier": "DELTA",
+      "rank": 819,
+      "dwt_tons": 53550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9689548",
+      "mmsi": "419002054",
+      "name": "BW PAMPERO",
+      "tier": "DELTA",
+      "rank": 820,
+      "dwt_tons": 53503.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9232503",
+      "mmsi": "419001302",
+      "name": "NANDA DEVI (ранее — BW Vision)",
+      "tier": "DELTA",
+      "rank": 821,
+      "dwt_tons": 53503.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9636735",
+      "mmsi": "636015332",
+      "name": "HISTRIA AGARE",
+      "tier": "DELTA",
+      "rank": 822,
+      "dwt_tons": 53400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9282106",
+      "mmsi": "603913000",
+      "name": "SIONA (исторические названия: ORIENTAL QUEEN, ARTEMIS GAS, LUNA, KANTI)",
+      "tier": "DELTA",
+      "rank": 823,
+      "dwt_tons": 53194.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9377793",
+      "mmsi": "419839213",
+      "name": "REIMEI",
+      "tier": "DELTA",
+      "rank": 824,
+      "dwt_tons": 53100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9470088",
+      "mmsi": "235089774",
+      "name": "DORSET",
+      "tier": "DELTA",
+      "rank": 825,
+      "dwt_tons": 53076.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9479929",
+      "mmsi": "419203818",
+      "name": "BW PINE",
+      "tier": "DELTA",
+      "rank": 826,
+      "dwt_tons": 53028.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9454010",
+      "mmsi": "525121060",
+      "name": "JENGGALA 21 (ранее — Gas Beryl, Devon)",
+      "tier": "DELTA",
+      "rank": 827,
+      "dwt_tons": 53010.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9369461",
+      "mmsi": "370163000",
+      "name": "SUMMIT RIVER",
+      "tier": "DELTA",
+      "rank": 828,
+      "dwt_tons": 52991.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "8912546",
+      "mmsi": "636625677",
+      "name": "SALUTE",
+      "tier": "CHARLIE",
+      "rank": 829,
+      "dwt_tons": 52500.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9046784",
+      "mmsi": "636176374",
+      "name": "BANIAN",
+      "tier": "CHARLIE",
+      "rank": 830,
+      "dwt_tons": 52500.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9195494",
+      "mmsi": "357223000",
+      "name": "PAWAN PUTRA (бывш. Summit Terra, Sea Dolphin, Anne Laure)",
+      "tier": "CHARLIE",
+      "rank": 831,
+      "dwt_tons": 52160.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9402988",
+      "mmsi": "440944043",
+      "name": "HAPPY GAS",
+      "tier": "DELTA",
+      "rank": 832,
+      "dwt_tons": 52100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9986611",
+      "mmsi": "563783046",
+      "name": "AL MASHABIYYAH",
+      "tier": "DELTA",
+      "rank": 833,
+      "dwt_tons": 52050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9350422",
+      "mmsi": "650000174",
+      "name": "ASTRA",
+      "tier": "CHARLIE",
+      "rank": 834,
+      "dwt_tons": 51800.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "8519966",
+      "mmsi": "636223728",
+      "name": "BAO YU",
+      "tier": "CHARLIE",
+      "rank": 835,
+      "dwt_tons": 51466.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9855941",
+      "mmsi": "257085990",
+      "name": "CLIPPER WILMA",
+      "tier": "DELTA",
+      "rank": 836,
+      "dwt_tons": 51098.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9447809",
+      "mmsi": "636023107",
+      "name": "OCEANIC MOON",
+      "tier": "DELTA",
+      "rank": 837,
+      "dwt_tons": 51050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9789166",
+      "mmsi": "259138000",
+      "name": "CLIPPER VANGUARD",
+      "tier": "DELTA",
+      "rank": 838,
+      "dwt_tons": 50891.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9074626",
+      "mmsi": "636388266",
+      "name": "MUBARAZ",
+      "tier": "DELTA",
+      "rank": 839,
+      "dwt_tons": 50850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9793258",
+      "mmsi": "636821971",
+      "name": "VEGA SUN",
+      "tier": "DELTA",
+      "rank": 840,
+      "dwt_tons": 50591.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9852951",
+      "mmsi": "636020882",
+      "name": "DOM EXPLORER",
+      "tier": "DELTA",
+      "rank": 841,
+      "dwt_tons": 50513.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9564073",
+      "mmsi": "636573845",
+      "name": "PIONEER 4073",
+      "tier": "DELTA",
+      "rank": 842,
+      "dwt_tons": 50450.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9014456",
+      "mmsi": "613391811",
+      "name": "EXONAVE (исторические названия: NEXO, SEA DRAGON)",
+      "tier": "CHARLIE",
+      "rank": 843,
+      "dwt_tons": 50357.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9666663",
+      "mmsi": "354895000",
+      "name": "MANTA ANKA",
+      "tier": "DELTA",
+      "rank": 844,
+      "dwt_tons": 50350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9194969",
+      "mmsi": "636648425",
+      "name": "OCEAN 11 (ранее: GAS ARIES, BERGE ARIES)",
+      "tier": "DELTA",
+      "rank": 845,
+      "dwt_tons": 49999.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9423322",
+      "mmsi": "574005600",
+      "name": "APOLLO OCEAN (ранее — Pansy, BW Niigata, Yuricosmos)",
+      "tier": "DELTA",
+      "rank": 846,
+      "dwt_tons": 49999.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9249336",
+      "mmsi": "370801653",
+      "name": "LYCASTE PEACE",
+      "tier": "DELTA",
+      "rank": 847,
+      "dwt_tons": 49999.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9317298",
+      "mmsi": "576252269",
+      "name": "ZIXUAN",
+      "tier": "DELTA",
+      "rank": 848,
+      "dwt_tons": 49999.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9349784",
+      "mmsi": "371233671",
+      "name": "VESSEL 9784",
+      "tier": "DELTA",
+      "rank": 849,
+      "dwt_tons": 49999.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9395501",
+      "mmsi": "353806964",
+      "name": "YUYO SPIRITS",
+      "tier": "DELTA",
+      "rank": 850,
+      "dwt_tons": 49999.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9321225",
+      "mmsi": "355743685",
+      "name": "GAS MIA (ранее GAS FRIEND)",
+      "tier": "DELTA",
+      "rank": 851,
+      "dwt_tons": 49997.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "8818219",
+      "mmsi": "650610088",
+      "name": "DISHA (в реестрах также фигурирует под именами Lavine, Meda, Aira, Raha Gas, Gas Nelly, Gas Gemini, Gas Tara, Gaz Supplier и др.)",
+      "tier": "CHARLIE",
+      "rank": 852,
+      "dwt_tons": 49996.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9005065",
+      "mmsi": "350605000",
+      "name": "GONG DE TIAN (ранее: LADY LIBERTY, DIANA, APHRODITE, DE HUA)",
+      "tier": "DELTA",
+      "rank": 853,
+      "dwt_tons": 49880.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9005053",
+      "mmsi": "636161600",
+      "name": "AXON I (бывш. SONA, SEA GLORIA, GAS AL MUTLAA)",
+      "tier": "DELTA",
+      "rank": 854,
+      "dwt_tons": 49874.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9115303",
+      "mmsi": "636618731",
+      "name": "NAVIXON",
+      "tier": "CHARLIE",
+      "rank": 855,
+      "dwt_tons": 49849.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9322657",
+      "mmsi": "352224904",
+      "name": "YUYO",
+      "tier": "DELTA",
+      "rank": 856,
+      "dwt_tons": 49772.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9114581",
+      "mmsi": "603916000",
+      "name": "GARDIAN",
+      "tier": "CHARLIE",
+      "rank": 857,
+      "dwt_tons": 49743.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "8818207",
+      "mmsi": "629009816",
+      "name": "ROVER GAS (ранее: MYRA GAS, LENA GAS, L PRIMO GAS, VENTURE GAS, EVERRICH 8, JAG VIDHI)",
+      "tier": "CHARLIE",
+      "rank": 858,
+      "dwt_tons": 49701.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9134294",
+      "mmsi": "636547973",
+      "name": "ELLY",
+      "tier": "CHARLIE",
+      "rank": 859,
+      "dwt_tons": 49651.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9052331",
+      "mmsi": "632001092",
+      "name": "XAVIA (исторические названия: Jag Vishnu, Opec Athena, Clara, Dolphin)",
+      "tier": "CHARLIE",
+      "rank": 860,
+      "dwt_tons": 49353.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9012886",
+      "mmsi": "603911000",
+      "name": "FOGAS (ранее — Elke, Fabino Gas, Fabio Gas, Takao Gas, Gas Sapphire, Red Rum и др.)",
+      "tier": "CHARLIE",
+      "rank": 861,
+      "dwt_tons": 49255.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9031519",
+      "mmsi": "561006002",
+      "name": "MARSER (ранее — Sea Hermes, Everrich 8, Carmen, Sam Russ, Co-Op Akebono)",
+      "tier": "DELTA",
+      "rank": 862,
+      "dwt_tons": 49242.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9686376",
+      "mmsi": "9686376",
+      "name": "BW SIROCCO",
+      "tier": "DELTA",
+      "rank": 863,
+      "dwt_tons": 49000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9001772",
+      "mmsi": "616967159",
+      "name": "LARA",
+      "tier": "DELTA",
+      "rank": 864,
+      "dwt_tons": 48817.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9704491",
+      "mmsi": "9704491",
+      "name": "NAVIGATOR UMBRIO",
+      "tier": "DELTA",
+      "rank": 865,
+      "dwt_tons": 48750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9393682",
+      "mmsi": "636023795",
+      "name": "AL MARYAH",
+      "tier": "DELTA",
+      "rank": 866,
+      "dwt_tons": 48500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9862487",
+      "mmsi": "431693671",
+      "name": "RYOKA MARU NO.108",
+      "tier": "DELTA",
+      "rank": 867,
+      "dwt_tons": 48150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9251171",
+      "mmsi": "564600000",
+      "name": "EPIC BURANO",
+      "tier": "DELTA",
+      "rank": 868,
+      "dwt_tons": 47900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1039632",
+      "mmsi": "636581681",
+      "name": "PACIFIC DUBHE (Примечание: идентификация проведена на основе метаданных файла image_af2a25.png)",
+      "tier": "DELTA",
+      "rank": 869,
+      "dwt_tons": 47200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9212462",
+      "mmsi": "357800000",
+      "name": "LPG 2462",
+      "tier": "DELTA",
+      "rank": 870,
+      "dwt_tons": 47000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9862891",
+      "mmsi": "215668000",
+      "name": "ARISTOS I",
+      "tier": "DELTA",
+      "rank": 871,
+      "dwt_tons": 46750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9889590",
+      "mmsi": "431815881",
+      "name": "KIPPO MARU",
+      "tier": "DELTA",
+      "rank": 872,
+      "dwt_tons": 46300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9929132",
+      "mmsi": "9929132",
+      "name": "GAS IVORY",
+      "tier": "DELTA",
+      "rank": 873,
+      "dwt_tons": 46300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9177806",
+      "mmsi": "352001583",
+      "name": "LPG SEVAN",
+      "tier": "DELTA",
+      "rank": 874,
+      "dwt_tons": 45800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9952816",
+      "mmsi": "563192400",
+      "name": "LAGENDA SETIA",
+      "tier": "DELTA",
+      "rank": 875,
+      "dwt_tons": 45447.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9905980",
+      "mmsi": "563147300",
+      "name": "LAGENDA SERENITY",
+      "tier": "DELTA",
+      "rank": 876,
+      "dwt_tons": 45419.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9970571",
+      "mmsi": "636020935",
+      "name": "HISTRIA CORAL",
+      "tier": "DELTA",
+      "rank": 877,
+      "dwt_tons": 45400.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9292761",
+      "mmsi": "9292761",
+      "name": "LIBRAMONT",
+      "tier": "DELTA",
+      "rank": 878,
+      "dwt_tons": 45050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9699402",
+      "mmsi": "431400658",
+      "name": "KAMITAKA MARU",
+      "tier": "DELTA",
+      "rank": 879,
+      "dwt_tons": 45000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9247819",
+      "mmsi": "257509000",
+      "name": "NICE",
+      "tier": "DELTA",
+      "rank": 880,
+      "dwt_tons": 44639.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "8705943",
+      "mmsi": "210096000",
+      "name": "ENERGEIA",
+      "tier": "DELTA",
+      "rank": 881,
+      "dwt_tons": 44100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9334076",
+      "mmsi": "308539078",
+      "name": "EJNAN",
+      "tier": "DELTA",
+      "rank": 882,
+      "dwt_tons": 43650.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9377236",
+      "mmsi": "636658005",
+      "name": "DENVERТип судна: Танкер для перевозки сжиженного газа (LPG Tanker)",
+      "tier": "CHARLIE",
+      "rank": 883,
+      "dwt_tons": 43563.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9377078",
+      "mmsi": "257603556",
+      "name": "CLIPPER MARSТип судна: Газовоз (LPG Tanker / LGC — Large Gas Carrier)",
+      "tier": "DELTA",
+      "rank": 884,
+      "dwt_tons": 43544.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9377248",
+      "mmsi": "636772998",
+      "name": "TOKYOТип судна: Газовоз СУГ (LPG Tanker)",
+      "tier": "DELTA",
+      "rank": 885,
+      "dwt_tons": 43538.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9372432",
+      "mmsi": "258640000",
+      "name": "CLIPPER NEPTUN",
+      "tier": "DELTA",
+      "rank": 886,
+      "dwt_tons": 43508.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9372420",
+      "mmsi": "258291350",
+      "name": "CLIPPER ORION",
+      "tier": "DELTA",
+      "rank": 887,
+      "dwt_tons": 43475.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9203241",
+      "mmsi": "431526000",
+      "name": "GAS 3241",
+      "tier": "DELTA",
+      "rank": 888,
+      "dwt_tons": 43350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9325714",
+      "mmsi": "636708429",
+      "name": "PACIFIC 5714",
+      "tier": "DELTA",
+      "rank": 889,
+      "dwt_tons": 43050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1040447",
+      "mmsi": "412096000",
+      "name": "PING HU 3",
+      "tier": "CHARLIE",
+      "rank": 890,
+      "dwt_tons": 43000.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9415703",
+      "mmsi": "419778912",
+      "name": "GREEN SHAKTI",
+      "tier": "DELTA",
+      "rank": 891,
+      "dwt_tons": 42750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9129380",
+      "mmsi": "620800324",
+      "name": "YASHAR",
+      "tier": "CHARLIE",
+      "rank": 892,
+      "dwt_tons": 42650.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "1020875",
+      "mmsi": "636936446",
+      "name": "MENUIRES",
+      "tier": "DELTA",
+      "rank": 893,
+      "dwt_tons": 42350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9372731",
+      "mmsi": "538003300",
+      "name": "UMM SLAL",
+      "tier": "DELTA",
+      "rank": 894,
+      "dwt_tons": 42050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9266982",
+      "mmsi": "525121108",
+      "name": "GAS GARUDA",
+      "tier": "DELTA",
+      "rank": 895,
+      "dwt_tons": 40850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9727235",
+      "mmsi": "259089000",
+      "name": "SIEM THIIMA",
+      "tier": "DELTA",
+      "rank": 896,
+      "dwt_tons": 40100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9351919",
+      "mmsi": "419923104",
+      "name": "GREEN SARITA",
+      "tier": "DELTA",
+      "rank": 897,
+      "dwt_tons": 39600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9324344",
+      "mmsi": "309459828",
+      "name": "CHEIKH BOUAMAMAIMO номер: 9324344",
+      "tier": "CHARLIE",
+      "rank": 898,
+      "dwt_tons": 39520.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9733571",
+      "mmsi": "563009700",
+      "name": "EPIC SARDINIA",
+      "tier": "DELTA",
+      "rank": 899,
+      "dwt_tons": 39450.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9735282",
+      "mmsi": "477875555",
+      "name": "GAS LEO",
+      "tier": "DELTA",
+      "rank": 900,
+      "dwt_tons": 39150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9710347",
+      "mmsi": "538006311",
+      "name": "CARGO 0347",
+      "tier": "DELTA",
+      "rank": 901,
+      "dwt_tons": 39000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9088536",
+      "mmsi": "647553071",
+      "name": "SEA BIRD",
+      "tier": "CHARLIE",
+      "rank": 902,
+      "dwt_tons": 38650.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9108099",
+      "mmsi": "636820479",
+      "name": "PISSARO (исторически: GAS BOMBAY, GAS MARYAM, JAG VAYU)",
+      "tier": "DELTA",
+      "rank": 903,
+      "dwt_tons": 38518.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9714642",
+      "mmsi": "9714642",
+      "name": "NAVIGATOR CASTOR",
+      "tier": "DELTA",
+      "rank": 904,
+      "dwt_tons": 37750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "8766179",
+      "mmsi": "657485000",
+      "name": "ESCRAVOS LPG FSO",
+      "tier": "DELTA",
+      "rank": 905,
+      "dwt_tons": 37354.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9735787",
+      "mmsi": "538006538",
+      "name": "NAVIGATOR 5787",
+      "tier": "DELTA",
+      "rank": 906,
+      "dwt_tons": 37250.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9277943",
+      "mmsi": "257309000",
+      "name": "OCEAN 7943",
+      "tier": "DELTA",
+      "rank": 907,
+      "dwt_tons": 36916.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9892822",
+      "mmsi": "636189779",
+      "name": "PACIFIC 2822",
+      "tier": "DELTA",
+      "rank": 908,
+      "dwt_tons": 36750.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9744843",
+      "mmsi": "9744843",
+      "name": "QUEBEC",
+      "tier": "DELTA",
+      "rank": 909,
+      "dwt_tons": 36150.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9969223",
+      "mmsi": "636144720",
+      "name": "MARITIME 9223",
+      "tier": "DELTA",
+      "rank": 910,
+      "dwt_tons": 35900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9877133",
+      "mmsi": "538008979",
+      "name": "LNG ROSENROT",
+      "tier": "DELTA",
+      "rank": 911,
+      "dwt_tons": 35650.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9134361",
+      "mmsi": "620999435",
+      "name": "SU GAS",
+      "tier": "DELTA",
+      "rank": 912,
+      "dwt_tons": 35650.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9371684",
+      "mmsi": "636868064",
+      "name": "GASCHEM CARIBIC",
+      "tier": "DELTA",
+      "rank": 913,
+      "dwt_tons": 34500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9990052",
+      "mmsi": "636024828",
+      "name": "IINO INEOS SUNNA",
+      "tier": "DELTA",
+      "rank": 914,
+      "dwt_tons": 33700.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9290270",
+      "mmsi": "352002154",
+      "name": "TARA GAS",
+      "tier": "DELTA",
+      "rank": 915,
+      "dwt_tons": 33350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1032763",
+      "mmsi": "258629186",
+      "name": "CLIPPER GRACE",
+      "tier": "DELTA",
+      "rank": 916,
+      "dwt_tons": 33300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9527013",
+      "mmsi": "440520572",
+      "name": "MS PEACE",
+      "tier": "DELTA",
+      "rank": 917,
+      "dwt_tons": 33300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9523330",
+      "mmsi": "431720432",
+      "name": "SENRIN MARU",
+      "tier": "DELTA",
+      "rank": 918,
+      "dwt_tons": 32900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9654971",
+      "mmsi": "636031840",
+      "name": "MARITIME 4971",
+      "tier": "DELTA",
+      "rank": 919,
+      "dwt_tons": 32850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1018482",
+      "mmsi": "563264900",
+      "name": "GREEN ETERNITY",
+      "tier": "DELTA",
+      "rank": 920,
+      "dwt_tons": 32729.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1018470",
+      "mmsi": "563262100",
+      "name": "GREEN ENDEAVOUR",
+      "tier": "DELTA",
+      "rank": 921,
+      "dwt_tons": 32729.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1018494",
+      "mmsi": "563308500",
+      "name": "GREEN ENDURANCE",
+      "tier": "DELTA",
+      "rank": 922,
+      "dwt_tons": 32729.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1064118",
+      "mmsi": "636439074",
+      "name": "ARIDAIOS",
+      "tier": "DELTA",
+      "rank": 923,
+      "dwt_tons": 32606.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9257395",
+      "mmsi": "636603896",
+      "name": "HM GAS",
+      "tier": "CHARLIE",
+      "rank": 924,
+      "dwt_tons": 32500.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9200847",
+      "mmsi": "352857000",
+      "name": "FPSO CIDADE DE MARICA",
+      "tier": "DELTA",
+      "rank": 925,
+      "dwt_tons": 32300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9292101",
+      "mmsi": "352001678",
+      "name": "PASCO ODIN",
+      "tier": "DELTA",
+      "rank": 926,
+      "dwt_tons": 31900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9336660",
+      "mmsi": "440384000",
+      "name": "GREEN ONE",
+      "tier": "CHARLIE",
+      "rank": 927,
+      "dwt_tons": 31900.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9710323",
+      "mmsi": "538006328",
+      "name": "CARGO 0323",
+      "tier": "DELTA",
+      "rank": 928,
+      "dwt_tons": 31600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9693549",
+      "mmsi": "9693549",
+      "name": "GAS SUMMIT",
+      "tier": "DELTA",
+      "rank": 929,
+      "dwt_tons": 31350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9642150",
+      "mmsi": "414024087",
+      "name": "BAO QING",
+      "tier": "DELTA",
+      "rank": 930,
+      "dwt_tons": 31100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1030521",
+      "mmsi": "228493700",
+      "name": "MORIOND",
+      "tier": "DELTA",
+      "rank": 931,
+      "dwt_tons": 31000.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9607758",
+      "mmsi": "9607758",
+      "name": "SUNNY VISTA",
+      "tier": "DELTA",
+      "rank": 932,
+      "dwt_tons": 30950.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9852949",
+      "mmsi": "9852949",
+      "name": "CLIPPER EXPLORER",
+      "tier": "DELTA",
+      "rank": 933,
+      "dwt_tons": 30900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9710335",
+      "mmsi": "538006310",
+      "name": "LPG 0335",
+      "tier": "DELTA",
+      "rank": 934,
+      "dwt_tons": 30850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9406269",
+      "mmsi": "538011955",
+      "name": "SYMI",
+      "tier": "DELTA",
+      "rank": 935,
+      "dwt_tons": 30650.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9560467",
+      "mmsi": "431360950",
+      "name": "IZUMI MARU",
+      "tier": "DELTA",
+      "rank": 936,
+      "dwt_tons": 30550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9925679",
+      "mmsi": "636021260",
+      "name": "INDIANAPOLIS",
+      "tier": "DELTA",
+      "rank": 937,
+      "dwt_tons": 30128.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9934670",
+      "mmsi": "636159329",
+      "name": "PACIFIC 4670",
+      "tier": "DELTA",
+      "rank": 938,
+      "dwt_tons": 30112.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9927316",
+      "mmsi": "563182700",
+      "name": "ATLAS 7316",
+      "tier": "DELTA",
+      "rank": 939,
+      "dwt_tons": 30108.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9925667",
+      "mmsi": "563172500",
+      "name": "GREEN ENERGY (экс-Mangusta)",
+      "tier": "DELTA",
+      "rank": 940,
+      "dwt_tons": 30093.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9939204",
+      "mmsi": "538010500",
+      "name": "PASCO MARSEL",
+      "tier": "DELTA",
+      "rank": 941,
+      "dwt_tons": 29991.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1026685",
+      "mmsi": "538012138",
+      "name": "ASHARAMI GHANA",
+      "tier": "DELTA",
+      "rank": 942,
+      "dwt_tons": 29842.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9924857",
+      "mmsi": "636021168",
+      "name": "CARTIER",
+      "tier": "DELTA",
+      "rank": 943,
+      "dwt_tons": 29690.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9719276",
+      "mmsi": "205713000",
+      "name": "KALLO",
+      "tier": "DELTA",
+      "rank": 944,
+      "dwt_tons": 29664.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9689914",
+      "mmsi": "311000251",
+      "name": "COMET",
+      "tier": "DELTA",
+      "rank": 945,
+      "dwt_tons": 29650.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9914632",
+      "mmsi": "636668387",
+      "name": "MYKLEBUST",
+      "tier": "DELTA",
+      "rank": 946,
+      "dwt_tons": 29649.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9687485",
+      "mmsi": "205283000",
+      "name": "PACIFIC 7485",
+      "tier": "DELTA",
+      "rank": 947,
+      "dwt_tons": 29639.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9687514",
+      "mmsi": "636345625",
+      "name": "KORTRIJK",
+      "tier": "CHARLIE",
+      "rank": 948,
+      "dwt_tons": 29588.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9719305",
+      "mmsi": "205743000",
+      "name": "KOKSIJDE",
+      "tier": "DELTA",
+      "rank": 949,
+      "dwt_tons": 29543.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9698367",
+      "mmsi": "538005496",
+      "name": "ECO CHIOS",
+      "tier": "DELTA",
+      "rank": 950,
+      "dwt_tons": 29500.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9687502",
+      "mmsi": "205691000",
+      "name": "KONTICHIMO: 9687502",
+      "tier": "DELTA",
+      "rank": 951,
+      "dwt_tons": 29461.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9926934",
+      "mmsi": "636024820",
+      "name": "GUADALUPE EXPLORERIMO: 9926934",
+      "tier": "DELTA",
+      "rank": 952,
+      "dwt_tons": 29421.0,
+      "risk": "EXTREME"
+    },
+    {
+      "imo": "9940423",
+      "mmsi": "636025911",
+      "name": "ROSILLO EXPLORER",
+      "tier": "DELTA",
+      "rank": 953,
+      "dwt_tons": 29421.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9941336",
+      "mmsi": "256679000",
+      "name": "VAROLI PIAZZAIMO: 9941336",
+      "tier": "DELTA",
+      "rank": 954,
+      "dwt_tons": 29381.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9941324",
+      "mmsi": "228433700",
+      "name": "ATLAS 1324",
+      "tier": "DELTA",
+      "rank": 955,
+      "dwt_tons": 29381.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9292773",
+      "mmsi": "249583000",
+      "name": "ALESSANDRO VOLTA (экс-Maersk Jade)",
+      "tier": "DELTA",
+      "rank": 956,
+      "dwt_tons": 29300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9940435",
+      "mmsi": "636346646",
+      "name": "CERRO ALTO EXPLORER",
+      "tier": "DELTA",
+      "rank": 957,
+      "dwt_tons": 29229.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9292113",
+      "mmsi": "538033370",
+      "name": "SOMBEKE",
+      "tier": "DELTA",
+      "rank": 958,
+      "dwt_tons": 29213.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9961192",
+      "mmsi": "255916538",
+      "name": "GASCHEM EUROPE",
+      "tier": "DELTA",
+      "rank": 959,
+      "dwt_tons": 29181.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9355264",
+      "mmsi": "636433696",
+      "name": "PACIFIC 5264",
+      "tier": "DELTA",
+      "rank": 960,
+      "dwt_tons": 29100.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9796585",
+      "mmsi": "538633132",
+      "name": "HOURAI MARU",
+      "tier": "DELTA",
+      "rank": 961,
+      "dwt_tons": 28894.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9893656",
+      "mmsi": "229992368",
+      "name": "LEGACYIMO номер: 9893656",
+      "tier": "DELTA",
+      "rank": 962,
+      "dwt_tons": 28886.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9904675",
+      "mmsi": "636246808",
+      "name": "OCEAN 4675",
+      "tier": "DELTA",
+      "rank": 963,
+      "dwt_tons": 28850.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9796339",
+      "mmsi": "636921350",
+      "name": "NAVIGATOR JORF",
+      "tier": "DELTA",
+      "rank": 964,
+      "dwt_tons": 28726.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9469998",
+      "mmsi": "431333461",
+      "name": "IZUMI MARU NO.7",
+      "tier": "DELTA",
+      "rank": 965,
+      "dwt_tons": 28650.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9744128",
+      "mmsi": "538243310",
+      "name": "AFRICA GAS",
+      "tier": "DELTA",
+      "rank": 966,
+      "dwt_tons": 28637.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9852133",
+      "mmsi": "636019497",
+      "name": "WINNIPEG",
+      "tier": "DELTA",
+      "rank": 967,
+      "dwt_tons": 28627.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9892808",
+      "mmsi": "636385417",
+      "name": "MARITIME 2808",
+      "tier": "DELTA",
+      "rank": 968,
+      "dwt_tons": 28600.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9789726",
+      "mmsi": "370577470",
+      "name": "GAS 9726",
+      "tier": "DELTA",
+      "rank": 969,
+      "dwt_tons": 28585.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9659127",
+      "mmsi": "566492268",
+      "name": "SOPHIE SCHULTE",
+      "tier": "CHARLIE",
+      "rank": 970,
+      "dwt_tons": 28576.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9202120",
+      "mmsi": "457900522",
+      "name": "M.T.GGAS 102",
+      "tier": "DELTA",
+      "rank": 971,
+      "dwt_tons": 28550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9415686",
+      "mmsi": "9415686",
+      "name": "GREEN SANVI",
+      "tier": "DELTA",
+      "rank": 972,
+      "dwt_tons": 28550.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9744831",
+      "mmsi": "9744831",
+      "name": "ONTARIO",
+      "tier": "DELTA",
+      "rank": 973,
+      "dwt_tons": 28543.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9789714",
+      "mmsi": "636025427",
+      "name": "PACIFIC 9714",
+      "tier": "DELTA",
+      "rank": 974,
+      "dwt_tons": 28532.0,
+      "risk": "MID"
+    },
+    {
+      "imo": "9789312",
+      "mmsi": "229808992",
+      "name": "ENRICO FERMI",
+      "tier": "DELTA",
+      "rank": 975,
+      "dwt_tons": 28532.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9659115",
+      "mmsi": "563232200",
+      "name": "SEVERIN SCHULTE",
+      "tier": "DELTA",
+      "rank": 976,
+      "dwt_tons": 28521.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9763033",
+      "mmsi": "248128000",
+      "name": "SEASURFERI MO номер: 9763033",
+      "tier": "DELTA",
+      "rank": 977,
+      "dwt_tons": 28447.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9903073",
+      "mmsi": "563137100",
+      "name": "SIFNOS LADY",
+      "tier": "DELTA",
+      "rank": 978,
+      "dwt_tons": 28379.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9711846",
+      "mmsi": "564067593",
+      "name": "EAGLE FORD LADY",
+      "tier": "DELTA",
+      "rank": 979,
+      "dwt_tons": 28372.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9922770",
+      "mmsi": "563196600",
+      "name": "HYPERION",
+      "tier": "DELTA",
+      "rank": 980,
+      "dwt_tons": 28350.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9794135",
+      "mmsi": "636579412",
+      "name": "DAGMARТип судна: Газовоз СУГ (LPG Tanker)",
+      "tier": "DELTA",
+      "rank": 981,
+      "dwt_tons": 28303.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9200457",
+      "mmsi": "477204800",
+      "name": "PIONEER 0457",
+      "tier": "DELTA",
+      "rank": 982,
+      "dwt_tons": 28300.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9543079",
+      "mmsi": "352709347",
+      "name": "MANTA BEYLERBEYI",
+      "tier": "DELTA",
+      "rank": 983,
+      "dwt_tons": 28050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9990557",
+      "mmsi": "636101868",
+      "name": "PACIFIC INEOS HAFRA",
+      "tier": "DELTA",
+      "rank": 984,
+      "dwt_tons": 28050.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1030325",
+      "mmsi": "1030325",
+      "name": "GAS IRIS",
+      "tier": "DELTA",
+      "rank": 985,
+      "dwt_tons": 27800.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9332042",
+      "mmsi": "403688661",
+      "name": "AL JABIRAH",
+      "tier": "CHARLIE",
+      "rank": 986,
+      "dwt_tons": 27710.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "1044900",
+      "mmsi": "371606038",
+      "name": "BELLA TORTUM ST (ранее фигурировало в системе как HYUNDAI MIPO 8417)",
+      "tier": "DELTA",
+      "rank": 987,
+      "dwt_tons": 27506.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9332030",
+      "mmsi": "403911864",
+      "name": "AL BARRAH",
+      "tier": "DELTA",
+      "rank": 988,
+      "dwt_tons": 27500.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9255701",
+      "mmsi": "9255701",
+      "name": "GAS CAPRICORN",
+      "tier": "DELTA",
+      "rank": 989,
+      "dwt_tons": 27450.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9540091",
+      "mmsi": "9540091",
+      "name": "BW RIGEL",
+      "tier": "DELTA",
+      "rank": 990,
+      "dwt_tons": 27200.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "1013389",
+      "mmsi": "636209097",
+      "name": "ARLON",
+      "tier": "DELTA",
+      "rank": 991,
+      "dwt_tons": 27055.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9726322",
+      "mmsi": "636072009",
+      "name": "NAVIGATOR AURORA",
+      "tier": "DELTA",
+      "rank": 992,
+      "dwt_tons": 27037.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9742302",
+      "mmsi": "636372301",
+      "name": "NAVIGATOR ECLIPSE",
+      "tier": "DELTA",
+      "rank": 993,
+      "dwt_tons": 26968.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9142150",
+      "mmsi": "677067900",
+      "name": "AKOYA GAS (ранее — Gas Allure, Brussels)",
+      "tier": "CHARLIE",
+      "rank": 994,
+      "dwt_tons": 26943.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9202027",
+      "mmsi": "636211152",
+      "name": "CARGO 2027",
+      "tier": "DELTA",
+      "rank": 995,
+      "dwt_tons": 26900.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9746683",
+      "mmsi": "538007350",
+      "name": "ECO ARCTIC",
+      "tier": "DELTA",
+      "rank": 996,
+      "dwt_tons": 26798.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9132789",
+      "mmsi": "760001290",
+      "name": "COLCA",
+      "tier": "DELTA",
+      "rank": 997,
+      "dwt_tons": 26777.0,
+      "risk": "LOW"
+    },
+    {
+      "imo": "9471123",
+      "mmsi": "352002555",
+      "name": "FORTUNE GAS (ранее — Gaschem Stade, Eco Evoluzione)",
+      "tier": "CHARLIE",
+      "rank": 998,
+      "dwt_tons": 26618.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9412074",
+      "mmsi": "636646652",
+      "name": "ANDOVER",
+      "tier": "CHARLIE",
+      "rank": 999,
+      "dwt_tons": 26587.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9411733",
+      "mmsi": "636110256",
+      "name": "ANIVUS 1 (ранее ANAFI)",
+      "tier": "CHARLIE",
+      "rank": 1000,
+      "dwt_tons": 26577.0,
+      "risk": "HIGH"
+    },
+    {
+      "imo": "9324734",
+      "mmsi": "419002250",
+      "name": "JAG VIKRAM",
+      "tier": "DELTA",
+      "rank": 1001,
+      "dwt_tons": 26427.0,
+      "risk": "LOW"
+    }
+  ]
+}

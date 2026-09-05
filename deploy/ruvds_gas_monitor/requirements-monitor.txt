@@ -1,0 +1,4 @@
+# Minimal deps for weekly_gas_carrier_monitor.py on 1GB VPS (no ML stack).
+pandas>=2.0.0,<3
+pydantic>=2.0.0,<3
+python-dotenv>=1.0.0,<2

@@ -1,0 +1,234 @@
+{
+  "id": "gas_weekly",
+  "name": "GAS CARRIER WEEKLY · PAID AIS",
+  "status": "LIVE",
+  "status_label": "LIVE",
+  "tone": "live",
+  "banner": "Опрошено 30 газовозов. Coverage 100.0% целевого списка.",
+  "live": true,
+  "metrics": {
+    "gas_carriers_total": 30,
+    "selected_for_poll": 30,
+    "success_count": 30,
+    "error_count": 0,
+    "weekly_call_budget": 230,
+    "monthly_budget_usd": 50.0,
+    "cost_per_call_usd": 0.05,
+    "estimated_week_spend_usd": 1.5,
+    "coverage_of_top_n_target_pct": 100.0,
+    "budget_trimmed": false,
+    "provider": "vesselfinder"
+  },
+  "tables": {
+    "poll_sample": [
+      {
+        "imo": "9915090",
+        "vessel_name": "SAAM FSU",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 192072.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9750737",
+        "vessel_name": "VLADIMIR VORONIN",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 96840.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9750672",
+        "vessel_name": "YAKOV GAKKEL",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 96839.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9750672",
+        "vessel_name": "YAKOV GAKKEL",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 96839.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9750725",
+        "vessel_name": "NIKOLAY YEVGENOV",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 96821.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9750749",
+        "vessel_name": "GEORGIY USHAKOV",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 96796.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9778313",
+        "vessel_name": null,
+        "risk_tier": "TIER_0",
+        "dwt_tons": 93292.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9761815",
+        "vessel_name": "SK SPICA",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 93167.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9629598",
+        "vessel_name": "LENA RIVERIMO номер: 9629598",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 84585.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9629586",
+        "vessel_name": "YENISEI RIVER",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 84565.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9267015",
+        "vessel_name": "LNG BENUE",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 82971.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9904687",
+        "vessel_name": "SERGEI WITTEIMO номер: 9904687",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 81000.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9904699",
+        "vessel_name": "ZVEZDA 044",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 81000.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9350927",
+        "vessel_name": "TRINITY GLORY",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 79605.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9246621",
+        "vessel_name": "PORTOVYY",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 77777.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9256602",
+        "vessel_name": "ARCTIC PIONEER",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 77712.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9243148",
+        "vessel_name": null,
+        "risk_tier": "TIER_0",
+        "dwt_tons": 77551.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9752723",
+        "vessel_name": "GAS SCORPIO",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 54312.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9115303",
+        "vessel_name": "NAVIXON",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 49849.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9134294",
+        "vessel_name": "ELLY",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 49651.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9001772",
+        "vessel_name": "LARA",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 48817.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9108099",
+        "vessel_name": "PISSARO (ранее GAS MARYAM, GAS DIMA, MARS LOTUS, GAS BOMBAY, JAG VAYU)",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 38518.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9411733",
+        "vessel_name": "ANIVUS 1 (ранее ANAFI)",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 26577.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9332078",
+        "vessel_name": "SHEN MI (ранее: LASTVA, NEGMAR MIN, ROSE GAS)",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 26528.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      },
+      {
+        "imo": "9133836",
+        "vessel_name": "MORITZ",
+        "risk_tier": "TIER_0",
+        "dwt_tons": 18713.0,
+        "status": "ok",
+        "provider": "vesselfinder-dry-run"
+      }
+    ],
+    "errors": []
+  },
+  "links": {
+    "summary": "features/gas_carrier_weekly/summary.json",
+    "results": "features/gas_carrier_weekly/results.json"
+  },
+  "data_state": "ready",
+  "coverage_of_top_n_target_pct": 100.0,
+  "budget_trimmed": false
+}

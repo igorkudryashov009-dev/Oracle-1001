@@ -19,11 +19,41 @@ aisstream:
   stagger_seconds: 2.5
   max_concurrent_handshakes: 20
   unreachable_after_consecutive_failures: 3
+  # WebSocket disconnect retry: 2s → 4s → 8s → … max 30s (honest degradation on handshake)
+  reconnect_backoff_initial_seconds: 2
+  reconnect_backoff_max_seconds: 30
+  # SQLite WAL + busy timeout for ~55 concurrent batch writers
+  sqlite_timeout_seconds: 30
+
+# Sentinel live AIS connector (services/aisstream_connector.py)
+# API key is NOT stored here — loaded from environment / .env:
+#   AISSTREAM_API_KEY  (required)
+#   DATABASE_URL       (optional Postgres/Timescale dual-store)
+sentinel:
+  fleet_top_n: 1001
+  batch_size: 50
+  flush_interval_sec: 1.0
+  heartbeat_interval_seconds: 15.0
+  # bbox_global = world stream (high MPS, needs stable path)
+  # mmsi_batches = FiltersShipMMSI ×50 (production default, AISStream hard limit)
+  subscription_mode: mmsi_batches
+  mmsi_batch_size: 50
+  max_batches: 2
+  stagger_seconds: 10
+  max_concurrent_handshakes: 2
+  filter_message_types:
+    - PositionReport
+    - ShipStaticData
+    - StandardClassBPositionReport
+  # websocket_url inherited from aisstream.websocket_url unless overridden
+  # api_key_env: AISSTREAM_API_KEY
 
 paths:
   history_dir: история1
   targets: targets.json
   db: история1/raw_positions.db
+  sentinel_db: история1/sentinel_ais.db
+  fleet_database: output/fleet_database.csv
   # External TTF (gas) / Brent (oil) prices — user-supplied file, offline.
   # Alias: PRICE_SOURCE_PATH. Supported: .csv / .xlsx / .json
   # Wide: date + ttf + brent columns (flexible name aliases).
@@ -44,6 +74,16 @@ schedule:
   archive_start: "2026-07-28"
 
 budget:
+  # Leg A — AIS / infra (free stream + optional always-on VPS)
   aisstream: 0          # free tier
   vps_optional_usd: 5   # only if mode=vps_always_on
   total_cap_usd: 30
+  # Leg B — paid gas weekly monitor (see PROVIDER_MONTHLY_BUDGET_USD / budget_ledger.py)
+  gas_weekly_cap_usd: 50
+  # Combined soft ceiling for operator dashboards (30 + 50)
+  combined_cap_usd: 80
+  ledger_report: features/budget_ledger.json
+
+gas_weekly:
+  # Priority universe for paid weekly poll (risk tier → DWT desc)
+  top_n_target: 500

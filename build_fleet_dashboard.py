@@ -199,6 +199,7 @@ _TEMPLATE = r"""<!DOCTYPE html>
   <div class="fi-nav-links">
     <a class="fi-pill" href="mission_control.html">Mission Control</a>
     <a class="fi-pill active" href="dashboard.html">Fleet</a>
+    <a class="fi-pill" href="osint_layers.html">9 Layers</a>
     <a class="fi-pill" href="history_dashboard.html">AIS Archive</a>
     <a class="fi-pill" href="forecast_dashboard.html">Forecast</a>
     <button type="button" class="fi-theme-toggle" id="theme-toggle" aria-label="Toggle color theme">◐</button>
@@ -251,7 +252,7 @@ _TEMPLATE = r"""<!DOCTYPE html>
 const FLEET_DATA = __FLEET_JSON__;
 const IDENTITY_DATA = __IDENTITY_JSON__;
 const METRICS = __METRICS_JSON__;
-const COLS = ["imo","imo_valid","imo_format_error","imo_from_text","imo_source_match","identity_spoofing_suspected_imo","vessel_category","vessel_name","mmsi","call_sign","vessel_type","built_year","age_years","flag","dwt_tons","gt","loa_m","beam_m","draft_m","nav_status","speed_knots","asset_status","compliance_risk_level","destination_port","source_confidence"];
+const COLS = ["imo","vessel_name","mmsi","call_sign","vessel_type","built_year","age_years","flag","dwt_tons","gt","loa_m","beam_m","draft_m","nav_status","speed_knots","compliance_risk_level","sanctions_tags","destination_port","destination_context","departure_port","arrival_datetime","source_confidence"];
 
 (function themeInit(){
   const root = document.documentElement;

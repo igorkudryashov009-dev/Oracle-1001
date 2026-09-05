@@ -94,14 +94,17 @@ def _search(pattern: str, text: str, flags: int = re.IGNORECASE | re.MULTILINE) 
 
 def _trim_name(name: str) -> str:
     """Stop name at common next-field markers on the same line."""
+    # Glued forms: "GUADALUPE EXPLORERIMO: 9926934" / "NAMEIMO номер:"
+    name = re.sub(r"(?i)IMO\s*(?:номер\s*)?[:：]?\s*\d{7}.*$", "", name)
+    name = re.sub(r"(?i)IMO\s*$", "", name)
     cut = re.split(
         r"\s+(?:IMO\s*(?:номер|number|/)|MMSI|Позывной|Тип\s*(?:судна|объекта)|"
-        r"Год\s*постройки|Флаг|Call\s*sign)\b",
+        r"Т\s*ип\s*судна|Год\s*постройки|Флаг|Call\s*sign|Идентификация)\b",
         name,
         maxsplit=1,
         flags=re.IGNORECASE,
     )[0]
-    return _clean_spaces(cut)
+    return _clean_spaces(cut).rstrip(".")
 
 
 def _extract_imo_from_text(text: str) -> Tuple[Optional[str], Optional[str]]:
@@ -208,30 +211,72 @@ def _classify_vessel_category(
 
 
 def _extract_compliance_risk(text: str) -> Optional[str]:
-    labeled = _search(
-        r"(?:Уровень риска|Статус комплаенса)[:\s]*([^\n]+)",
-        text,
-    )
-    if labeled:
-        return _clean_spaces(labeled)
+    """Return compact risk label only — never a narrative paragraph."""
 
-    # Phrase search — earliest in text; longer phrase wins on overlap
+    def _normalize_hit(hit: str) -> str:
+        u = hit.upper()
+        if "GHOST" in u or "ПРИЗРАК" in u:
+            return "ЭКСТРЕМАЛЬНЫЙ РИСК"
+        if "СТРАТЕГИЧЕСКИЙ" in u or "STRATEGIC" in u or "HIGH RISK" in u:
+            return "ВЫСОКИЙ РИСК"
+        if "CLEARED" in u or ("ЧИСТЫЙ" in u and "РИСК" not in u[:6]):
+            return "НИЗКИЙ РИСК"
+        if u.startswith("НИЗКИЙ"):
+            return "НИЗКИЙ РИСК"
+        if u.startswith("ВЫСОКИЙ"):
+            return "ВЫСОКИЙ РИСК"
+        if u.startswith("СРЕДНИЙ"):
+            return "СРЕДНИЙ РИСК"
+        if u.startswith("ЭКСТРЕМАЛЬНЫЙ"):
+            return "ЭКСТРЕМАЛЬНЫЙ РИСК"
+        if u.startswith("КРИТИЧЕСКИ"):
+            return "КРИТИЧЕСКИ ВЫСОКИЙ РИСК"
+        return hit
+
     phrases = [
+        "ЭКСТРЕМАЛЬНЫЙ РИСК",
         "КРИТИЧЕСКИ ВЫСОКИЙ РИСК",
+        "ВЫСОКИЙ РИСК / СТРАТЕГИЧЕСКИЙ",
         "ВЫСОКИЙ РИСК",
+        "HIGH RISK / STRATEGIC",
         "СРЕДНИЙ РИСК",
+        "НИЗКИЙ РИСК / ЧИСТЫЙ",
         "НИЗКИЙ РИСК",
+        "LOW / CLEARED",
+        "ЧИСТЫЙ ПРОФИЛЬ",
+        "GHOST VESSEL",
+        "СУДНО-ПРИЗРАК",
     ]
     upper = text.upper()
     matches = []
     for phrase in phrases:
-        pos = upper.find(phrase)
+        pos = upper.find(phrase.upper())
         if pos >= 0:
             matches.append((pos, -len(phrase), phrase))
-    if not matches:
-        return None
-    matches.sort()
-    return matches[0][2]
+    if matches:
+        matches.sort()
+        return _normalize_hit(matches[0][2])
+
+    labeled = _search(
+        r"(?:Уровень риска|Статус комплаенса|Санкционный статус|Риск(?:-|\s*)профиль)"
+        r"\s*[:：]\s*([^\n]+)",
+        text,
+    )
+    if labeled:
+        cleaned = _clean_spaces(labeled)
+        for phrase in phrases:
+            if phrase.upper() in cleaned.upper():
+                return _normalize_hit(phrase)
+        # Accept only compact known-style labels (no markdown / essays)
+        if (
+            len(cleaned) <= 40
+            and "**" not in cleaned
+            and not cleaned.upper().startswith("СУДНО ")
+        ):
+            u = cleaned.upper()
+            if any(k in u for k in ("РИСК", "CLEAR", "LOW", "HIGH", "MEDIUM", "ЧИСТ")):
+                return _normalize_hit(cleaned)
+    return None
 
 
 def parse_block(raw_text: str, declared_imo: str) -> VesselRecord:
@@ -280,22 +325,27 @@ def parse_block(raw_text: str, declared_imo: str) -> VesselRecord:
     mmsi = mmsi_from_combo or _search(r"MMSI\s*[:：]?\s*(\d{5,12})", text)
 
     call_sign = _search(
-        r"(?:Позывной|Call\s*sign|Callsign)\s*[:：]\s*([A-Za-z0-9/\-]{1,15})",
+        r"(?:Позывной(?:\s*\([^)]*\))?|Call\s*sign|Callsign)\s*[:：]\s*([A-Za-z0-9/\-]{1,15})",
         text,
     )
     if call_sign:
-        call_sign = call_sign.strip()
+        call_sign = call_sign.strip().rstrip(".")
 
     # More specific labels first; bare "Тип:" is an alias of "Тип судна:"
+    # "Т ип судна" — OCR/glue typo seen in cleaned KB
     vessel_type = _search(
-        r"(?:Тип\s*судна|Тип\s*объекта|Тип|Vessel\s*type|Type)\s*[:：]\s*(.+?)(?=\s*Год\s*постройки|\s*Флаг|\s*Технические|\s*Размер|\n|$)",
+        r"(?:Тип\s*судна|Т\s*ип\s*судна|Тип\s*объекта|Vessel\s*type|Type|Тип)\s*[:：]\s*"
+        r"(.+?)(?=\s*Год\s*постройки|\s*Флаг|\s*Технические|\s*Размер|\s*Габарит|\s*Порт|\n|$)",
         text,
     )
     if vessel_type:
         vessel_type = _clean_spaces(vessel_type)
 
     built_year = _to_int(
-        _search(r"(?:Год\s*постройки|Built|Year\s*built|Year)\s*[:：]\s*(\d{4})", text)
+        _search(
+            r"(?:Год\s*постройки|Built|Year\s*built|Year)\s*[:：]\s*[~≈]?\s*(\d{4})",
+            text,
+        )
     )
     age_years = _to_int(
         _search(
@@ -310,44 +360,72 @@ def parse_block(raw_text: str, declared_imo: str) -> VesselRecord:
                 text,
             )
         )
+    # Corpus OSINT blocks are dated 2026 — derive age only from explicit built_year
+    if age_years is None and built_year is not None and 1900 <= built_year <= 2026:
+        age_years = 2026 - built_year
 
     flag = _search(
-        r"(?:Флаг|Flag)\s*[:：]\s*(.+?)(?=\s*Технические|\s*Дедвейт|\s*Валовая|\s*Размер|\s*\*|\n|$)",
+        r"(?:Флаг|Flag)\s*[:：]\s*(.+?)(?=\s*Технические|\s*Дедвейт|\s*Валовая|"
+        r"\s*Размер|\s*Габарит|\s*Год\s*постройки|\s*Порт\s*назначения|"
+        r"\s*2\.|\s*🛰️|\s*🗺️|\s*\*|\n|$)",
         text,
     )
     if flag:
         flag = _clean_spaces(flag)
+        # Truncate runaway capture when source has no newlines
+        flag = re.split(
+            r"\s+(?:Год\s*постройки|Габарит|Дедвейт|Размер|Порт\s*назначения|"
+            r"Навигационн|Осадка|2\.)\b",
+            flag,
+            maxsplit=1,
+            flags=re.IGNORECASE,
+        )[0].strip()
+        # Keep compact flag label; drop long parenthetical OSINT lectures
+        if len(flag) > 80:
+            paren = re.match(r"^([^()]{2,60})\s*\(", flag)
+            if paren:
+                flag = _clean_spaces(paren.group(1))
+            else:
+                flag = _clean_spaces(flag[:80])
 
     dwt_tons = _to_float(
         _search(
-            r"(?:Дедвейт|DWT)\s*(?:\([^)]*\))?\s*[:：]?\s*[~≈]?\s*([\d\s\xa0,]+(?:\.\d+)?)\s*(?:тонн|т\.?|tons?|t\.?)?",
+            r"(?:Дедвейт|DWT)\s*(?:\([^)]*\))?\s*[:：—\-–]?\s*[~≈]?\s*"
+            r"([\d][\d\xa0 ]*(?:[.,]\d+)?)(?![.\d])\s*(?:тонн|т\.?|tons?|t\.?)?",
             text,
         )
     )
     gt = _to_float(
         _search(
-            r"(?:Валовая\s*вместимость|Gross\s*Tonnage|\bGT\b)\s*(?:\([^)]*\))?\s*[:：]?\s*[~≈]?\s*([\d\s\xa0,]+(?:\.\d+)?)",
+            r"(?:Валовая\s*вместимость|Gross\s*Tonnage|\bGT\b)\s*(?:\([^)]*\))?\s*[:：—\-–]?\s*[~≈]?\s*"
+            r"([\d][\d\xa0 ]*(?:[.,]\d+)?)(?![.\d])",
             text,
         )
     )
 
     loa_m = _to_float(
         _search(
-            r"(?:Длина\s*\(?LOA\)?|LOA|Length)\s*[:：—\-–]?\s*([\d\s\xa0]+(?:[.,]\d+)?)\s*м?",
+            r"(?:Длина\s*(?:общая\s*)?\(?LOA\)?|LOA|Length\s*(?:overall)?)\s*[:：—\-–]?\s*"
+            r"([\d\xa0]+(?:[.,]\d+)?)\s*м?",
             text,
         )
     )
     beam_m = _to_float(
         _search(
-            r"(?:ширина|beam|width)\s*[:：—\-–]?\s*([\d\s\xa0]+(?:[.,]\d+)?)\s*м?",
+            r"(?:ширина|beam|width)(?:\s*\([^)]*\))?\s*[:：—\-–]?\s*([\d\xa0]+(?:[.,]\d+)?)\s*м?",
             text,
         )
     )
     if loa_m is None or beam_m is None:
+        # Formats:
+        #   299.00 м × 50.00 м
+        #   294.90 м (длина) × 46.40 м (ширина)
+        #   Основные габариты: Длина общая (LOA) — 225.97 м, ширина — 36.59 м
         dims = re.search(
-            r"(?:Размер(?:ения|ы)?|Dimensions?|Габариты)\s*[:：]?\s*"
-            r"(?:Длина\s*[—\-]?\s*)?([\d\s.,]+)\s*м?\s*"
-            r"(?:[×xXх\*]|,?\s*ширина\s*[—\-]?\s*)\s*([\d\s.,]+)\s*м?",
+            r"(?:Размер(?:ения|ы)?|Dimensions?|(?:Основные\s+)?[Гг]абариты)\s*[:：]?\s*"
+            r"(?:Длина\s*(?:общая\s*)?(?:\(?LOA\)?)?\s*[—\-–]?\s*)?"
+            r"([\d\xa0.,]+)\s*м?(?:\s*\([^)]*\))?\s*"
+            r"(?:[×xXх\*]|,?\s*ширина\s*[—\-–]?\s*)\s*([\d\xa0.,]+)\s*м?",
             text,
             re.IGNORECASE,
         )
@@ -356,25 +434,47 @@ def parse_block(raw_text: str, declared_imo: str) -> VesselRecord:
                 loa_m = _to_float(dims.group(1))
             if beam_m is None:
                 beam_m = _to_float(dims.group(2))
+        if loa_m is None or beam_m is None:
+            dims2 = re.search(
+                r"([\d]+(?:[.,]\d+)?)\s*м\s*\(\s*длина\s*\)\s*[×xXх\*]\s*"
+                r"([\d]+(?:[.,]\d+)?)\s*м\s*\(\s*ширина\s*\)",
+                text,
+                re.IGNORECASE,
+            )
+            if dims2:
+                if loa_m is None:
+                    loa_m = _to_float(dims2.group(1))
+                if beam_m is None:
+                    beam_m = _to_float(dims2.group(2))
 
-    draft_raw = _search(
-        r"(?:Текущая\s*осадка|Осадка|Draft|Draught)\s*[:：]?\s*(.+?)(?=\n|\*|Источник|\d\.\s*Операцион|$)",
-        text,
-    )
+    # Prefer explicit draught near "осадка — N м" / labeled draft
     draft_m = None
     draft_note = None
-    if draft_raw:
-        draft_raw = re.split(r"(?=\d+\.\s*Операцион)", draft_raw)[0]
-        num_m = re.search(r"([\d]+(?:[.,]\d+)?)", draft_raw)
-        if num_m:
-            draft_m = _to_float(num_m.group(1))
-        note_m = re.search(r"\(([^)]*)\)", draft_raw)
-        if note_m:
-            draft_note = _clean_spaces(note_m.group(1))
-        else:
-            rest = re.sub(r"^[\d\s.,]+\s*м?\s*", "", draft_raw, count=1).strip(" —–-:")
-            if rest and not rest.startswith("2."):
-                draft_note = _clean_spaces(rest)
+    draft_labeled = re.search(
+        r"(?:Текущая\s*осадка|осадка|Draft|Draught)\s*[:：—\-–]?\s*(?:—\s*)?"
+        r"([\d]+(?:[.,]\d+)?)\s*м?",
+        text,
+        re.IGNORECASE,
+    )
+    if draft_labeled:
+        draft_m = _to_float(draft_labeled.group(1))
+    else:
+        draft_raw = _search(
+            r"(?:Текущая\s*осадка|Осадка|Draft|Draught)\s*[:：]?\s*(.+?)(?=\n|\*|Источник|\d\.\s*Операцион|$)",
+            text,
+        )
+        if draft_raw:
+            draft_raw = re.split(r"(?=\d+\.\s*Операцион)", draft_raw)[0]
+            num_m = re.search(r"([\d]+(?:[.,]\d+)?)", draft_raw)
+            if num_m:
+                draft_m = _to_float(num_m.group(1))
+            note_m = re.search(r"\(([^)]*)\)", draft_raw)
+            if note_m:
+                draft_note = _clean_spaces(note_m.group(1))
+            else:
+                rest = re.sub(r"^[\d\s.,]+\s*м?\s*", "", draft_raw, count=1).strip(" —–-:")
+                if rest and not rest.startswith("2."):
+                    draft_note = _clean_spaces(rest)
 
     # --- Rule 7: nav_status ONLY from "Навигационный статус:" ---
     nav_m = re.search(
@@ -397,7 +497,7 @@ def parse_block(raw_text: str, declared_imo: str) -> VesselRecord:
 
     speed_knots = _to_float(
         _search(
-            r"(?:Скорость|Speed)\s*[:：]?\s*([\d]+(?:[.,]\d+)?)\s*(?:узл|knots?|kn)?",
+            r"(?:Скорость|Speed)\s*[:：—\-–]?\s*(?:—\s*)?([\d]+(?:[.,]\d+)?)\s*(?:узл|knots?|kn)?",
             text,
         )
     )
@@ -407,24 +507,73 @@ def parse_block(raw_text: str, declared_imo: str) -> VesselRecord:
 
     compliance_risk_level = _extract_compliance_risk(text)
 
-    # Destination
-    dest_block = _search(
-        r"(?:Пункт\s*назначения|Destination|Dest)\s*[:：]?\s*(.+?)(?=\n\s*\*|\n\s*Наименование|$)",
-        text,
-    )
-    if not dest_block:
-        dest_block = _search(
-            r"Локация\s*[:：]\s*(.+?)(?=\n\s*Активность|\n\s*\d+\.|$)",
-            text,
-        )
-
     destination_port = None
     destination_context = None
     departure_port = None
     departure_datetime_utc = None
     arrival_datetime = None
 
-    if dest_block:
+    # Explicit logistics labels (cleaned KB / Oracle-1001 dossier format)
+    dest_labeled = _search(
+        r"(?:Заявленный\s*пункт\s*назначения|Пункт\s*назначения|Порт\s*назначения|"
+        r"Reported\s*destination|Destination)\s*[:：]\s*(.+?)(?=\n|Текущий статус|"
+        r"Расчетное|Ожидаемое|Прибытие|Дата|Пункт\s*отправления|2\.|3\.|4\.|$)",
+        text,
+    )
+    if dest_labeled:
+        destination_port = _clean_spaces(
+            re.split(r"[.(]|согласно", dest_labeled, maxsplit=1)[0]
+        )
+        ctx_m = re.search(r"\(([^)]+)\)", dest_labeled)
+        if ctx_m:
+            ctx = _clean_spaces(ctx_m.group(1))
+            if not ctx.lower().startswith("согласно"):
+                destination_context = ctx
+
+    dep_labeled = _search(
+        r"(?:Пункт\s*отправления|Последний\s*порт)\s*[:：]\s*(.+?)(?=\n|Время\s*выхода|"
+        r"Дата\s*(?:выхода|отправления)|Пункт\s*назначения|2\.|3\.|$)",
+        text,
+    )
+    if dep_labeled:
+        departure_port = _clean_spaces(
+            re.split(r"[.(]|[—\-–]", dep_labeled, maxsplit=1)[0]
+        )
+
+    dep_time = _search(
+        r"(?:Время\s*выхода|Дата\s*(?:выхода|отправления)|Фактическое\s*время\s*отправления)"
+        r"\s*[:：]\s*(.+?)(?=\n|Пункт|Заявленный|2\.|3\.|$)",
+        text,
+    )
+    if dep_time:
+        departure_datetime_utc = _clean_spaces(dep_time)
+
+    loc = _search(
+        r"(?:Местоположение|Локация|Координаты)\s*[:：]\s*(.+?)(?=\n|Последняя|"
+        r"Кинематик|Скорость|Осадка|Навигационн|Статус:|2\.|3\.|$)",
+        text,
+    )
+    if loc:
+        loc_clean = _clean_spaces(re.split(r"\s+Статус\s*:", loc, maxsplit=1)[0])
+        if len(loc_clean) > 120:
+            loc_clean = loc_clean[:117] + "…"
+        # Prefer explicit location over destination parenthetical
+        destination_context = loc_clean
+
+    # Destination fallback (legacy narrative blocks)
+    dest_block = None
+    if not destination_port:
+        dest_block = _search(
+            r"(?:Пункт\s*назначения|Destination|Dest)\s*[:：]?\s*(.+?)(?=\n\s*\*|\n\s*Наименование|$)",
+            text,
+        )
+        if not dest_block:
+            dest_block = _search(
+                r"Локация\s*[:：]\s*(.+?)(?=\n\s*Активность|\n\s*\d+\.|$)",
+                text,
+            )
+
+    if dest_block and not destination_port:
         dest_block = dest_block.strip()
         port_patterns = [
             r"(?:следует|направляется|идёт|идет)\s+в\s+порт\s+([^.(]+?)(?:\s*\(|\.|,|$)",
@@ -438,7 +587,7 @@ def parse_block(raw_text: str, declared_imo: str) -> VesselRecord:
                 break
 
         ctx_m = re.search(r"\(([^)]+)\)", dest_block)
-        if ctx_m:
+        if ctx_m and not destination_context:
             destination_context = _clean_spaces(ctx_m.group(1))
 
         dep_m = re.search(
@@ -448,34 +597,91 @@ def parse_block(raw_text: str, declared_imo: str) -> VesselRecord:
             re.IGNORECASE,
         )
         if dep_m:
-            departure_port = _clean_spaces(dep_m.group(1))
-            departure_datetime_utc = _clean_spaces(dep_m.group(2))
+            if not departure_port:
+                departure_port = _clean_spaces(dep_m.group(1))
+            if not departure_datetime_utc:
+                departure_datetime_utc = _clean_spaces(dep_m.group(2))
         else:
             dep_m2 = re.search(
                 r"(?:Вышл[оаи]|Departed|Left|Sailed)\s+(?:из|from)\s+([^.]+)",
                 dest_block,
                 re.IGNORECASE,
             )
-            if dep_m2:
+            if dep_m2 and not departure_port:
                 departure_port = _clean_spaces(dep_m2.group(1))
 
-        arr_m = re.search(
-            r"(?:Ожидаемое\s*время\s*прибытия|Прибыл[оаи]?/ошвартовал(?:ся|ось)?|"
-            r"Прибыл[оаи]?|Прибытие|Arrived|Arrival|ошвартовал(?:ся|ось)?)\s*[:：]?\s*"
-            r"(\d{1,2}\s+\S+\s+\d{4}[^.]*?)(?:\.|$)",
-            dest_block,
+    # Narrative logistics: "следует в порт Порт-Саид" / "направляется в Хьюстон, США"
+    if not destination_port:
+        port_nav = re.search(
+            r"(?:следует|направляется|идёт|идет|следуя)\s+в\s+порт\s+"
+            r"([^.(,\n]{2,80})(?:\s*\(|\.|,|$)",
+            text,
             re.IGNORECASE,
         )
-        if arr_m:
-            arrival_datetime = _clean_spaces(arr_m.group(1))
-        if arrival_datetime is None:
-            arr_m2 = re.search(
-                r"Ожидаемое\s*время\s*прибытия\s*[:：]?\s*(\d{1,2}\s+\S+\s+\d{4}[^.]*?)(?:\.|$)",
+        if port_nav:
+            destination_port = _clean_spaces(port_nav.group(1))
+            ctx_m = re.search(
+                r"(?:следует|направляется|идёт|идет|следуя)\s+в\s+порт\s+"
+                + re.escape(port_nav.group(1))
+                + r"\s*\(([^)]+)\)",
                 text,
                 re.IGNORECASE,
             )
-            if arr_m2:
-                arrival_datetime = _clean_spaces(arr_m2.group(1))
+            if ctx_m and not destination_context:
+                destination_context = _clean_spaces(ctx_m.group(1).split(",")[0])
+    if not destination_port:
+        dest_nav = re.search(
+            r"направля(?:ется|ясь)\s+в\s+([^.(,\n]{2,60})"
+            r"(?:,\s*([^.(,\n]{2,40}))?",
+            text,
+            re.IGNORECASE,
+        )
+        if dest_nav:
+            destination_port = _clean_spaces(dest_nav.group(1))
+            if dest_nav.group(2) and not destination_context:
+                destination_context = _clean_spaces(dest_nav.group(2))
+
+    if not departure_port:
+        dep_nav = re.search(
+            r"(?:вышло|вышел|вышла|вышли|Departed|Left|Sailed)\s+из\s+"
+            r"(?:района|порта|акватории)?\s*"
+            r"([^.(,\n]{2,60})"
+            r"(?:\s*\(([^)]+)\))?"
+            r"(?:,\s*([^.(,\n]{2,40}))?",
+            text,
+            re.IGNORECASE,
+        )
+        if dep_nav:
+            departure_port = _clean_spaces(dep_nav.group(1))
+            bits = []
+            if dep_nav.group(2):
+                bits.append(_clean_spaces(dep_nav.group(2)))
+            if dep_nav.group(3):
+                bits.append(_clean_spaces(dep_nav.group(3)))
+            if bits:
+                departure_port = f"{departure_port} ({', '.join(bits)})"
+
+    arr_m = re.search(
+        r"(?:Ожидаемое\s*время\s*прибытия|Ожидаемое\s*прибытие|"
+        r"Расчетное\s*время(?:\s*прибытия)?|"
+        r"Reported\s*ETA|\bETA\b|Прибытие\s*на\s*рейд|Actual\s*Arrival|"
+        r"Прибыл[оаи]?/ошвартовал(?:ся|ось)?|Прибыл[оаи]?|Прибытие|Arrived|Arrival)"
+        r"(?:\s*\([^)]*\))?\s*[:：—\-–]?\s*(?:—\s*)?"
+        r"(?:Указанный\s+ETA\s*)?\(?"
+        r"(\d{1,2}\s+\S+(?:\s+\d{4})?[^\n.)]*?)"
+        r"\)?(?:\s+уже\s+прошел)?(?:\.|$|\n)",
+        text,
+        re.IGNORECASE,
+    )
+    if arr_m:
+        arrival_datetime = _clean_spaces(arr_m.group(1))
+        # Drop trailing narrative crumbs / stray parens
+        arrival_datetime = re.split(
+            r"\s+уже\s+прошел|\s+что\s+может|\s+указывает",
+            arrival_datetime,
+            maxsplit=1,
+            flags=re.IGNORECASE,
+        )[0].strip(" .;()（）")
 
     # --- Rule 5: identity spoofing (independent) ---
     spoof_imo, spoof_note = _extract_identity_spoofing(text)

@@ -36,8 +36,10 @@ import sys
 import traceback
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Any
 
 import websockets
+import yaml
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parent
@@ -49,6 +51,7 @@ LOG_PATH = ROOT / "logs" / "collector_log.txt"
 TARGETS_PATH = ROOT / "targets.json"
 BATCHES_PATH = ROOT / "targets_batches.json"
 UNREACHABLE_PATH = HISTORY / "collector_unreachable_mmsi.json"
+CONFIG_PATH = ROOT / "config.yaml"
 
 WS_URL = "wss://stream.aisstream.io/v0/stream"
 WORLD_BBOX = [[[-90, -180], [90, 180]]]
@@ -61,6 +64,13 @@ MAX_CONCURRENT_HANDSHAKES_DEFAULT = 20
 # handshake failures (connect+subscribe never confirmed alive).
 CONSECUTIVE_FAILURES_UNREACHABLE = 3
 
+# WebSocket disconnect / retry backoff: 2s → 4s → 8s → … capped at 30s.
+BACKOFF_INITIAL_SECONDS = 2.0
+BACKOFF_MAX_SECONDS = 30.0
+
+# SQLite: WAL for concurrent batch writers + busy timeout (seconds).
+SQLITE_TIMEOUT_SECONDS = 30.0
+
 
 def log(msg: str) -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -69,6 +79,63 @@ def log(msg: str) -> None:
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with LOG_PATH.open("a", encoding="utf-8") as f:
         f.write(line + "\n")
+
+
+def next_backoff(
+    current: float | None,
+    *,
+    initial: float = BACKOFF_INITIAL_SECONDS,
+    maximum: float = BACKOFF_MAX_SECONDS,
+) -> float:
+    """Exponential backoff: initial → 2× → … capped at maximum (default 2s→30s)."""
+    if current is None:
+        return initial
+    return min(current * 2.0, maximum)
+
+
+def load_aisstream_settings(config_path: Path | None = None) -> dict[str, Any]:
+    """Merge aisstream.* from config.yaml with module defaults."""
+    path = config_path or CONFIG_PATH
+    settings: dict[str, Any] = {
+        "websocket_url": WS_URL,
+        "mmsi_batch_size": MMSI_BATCH_SIZE,
+        "stagger_seconds": STAGGER_SECONDS_DEFAULT,
+        "max_concurrent_handshakes": MAX_CONCURRENT_HANDSHAKES_DEFAULT,
+        "unreachable_after_consecutive_failures": CONSECUTIVE_FAILURES_UNREACHABLE,
+        "max_batches": None,
+        "reconnect_backoff_initial_seconds": BACKOFF_INITIAL_SECONDS,
+        "reconnect_backoff_max_seconds": BACKOFF_MAX_SECONDS,
+        "sqlite_timeout_seconds": SQLITE_TIMEOUT_SECONDS,
+    }
+    if not path.exists():
+        return settings
+    with path.open(encoding="utf-8") as f:
+        cfg = yaml.safe_load(f) or {}
+    ais = cfg.get("aisstream") or {}
+    for key in settings:
+        if key in ais and ais[key] is not None:
+            settings[key] = ais[key]
+    paths = cfg.get("paths") or {}
+    if paths.get("db"):
+        settings["db_path"] = paths["db"]
+    if paths.get("targets"):
+        settings["targets_path"] = paths["targets"]
+    return settings
+
+
+def open_db(db_path: Path, timeout_seconds: float = SQLITE_TIMEOUT_SECONDS) -> sqlite3.Connection:
+    """Open SQLite with WAL journal and busy timeout for multi-batch writers."""
+    conn = sqlite3.connect(
+        str(db_path),
+        timeout=timeout_seconds,
+        check_same_thread=False,
+    )
+    busy_ms = max(1, int(timeout_seconds * 1000))
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute(f"PRAGMA busy_timeout={busy_ms}")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    init_db(conn)
+    return conn
 
 
 def init_db(conn: sqlite3.Connection) -> None:
@@ -98,24 +165,30 @@ def init_db(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
-def load_mmsi_to_imo() -> dict[str, str]:
-    data = json.loads(TARGETS_PATH.read_text(encoding="utf-8"))
+def load_mmsi_to_imo(targets_path: Path = TARGETS_PATH) -> dict[str, str]:
+    data = json.loads(targets_path.read_text(encoding="utf-8"))
     mapping: dict[str, str] = {}
     for t in data["targets"]:
         mapping[str(t["mmsi"])] = str(t["imo"])
     return mapping
 
 
-def load_batches(max_batches: int | None = None) -> list[list[str]]:
-    if BATCHES_PATH.exists():
-        data = json.loads(BATCHES_PATH.read_text(encoding="utf-8"))
+def load_batches(
+    max_batches: int | None = None,
+    *,
+    targets_path: Path = TARGETS_PATH,
+    batches_path: Path = BATCHES_PATH,
+    mmsi_batch_size: int = MMSI_BATCH_SIZE,
+) -> list[list[str]]:
+    if batches_path.exists():
+        data = json.loads(batches_path.read_text(encoding="utf-8"))
         batches = data["batches"]
     else:
-        data = json.loads(TARGETS_PATH.read_text(encoding="utf-8"))
+        data = json.loads(targets_path.read_text(encoding="utf-8"))
         mmsis = sorted({str(t["mmsi"]) for t in data["targets"]})
         batches = [
-            mmsis[i : i + MMSI_BATCH_SIZE]
-            for i in range(0, len(mmsis), MMSI_BATCH_SIZE)
+            mmsis[i : i + mmsi_batch_size]
+            for i in range(0, len(mmsis), mmsi_batch_size)
         ]
     if max_batches is not None:
         batches = batches[: max(1, max_batches)]
@@ -139,7 +212,7 @@ NAV_STATUS_MAP = {
 
 def insert_position(conn: sqlite3.Connection, row: dict) -> bool:
     try:
-        conn.execute(
+        cur = conn.execute(
             """
             INSERT OR IGNORE INTO positions
             (imo, mmsi, timestamp_utc, lat, lon, speed_knots, heading, nav_status, received_at)
@@ -158,18 +231,29 @@ def insert_position(conn: sqlite3.Connection, row: dict) -> bool:
             ),
         )
         conn.commit()
-        return conn.total_changes > 0
+        return cur.rowcount > 0
     except sqlite3.Error as e:
         log(f"DB insert error: {e}")
         return False
 
 
+async def safe_insert_position(
+    conn: sqlite3.Connection,
+    row: dict,
+    db_write_lock: asyncio.Lock,
+) -> bool:
+    async with db_write_lock:
+        return insert_position(conn, row)
+
+
 def parse_position(message: dict, mmsi_to_imo: dict[str, str]) -> dict | None:
     mtype = message.get("MessageType")
-    if mtype not in ("PositionReport", "StandardClassBPositionReport", "ExtendedClassBPositionReport"):
-        # Also accept ShipStaticData? skip for positions
-        if mtype != "PositionReport":
-            return None
+    if mtype not in (
+        "PositionReport",
+        "StandardClassBPositionReport",
+        "ExtendedClassBPositionReport",
+    ):
+        return None
 
     body = message.get("Message", {}).get("PositionReport") or {}
     meta = message.get("Metadata", {}) or {}
@@ -204,7 +288,6 @@ def parse_position(message: dict, mmsi_to_imo: dict[str, str]) -> dict | None:
             nav_status = str(nav_code)
 
     now = datetime.now(timezone.utc)
-    # Prefer message timestamp if present in metadata
     ts = meta.get("time_utc") or meta.get("TimeUTC") or now.isoformat()
 
     return {
@@ -230,17 +313,22 @@ async def batch_worker(
     stats: dict,
     stagger_seconds: float,
     handshake_sem: asyncio.Semaphore,
+    db_write_lock: asyncio.Lock,
+    all_batches: list[list[str]],
+    *,
+    ws_url: str = WS_URL,
+    unreachable_threshold: int = CONSECUTIVE_FAILURES_UNREACHABLE,
+    backoff_initial: float = BACKOFF_INITIAL_SECONDS,
+    backoff_max: float = BACKOFF_MAX_SECONDS,
+    sqlite_timeout: float = SQLITE_TIMEOUT_SECONDS,
 ) -> None:
-    # 1) Staggered rollout: spread batch start times instead of opening all
-    #    sockets in the same millisecond (see risk audit note at top of file).
     start_offset = batch_id * stagger_seconds
     await asyncio.sleep(start_offset)
     log(f"batch[{batch_id}] scheduled start (offset={start_offset:.1f}s from launch)")
 
-    delay = 1.0
-    consecutive_failures = 0
-    conn = sqlite3.connect(db_path, check_same_thread=False)
-    init_db(conn)
+    reconnect_delay: float | None = None
+    consecutive_handshake_failures = 0
+    conn = open_db(db_path, timeout_seconds=sqlite_timeout)
 
     while True:
         if stop_at and datetime.now(timezone.utc) >= stop_at:
@@ -251,13 +339,10 @@ async def batch_worker(
         subscribed_ok = False
         ws = None
         try:
-            # 2) Cap concurrent handshakes: hold the semaphore only for the
-            #    risky connect+subscribe phase, then release so the socket
-            #    stays open (steady-state reading) without blocking others.
             async with handshake_sem:
                 log(f"batch[{batch_id}] connect attempt @ {connect_started_at.isoformat()}")
                 ws = await websockets.connect(
-                    WS_URL,
+                    ws_url,
                     ping_interval=20,
                     ping_timeout=20,
                     max_size=8 * 1024 * 1024,
@@ -269,9 +354,6 @@ async def batch_worker(
                     "FilterMessageTypes": ["PositionReport"],
                 }
                 await ws.send(json.dumps(sub))
-                # Give the server a brief window to reject (e.g. throttling /
-                # invalid key) before we declare the handshake successful and
-                # release the semaphore slot for the next batch.
                 try:
                     first = await asyncio.wait_for(ws.recv(), timeout=5.0)
                     first_msg = json.loads(first)
@@ -283,8 +365,6 @@ async def batch_worker(
                         f"first={mmsi_batch[0]}, first_msg_type={first_msg.get('MessageType')}"
                     )
                 except asyncio.TimeoutError:
-                    # No message within 5s is normal (traffic-dependent) — the
-                    # subscribe send didn't error, so treat as accepted.
                     subscribed_ok = True
                     log(
                         f"batch[{batch_id}] subscribed OK ({len(mmsi_batch)} MMSI), "
@@ -292,14 +372,14 @@ async def batch_worker(
                     )
                     first_msg = None
 
-            delay = 1.0
-            consecutive_failures = 0
+            reconnect_delay = None
+            consecutive_handshake_failures = 0
+            stats.setdefault("failed_batches", {}).pop(batch_id, None)
 
-            # Process the message we already consumed (if any), then keep reading.
             if first_msg is not None:
                 row = parse_position(first_msg, mmsi_to_imo)
                 if row:
-                    inserted = insert_position(conn, row)
+                    inserted = await safe_insert_position(conn, row, db_write_lock)
                     stats["messages"] += 1
                     if inserted:
                         stats["inserted"] += 1
@@ -320,7 +400,7 @@ async def batch_worker(
                 row = parse_position(msg, mmsi_to_imo)
                 if not row:
                     continue
-                inserted = insert_position(conn, row)
+                inserted = await safe_insert_position(conn, row, db_write_lock)
                 stats["messages"] += 1
                 if inserted:
                     stats["inserted"] += 1
@@ -337,45 +417,69 @@ async def batch_worker(
             raise
         except Exception as e:
             if not subscribed_ok:
-                consecutive_failures += 1
+                consecutive_handshake_failures += 1
                 stats.setdefault("failed_batches", {})[batch_id] = {
                     "mmsi_batch": mmsi_batch,
-                    "consecutive_failures": consecutive_failures,
+                    "consecutive_failures": consecutive_handshake_failures,
                     "last_error": repr(e),
                     "last_attempt_utc": datetime.now(timezone.utc).isoformat(),
+                    "status": "handshake_failed",
                 }
-                if consecutive_failures >= CONSECUTIVE_FAILURES_UNREACHABLE:
+                reconnect_delay = next_backoff(
+                    reconnect_delay, initial=backoff_initial, maximum=backoff_max
+                )
+                log(
+                    f"batch[{batch_id}] handshake failure "
+                    f"{consecutive_handshake_failures}/{unreachable_threshold}: {e!r}; "
+                    f"retry in {reconnect_delay:.0f}s"
+                )
+                if consecutive_handshake_failures >= unreachable_threshold:
+                    stats["failed_batches"][batch_id]["status"] = "unreachable_this_session"
                     log(
                         f"batch[{batch_id}] UNREACHABLE this session after "
-                        f"{consecutive_failures} consecutive handshake failures "
+                        f"{consecutive_handshake_failures} consecutive handshake failures "
                         f"({len(mmsi_batch)} MMSI affected): {e!r}"
                     )
+                    write_unreachable_report(all_batches, stats)
+                    break
             else:
                 stats.setdefault("failed_batches", {}).pop(batch_id, None)
-            log(f"batch[{batch_id}] disconnect: {e!r}; retry in {delay:.0f}s")
+                reconnect_delay = next_backoff(
+                    reconnect_delay, initial=backoff_initial, maximum=backoff_max
+                )
+                log(
+                    f"batch[{batch_id}] WebSocket disconnect after subscribe: {e!r}; "
+                    f"backoff retry in {reconnect_delay:.0f}s"
+                )
             log(traceback.format_exc().splitlines()[-1])
             if ws is not None:
                 try:
                     await ws.close()
                 except Exception:
                     pass
-            await asyncio.sleep(delay)
-            delay = min(delay * 2, 120.0)
+            await asyncio.sleep(reconnect_delay or backoff_initial)
         else:
-            # Normal stream end (server closed cleanly) — treat as disconnect, retry.
             stats.setdefault("failed_batches", {}).pop(batch_id, None)
-            log(f"batch[{batch_id}] stream ended cleanly; retry in {delay:.0f}s")
-            await asyncio.sleep(delay)
+            reconnect_delay = next_backoff(
+                reconnect_delay, initial=backoff_initial, maximum=backoff_max
+            )
+            log(
+                f"batch[{batch_id}] stream ended cleanly; "
+                f"backoff retry in {reconnect_delay:.0f}s"
+            )
+            await asyncio.sleep(reconnect_delay)
 
     conn.close()
 
 
 def write_unreachable_report(batches: list[list[str]], stats: dict) -> None:
     failed = stats.get("failed_batches", {})
+    unreachable_threshold = stats.get("unreachable_threshold", CONSECUTIVE_FAILURES_UNREACHABLE)
     unreachable = {
         bid: info
         for bid, info in failed.items()
-        if info["consecutive_failures"] >= CONSECUTIVE_FAILURES_UNREACHABLE
+        if info.get("consecutive_failures", 0) >= unreachable_threshold
+        or info.get("status") == "unreachable_this_session"
     }
     if not unreachable:
         return
@@ -388,6 +492,7 @@ def write_unreachable_report(batches: list[list[str]], stats: dict) -> None:
                 "unreachable_batch_count": len(unreachable),
                 "total_batches": len(batches),
                 "unreachable_mmsi_count": total_mmsi,
+                "honest_degradation": True,
                 "batches": unreachable,
             },
             indent=2,
@@ -403,26 +508,60 @@ def write_unreachable_report(batches: list[list[str]], stats: dict) -> None:
 async def run_collector(
     test_minutes: float | None = None,
     max_batches: int | None = None,
-    stagger_seconds: float = STAGGER_SECONDS_DEFAULT,
-    max_concurrent_handshakes: int = MAX_CONCURRENT_HANDSHAKES_DEFAULT,
+    stagger_seconds: float | None = None,
+    max_concurrent_handshakes: int | None = None,
+    *,
+    config_path: Path | None = None,
 ) -> None:
+    settings = load_aisstream_settings(config_path)
+    stagger_seconds = (
+        stagger_seconds
+        if stagger_seconds is not None
+        else float(settings["stagger_seconds"])
+    )
+    max_concurrent_handshakes = (
+        max_concurrent_handshakes
+        if max_concurrent_handshakes is not None
+        else int(settings["max_concurrent_handshakes"])
+    )
+    if max_batches is None and settings.get("max_batches") is not None:
+        max_batches = int(settings["max_batches"])
+
+    unreachable_threshold = int(settings["unreachable_after_consecutive_failures"])
+    backoff_initial = float(settings["reconnect_backoff_initial_seconds"])
+    backoff_max = float(settings["reconnect_backoff_max_seconds"])
+    sqlite_timeout = float(settings["sqlite_timeout_seconds"])
+    ws_url = str(settings["websocket_url"])
+    mmsi_batch_size = int(settings["mmsi_batch_size"])
+
+    db_path = ROOT / settings["db_path"] if settings.get("db_path") else DB_PATH
+    targets_path = (
+        ROOT / settings["targets_path"] if settings.get("targets_path") else TARGETS_PATH
+    )
+
     api_key = os.getenv("AISSTREAM_API_KEY", "").strip()
     if not api_key or api_key.startswith("YOUR_"):
         log("ERROR: Set AISSTREAM_API_KEY in .env (see .env.example)")
         raise SystemExit(1)
 
-    if not TARGETS_PATH.exists():
+    if not targets_path.exists():
         log("ERROR: targets.json missing — run prepare_targets.py first")
         raise SystemExit(1)
 
     HISTORY.mkdir(parents=True, exist_ok=True)
-    mmsi_to_imo = load_mmsi_to_imo()
-    batches = load_batches(max_batches=max_batches)
+    mmsi_to_imo = load_mmsi_to_imo(targets_path)
+    batches = load_batches(
+        max_batches=max_batches,
+        targets_path=targets_path,
+        mmsi_batch_size=mmsi_batch_size,
+    )
     ramp_up_seconds = max(0, len(batches) - 1) * stagger_seconds
     log(
-        f"Starting collector: {len(batches)} WebSocket batch(es) x <={MMSI_BATCH_SIZE} MMSI "
+        f"Starting collector: {len(batches)} WebSocket batch(es) x <={mmsi_batch_size} MMSI "
         f"(mapped IMO={len(mmsi_to_imo)}) | stagger={stagger_seconds}s "
         f"| max_concurrent_handshakes={max_concurrent_handshakes} "
+        f"| backoff={backoff_initial}s→{backoff_max}s "
+        f"| sqlite_wal timeout={sqlite_timeout}s "
         f"| full ramp-up ~{ramp_up_seconds:.0f}s"
     )
     log(
@@ -437,13 +576,33 @@ async def run_collector(
         stop_at = datetime.now(timezone.utc) + timedelta(minutes=test_minutes)
         log(f"TEST MODE: will stop at {stop_at.isoformat()}")
 
-    stats: dict = {"messages": 0, "inserted": 0, "failed_batches": {}}
+    stats: dict = {
+        "messages": 0,
+        "inserted": 0,
+        "failed_batches": {},
+        "unreachable_threshold": unreachable_threshold,
+    }
+    db_write_lock = asyncio.Lock()
     handshake_sem = asyncio.Semaphore(max(1, max_concurrent_handshakes))
     tasks = [
         asyncio.create_task(
             batch_worker(
-                i, batch, api_key, mmsi_to_imo, DB_PATH, stop_at, stats,
-                stagger_seconds, handshake_sem,
+                i,
+                batch,
+                api_key,
+                mmsi_to_imo,
+                db_path,
+                stop_at,
+                stats,
+                stagger_seconds,
+                handshake_sem,
+                db_write_lock,
+                batches,
+                ws_url=ws_url,
+                unreachable_threshold=unreachable_threshold,
+                backoff_initial=backoff_initial,
+                backoff_max=backoff_max,
+                sqlite_timeout=sqlite_timeout,
             )
         )
         for i, batch in enumerate(batches)
@@ -458,6 +617,7 @@ async def run_collector(
 
 
 def main() -> int:
+    settings = load_aisstream_settings()
     parser = argparse.ArgumentParser(description="AISstream continuous collector")
     parser.add_argument(
         "--test-minutes",
@@ -468,24 +628,30 @@ def main() -> int:
     parser.add_argument(
         "--max-batches",
         type=int,
-        default=None,
+        default=settings.get("max_batches"),
         help="Limit number of parallel WS batches (default: all). Use 1–2 for smoke tests.",
     )
     parser.add_argument(
         "--stagger-seconds",
         type=float,
-        default=STAGGER_SECONDS_DEFAULT,
-        help=f"Delay between batch startups (default: {STAGGER_SECONDS_DEFAULT}s)",
+        default=float(settings["stagger_seconds"]),
+        help=f"Delay between batch startups (default: {settings['stagger_seconds']}s)",
     )
     parser.add_argument(
         "--max-concurrent-handshakes",
         type=int,
-        default=MAX_CONCURRENT_HANDSHAKES_DEFAULT,
+        default=int(settings["max_concurrent_handshakes"]),
         help=(
             "Max simultaneous connect+subscribe handshakes in flight "
-            f"(default: {MAX_CONCURRENT_HANDSHAKES_DEFAULT}). Does not limit "
+            f"(default: {settings['max_concurrent_handshakes']}). Does not limit "
             "steady-state open sockets, only the risky connect burst."
         ),
+    )
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=CONFIG_PATH,
+        help="Path to config.yaml (aisstream section)",
     )
     args = parser.parse_args()
     try:
@@ -495,6 +661,7 @@ def main() -> int:
                 args.max_batches,
                 args.stagger_seconds,
                 args.max_concurrent_handshakes,
+                config_path=args.config,
             )
         )
     except KeyboardInterrupt:

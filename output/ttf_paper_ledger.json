@@ -1,0 +1,149 @@
+{
+  "generated_at_utc": "2026-09-05T15:29:26Z",
+  "live_spot_eur_mwh": 71.952,
+  "p50_30": 71.90213298794671,
+  "base_usd": 1000.0,
+  "orders": [
+    {
+      "order_id": "PAPER-R-062B3CFA1C",
+      "strategy_id": "STRAT_A_COLLAR",
+      "short_id": "A",
+      "name": "Delta-Neutral Collar",
+      "timestamp_utc": "2026-09-05T15:28:59Z",
+      "spot_ref_price": 71.952,
+      "live_spot": 71.952,
+      "position_size_usd": 1000.0,
+      "target_horizon_days": 30,
+      "projected_return_pct": 8.5,
+      "current_mtm_pnl_usd": -0.07,
+      "current_nav_usd": 999.93,
+      "mtm_return_pct": -0.007,
+      "days_held": 0,
+      "status": "OPEN",
+      "badge": "MtM: $-0.07 / Target: +8.5%",
+      "marks": [
+        {
+          "date": "2026-09-05",
+          "spot": 71.952,
+          "mtm_pnl_usd": -0.07,
+          "nav_usd": 999.93
+        }
+      ]
+    },
+    {
+      "order_id": "PAPER-S-447AB1C454",
+      "strategy_id": "STRAT_B_AIS_FUTURES",
+      "short_id": "B",
+      "name": "AIS-Gated Dynamic Futures",
+      "timestamp_utc": "2026-09-05T15:28:59Z",
+      "spot_ref_price": 71.952,
+      "live_spot": 71.952,
+      "position_size_usd": 1000.0,
+      "target_horizon_days": 30,
+      "projected_return_pct": 18.4,
+      "current_mtm_pnl_usd": -0.17,
+      "current_nav_usd": 999.83,
+      "mtm_return_pct": -0.017,
+      "days_held": 0,
+      "status": "OPEN",
+      "badge": "MtM: $-0.17 / Target: +18.4%",
+      "marks": [
+        {
+          "date": "2026-09-05",
+          "spot": 71.952,
+          "mtm_pnl_usd": -0.17,
+          "nav_usd": 999.83
+        }
+      ]
+    },
+    {
+      "order_id": "PAPER-Y-9FF44140A3",
+      "strategy_id": "STRAT_C_CONVEXITY",
+      "short_id": "C",
+      "name": "Convexity Volatility Long",
+      "timestamp_utc": "2026-09-05T15:28:59Z",
+      "spot_ref_price": 71.952,
+      "live_spot": 71.952,
+      "position_size_usd": 1000.0,
+      "target_horizon_days": 30,
+      "projected_return_pct": 35.0,
+      "current_mtm_pnl_usd": -0.27,
+      "current_nav_usd": 999.73,
+      "mtm_return_pct": -0.027,
+      "days_held": 0,
+      "status": "OPEN",
+      "badge": "MtM: $-0.27 / Target: +35.0%",
+      "marks": [
+        {
+          "date": "2026-09-05",
+          "spot": 71.952,
+          "mtm_pnl_usd": -0.27,
+          "nav_usd": 999.73
+        }
+      ]
+    }
+  ],
+  "open_count": 3,
+  "strategy_b": {
+    "order_id": "PAPER-S-447AB1C454",
+    "strategy_id": "STRAT_B_AIS_FUTURES",
+    "short_id": "B",
+    "name": "AIS-Gated Dynamic Futures",
+    "timestamp_utc": "2026-09-05T15:28:59Z",
+    "spot_ref_price": 71.952,
+    "live_spot": 71.952,
+    "position_size_usd": 1000.0,
+    "target_horizon_days": 30,
+    "projected_return_pct": 18.4,
+    "current_mtm_pnl_usd": -0.17,
+    "current_nav_usd": 999.83,
+    "mtm_return_pct": -0.017,
+    "days_held": 0,
+    "status": "OPEN",
+    "badge": "MtM: $-0.17 / Target: +18.4%",
+    "marks": [
+      {
+        "date": "2026-09-05",
+        "spot": 71.952,
+        "mtm_pnl_usd": -0.17,
+        "nav_usd": 999.83
+      }
+    ]
+  },
+  "live_paper_badge": "MtM: $-0.17 / Target: +18.4%",
+  "equity_overlay": {
+    "A": {
+      "labels": [
+        "2026-09-05"
+      ],
+      "nav": [
+        999.93
+      ],
+      "mtm": [
+        -0.07
+      ]
+    },
+    "B": {
+      "labels": [
+        "2026-09-05"
+      ],
+      "nav": [
+        999.83
+      ],
+      "mtm": [
+        -0.17
+      ]
+    },
+    "C": {
+      "labels": [
+        "2026-09-05"
+      ],
+      "nav": [
+        999.73
+      ],
+      "mtm": [
+        -0.27
+      ]
+    }
+  }
+}

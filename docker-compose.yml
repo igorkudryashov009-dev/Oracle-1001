@@ -1,0 +1,25 @@
+# Optional PostgreSQL / TimescaleDB for Sentinel AIS dual-store.
+# SQLite remains the default out-of-the-box backend (история1/sentinel_ais.db).
+# Start with: docker compose up -d timescaledb
+
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: oracle1001-timescaledb
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: oracle
+      POSTGRES_PASSWORD: oracle1001
+      POSTGRES_DB: sentinel_ais
+    ports:
+      - "5432:5432"
+    volumes:
+      - sentinel_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oracle -d sentinel_ais"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sentinel_pgdata:

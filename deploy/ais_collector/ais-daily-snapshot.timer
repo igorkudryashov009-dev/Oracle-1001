@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily timer for Oracle-1001 AIS snapshot (00:05 UTC)
+
+[Timer]
+OnCalendar=*-*-* 00:05:00 UTC
+Persistent=true
+RandomizedDelaySec=120
+Unit=ais-daily-snapshot.service
+
+[Install]
+WantedBy=timers.target

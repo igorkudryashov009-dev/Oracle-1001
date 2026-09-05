@@ -1,0 +1,53 @@
+{
+  "spectral_top_cycles": [
+    {
+      "period_days": 3.495,
+      "frequency_hz": 0.28611111111111115,
+      "power": 2.277007285578325,
+      "label": "cycle_3.5d",
+      "band_match": null
+    },
+    {
+      "period_days": 7.059,
+      "frequency_hz": 0.14166666666666666,
+      "power": 0.78186989670521,
+      "label": "weekly_logistics",
+      "band_match": "weekly_logistics"
+    },
+    {
+      "period_days": 2.338,
+      "frequency_hz": 0.4277777777777778,
+      "power": 0.3615178092372801,
+      "label": "cycle_2.3d",
+      "band_match": null
+    },
+    {
+      "period_days": 3.429,
+      "frequency_hz": 0.2916666666666667,
+      "power": 0.32013919954591646,
+      "label": "cycle_3.4d",
+      "band_match": null
+    },
+    {
+      "period_days": 6.923,
+      "frequency_hz": 0.14444444444444446,
+      "power": 0.30760365256714717,
+      "label": "weekly_logistics",
+      "band_match": "weekly_logistics"
+    }
+  ],
+  "markov_current": {
+    "state": "HighVol_SupplyShock",
+    "probs": {
+      "LowVol_Accumulation": 0.0,
+      "MeanReverting_Transit": 1.1351832780593267e-118,
+      "HighVol_SupplyShock": 1.0
+    }
+  },
+  "granger_best": {
+    "lag": 3,
+    "ssr_ftest_p": 0.08150836472399563,
+    "stat": 2.2571687675922996
+  },
+  "elliott_status": "ok"
+}

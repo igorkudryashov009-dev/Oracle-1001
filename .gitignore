@@ -1,9 +1,41 @@
+# Python
 venv/
-.env
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 .pytest_cache/
-история1/raw_positions.db
-история1/raw_positions.db-*
-logs/collector_log.txt
-logs/snapshot_log.txt
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets / env
+.env
+.env.*
+!.env.example
+**/credentials.json
+**/secrets.json
+**/*cookies*.json
+config/vesselfinder_cookies.json
+
+# Node
+node_modules/
+
+# Databases & WAL (large / local state)
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local runtime noise (keep intentional outputs tracked when added)
+*.tmp
+*.bak

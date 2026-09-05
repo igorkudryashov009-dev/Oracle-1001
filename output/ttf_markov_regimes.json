@@ -1,0 +1,105 @@
+{
+  "engine": "ttf.markov",
+  "n_obs": 131,
+  "state_names": {
+    "0": "LowVol_Accumulation",
+    "1": "MeanReverting_Transit",
+    "2": "HighVol_SupplyShock"
+  },
+  "pi": [
+    0.0,
+    1.75983261186574e-27,
+    1.0
+  ],
+  "transition_matrix_Pij": [
+    [
+      0.5075229387559481,
+      4.402391705228279e-14,
+      0.4924770612440079
+    ],
+    [
+      0.0036214354780167448,
+      0.9561789000310414,
+      0.04019966449094166
+    ],
+    [
+      0.18944644615438977,
+      0.2992632956132591,
+      0.5112902582323513
+    ]
+  ],
+  "gaussian_params": {
+    "0": {
+      "name": "LowVol_Accumulation",
+      "mu": -1.0847233836835573e-08,
+      "sigma": 0.0001,
+      "sigma2": 1e-08,
+      "distribution": "N(-0.000000, 1.000000e-08)"
+    },
+    "1": {
+      "name": "MeanReverting_Transit",
+      "mu": 0.006807272485494281,
+      "sigma": 0.03709360085121487,
+      "sigma2": 0.0013759352241092485,
+      "distribution": "N(0.006807, 1.375935e-03)"
+    },
+    "2": {
+      "name": "HighVol_SupplyShock",
+      "mu": -0.028678613760035252,
+      "sigma": 0.24886044646724068,
+      "sigma2": 0.061931521815874364,
+      "distribution": "N(-0.028679, 6.193152e-02)"
+    }
+  },
+  "loglik_history_tail": [
+    227.07743781140812,
+    227.0774738207397,
+    227.07749451701312,
+    227.07750634219988,
+    227.07751306858708
+  ],
+  "current_state": 1,
+  "current_state_name": "MeanReverting_Transit",
+  "current_state_probabilities": {
+    "LowVol_Accumulation": 3.8379012614955226e-85,
+    "MeanReverting_Transit": 0.993010676263291,
+    "HighVol_SupplyShock": 0.006989323736715389
+  },
+  "state_occupancy_pct": {
+    "LowVol_Accumulation": 6.106870229007633,
+    "MeanReverting_Transit": 82.44274809160305,
+    "HighVol_SupplyShock": 11.450381679389313
+  },
+  "path_tail": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ]
+}

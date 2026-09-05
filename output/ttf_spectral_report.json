@@ -1,0 +1,146 @@
+{
+  "engine": "ttf.spectral",
+  "n_obs": 131,
+  "dominant_cycles": [
+    {
+      "period_days": 2.015,
+      "frequency_hz": 0.4961832061068702,
+      "power": 0.06786795502959513,
+      "label": "cycle_2.0d",
+      "band_match": null
+    },
+    {
+      "period_days": 2.148,
+      "frequency_hz": 0.46564885496183206,
+      "power": 0.053589368098519295,
+      "label": "cycle_2.1d",
+      "band_match": null
+    },
+    {
+      "period_days": 2.298,
+      "frequency_hz": 0.4351145038167939,
+      "power": 0.039081182060703976,
+      "label": "cycle_2.3d",
+      "band_match": null
+    },
+    {
+      "period_days": 2.113,
+      "frequency_hz": 0.47328244274809156,
+      "power": 0.03513390256189892,
+      "label": "cycle_2.1d",
+      "band_match": null
+    },
+    {
+      "period_days": 2.183,
+      "frequency_hz": 0.4580152671755725,
+      "power": 0.031097689146257216,
+      "label": "cycle_2.2d",
+      "band_match": null
+    },
+    {
+      "period_days": 5.038,
+      "frequency_hz": 0.1984732824427481,
+      "power": 0.030437599518973468,
+      "label": "cycle_5.0d",
+      "band_match": null
+    },
+    {
+      "period_days": 2.673,
+      "frequency_hz": 0.37404580152671757,
+      "power": 0.030044221243073155,
+      "label": "cycle_2.7d",
+      "band_match": null
+    },
+    {
+      "period_days": 3.275,
+      "frequency_hz": 0.3053435114503817,
+      "power": 0.025081473008763653,
+      "label": "cycle_3.3d",
+      "band_match": null
+    },
+    {
+      "period_days": 6.895,
+      "frequency_hz": 0.1450381679389313,
+      "power": 0.005367842256721701,
+      "label": "weekly_logistics",
+      "band_match": "weekly_logistics"
+    },
+    {
+      "period_days": 14.556,
+      "frequency_hz": 0.06870229007633588,
+      "power": 0.000906119522832916,
+      "label": "delivery_window",
+      "band_match": "delivery_window"
+    }
+  ],
+  "target_band_power": {
+    "weekly_logistics": 0.056241292834153786,
+    "delivery_window": 0.015215307884861725,
+    "monthly_futures_expiry": 0.0024811269725789928
+  },
+  "butterworth": {
+    "cutoff_period_days": 7.0,
+    "order": 3,
+    "filtered_std": 0.03834707207696662,
+    "raw_std": 0.09981530827319307,
+    "noise_reduction_ratio": 0.6158197300557222
+  },
+  "trend_extrapolation": {
+    "horizon_days": 14,
+    "poly_degree": 2,
+    "coefficients": [
+      3.401769167000305e-06,
+      -0.0004952918576279746,
+      0.020763285232481592
+    ],
+    "fitted_tail": [
+      0.009380956017075741,
+      0.009685079913692832,
+      0.009996007348643933,
+      0.010313738321929031,
+      0.010638272833548132,
+      0.010969610883501226,
+      0.011307752471788328,
+      0.011652697598409431,
+      0.012004446263364534,
+      0.01236299846665363,
+      0.012728354208276735,
+      0.01310051348823384,
+      0.013479476306524945,
+      0.013865242663150052
+    ],
+    "extrapolation": [
+      0.01425781255810915,
+      0.014657185991402259,
+      0.015063362963029367,
+      0.015476343472990475,
+      0.015896127521285577,
+      0.016322715107914686,
+      0.016756106232877797,
+      0.01719630089617491,
+      0.017643299097806014,
+      0.018097100837771125,
+      0.018557706116070237,
+      0.01902511493270335,
+      0.019499327287670457,
+      0.019980343180971583
+    ],
+    "extrapolation_timestamps_offset": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ]
+  },
+  "ifft_energy_check": 3.957513986750443e-17
+}

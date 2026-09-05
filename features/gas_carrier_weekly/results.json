@@ -1,0 +1,512 @@
+[
+  {
+    "imo": "9915090",
+    "vessel_name": "SAAM FSU",
+    "vessel_type": "Плавучая установка для хранения СПГ (FSU — Floating Storage Unit).",
+    "flag": "Россия.",
+    "dwt_tons": 192072.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9750737",
+    "vessel_name": "VLADIMIR VORONIN",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, Ice Class Arc7)",
+    "flag": "Багамские острова",
+    "dwt_tons": 96840.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9750672",
+    "vessel_name": "YAKOV GAKKEL",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, Ice Class Arc7)",
+    "flag": "Багамские острова",
+    "dwt_tons": 96839.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9750672",
+    "vessel_name": "YAKOV GAKKEL",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, Ice Class Arc7)",
+    "flag": "Багамские острова",
+    "dwt_tons": 96839.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9750725",
+    "vessel_name": "NIKOLAY YEVGENOV",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, Ice Class Arc7)",
+    "flag": "Багамские острова",
+    "dwt_tons": 96821.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9750749",
+    "vessel_name": "GEORGIY USHAKOV",
+    "vessel_type": "Газовоз (LNG Tanker, ледовый класс ARC7)",
+    "flag": "Багамские острова",
+    "dwt_tons": 96796.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "взаимодействия с данным судном оценивается как высокий.",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9778313",
+    "vessel_name": null,
+    "vessel_type": "FSRU (Floating Storage and Regasification Unit — плавучая установка для хранения и регазификации СПГ)",
+    "flag": "Россия",
+    "dwt_tons": 93292.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9761815",
+    "vessel_name": "SK SPICA",
+    "vessel_type": "Газовоз (LNG Tanker)",
+    "flag": "Неопределен (последние данные указывали на Панаму)",
+    "dwt_tons": 93167.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9629598",
+    "vessel_name": "LENA RIVERIMO номер: 9629598",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, Large)",
+    "flag": "Маршалловы Острова",
+    "dwt_tons": 84585.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9629586",
+    "vessel_name": "YENISEI RIVER",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, Large)",
+    "flag": "Маршалловы Острова",
+    "dwt_tons": 84565.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9267015",
+    "vessel_name": "LNG BENUE",
+    "vessel_type": "Газовоз (LNG Tanker)",
+    "flag": "Бермудские острова",
+    "dwt_tons": 82971.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9904687",
+    "vessel_name": "SERGEI WITTEIMO номер: 9904687",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, ледовый класс)",
+    "flag": "Российская Федерация",
+    "dwt_tons": 81000.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9904699",
+    "vessel_name": "ZVEZDA 044",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, ледовый класс)",
+    "flag": "Российская Федерация",
+    "dwt_tons": 81000.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9350927",
+    "vessel_name": "TRINITY GLORY",
+    "vessel_type": "Газовоз (LNG Tanker)",
+    "flag": "Панама (удобный флаг)",
+    "dwt_tons": 79605.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9246621",
+    "vessel_name": "PORTOVYY",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, Large)",
+    "flag": "Россия (с 2021–2022 гг., ранее — Мальта)",
+    "dwt_tons": 77777.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9256602",
+    "vessel_name": "ARCTIC PIONEER",
+    "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG)",
+    "flag": "Россия",
+    "dwt_tons": 77712.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "взаимодействия с данным судном оценивается как критический.",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9243148",
+    "vessel_name": null,
+    "vessel_type": "СПГ-танкер (LNG Tanker)",
+    "flag": "Россия",
+    "dwt_tons": 77551.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "КРИТИЧЕСКИ ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9752723",
+    "vessel_name": "GAS SCORPIO",
+    "vessel_type": "Газовоз СУГ (LPG Tanker)",
+    "flag": "Гонконг IMO номер: 9752723 Год постройки: 2018 (верфь Hyundai Heavy Industries, Южная Корея)",
+    "dwt_tons": 54312.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9115303",
+    "vessel_name": "NAVIXON",
+    "vessel_type": "Газовоз (LPG Tanker)",
+    "flag": "Ангола (в AIS), в реестре указано \"Unknown\" — критический признак потери легального статуса.",
+    "dwt_tons": 49849.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "взаимодействия с данным судном оценивается как критический.",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9134294",
+    "vessel_name": "ELLY",
+    "vessel_type": "Газовоз (LPG Tanker)",
+    "flag": "Гамбия (ранее Мадагаскар)",
+    "dwt_tons": 49651.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "взаимодействия с данным судном оценивается как критический.",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9001772",
+    "vessel_name": "LARA",
+    "vessel_type": "LNG Tanker (Газовоз)",
+    "flag": "Коморские Острова (типичный флаг для «серого» флота)",
+    "dwt_tons": 48817.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9108099",
+    "vessel_name": "PISSARO (ранее GAS MARYAM, GAS DIMA, MARS LOTUS, GAS BOMBAY, JAG VAYU)",
+    "vessel_type": "Газовоз (LPG Tanker)",
+    "flag": "Палау (ранее Ботсвана, Малави, Бенин)",
+    "dwt_tons": 38518.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9411733",
+    "vessel_name": "ANIVUS 1 (ранее ANAFI)",
+    "vessel_type": "Газовоз (LPG Tanker / MGC — Medium Gas Carrier)",
+    "flag": "Либерия",
+    "dwt_tons": 26577.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9332078",
+    "vessel_name": "SHEN MI (ранее: LASTVA, NEGMAR MIN, ROSE GAS)",
+    "vessel_type": "Газовоз (LPG Tanker / MGC)",
+    "flag": "Панама",
+    "dwt_tons": 26528.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9133836",
+    "vessel_name": "MORITZ",
+    "vessel_type": "Газовоз (LPG Tanker)",
+    "flag": "Панама",
+    "dwt_tons": 18713.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "8917845",
+    "vessel_name": "VANESSA",
+    "vessel_type": "Газовоз (LPG Tanker)",
+    "flag": "Коморские острова Основные габариты: Длина (LOA) — 160.00 м, ширина — 25.90 м",
+    "dwt_tons": 17577.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "ВЫСОКИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9045807",
+    "vessel_name": "CRAVE (ранее: BATELEUR)",
+    "vessel_type": "Газовоз (LPG Tanker)",
+    "flag": "Мали (в различных реестрах также фигурирует как Панама) Основные габариты: Длина общая (LOA) — 143.18 м, ширина — 21.30 м",
+    "dwt_tons": 9695.0,
+    "risk_tier": "TIER_0",
+    "compliance_risk_level": "взаимодействия с данным судном — КРИТИЧЕСКИЙ (ЗАПРЕЩЕНО). Взаимодействие с этим судном, его владельцами или операторами категорически недопустимо. Любое коммерческое или логистическое сотрудничество с данным активом несет прямую угрозу наложения вторичных санкций, а также влечет за собой серьезные репутационные и юридические последствия. Данный объект подлежит немедленному исключению из любого списка потенциальных контрагентов.",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9672832",
+    "vessel_name": "CESI QINGDAO",
+    "vessel_type": "Газовоз (LNG Tanker)",
+    "flag": "Гонконг",
+    "dwt_tons": 95641.0,
+    "risk_tier": "TIER_1",
+    "compliance_risk_level": "СРЕДНИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9834325",
+    "vessel_name": "LNG MEGREZ",
+    "vessel_type": "Газовоз (LNG Tanker)",
+    "flag": "Гонконг",
+    "dwt_tons": 91430.0,
+    "risk_tier": "TIER_1",
+    "compliance_risk_level": "СРЕДНИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  },
+  {
+    "imo": "9752278",
+    "vessel_name": "ETHANE CRYSTALIMO номер: 9752278",
+    "vessel_type": "Газовоз для перевозки этана / СУГ (VLEC — Very Large Ethane Carrier / LPG Tanker)",
+    "flag": "Маршалловы Острова",
+    "dwt_tons": 59087.0,
+    "risk_tier": "TIER_1",
+    "compliance_risk_level": "СРЕДНИЙ РИСК",
+    "mmsi": null,
+    "status": "ok",
+    "provider": "vesselfinder-dry-run",
+    "fetched_at_utc": "2026-08-12T03:27:41Z",
+    "raw": {
+      "dry_run": true,
+      "note": "no network call"
+    }
+  }
+]

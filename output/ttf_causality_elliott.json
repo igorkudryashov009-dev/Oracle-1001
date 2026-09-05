@@ -1,0 +1,235 @@
+{
+  "engine": "ttf.causality_wave",
+  "n_obs": 131,
+  "granger": {
+    "hypothesis": "AIS_daily_aggregates.density \u2192 TTF_log_return",
+    "source": "ais_daily_aggregates",
+    "maxlag": 14,
+    "n_obs": 62,
+    "date_first": "2026-06-09",
+    "date_last": "2026-09-04",
+    "any_significant_5pct": true,
+    "best_lag": {
+      "lag": 8,
+      "ssr_ftest_p": 0.011214806349929034,
+      "ssr_ftest_stat": 2.975452998757741,
+      "stat": 2.975452998757741
+    },
+    "lags": [
+      {
+        "lag": 1,
+        "ssr_ftest_stat": 0.002625967416621934,
+        "ssr_ftest_p": 0.9593070150515417,
+        "ssr_chi2_stat": 0.002761793317481689,
+        "ssr_chi2_p": 0.9580882514160173,
+        "significant_5pct": false
+      },
+      {
+        "lag": 2,
+        "ssr_ftest_stat": 0.09996935582098629,
+        "ssr_ftest_p": 0.9050291840576995,
+        "ssr_chi2_stat": 0.21811495815487916,
+        "ssr_chi2_p": 0.8966788757424261,
+        "significant_5pct": false
+      },
+      {
+        "lag": 3,
+        "ssr_ftest_stat": 0.094510820167712,
+        "ssr_ftest_p": 0.9627397658195562,
+        "ssr_chi2_stat": 0.32170029172471204,
+        "ssr_chi2_p": 0.9558968895821082,
+        "significant_5pct": false
+      },
+      {
+        "lag": 4,
+        "ssr_ftest_stat": 0.05277532193449983,
+        "ssr_ftest_p": 0.9946244657389468,
+        "ssr_chi2_stat": 0.24987499364906046,
+        "ssr_chi2_p": 0.9928159087566201,
+        "significant_5pct": false
+      },
+      {
+        "lag": 5,
+        "ssr_ftest_stat": 0.9442893562331576,
+        "ssr_ftest_p": 0.461620069669486,
+        "ssr_chi2_stat": 5.850488402748909,
+        "ssr_chi2_p": 0.3210400036499759,
+        "significant_5pct": false
+      },
+      {
+        "lag": 6,
+        "ssr_ftest_stat": 1.4817530100851786,
+        "ssr_ftest_p": 0.2072362417785758,
+        "ssr_chi2_stat": 11.578349102060931,
+        "ssr_chi2_p": 0.07206407145538105,
+        "significant_5pct": false
+      },
+      {
+        "lag": 7,
+        "ssr_ftest_stat": 1.5454672269982859,
+        "ssr_ftest_p": 0.18017658200154227,
+        "ssr_chi2_stat": 14.875122059858501,
+        "ssr_chi2_p": 0.037633892483065194,
+        "significant_5pct": false
+      },
+      {
+        "lag": 8,
+        "ssr_ftest_stat": 2.975452998757741,
+        "ssr_ftest_p": 0.011214806349929034,
+        "ssr_chi2_stat": 34.740424201712,
+        "ssr_chi2_p": 2.981168956584527e-05,
+        "significant_5pct": true
+      },
+      {
+        "lag": 9,
+        "ssr_ftest_stat": 2.6264767587114357,
+        "ssr_ftest_p": 0.020080668116396094,
+        "ssr_chi2_stat": 36.84792393839279,
+        "ssr_chi2_p": 2.801454655429002e-05,
+        "significant_5pct": true
+      },
+      {
+        "lag": 10,
+        "ssr_ftest_stat": 1.1005092058374597,
+        "ssr_ftest_p": 0.3921866882950598,
+        "ssr_chi2_stat": 18.46015442049932,
+        "ssr_chi2_p": 0.0476801286503823,
+        "significant_5pct": false
+      },
+      {
+        "lag": 11,
+        "ssr_ftest_stat": 0.773838101546824,
+        "ssr_ftest_p": 0.6623939232118855,
+        "ssr_chi2_stat": 15.504399105991723,
+        "ssr_chi2_p": 0.16054968851162058,
+        "significant_5pct": false
+      },
+      {
+        "lag": 12,
+        "ssr_ftest_stat": 0.7114772307946655,
+        "ssr_ftest_p": 0.7266146100561288,
+        "ssr_chi2_stat": 17.075453539071972,
+        "ssr_chi2_p": 0.1467809776957152,
+        "significant_5pct": false
+      },
+      {
+        "lag": 13,
+        "ssr_ftest_stat": 0.7801986057093172,
+        "ssr_ftest_p": 0.6721636780641359,
+        "ssr_chi2_stat": 22.59029599258341,
+        "ssr_chi2_p": 0.046863767477059115,
+        "significant_5pct": false
+      },
+      {
+        "lag": 14,
+        "ssr_ftest_stat": 1.2133364880549016,
+        "ssr_ftest_p": 0.3411739102231982,
+        "ssr_chi2_stat": 42.91379578804704,
+        "ssr_chi2_p": 8.843275464286199e-05,
+        "significant_5pct": false
+      }
+    ]
+  },
+  "elliott": {
+    "status": "ok",
+    "n_pivots": 17,
+    "impulse": {
+      "direction": "bearish",
+      "score": 7.0,
+      "waves": [
+        {
+          "label": "1",
+          "start_idx": 5,
+          "end_idx": 6,
+          "start_price": 56.453,
+          "end_price": 47.393,
+          "fib_ratio_vs_prev": null,
+          "fib_match": null
+        },
+        {
+          "label": "2",
+          "start_idx": 6,
+          "end_idx": 13,
+          "start_price": 47.393,
+          "end_price": 61.852,
+          "fib_ratio_vs_prev": 1.5959,
+          "fib_match": 1.618
+        },
+        {
+          "label": "3",
+          "start_idx": 13,
+          "end_idx": 22,
+          "start_price": 61.852,
+          "end_price": 47.51,
+          "fib_ratio_vs_prev": 1.583,
+          "fib_match": 1.618
+        },
+        {
+          "label": "4",
+          "start_idx": 22,
+          "end_idx": 25,
+          "start_price": 47.51,
+          "end_price": 53.247,
+          "fib_ratio_vs_prev": 0.6332,
+          "fib_match": 0.618
+        },
+        {
+          "label": "5",
+          "start_idx": 25,
+          "end_idx": 32,
+          "start_price": 53.247,
+          "end_price": 42.422,
+          "fib_ratio_vs_prev": 1.1948,
+          "fib_match": null
+        }
+      ],
+      "pivot_indices": [
+        5,
+        6,
+        13,
+        22,
+        25,
+        32
+      ]
+    },
+    "corrective": [
+      {
+        "label": "A",
+        "start_idx": 32,
+        "end_idx": 44,
+        "start_price": 42.422,
+        "end_price": 48.143,
+        "fib_ratio_vs_A": 1.0,
+        "fib_match": 1.0
+      },
+      {
+        "label": "B",
+        "start_idx": 44,
+        "end_idx": 47,
+        "start_price": 48.143,
+        "end_price": 43.561,
+        "fib_ratio_vs_A": 0.8009,
+        "fib_match": null
+      },
+      {
+        "label": "C",
+        "start_idx": 47,
+        "end_idx": 55,
+        "start_price": 43.561,
+        "end_price": 51.816,
+        "fib_ratio_vs_A": 1.4429,
+        "fib_match": 1.618
+      }
+    ],
+    "fibonacci_ratios": [
+      0.382,
+      0.618,
+      1.0,
+      1.618,
+      2.618
+    ],
+    "fib_tolerance": 0.12,
+    "method": "discretionary_heuristic_fibonacci_constrained",
+    "disclaimer": "Elliott wave labeling is a heuristic pattern screen, not a statistically validated forecasting identity. Use with regime/HMM filters."
+  }
+}

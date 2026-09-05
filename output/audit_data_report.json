@@ -1,0 +1,123 @@
+{
+  "status": "SUCCESS",
+  "generated_at": "2026-09-04T20:52:20.570490+00:00",
+  "top100_status": "SUCCESS",
+  "top200_status": "SUCCESS",
+  "top500_status": "SUCCESS",
+  "discrepancies_found": [],
+  "warnings": [],
+  "performance_metrics": {
+    "top100.module_audit_ms": 5.9,
+    "top200.tri_donut_symmetry_ms": 0.44,
+    "top200.cascade_filter_ms": 0.59,
+    "top200.module_audit_ms": 16.47,
+    "top500.tri_donut_symmetry_ms": 0.9,
+    "top500.cascade_filter_ms": 1.28,
+    "top500.module_audit_ms": 33.53
+  },
+  "http_smoke": {
+    "top100": {
+      "http": 200,
+      "ok": true
+    },
+    "top200": {
+      "http": 200,
+      "ok": true
+    },
+    "top500": {
+      "http": 200,
+      "ok": true
+    },
+    "validation_suite": {
+      "http": 200,
+      "ok": true
+    }
+  },
+  "dom_audit": {
+    "status": "SKIPPED",
+    "reason": "--no-browser",
+    "discrepancy_count": 0
+  },
+  "modules": {
+    "top100": {
+      "status": "SUCCESS",
+      "summary": {
+        "vessel_count": 100,
+        "expected_n": 100,
+        "declared_dwt": 15149087.0,
+        "recomputed_dwt": 15149087.0,
+        "fleet_total_dwt": 81300198.0,
+        "declared_share_pct": 18.63,
+        "recomputed_share_pct": 18.63,
+        "display_formula_share_pct": 18.63,
+        "avg_fill_pct": 100.0,
+        "vessels_with_synthetic_fields_tag": 0
+      },
+      "metrics": {
+        "module_audit_ms": 5.9
+      },
+      "discrepancies": [],
+      "warnings": []
+    },
+    "top200": {
+      "status": "SUCCESS",
+      "summary": {
+        "vessel_count": 200,
+        "expected_n": 200,
+        "declared_dwt": 24824267.0,
+        "recomputed_dwt": 24824267.0,
+        "fleet_total_dwt": 81300198.0,
+        "declared_share_pct": 30.53,
+        "recomputed_share_pct": 30.53,
+        "display_formula_share_pct": 30.53,
+        "avg_fill_pct": 100.0,
+        "synth_pct": 0.0,
+        "osint_pct": 98.22,
+        "tri_donut": {
+          "zone_g_pct_sum": 30.5341,
+          "tech_g_pct_sum": 30.5341,
+          "flag_g_pct_sum": 30.5341,
+          "slice_g_pct": 30.5341
+        }
+      },
+      "metrics": {
+        "tri_donut_symmetry_ms": 0.44,
+        "cascade_filter_ms": 0.59,
+        "module_audit_ms": 16.47
+      },
+      "discrepancies": [],
+      "warnings": []
+    },
+    "top500": {
+      "status": "SUCCESS",
+      "summary": {
+        "vessel_count": 500,
+        "expected_n": 500,
+        "declared_dwt": 51582584.0,
+        "recomputed_dwt": 51582584.0,
+        "fleet_total_dwt": 81300198.0,
+        "declared_share_pct": 63.45,
+        "recomputed_share_pct": 63.45,
+        "display_formula_share_pct": 63.45,
+        "avg_fill_pct": 100.0,
+        "synth_pct": 0.0,
+        "osint_pct": 98.62,
+        "tri_donut": {
+          "zone_g_pct_sum": 63.4471,
+          "tech_g_pct_sum": 63.4471,
+          "flag_g_pct_sum": 63.4471,
+          "slice_g_pct": 63.4471
+        }
+      },
+      "metrics": {
+        "tri_donut_symmetry_ms": 0.9,
+        "cascade_filter_ms": 1.28,
+        "module_audit_ms": 33.53
+      },
+      "discrepancies": [],
+      "warnings": []
+    }
+  },
+  "canonical_fleet_dwt": 81300000.0,
+  "fleet_csv_dwt": 81300198.0
+}

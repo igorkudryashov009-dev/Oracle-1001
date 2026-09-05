@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ORACLE-1001 · Мета-аналитика</title>
+<style>
+:root{
+  --bg:#04070f;--bg2:rgba(10,16,30,.85);--border:rgba(0,242,254,.18);
+  --text:#e4eaf5;--muted:#6b7fa0;--accent:#00f2fe;--green:#10b981;
+  --amber:#f59e0b;--blue:#3b82f6;--cyan:#63caff;--bad:#ef4444;
+  --font-mono:'JetBrains Mono','Fira Code','Courier New',monospace;
+  --font:'Inter','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);
+  min-height:100vh;padding:0 0 80px;}
+/* ── nav ── */
+.nav{display:flex;align-items:center;gap:16px;padding:14px 28px;
+  background:rgba(4,7,15,.92);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(14px);position:sticky;top:0;z-index:40;}
+.nav-logo{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;
+  color:var(--accent);text-shadow:0 0 14px var(--accent);}
+.nav-links{display:flex;gap:8px;margin-left:auto;}
+.nav-links a{font-size:11px;font-family:var(--font-mono);letter-spacing:.08em;
+  color:var(--muted);text-decoration:none;padding:5px 11px;border:1px solid transparent;
+  border-radius:4px;transition:all .2s;}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);
+  border-color:rgba(0,242,254,.3);background:rgba(0,242,254,.06);}
+/* ── hero ── */
+.hero{padding:32px 28px 16px;border-bottom:1px solid var(--border);}
+.hero-title{font-family:var(--font-mono);font-size:22px;letter-spacing:.12em;
+  color:var(--accent);text-shadow:0 0 24px rgba(0,242,254,.5);margin-bottom:4px;}
+.hero-sub{font-size:12px;color:var(--muted);letter-spacing:.06em;}
+/* ── macro banner ── */
+.macro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px;padding:22px 28px;}
+.macro-card,.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:16px 18px;backdrop-filter:blur(12px);
+  transition:transform .3s cubic-bezier(.4,0,.2,1),border-color .3s,box-shadow .3s;position:relative;}
+.macro-card .mc-label{font-size:10px;font-family:var(--font-mono);
+  letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+.macro-card .mc-val{font-size:20px;font-weight:700;letter-spacing:.04em;}
+.macro-card .mc-sub{font-size:10px;color:var(--muted);margin-top:3px;}
+/* ── section headers ── */
+.section{padding:8px 28px 4px;}
+.section-title{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;
+  color:var(--accent);text-transform:uppercase;border-bottom:1px solid rgba(0,242,254,.12);
+  padding-bottom:8px;margin-bottom:14px;}
+/* ── cards grid ── */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));
+  gap:12px;padding:0 28px 20px;}
+.card,.chart-card,.dashboard-panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:16px;backdrop-filter:blur(12px);transition:transform .3s cubic-bezier(.4,0,.2,1),border-color .3s,box-shadow .3s;
+  position:relative;}
+@keyframes flameGlowShift{
+  0%{box-shadow:0 0 15px rgba(0,242,254,.6),0 0 30px rgba(0,242,254,.4),inset 0 0 15px rgba(0,242,254,.3);border-color:#00f2fe}
+  33%{box-shadow:0 0 20px rgba(255,0,128,.8),0 0 40px rgba(255,0,128,.5),inset 0 0 20px rgba(255,0,128,.3);border-color:#ff0080}
+  66%{box-shadow:0 0 25px rgba(255,102,0,.9),0 0 50px rgba(255,102,0,.6),inset 0 0 25px rgba(255,102,0,.4);border-color:#ff6600}
+  100%{box-shadow:0 0 15px rgba(0,242,254,.6),0 0 30px rgba(0,242,254,.4),inset 0 0 15px rgba(0,242,254,.3);border-color:#00f2fe}
+}
+.card:hover,.macro-card:hover,.chart-card:hover,.metric-card:hover,.dashboard-panel:hover{
+  transform:translateY(-4px) scale(1.01);
+  animation:flameGlowShift 2.5s infinite linear;
+  z-index:10;
+}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:12px;}
+.card-name{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;
+  color:var(--accent);}
+.card-badge{font-size:9px;font-family:var(--font-mono);padding:2px 7px;
+  border-radius:3px;border:1px solid;letter-spacing:.06em;}
+.card-badge.num{color:var(--green);border-color:rgba(16,185,129,.35);}
+.card-badge.cat{color:var(--amber);border-color:rgba(245,158,11,.35);}
+.card-badge.id {color:var(--cyan); border-color:rgba(99,202,255,.35);}
+/* ── stat rows ── */
+.stat-row{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.stat-row:last-of-type{border-bottom:none;}
+.stat-key{font-size:10px;color:var(--muted);font-family:var(--font-mono);}
+.stat-val{font-size:12px;font-weight:600;font-family:var(--font-mono);}
+.stat-val.big{color:var(--green);}
+/* ── top-5 list ── */
+.top5{margin-top:10px;}
+.t5-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px;}
+.t5-rank{font-family:var(--font-mono);font-size:9px;color:var(--muted);
+  width:16px;text-align:right;}
+.t5-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;}
+.t5-bar{height:4px;border-radius:2px;background:var(--accent);
+  transition:width .6s cubic-bezier(.4,0,.2,1);}
+.t5-label{flex:2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:10px;color:var(--text);}
+.t5-cnt{font-family:var(--font-mono);font-size:10px;color:var(--muted);white-space:nowrap;}
+/* ── uniqueness bar ── */
+.uniq-bar{margin-top:8px;}
+.uniq-track{width:100%;height:6px;background:rgba(255,255,255,.06);
+  border-radius:3px;overflow:hidden;margin-top:4px;}
+.uniq-fill{height:6px;border-radius:3px;transition:width .6s ease;background:var(--green);}
+.uniq-fill.warn{background:var(--amber);}
+.uniq-fill.bad {background:var(--bad);}
+/* ── provenance bar ── */
+.prov-wrap{margin-top:10px;}
+.prov-label{font-size:9px;font-family:var(--font-mono);color:var(--muted);
+  letter-spacing:.08em;margin-bottom:5px;}
+.prov-track{width:100%;height:8px;border-radius:4px;overflow:hidden;
+  display:flex;background:rgba(255,255,255,.04);}
+.prov-seg{height:100%;transition:width .6s ease;}
+.prov-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.prov-leg-item{display:flex;align-items:center;gap:4px;font-size:9px;
+  font-family:var(--font-mono);color:var(--muted);}
+.prov-dot{width:8px;height:8px;border-radius:50%;}
+/* ── global provenance matrix ── */
+.prov-matrix{padding:0 28px 28px;}
+.prov-col-row{display:grid;grid-template-columns:140px 1fr 80px;
+  align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.pcr-name{font-size:10px;font-family:var(--font-mono);color:var(--muted);
+  letter-spacing:.06em;}
+.pcr-bar{height:10px;border-radius:5px;overflow:hidden;display:flex;
+  background:rgba(255,255,255,.04);}
+.pcr-pct{font-size:9px;font-family:var(--font-mono);color:var(--muted);text-align:right;}
+/* ── scrollbar ── */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(0,242,254,.2);border-radius:3px;}
+@media(max-width:640px){.cards{grid-template-columns:1fr;}
+  .prov-col-row{grid-template-columns:100px 1fr 60px;}}
+</style>
+</head>
+<body>
+<!-- nav -->
+<nav class="nav">
+  <span class="nav-logo">ORACLE-1001 · META-ANALYSIS</span>
+  <div class="nav-links">
+    <a href="osint_layers.html">9 аналитических слоёв</a>
+    <a href="dashboard.html">Реестр флота</a>
+    <a href="fleet_meta_analysis.html" class="active">Мета-аналитика</a>
+    <a href="top100_analytics.html">Анализ ТОП-100</a>
+    <a href="top200_analytics.html">Анализ ТОП-200</a>
+    <a href="top500_analytics.html">Анализ ТОП-500</a>
+  </div>
+</nav>
+
+<!-- hero -->
+<div class="hero">
+  <div class="hero-title">МЕТА-АНАЛИТИКА: 20 КОЛОНОК ТЗ · АБСОЛЮТНЫЕ ВЕЛИЧИНЫ</div>
+  <div class="hero-sub">Агрегированные макро-метрики флота &nbsp;·&nbsp; Все 1 253 судна &nbsp;·&nbsp; ORACLE-1001</div>
+</div>
+
+<!-- ── injected by Python ── -->
+<div id="app"></div>
+
+<script>
+const META = {"macro": {"total_vessels": 1253, "total_columns": 20, "total_cells": 25060, "total_dwt": 81300198.0, "total_gt": 93199451.0, "avg_dwt": 64884.0, "avg_gt": 74381.0, "global_prov": {"osint": 20050, "synth": 1513, "knn": 384, "reg": 3113}}, "numeric": {"dwt_tons": {"label": "ДЕДВЕЙТ (DWT)", "unit": "т", "has_sum": true, "count": 1253, "sum": 81300198.0, "avg": 64884.4, "median": 60435.0, "min": 11.0, "max": 394330.0, "provenance": {"osint": 989, "synth": 264, "knn": 0, "reg": 0}}, "gt": {"label": "ВАЛОВАЯ ВМЕСТИМОСТЬ", "unit": "GT", "has_sum": true, "count": 1253, "sum": 93199451.2, "avg": 74381.0, "median": 62640.0, "min": 13.0, "max": 499167.0, "provenance": {"osint": 879, "synth": 374, "knn": 0, "reg": 0}}, "loa_m": {"label": "ДЛИНА (LOA)", "unit": "м", "has_sum": false, "count": 1253, "sum": null, "avg": 295.3, "median": 230.0, "min": 3.0, "max": 82000.0, "provenance": {"osint": 1206, "synth": 0, "knn": 47, "reg": 0}}, "beam_m": {"label": "ШИРИНА (BEAM)", "unit": "м", "has_sum": false, "count": 1253, "sum": null, "avg": 43.0, "median": 36.6, "min": 1.0, "max": 8203.0, "provenance": {"osint": 1202, "synth": 0, "knn": 51, "reg": 0}}, "draft_m": {"label": "ОСАДКА (DRAFT)", "unit": "м", "has_sum": false, "count": 1253, "sum": null, "avg": 8.9, "median": 9.3, "min": 3.0, "max": 22.0, "provenance": {"osint": 1067, "synth": 0, "knn": 186, "reg": 0}}, "speed_knots": {"label": "СКОРОСТЬ", "unit": "узлов", "has_sum": false, "count": 1253, "sum": null, "avg": 12.0, "median": 13.3, "min": 0.1, "max": 42.4, "provenance": {"osint": 986, "synth": 247, "knn": 0, "reg": 20}}, "age_years": {"label": "ВОЗРАСТ", "unit": "лет", "has_sum": false, "count": 1253, "sum": null, "avg": 12.2, "median": 10.0, "min": 0.0, "max": 56.0, "provenance": {"osint": 991, "synth": 262, "knn": 0, "reg": 0}}, "built_year": {"label": "ГОД ПОСТРОЙКИ", "unit": "год", "has_sum": false, "count": 1253, "sum": null, "avg": 2013.8, "median": 2016.0, "min": 1970.0, "max": 2026.0, "provenance": {"osint": 991, "synth": 262, "knn": 0, "reg": 0}}}, "category": {"flag": {"label": "ФЛАГ ГОСУДАРСТВА", "total_filled": 1253, "unique_count": 276, "top5": [{"value": "Либерия", "count": 111, "pct": 8.9}, {"value": "Сингапур", "count": 98, "pct": 7.8}, {"value": "Маршалловы Острова", "count": 89, "pct": 7.1}, {"value": "Панама", "count": 81, "pct": 6.5}, {"value": "Мальта", "count": 55, "pct": 4.4}], "provenance": {"osint": 1238, "synth": 0, "knn": 15, "reg": 0}}, "vessel_type": {"label": "ТИП СУДНА", "total_filled": 1253, "unique_count": 376, "top5": [{"value": "Газовоз (LNG Tanker)", "count": 80, "pct": 6.4}, {"value": "LPG Tanker (Танкер для перевозки сжиженного нефтяного газа)", "count": 79, "pct": 6.3}, {"value": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "count": 71, "pct": 5.7}, {"value": "Газовоз (LPG Tanker)", "count": 50, "pct": 4.0}, {"value": "LPG Tanker (Танкер для перевозки сжиженного газа)", "count": 44, "pct": 3.5}], "provenance": {"osint": 1168, "synth": 0, "knn": 85, "reg": 0}}, "nav_status": {"label": "НАВИГАЦИОННЫЙ СТАТУС", "total_filled": 1253, "unique_count": 211, "top5": [{"value": "Underway using Engine / В пути", "count": 376, "pct": 30.0}, {"value": "At Anchor / На якорной стоянке", "count": 262, "pct": 20.9}, {"value": "At Anchor (На якоре)", "count": 80, "pct": 6.4}, {"value": "Underway using Engine (На ходу)", "count": 63, "pct": 5.0}, {"value": "На ходу (Under way)", "count": 37, "pct": 3.0}], "provenance": {"osint": 1253, "synth": 0, "knn": 0, "reg": 0}}, "compliance_risk_level": {"label": "УРОВЕНЬ РИСКА", "total_filled": 1253, "unique_count": 4, "top5": [{"value": "LOW", "count": 983, "pct": 78.5}, {"value": "HIGH", "count": 140, "pct": 11.2}, {"value": "EXTREME", "count": 107, "pct": 8.5}, {"value": "MID", "count": 23, "pct": 1.8}], "provenance": {"osint": 1253, "synth": 0, "knn": 0, "reg": 0}}, "departure_port": {"label": "ПОРТ ОТБЫТИЯ", "total_filled": 1253, "unique_count": 442, "top5": [{"value": "Ras Laffan, Qatar (QA RLF)", "count": 58, "pct": 4.6}, {"value": "Jubail, Saudi Arabia (SA JUB)", "count": 44, "pct": 3.5}, {"value": "Angola LNG, Angola (AO LNG)", "count": 39, "pct": 3.1}, {"value": "Yeosu, South Korea (KR YOS)", "count": 39, "pct": 3.1}, {"value": "Houston, USA (US HOU)", "count": 38, "pct": 3.0}], "provenance": {"osint": 522, "synth": 0, "knn": 0, "reg": 731}}, "destination_port": {"label": "ПОРТ НАЗНАЧЕНИЯ", "total_filled": 1253, "unique_count": 659, "top5": [{"value": "Ningbo, China (CN NGB)", "count": 54, "pct": 4.3}, {"value": "Tianjin, China (CN TJN)", "count": 43, "pct": 3.4}, {"value": "Incheon, South Korea (KR INC)", "count": 39, "pct": 3.1}, {"value": "Oita, Japan (JP OIT)", "count": 28, "pct": 2.2}, {"value": "Gate Terminal Rotterdam, Netherlands (NL RTM)", "count": 28, "pct": 2.2}], "provenance": {"osint": 762, "synth": 0, "knn": 0, "reg": 491}}}, "identity": {"vessel_name": {"label": "НАИМЕНОВАНИЕ СУДНА", "total_filled": 1253, "unique": 1247, "duplicates": 6, "uniqueness_pct": 99.5, "provenance": {"osint": 1149, "synth": 104, "knn": 0, "reg": 0}}, "imo": {"label": "НОМЕР IMO", "total_filled": 1253, "unique": 1253, "duplicates": 0, "uniqueness_pct": 100.0, "provenance": {"osint": 1253, "synth": 0, "knn": 0, "reg": 0}}, "mmsi": {"label": "КОД MMSI", "total_filled": 1253, "unique": 1251, "duplicates": 2, "uniqueness_pct": 99.8, "provenance": {"osint": 638, "synth": 0, "knn": 0, "reg": 615}}, "call_sign": {"label": "ПОЗЫВНОЙ", "total_filled": 1253, "unique": 1252, "duplicates": 1, "uniqueness_pct": 99.9, "provenance": {"osint": 539, "synth": 0, "knn": 0, "reg": 714}}, "arrival_datetime": {"label": "ВРЕМЯ ПРИБЫТИЯ (ETA)", "total_filled": 1253, "unique": 741, "duplicates": 512, "uniqueness_pct": 59.1, "provenance": {"osint": 711, "synth": 0, "knn": 0, "reg": 542}}, "destination_context": {"label": "КОНТЕКСТ МАРШРУТА", "total_filled": 1253, "unique": 983, "duplicates": 270, "uniqueness_pct": 78.5, "provenance": {"osint": 1253, "synth": 0, "knn": 0, "reg": 0}}}, "tz_columns": ["vessel_name", "imo", "mmsi", "call_sign", "vessel_type", "built_year", "age_years", "flag", "dwt_tons", "gt", "loa_m", "beam_m", "draft_m", "nav_status", "speed_knots", "destination_port", "destination_context", "departure_port", "arrival_datetime", "compliance_risk_level"], "all_prov": {"vessel_name": {"osint": 1149, "synth": 104, "knn": 0, "reg": 0}, "imo": {"osint": 1253, "synth": 0, "knn": 0, "reg": 0}, "mmsi": {"osint": 638, "synth": 0, "knn": 0, "reg": 615}, "call_sign": {"osint": 539, "synth": 0, "knn": 0, "reg": 714}, "vessel_type": {"osint": 1168, "synth": 0, "knn": 85, "reg": 0}, "built_year": {"osint": 991, "synth": 262, "knn": 0, "reg": 0}, "age_years": {"osint": 991, "synth": 262, "knn": 0, "reg": 0}, "flag": {"osint": 1238, "synth": 0, "knn": 15, "reg": 0}, "dwt_tons": {"osint": 989, "synth": 264, "knn": 0, "reg": 0}, "gt": {"osint": 879, "synth": 374, "knn": 0, "reg": 0}, "loa_m": {"osint": 1206, "synth": 0, "knn": 47, "reg": 0}, "beam_m": {"osint": 1202, "synth": 0, "knn": 51, "reg": 0}, "draft_m": {"osint": 1067, "synth": 0, "knn": 186, "reg": 0}, "nav_status": {"osint": 1253, "synth": 0, "knn": 0, "reg": 0}, "speed_knots": {"osint": 986, "synth": 247, "knn": 0, "reg": 20}, "destination_port": {"osint": 762, "synth": 0, "knn": 0, "reg": 491}, "destination_context": {"osint": 1253, "synth": 0, "knn": 0, "reg": 0}, "departure_port": {"osint": 522, "synth": 0, "knn": 0, "reg": 731}, "arrival_datetime": {"osint": 711, "synth": 0, "knn": 0, "reg": 542}, "compliance_risk_level": {"osint": 1253, "synth": 0, "knn": 0, "reg": 0}}};
+
+const FMT = {
+  big:  n => n == null ? '—' : (n >= 1e6 ? (n/1e6).toFixed(2)+' млн' : n.toLocaleString('ru-RU')),
+  f1:   n => n == null ? '—' : n.toLocaleString('ru-RU',{maximumFractionDigits:1}),
+  pct:  n => n == null ? '—' : n.toFixed(1)+'%',
+};
+
+const PROV_COLORS  = {osint:'#10b981',synth:'#f59e0b',knn:'#00f2fe',reg:'#63caff'};
+const PROV_LABELS  = {osint:'Прямой OSINT',synth:'⚡ Синтетика',knn:'🔬 Профиль (KNN)',reg:'🌐 Реестр AIS'};
+
+function provBar(prov, small=false) {
+  const total = Object.values(prov).reduce((a,b)=>a+b,0)||1;
+  const segs   = Object.entries(prov).map(([k,v])=>{
+    const w = (v/total*100).toFixed(2);
+    return `<div class="prov-seg" style="width:${w}%;background:${PROV_COLORS[k]}" title="${PROV_LABELS[k]}: ${v}"></div>`;
+  }).join('');
+  const legend = Object.entries(prov).filter(([,v])=>v>0).map(([k,v])=>
+    `<div class="prov-leg-item"><div class="prov-dot" style="background:${PROV_COLORS[k]}"></div>${PROV_LABELS[k]} ${v}</div>`
+  ).join('');
+  return `<div class="prov-wrap">
+    <div class="prov-label">ИСТОЧНИК ДАННЫХ</div>
+    <div class="prov-track">${segs}</div>
+    <div class="prov-legend">${legend}</div>
+  </div>`;
+}
+
+// ── Macro banner ────────────────────────────────────────────────────────────
+function renderMacro() {
+  const m = META.macro;
+  const gp = m.global_prov;
+  const gpTotal = Object.values(gp).reduce((a,b)=>a+b,0)||1;
+  return `
+  <div class="macro-grid">
+    <div class="macro-card">
+      <div class="mc-label">Всего судов</div>
+      <div class="mc-val" style="color:var(--accent)">${m.total_vessels.toLocaleString('ru-RU')}</div>
+      <div class="mc-sub">${m.total_columns} колонок × ${m.total_vessels} судов = ${m.total_cells.toLocaleString('ru-RU')} ячеек</div>
+    </div>
+    <div class="macro-card">
+      <div class="mc-label">Суммарный DWT флота</div>
+      <div class="mc-val" style="color:var(--green)">${FMT.big(m.total_dwt)}</div>
+      <div class="mc-sub">тонн &nbsp;·&nbsp; avg ${FMT.big(m.avg_dwt)} т/судно</div>
+    </div>
+    <div class="macro-card">
+      <div class="mc-label">Суммарный GT флота</div>
+      <div class="mc-val" style="color:var(--blue)">${FMT.big(m.total_gt)}</div>
+      <div class="mc-sub">GT &nbsp;·&nbsp; avg ${FMT.big(m.avg_gt)} GT/судно</div>
+    </div>
+    ${Object.entries(gp).map(([k,v])=>`
+    <div class="macro-card">
+      <div class="mc-label">${PROV_LABELS[k]}</div>
+      <div class="mc-val" style="color:${PROV_COLORS[k]}">${v.toLocaleString('ru-RU')}</div>
+      <div class="mc-sub">${(v/gpTotal*100).toFixed(1)}% всех ячеек (из ${m.total_cells.toLocaleString('ru-RU')})</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ── Numeric cards ────────────────────────────────────────────────────────────
+function renderNumeric() {
+  const items = Object.entries(META.numeric).map(([col, d]) => `
+  <div class="card">
+    <div class="card-head">
+      <div class="card-name">${d.label}</div>
+      <div class="card-badge num">ЧИСЛОВАЯ</div>
+    </div>
+    ${d.has_sum ? `<div class="stat-row">
+      <span class="stat-key">СУММА</span>
+      <span class="stat-val big">${FMT.big(d.sum)} ${d.unit}</span>
+    </div>` : ''}
+    <div class="stat-row"><span class="stat-key">КОЛ-ВО</span><span class="stat-val">${d.count?.toLocaleString('ru-RU')} судов</span></div>
+    <div class="stat-row"><span class="stat-key">СРЕДНЕЕ</span><span class="stat-val">${FMT.f1(d.avg)} ${d.unit}</span></div>
+    <div class="stat-row"><span class="stat-key">МЕДИАНА</span><span class="stat-val">${FMT.f1(d.median)} ${d.unit}</span></div>
+    <div class="stat-row"><span class="stat-key">МИН</span><span class="stat-val">${FMT.f1(d.min)}</span></div>
+    <div class="stat-row"><span class="stat-key">МАКС</span><span class="stat-val">${FMT.f1(d.max)}</span></div>
+    ${provBar(d.provenance)}
+  </div>`).join('');
+  return `<div class="section"><div class="section-title">§1 — Числовые колонки (сумма / среднее / медиана / мин / макс)</div></div>
+  <div class="cards">${items}</div>`;
+}
+
+// ── Category cards ───────────────────────────────────────────────────────────
+function renderCategory() {
+  const items = Object.entries(META.category).map(([col, d]) => {
+    const top5 = d.top5.map((t, i) => {
+      const w = d.top5[0]?.count > 0 ? (t.count / d.top5[0].count * 100).toFixed(1) : 0;
+      return `<div class="t5-row">
+        <div class="t5-rank">#${i+1}</div>
+        <div class="t5-label" title="${t.value}">${t.value}</div>
+        <div class="t5-bar-wrap"><div class="t5-bar" style="width:${w}%"></div></div>
+        <div class="t5-cnt">${t.count} &nbsp;(${t.pct}%)</div>
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-head">
+        <div class="card-name">${d.label}</div>
+        <div class="card-badge cat">КАТЕГОРИЯ</div>
+      </div>
+      <div class="stat-row"><span class="stat-key">УНИКАЛЬНЫХ ЗНАЧЕНИЙ</span><span class="stat-val">${d.unique_count}</span></div>
+      <div class="stat-row"><span class="stat-key">ЗАПОЛНЕНО</span><span class="stat-val">${d.total_filled?.toLocaleString('ru-RU')}</span></div>
+      <div class="top5">${top5}</div>
+      ${provBar(d.provenance)}
+    </div>`;
+  }).join('');
+  return `<div class="section"><div class="section-title">§2 — Категориальные колонки (уникальные + топ-5)</div></div>
+  <div class="cards">${items}</div>`;
+}
+
+// ── Identity / uniqueness cards ──────────────────────────────────────────────
+function renderIdentity() {
+  const items = Object.entries(META.identity).map(([col, d]) => {
+    const pct = d.uniqueness_pct;
+    const fillCls = pct === 100 ? '' : pct >= 90 ? 'warn' : 'bad';
+    return `<div class="card">
+      <div class="card-head">
+        <div class="card-name">${d.label}</div>
+        <div class="card-badge id">ИДЕНТИФИКАТОР</div>
+      </div>
+      <div class="stat-row"><span class="stat-key">ЗАПОЛНЕНО</span><span class="stat-val">${d.total_filled?.toLocaleString('ru-RU')}</span></div>
+      <div class="stat-row"><span class="stat-key">УНИКАЛЬНЫХ</span><span class="stat-val big">${d.unique?.toLocaleString('ru-RU')}</span></div>
+      <div class="stat-row"><span class="stat-key">ДУБЛИКАТЫ</span>
+        <span class="stat-val" style="color:${d.duplicates>0?'var(--amber)':'var(--green)'}">${d.duplicates}</span>
+      </div>
+      <div class="uniq-bar">
+        <div class="stat-key">УНИКАЛЬНОСТЬ ${FMT.pct(d.uniqueness_pct)}</div>
+        <div class="uniq-track"><div class="uniq-fill ${fillCls}" style="width:${d.uniqueness_pct}%"></div></div>
+      </div>
+      ${provBar(d.provenance)}
+    </div>`;
+  }).join('');
+  return `<div class="section"><div class="section-title">§3 — Идентификационные колонки (аудит уникальности)</div></div>
+  <div class="cards">${items}</div>`;
+}
+
+// ── Global provenance matrix ─────────────────────────────────────────────────
+function renderProvMatrix() {
+  const rows = META.tz_columns.map(col => {
+    const prov = META.all_prov[col] || {osint:0,synth:0,knn:0,reg:0};
+    const total = Object.values(prov).reduce((a,b)=>a+b,0)||1;
+    const segs = Object.entries(prov).map(([k,v])=>`
+      <div class="prov-seg" style="width:${(v/total*100).toFixed(2)}%;background:${PROV_COLORS[k]}"
+           title="${PROV_LABELS[k]}: ${v} (${(v/total*100).toFixed(1)}%)"></div>`).join('');
+    const osintPct = (prov.osint/total*100).toFixed(0);
+    return `<div class="prov-col-row">
+      <div class="pcr-name">${col.toUpperCase()}</div>
+      <div class="pcr-bar">${segs}</div>
+      <div class="pcr-pct">OSINT ${osintPct}%</div>
+    </div>`;
+  }).join('');
+  return `<div class="section"><div class="section-title">§4 — Провенанс по каждой колонке (OSINT / ⚡Синтетика / 🔬Профиль / 🌐Реестр AIS)</div></div>
+  <div class="prov-matrix">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;">
+      ${Object.entries(PROV_LABELS).map(([k,l])=>
+        `<div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--font-mono);color:var(--muted)">
+          <div style="width:10px;height:10px;border-radius:50%;background:${PROV_COLORS[k]}"></div>${l}</div>`
+      ).join('')}
+    </div>
+    ${rows}
+  </div>`;
+}
+
+// ── Mount ────────────────────────────────────────────────────────────────────
+document.getElementById('app').innerHTML =
+  renderMacro() +
+  renderNumeric() +
+  renderCategory() +
+  renderIdentity() +
+  renderProvMatrix();
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\sentinel_dashboard.html",
+  "bytes": 227844,
+  "live_vessel_count": 430,
+  "source_mode": "synthetic_seed",
+  "operational_status": "NOMINAL",
+  "replica_freshness": {
+    "stale": false,
+    "db_path": "C:\\Users\\MSI\\Oracle-1001\\7000\\история1\\sentinel_ais.db",
+    "mtime_epoch": 1788622164.4570773,
+    "age_sec": 1.0,
+    "lag_minutes": 0.0,
+    "status": "FRESH",
+    "banner": null
+  },
+  "ttf_kpi": {
+    "h7_p50": 71.21,
+    "h14_p50": 70.99,
+    "h30_p50": 71.9,
+    "h7_band": {
+      "p10": 66.7,
+      "p90": 76.12
+    },
+    "market_state": "MeanReverting_Transit",
+    "market_state_probs": {
+      "LowVol_Accumulation": 0.0,
+      "MeanReverting_Transit": 99.3,
+      "HighVol_SupplyShock": 0.7
+    },
+    "ais_causal_index": 2.975,
+    "ais_causal_best_lag": 8,
+    "ais_causal_p": 0.011214806349929034,
+    "optimal_range": "B_68_75",
+    "max_confidence_pct": 64.0,
+    "portfolio_roi_pct": 18.4,
+    "portfolio_terminal_usd": 1184.0
+  },
+  "ttf_integrity": "PASS"
+}

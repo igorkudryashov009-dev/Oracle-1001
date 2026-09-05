@@ -1,0 +1,22 @@
+# Lean AIS continuous collector + daily snapshot on a private Linux VPS.
+# Do NOT place PROVIDER_* gas secrets in this tree if co-hosted — keep separate .env keys.
+# Requires real AISSTREAM_API_KEY (not YOUR_* placeholder).
+
+[Unit]
+Description=Oracle-1001 AISstream continuous collector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/oracle1001/ais_archive
+EnvironmentFile=-/opt/oracle1001/ais_archive/.env
+ExecStart=/opt/oracle1001/ais_archive/venv/bin/python collector.py
+Restart=on-failure
+RestartSec=30
+Nice=10
+MemoryMax=650M
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

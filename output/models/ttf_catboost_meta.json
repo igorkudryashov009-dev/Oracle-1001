@@ -1,0 +1,41 @@
+{
+  "primary_model": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\models\\ttf_ensemble.cbm",
+  "horizons": [
+    7,
+    14,
+    30
+  ],
+  "quantiles": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "range_labels": [
+    "A_<68",
+    "B_68_75",
+    "C_75_82",
+    "D_>82"
+  ],
+  "feature_cols": [
+    "price_ttf_eur_mwh__robust",
+    "volume__robust",
+    "lng_flow_rate_eia__robust",
+    "shadow_tanker_density_gulf__robust",
+    "weather_degree_days__robust",
+    "temp_anomaly_europe__robust",
+    "storage_fill_level_pct__robust",
+    "log_return__robust",
+    "vol_7d__robust",
+    "vol_14d__robust",
+    "vol_30d__robust",
+    "hurst_60d__robust",
+    "rsi_14__robust",
+    "macd__robust",
+    "macd_signal__robust",
+    "macd_hist__robust",
+    "lng_tanker_transit_index__robust",
+    "eu_terminal_anchorage_density__robust",
+    "ais_gap_anomaly_vol_proxy__robust"
+  ],
+  "n_features": 19
+}

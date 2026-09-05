@@ -1,0 +1,18 @@
+{
+  "service": "sentinel_dashboard",
+  "status": "healthy",
+  "operational_status": "NOMINAL",
+  "replica": {
+    "stale": false,
+    "db_path": "C:\\Users\\MSI\\Oracle-1001\\7000\\\u0438\u0441\u0442\u043e\u0440\u0438\u044f1\\sentinel_ais.db",
+    "mtime_epoch": 1788622164.4570773,
+    "age_sec": 1.0,
+    "lag_minutes": 0.0,
+    "status": "FRESH",
+    "banner": null
+  },
+  "live_vessel_count": 430,
+  "source_mode": "synthetic_seed",
+  "ttf_spot": 71.952,
+  "ttf_integrity": "PASS"
+}

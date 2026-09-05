@@ -1,0 +1,17 @@
+{
+  "module": "top500_analytics",
+  "copyright": "© ORACLE-1001 · ТОП-500 Analytics · NASA / Wet-Glass",
+  "top500_dwt": 51582584.0,
+  "top500_share_pct": 63.45,
+  "provenance_pct": {
+    "OSINT": 98.62,
+    "SYNTH": 1.38,
+    "KNN": 0.0,
+    "AIS": 1.38
+  },
+  "vessels": 500,
+  "assets": [
+    "js/top500_engine.js",
+    "js/top500_premium.css"
+  ]
+}

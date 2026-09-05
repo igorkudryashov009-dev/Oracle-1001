@@ -1,0 +1,26 @@
+{
+  "generated_at_utc": "2026-08-12T03:27:41Z",
+  "status": "ok",
+  "provider": "vesselfinder",
+  "provider_base_url": "https://api.vesselfinder.com/vessels",
+  "fleet_csv": "/opt/oracle1001/weekly_monitor/data/fleet_database.csv",
+  "monthly_budget_usd": 50.0,
+  "cost_per_call_usd": 0.05,
+  "weeks_per_month": 4.345,
+  "dry_run": true,
+  "success_count": 30,
+  "error_count": 0,
+  "estimated_week_spend_usd": 1.5,
+  "gas_carriers_total": 30,
+  "weekly_call_budget": 230,
+  "selected_for_poll": 30,
+  "budget_trimmed": false,
+  "coverage_of_top_n_target_pct": 100.0,
+  "omitted_due_to_budget": 0,
+  "mission_control_module": {
+    "id": "gas_weekly",
+    "status": "LIVE",
+    "status_label": "LIVE",
+    "live": true
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-28T12:33:10Z",
+  "generated_at_utc": "2026-09-05T10:31:38Z",
   "source": "C:\\Users\\MSI\\Oracle-1001\\7000\\features\\dwt_flow_timeseries.parquet",
   "value_col": "laden_dwt_sum",
   "methodology_notes": {
@@ -81,13 +81,9 @@
     }
   ],
   "elliott_wave_heuristic": {
+    "run": false,
     "method_type": "discretionary_heuristic_not_statistically_validated",
-    "run": true,
-    "disclaimer": "Discretionary Elliott Wave heuristic. Not statistically validated. Do not combine with Fourier/normality results into a single score.",
-    "separated_from_spectral_scores": true,
-    "status": "skipped",
-    "reason": "need ≥15 non-NaN points for even a fragile extrema scan",
-    "waves": null
+    "separated_from_spectral_scores": true
   },
   "dashboard_separation_rule": "Spectral/normality results (analyses[]) and Elliott heuristic must be shown as separate panels/sources — never summed into one score."
 }

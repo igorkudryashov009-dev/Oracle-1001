@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ORACLE-1001 · ТОП-100 Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --void:#03070f;--glass:rgba(140,190,230,.08);--stroke:rgba(160,220,255,.22);
+  --cyan:#00f2fe;--mint:#10b981;--amber:#f59e0b;--rose:#ef4444;--blue:#3b82f6;
+  --text:#e8f4ff;--muted:#8aa4bf;
+  --font-ui:"Manrope",system-ui,sans-serif;--font-hud:"Orbitron",sans-serif;--font-mono:"JetBrains Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-ui);color:var(--text);min-height:100vh;
+  background:radial-gradient(1000px 600px at 10% -10%,rgba(0,242,254,.12),transparent 50%),
+             radial-gradient(800px 500px at 90% 0%,rgba(16,185,129,.1),transparent 45%),
+             linear-gradient(180deg,#02060d,#071221 50%,#040a14);}
+.nav{display:flex;align-items:center;gap:12px;padding:12px 22px;position:sticky;top:0;z-index:50;
+  background:rgba(3,7,15,.9);border-bottom:1px solid var(--stroke);backdrop-filter:blur(16px);}
+.brand{font-family:var(--font-hud);font-size:12px;letter-spacing:.14em;color:var(--cyan);
+  text-shadow:0 0 14px rgba(0,242,254,.45);text-decoration:none}
+.nav-links{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.pill{border:1px solid var(--stroke);background:var(--glass);color:var(--text);text-decoration:none;
+  padding:7px 12px;border-radius:999px;font-size:11px;backdrop-filter:blur(12px)}
+.pill:hover,.pill.active{border-color:var(--cyan);color:var(--cyan)}
+.hero{padding:22px 22px 10px}
+.hero h1{font-family:var(--font-hud);font-size:clamp(18px,3vw,26px);letter-spacing:.1em;color:var(--cyan);
+  text-shadow:0 0 20px rgba(0,242,254,.4)}
+.hero p{color:var(--muted);font-size:12px;margin-top:6px}
+.tabs{display:flex;gap:8px;padding:8px 22px 14px;flex-wrap:wrap}
+.tab{border:1px solid var(--stroke);background:transparent;color:var(--muted);border-radius:10px;
+  padding:10px 14px;font-size:12px;cursor:pointer;font-family:inherit;transition:.2s}
+.tab:hover{color:var(--cyan);border-color:rgba(0,242,254,.4)}
+.tab.on{color:var(--cyan);background:rgba(0,242,254,.15);border-color:#00f2fe;
+  box-shadow:0 0 14px rgba(0,242,254,.35);font-weight:600}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:0 22px 16px}
+.kpi{border:1px solid var(--stroke);border-radius:12px;padding:12px 14px;background:rgba(8,16,32,.55);
+  backdrop-filter:blur(14px);transition:transform .3s cubic-bezier(.4,0,.2,1),border-color .3s,box-shadow .3s;
+  position:relative}
+.kpi.pulse{border-color:rgba(0,242,254,.5);box-shadow:0 0 16px rgba(0,242,254,.2)}
+.kpi .k{font-size:9px;font-family:var(--font-mono);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.kpi .v{font-size:18px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums;color:var(--cyan)}
+.kpi .s{font-size:10px;color:var(--muted);margin-top:2px}
+.filter-bar{padding:0 22px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip-f{border:1px solid rgba(0,242,254,.35);background:rgba(0,242,254,.1);color:var(--cyan);
+  border-radius:999px;padding:4px 10px;font-size:11px;font-family:var(--font-mono)}
+.chip-f button{border:none;background:0;color:var(--muted);cursor:pointer;margin-left:4px}
+.panel{display:none;padding:0 22px 40px}
+.panel.on{display:block}
+.grid4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:980px){.grid4{grid-template-columns:1fr}}
+.card,.chart-card,.dashboard-panel{border:1px solid var(--stroke);border-radius:16px;background:rgba(8,16,32,.55);
+  backdrop-filter:blur(16px);padding:14px;min-height:320px;display:flex;flex-direction:column;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),box-shadow .3s,border-color .3s;position:relative}
+.card h3{font-family:var(--font-hud);font-size:11px;letter-spacing:.1em;color:var(--cyan);margin-bottom:4px}
+.card .sub{font-size:10px;color:var(--muted);margin-bottom:10px}
+.chart{flex:1;min-height:280px;position:relative}
+.chart svg{width:100%;height:100%;display:block}
+@keyframes flameGlowShift{
+  0%{box-shadow:0 0 15px rgba(0,242,254,.6),0 0 30px rgba(0,242,254,.4),inset 0 0 15px rgba(0,242,254,.3);border-color:#00f2fe}
+  33%{box-shadow:0 0 20px rgba(255,0,128,.8),0 0 40px rgba(255,0,128,.5),inset 0 0 20px rgba(255,0,128,.3);border-color:#ff0080}
+  66%{box-shadow:0 0 25px rgba(255,102,0,.9),0 0 50px rgba(255,102,0,.6),inset 0 0 25px rgba(255,102,0,.4);border-color:#ff6600}
+  100%{box-shadow:0 0 15px rgba(0,242,254,.6),0 0 30px rgba(0,242,254,.4),inset 0 0 15px rgba(0,242,254,.3);border-color:#00f2fe}
+}
+@keyframes flameDropShadow{
+  0%{filter:drop-shadow(0 0 6px #00f2fe) drop-shadow(0 0 14px rgba(0,242,254,.55))}
+  33%{filter:drop-shadow(0 0 8px #ff0080) drop-shadow(0 0 20px rgba(255,0,128,.6))}
+  66%{filter:drop-shadow(0 0 10px #ff6600) drop-shadow(0 0 26px rgba(255,102,0,.65))}
+  100%{filter:drop-shadow(0 0 6px #00f2fe) drop-shadow(0 0 14px rgba(0,242,254,.55))}
+}
+.kpi:hover,.card:hover,.chart-card:hover,.dashboard-panel:hover,.metric-card:hover{
+  transform:translateY(-4px) scale(1.01);
+  animation:flameGlowShift 2.5s infinite linear;
+  z-index:10;
+}
+.chart svg .seg:hover,.chart svg .bubble:hover,.chart svg circle:hover,.chart svg path:hover,.chart svg rect:hover{
+  animation:flameDropShadow 2s infinite linear;
+}
+.tip{position:fixed;z-index:90;pointer-events:none;background:rgba(4,10,20,.88);border:1px solid #00f2fe;
+  border-radius:10px;padding:10px 12px;font-size:11px;font-family:var(--font-mono);color:var(--text);
+  box-shadow:0 0 16px rgba(0,242,254,.4),0 0 28px rgba(255,0,128,.22),0 10px 28px rgba(0,0,0,.5);
+  backdrop-filter:blur(14px);display:none;max-width:340px;line-height:1.45}
+.tip b{color:#00f2fe;font-weight:700}
+.tip .tip-muted{color:var(--muted);font-size:10px}
+.tip .tip-pct{color:#ff0080}
+.seg{cursor:pointer;transition:opacity .2s,filter .2s}
+.seg.dim{opacity:.22}
+.seg.hl{opacity:1;filter:drop-shadow(0 0 6px var(--cyan))}
+.seg.sb-active{opacity:1;filter:drop-shadow(0 0 10px #00f2fe) drop-shadow(0 0 4px #ff0080);stroke:#fff;stroke-width:1.2}
+.empty{color:var(--muted);padding:40px;text-align:center}
+.card-d10{box-shadow:0 0 0 transparent}
+.card-d10:hover{box-shadow:0 0 20px rgba(0,242,254,.4),0 0 36px rgba(255,0,128,.18)!important;border-color:#00f2fe}
+.d10-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.d10-head h3{margin-bottom:2px}
+.d10-crumbs{font-size:10px;color:var(--muted);font-family:var(--font-mono);margin-top:4px;min-height:14px}
+.d10-crumbs span{color:var(--cyan)}
+.d10-reset{border:1px solid rgba(0,242,254,.45);background:rgba(0,242,254,.1);color:var(--cyan);
+  border-radius:8px;padding:6px 10px;font-size:10px;font-family:var(--font-mono);cursor:pointer;white-space:nowrap;
+  transition:box-shadow .2s,border-color .2s}
+.d10-reset:hover{border-color:#ff0080;color:#ff0080;box-shadow:0 0 14px rgba(255,0,128,.35)}
+.d10-reset[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="brand" href="osint_layers.html">ORACLE-1001 · ТОП-100</a>
+  <div class="nav-links">
+    <a class="pill" href="mission_control.html">Центр управления</a>
+    <a class="pill" href="dashboard.html">Реестр флота</a>
+    <a class="pill" href="osint_layers.html">9 аналитических слоёв</a>
+    <a class="pill" href="fleet_meta_analysis.html">Мета-аналитика</a>
+    <a class="pill active" href="top100_analytics.html">Анализ ТОП-100</a>
+    <a class="pill" href="top200_analytics.html">Анализ ТОП-200</a>
+    <a class="pill" href="top500_analytics.html">Анализ ТОП-500</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>АНАЛИЗ ТОП-100 · 12 ДАШБОРДОВ</h1>
+  <p>100 судов с наибольшим дедвейтом · 3 вкладки · кросс-фильтрация · NASA / Wet-Glass</p>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab on" data-tab="t1">① Тоннаж и Гидродинамика</button>
+  <button class="tab" data-tab="t2">② Комплаенс и Санкционные Риски</button>
+  <button class="tab" data-tab="t3">③ География и Логистика</button>
+</div>
+
+<div class="kpi-row" id="kpiRow"></div>
+<div class="filter-bar" id="filterBar"></div>
+
+<section class="panel on" id="t1">
+  <div class="grid4">
+    <div class="card"><h3>Д01 · Матрица рассеяния: дедвейт vs GT</h3><div class="sub">Клик по точке → фильтр по типу судна</div><div class="chart" id="c01"></div></div>
+    <div class="card"><h3>Д02 · Распределение размеров</h3><div class="sub">Длина / Ширина / Осадка · квартили</div><div class="chart" id="c02"></div></div>
+    <div class="card"><h3>Д03 · Скорость и режим хода</h3><div class="sub">Круговая · корзины скорости + навигационный статус</div><div class="chart" id="c03"></div></div>
+    <div class="card"><h3>Д04 · Возрастной горизонт флота</h3><div class="sub">Гистограмма возраста</div><div class="chart" id="c04"></div></div>
+  </div>
+</section>
+
+<section class="panel" id="t2">
+  <div class="grid4">
+    <div class="card"><h3>Д05 · Радар комплаенс-рисков</h3><div class="sub">Клик по риску → кросс-фильтр всех дашбордов</div><div class="chart" id="c05"></div></div>
+    <div class="card"><h3>Д06 · Тепловая карта флагов</h3><div class="sub">Топ флаги × уровень риска</div><div class="chart" id="c06"></div></div>
+    <div class="card"><h3>Д07 · Древовидный аудит источников</h3><div class="sub">900 ячеек · DWT/GT/год/скорость/LOA/осадка/MMSI/позывной/порт · приоритет OSINT → AIS → KNN → синтетика</div><div class="chart" id="c07"></div></div>
+    <div class="card"><h3>Д08 · Теневой флот / санкционные теги</h3><div class="sub">OFAC · STS · Dark Activity…</div><div class="chart" id="c08"></div></div>
+  </div>
+</section>
+
+<section class="panel" id="t3">
+  <div class="grid4">
+    <div class="card"><h3>Д09 · Топ портов отбытия / назначения</h3><div class="sub">Рейтинг портов ТОП-100</div><div class="chart" id="c09"></div></div>
+    <div class="card card-d10" id="cardD10">
+      <div class="d10-head">
+        <div>
+          <h3>Д10 · Солнце контекста маршрута</h3>
+          <div class="sub">Тип → Регион → Порт · % от ТОП-100 и от флота (81+ млн т)</div>
+          <div class="d10-crumbs" id="d10Crumbs">Обзор: 100% ТОП-100</div>
+        </div>
+        <button type="button" class="d10-reset" id="d10Reset" hidden>Сбросить фильтр секторов</button>
+      </div>
+      <div class="chart" id="c10"></div>
+    </div>
+    <div class="card"><h3>Д11 · Матрица стратегической важности и риска</h3><div class="sub">Распределение ТОП-100 судов по индексу массы, типу груза и уровню комплаенс-риска</div><div class="chart" id="c11"></div></div>
+    <div class="card"><h3>Д12 · Доля флота (индикаторы)</h3><div class="sub">% от общего дедвейта флота</div><div class="chart" id="c12"></div></div>
+  </div>
+</section>
+
+<div class="tip" id="tip"></div>
+
+<script>
+const PAYLOAD = {"fleet_total_dwt": 81300198.0, "fleet_count": 1253, "top100_dwt": 15149087.0, "top100_share_pct": 18.63, "avg_fill_pct": 100.0, "provenance": {"cells": {"OSINT": 716, "SYNTH": 0, "KNN": 24, "AIS": 160}, "pct": {"OSINT": 79.56, "SYNTH": 20.44}, "total_cells": 900, "top_n": 100}, "vessels": [{"rank": 1, "imo": "9648714", "vessel_name": "PRELUDE", "dwt_tons": 394330.0, "gt": 499167.0, "loa_m": 488.8, "beam_m": 74.0, "draft_m": 19.1, "speed_knots": 0.1, "age_years": 9.0, "built_year": 2017, "flag": "Австралия", "vessel_type": "Плавучая установка для добычи, сжижения и хранения природного газа (FLNG / Offshore Support Vessel - HAZ-A)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Портовые заходы стандартного типа отсутствуют (объект работает стационарно в морской зоне шельфового проекта Prelude FLNG)", "destination_port": "Бассейн Броуз, Австралия (BROWSE BASIN AU)", "destination_context": "Плавучая установка для добычи, сжижения и хранения природного газа · флаг: Австралия · маршрут: Портовые заходы стандарт", "arrival_datetime": "22 декабря 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 2, "imo": "9930806", "vessel_name": "MARAN DIONE", "dwt_tons": 320916.0, "gt": 165054.0, "loa_m": 329.9, "beam_m": 60.0, "draft_m": 11.5, "speed_knots": 14.0, "age_years": 3.0, "built_year": 2023, "flag": "Греция (Greece) — европейский суверенный «белый» судовой реестр", "vessel_type": "Сверхкрупный танкер для перевозки сырой нефти (VLCC — Very Large Crude Carrier / Dual-Fuel LNG option)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "EXTREME", "departure_port": "Ras Laffan, Qatar (QA RLF)", "destination_port": "Incheon, South Korea (KR INC)", "destination_context": "Paris/Tokyo MoU White List", "arrival_datetime": "31 августа 2026 г., 09:00 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": ["OFAC"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; departure_port; destination_port; speed_knots"}, {"rank": 3, "imo": "9251274", "vessel_name": "MARITIME 1274", "dwt_tons": 317053.0, "gt": 291689.0, "loa_m": 409.1, "beam_m": 68.2, "draft_m": 16.6, "speed_knots": 10.0, "age_years": 5.0, "built_year": 2021, "flag": "Греция", "vessel_type": "Crude Oil Tanker (VLCC)", "vtype": "CRUDE", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Houston, USA (US HOU)", "destination_port": "Мурманск", "destination_context": "флаг: Греция · следует в: Мурманск · At Anchor · возраст: 5 лет", "arrival_datetime": "13 октября 2026 г., 19:30 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m; vessel_type", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; mmsi; speed_knots"}, {"rank": 4, "imo": "9937127", "vessel_name": "MARITIME 7127", "dwt_tons": 317053.0, "gt": 291689.0, "loa_m": 409.1, "beam_m": 68.2, "draft_m": 16.6, "speed_knots": 10.0, "age_years": 5.0, "built_year": 2021, "flag": "Греция", "vessel_type": "Crude Oil Tanker (VLCC)", "vtype": "CRUDE", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Singapore (SG SIN)", "destination_port": "Мурманск", "destination_context": "флаг: Греция · следует в: Мурманск · At Anchor · возраст: 5 лет", "arrival_datetime": "4 октября 2026 г., 17:45 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m; vessel_type", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; mmsi; speed_knots"}, {"rank": 5, "imo": "9262211", "vessel_name": "ATLAS 2211", "dwt_tons": 317053.0, "gt": 291689.0, "loa_m": 409.1, "beam_m": 68.2, "draft_m": 16.6, "speed_knots": 10.0, "age_years": 5.0, "built_year": 2021, "flag": "Греция", "vessel_type": "Crude Oil Tanker (VLCC)", "vtype": "CRUDE", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Singapore (SG SIN)", "destination_port": "Мурманск", "destination_context": "флаг: Греция · следует в: Мурманск · At Anchor · возраст: 5 лет", "arrival_datetime": "12 октября 2026 г., 11:30 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m; vessel_type", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; mmsi; speed_knots"}, {"rank": 6, "imo": "9727194", "vessel_name": "COSWISDOM LAKE", "dwt_tons": 308019.0, "gt": 162542.0, "loa_m": 333.0, "beam_m": 60.0, "draft_m": 19.3, "speed_knots": 10.0, "age_years": 10.0, "built_year": 2016, "flag": "Гонконг", "vessel_type": "Нефтяной танкер класса VLCC (Very Large Crude Carrier)", "vtype": "CRUDE", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Ras Tanura, Saudi Arabia (SA RAT)", "destination_port": "направлении порта Джено (DJENO)", "destination_context": "Китай", "arrival_datetime": "8 июня 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "draft_m", "registry_mock_fields": "departure_port"}, {"rank": 7, "imo": "9928645", "vessel_name": "HELLAS FOS", "dwt_tons": 299999.0, "gt": 154792.0, "loa_m": 330.0, "beam_m": 60.0, "draft_m": 11.0, "speed_knots": 13.1, "age_years": 4.0, "built_year": 2022, "flag": "Греция (Greece) — европейский суверенный «белый» судовой реестр", "vessel_type": "Сверхкрупный танкер для перевозки сырой нефти (VLCC — Very Large Crude Carrier / Dual-Fuel LNG option)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "EXTREME", "departure_port": "Darwin LNG, Australia (AU DRW)", "destination_port": "Barcelona Regas, Spain (ES BCN)", "destination_context": "Paris/Tokyo MoU White List", "arrival_datetime": "9 октября 2026 г., 21:15 UTC", "region": "Европа", "sanctions_tags": ["OFAC"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "departure_port; destination_port"}, {"rank": 8, "imo": "9928023", "vessel_name": "ARZANAH", "dwt_tons": 299425.0, "gt": 156673.0, "loa_m": 336.0, "beam_m": 60.0, "draft_m": 11.0, "speed_knots": 13.4, "age_years": 3.0, "built_year": 2023, "flag": "Либерия", "vessel_type": "Супертанкер (VLCC — Very Large Crude Carrier), оснащен двухтопливными двигателями (LNG-ready)", "vtype": "LNG", "nav_status": "На ходу (Under way)", "risk": "LOW", "departure_port": "Ras Laffan, Qatar (QA RLF)", "destination_port": "Revithoussa, Greece (GR REV)", "destination_context": "Супертанкер · флаг: Либерия · На ходу (Under way) · возраст: 3 лет", "arrival_datetime": "21 июня 2026 г", "region": "Европа", "sanctions_tags": ["Shadow Fleet"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; departure_port; destination_port; mmsi"}, {"rank": 9, "imo": "9723679", "vessel_name": "MARITIME JEWEL", "dwt_tons": 299364.0, "gt": 275415.0, "loa_m": 332.0, "beam_m": 58.04, "draft_m": 19.3, "speed_knots": 12.0, "age_years": 26.0, "built_year": 2000, "flag": "Камерун", "vessel_type": "Crude Oil Tanker", "vtype": "CRUDE", "nav_status": "На якоре", "risk": "EXTREME", "departure_port": "Novorossiysk, Russia (RU NVS)", "destination_port": "Ulsan, South Korea (KR USN)", "destination_context": "Crude Oil Tanker · флаг: Камерун · На якоре · возраст: 26 лет", "arrival_datetime": "5 сентября 2026 г., 11:15 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "departure_port; destination_port; speed_knots"}, {"rank": 10, "imo": "9862346", "vessel_name": "PEARL LNG", "dwt_tons": 172700.0, "gt": 210694.0, "loa_m": 280.0, "beam_m": 5.0, "draft_m": 11.4, "speed_knots": 11.6, "age_years": 26.0, "built_year": 2000, "flag": "Мальта", "vessel_type": "LNG Tanker (Газовоз СПГ)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "TT PTF (Пойнт-Фортин, Тринидад и Тобаго)", "destination_port": "CN SZP (Шэньчжэнь, Китай)", "destination_context": "MALTA", "arrival_datetime": "08 июня 2026 г. в 00:01 (UTC+8)", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 11, "imo": "9321732", "vessel_name": "MILAHA QATAR", "dwt_tons": 172100.0, "gt": 209962.0, "loa_m": 283.0, "beam_m": 43.0, "draft_m": 9.3, "speed_knots": 0.2, "age_years": 20.0, "built_year": 2006, "flag": "Мальта", "vessel_type": "Танкер для сжиженного природного газа (LNG Tanker).", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Sabetta, Russia (RU SAB)", "destination_port": "Рас-Лаффан", "destination_context": "Популярный европейский реестр с высоким уровнем соответствия международным стандартам безопасности", "arrival_datetime": "1 ноября 2026 г., 22:45 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; departure_port; mmsi"}, {"rank": 12, "imo": "9397327", "vessel_name": "AL KHARAITIYAT", "dwt_tons": 172050.0, "gt": 209901.0, "loa_m": 315.16, "beam_m": 50.0, "draft_m": 12.4, "speed_knots": 14.5, "age_years": 11.0, "built_year": 2015, "flag": "MARSHALL ISLANDS", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу, используется двигатель)", "risk": "HIGH", "departure_port": "QA RLF (Ras Laffan, Катар)", "destination_port": "PK BQM / Port Qasim, PAKISTAN", "destination_context": "Маршалловы Острова", "arrival_datetime": "5 мая 2026 г. в 22:17 (UTC+5)", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 13, "imo": "9948695", "vessel_name": "ENERGY ENDURANCE", "dwt_tons": 171350.0, "gt": 209047.0, "loa_m": 299.0, "beam_m": 46.12, "draft_m": 8.7, "speed_knots": 14.0, "age_years": 23.0, "built_year": 2003, "flag": "MARSHALL ISLANDS", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "ALTAMIRA ANCH (Якорная стоянка Альтамира, Мексика)", "destination_port": "IN MRM (Мормугао, Индия)", "destination_context": "Маршалловы Острова", "arrival_datetime": "9 июня 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "speed_knots"}, {"rank": 14, "imo": "9636723", "vessel_name": "KITA LNG", "dwt_tons": 170050.0, "gt": 207461.0, "loa_m": 294.2, "beam_m": 44.0, "draft_m": 11.4, "speed_knots": 16.8, "age_years": 6.0, "built_year": 2020, "flag": "Мальта", "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker)", "vtype": "LNG", "nav_status": "На ходу с использованием двигателя (Underway using Engine)", "risk": "LOW", "departure_port": "Калхат, Оман", "destination_port": "Индийский океан, для получения приказов (INDIAN OC. FOR ORDERS)", "destination_context": "Танкер для перевозки сжиженного природного газа · флаг: Мальта · маршрут: Калхат, Оман → Индийский океан, для получения ", "arrival_datetime": "5 сентября 2026 г., 09:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 15, "imo": "9762273", "vessel_name": "FLEX ENTERPRISE", "dwt_tons": 169950.0, "gt": 207339.0, "loa_m": 299.0, "beam_m": 47.0, "draft_m": 11.0, "speed_knots": 14.0, "age_years": 2.0, "built_year": 2024, "flag": "MARSHALL ISLANDS", "vessel_type": "LNG Tanker (Танкер СПГ).", "vtype": "LNG", "nav_status": "Stopped (Остановлено)", "risk": "LOW", "departure_port": "US CMU (Cameron, США)", "destination_port": "EG AIS (Ain Sukhna, Египет)", "destination_context": "Маршалловы Острова", "arrival_datetime": "27 сентября 2026 г., 17:45 UTC", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": ""}, {"rank": 16, "imo": "1045112", "vessel_name": "NGUYA FLNG", "dwt_tons": 168967.0, "gt": 243515.0, "loa_m": 377.0, "beam_m": 82.0, "draft_m": 12.5, "speed_knots": 14.0, "age_years": 1.0, "built_year": 2025, "flag": "Либерия", "vessel_type": "Плавучий завод по сжижению природного газа / FLNG (Floating Liquefied Natural Gas / Offshore Support Vessel)", "vtype": "LNG", "nav_status": "стационарный или находящийся на финальных этапах транспортировки / позиционирования технологический объект", "risk": "LOW", "departure_port": "Sabine Pass LNG, USA (US SAB)", "destination_port": "Пуэнт-Нуар, Конго (Pointe Noire, Congo)", "destination_context": "Плавучий завод по сжижению природного газа / FLNG · флаг: Либерия · следует в: Пуэнт-Нуар, Конго (Pointe Noire, Congo) ·", "arrival_datetime": "26 ноября 2026 г", "region": "Прочее", "sanctions_tags": ["OFAC"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "departure_port; speed_knots"}, {"rank": 17, "imo": "9750256", "vessel_name": "ARCTIC 0256", "dwt_tons": 168800.0, "gt": 205936.0, "loa_m": 290.0, "beam_m": 46.95, "draft_m": 11.4, "speed_knots": 19.1, "age_years": 25.0, "built_year": 2001, "flag": "Гонконг [HK]", "vessel_type": "LNG Tanker (Танкер-газовоз)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "US CCU (Corpus Christi, США)", "destination_port": "Barcelona Regas, Spain (ES BCN)", "destination_context": "LNG Tanker · флаг: Гонконг [HK] · отход: US CCU (Corpus Christi, США) · Underway using Engine", "arrival_datetime": "30 августа 2026 г., 03:15 UTC", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "destination_port"}, {"rank": 18, "imo": "9074640", "vessel_name": "AL HAMRA", "dwt_tons": 168150.0, "gt": 205143.0, "loa_m": 289.14, "beam_m": 48.19, "draft_m": 9.5, "speed_knots": 13.8, "age_years": 32.0, "built_year": 1994, "flag": "Либерия", "vessel_type": "Газовоз (LNG Tanker).", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Corpus Christi LNG, USA (US CRP)", "destination_port": "Хор-Факкан (AE KLF), ОАЭ", "destination_context": "Легитимная международная юрисдикция, высокая прозрачность флота", "arrival_datetime": "30 июня 2026 г. в 08:04 (UTC+4)", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "draft_m", "registry_mock_fields": "call_sign; departure_port; mmsi"}, {"rank": 19, "imo": "9388821", "vessel_name": "AL SAMRIYA", "dwt_tons": 167300.0, "gt": 204106.0, "loa_m": 345.0, "beam_m": 55.03, "draft_m": 9.4, "speed_knots": 0.8, "age_years": 10.0, "built_year": 2016, "flag": "МАРШАЛЛОВЫ ОСТРОВА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Янцзян (Янцзян), Китай (CN YKG)", "destination_port": "Shanghai LNG, China (CN SHA)", "destination_context": "MARSHALL ISLANDS", "arrival_datetime": "16 сентября 2026 г., 06:45 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; destination_port; mmsi"}, {"rank": 20, "imo": "9333618", "vessel_name": "COOL ROVER", "dwt_tons": 167100.0, "gt": 203862.0, "loa_m": 288.0, "beam_m": 44.0, "draft_m": 11.3, "speed_knots": 18.1, "age_years": 4.0, "built_year": 2022, "flag": "МАЛЬТА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Пойнт-Фортин, Тринидад и Тобаго (TT PTF)", "destination_port": "PACIFIC OCEAN (Тихий океан)", "destination_context": "MALTA", "arrival_datetime": "14 октября 2026 г., 07:00 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; mmsi"}, {"rank": 21, "imo": "9431214", "vessel_name": "ZARGA", "dwt_tons": 167000.0, "gt": 203740.0, "loa_m": 345.0, "beam_m": 54.0, "draft_m": 9.5, "speed_knots": 0.4, "age_years": 18.0, "built_year": 2008, "flag": "Маршалловы Острова", "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker)", "vtype": "LNG", "nav_status": "На якоре (At anchor)", "risk": "LOW", "departure_port": "Сан-Порт, Китай (CN BHX)", "destination_port": "«FOR ORDERS» (Судно следует в ожидании коммерческих распоряжений)", "destination_context": "Танкер для перевозки сжиженного природного газа · флаг: Маршалловы Острова · маршрут: Сан-Порт, Китай (CN BHX) → «FOR OR", "arrival_datetime": "15 октября 2026 г., 18:30 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 22, "imo": "9360855", "vessel_name": "AL SAHLA", "dwt_tons": 166550.0, "gt": 203191.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.3, "speed_knots": 0.1, "age_years": 21.0, "built_year": 2005, "flag": "MARSHALL ISLANDS", "vessel_type": "LNG Tanker (Танкер для перевозки СПГ / класс Q-Flex)", "vtype": "LNG", "nav_status": "At Anchor (На якоре)", "risk": "LOW", "departure_port": "QA RLF (Рас-Лаффан, Катар)", "destination_port": "QA RLF (Рас-Лаффан, Катар)", "destination_context": "Маршалловы Острова", "arrival_datetime": "31 августа 2026 г., 21:00 UTC", "region": "Ближний Восток", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 23, "imo": "9750232", "vessel_name": "GAS 0232", "dwt_tons": 165350.0, "gt": 201727.0, "loa_m": 290.0, "beam_m": 46.95, "draft_m": 9.5, "speed_knots": 17.7, "age_years": 7.0, "built_year": 2019, "flag": "Гонконг [HK]", "vessel_type": "LNG Tanker (Танкер-газовоз)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "JP HIM (Химедзи, Япония)", "destination_port": "балласте (пустым). Это подтверждает завершение разгрузки в Японии и переход к следующему циклу", "destination_context": "LNG Tanker · флаг: Гонконг [HK] · маршрут: JP HIM (Химедзи, Япония) → балласте (пустым). Это подтверждает завершение раз", "arrival_datetime": "12 сентября 2026 г., 23:30 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime"}, {"rank": 24, "imo": "9621077", "vessel_name": "PACIFIC ARCADIA", "dwt_tons": 164550.0, "gt": 200751.0, "loa_m": 288.0, "beam_m": 49.0, "draft_m": 9.6, "speed_knots": 9.3, "age_years": 24.0, "built_year": 2002, "flag": "БАГАМСКИЕ ОСТРОВА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Йоккаити, Япония (JP YKK)", "destination_port": "Пригородное, РОССИЯ (RU PGN)", "destination_context": "BAHAMAS", "arrival_datetime": "26 мая 2026 г", "region": "Арктика / Россия", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 25, "imo": "9325685", "vessel_name": "AL MARROUNA", "dwt_tons": 161150.0, "gt": 196603.0, "loa_m": 288.0, "beam_m": 43.45, "draft_m": 9.5, "speed_knots": 0.2, "age_years": 14.0, "built_year": 2012, "flag": "Багамские Острова", "vessel_type": "Газовоз (LNG Tanker)", "vtype": "LNG", "nav_status": "На якоре (At anchor)", "risk": "LOW", "departure_port": "Рас-Лаффан, Катар (QA RLF)", "destination_port": "«FOR ORDERS» (Судно следует в ожидании коммерческих распоряжений)", "destination_context": "Bahamas", "arrival_datetime": "25 октября 2026 г., 09:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 26, "imo": "9250713", "vessel_name": "DISHA", "dwt_tons": 160850.0, "gt": 196237.0, "loa_m": 276.99, "beam_m": 43.4, "draft_m": 11.9, "speed_knots": 14.0, "age_years": 6.0, "built_year": 2020, "flag": "MALTA", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "At Anchor (На якоре)", "risk": "LOW", "departure_port": "QA RLF (Рас-Лаффан, Катар)", "destination_port": "INDIAN GOVT. SHIP (согласно Reported destination)", "destination_context": "Мальта", "arrival_datetime": "4 мая 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 27, "imo": "9953509", "vessel_name": "BURAN", "dwt_tons": 160350.0, "gt": 195627.0, "loa_m": 293.0, "beam_m": 45.85, "draft_m": 9.2, "speed_knots": 18.1, "age_years": 6.0, "built_year": 2020, "flag": "Россия", "vessel_type": "Танкер-газовоз (LNG Tanker)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "EXTREME", "departure_port": "Angola LNG, Angola (AO LNG)", "destination_port": "Shanghai LNG, China (CN SHA)", "destination_context": "Танкер-газовоз · флаг: Россия · Underway using Engine", "arrival_datetime": "29 октября 2026 г., 04:00 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": ["OFAC"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; destination_port; mmsi"}, {"rank": 28, "imo": "9388833", "vessel_name": "BU SAMRA", "dwt_tons": 159750.0, "gt": 194895.0, "loa_m": 345.28, "beam_m": 53.83, "draft_m": 9.4, "speed_knots": 14.0, "age_years": 5.0, "built_year": 2021, "flag": "Marshall Islands", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "At Anchor (На якоре)", "risk": "LOW", "departure_port": "TH MAT (Мап-Та-Пхут, Таиланд)", "destination_port": "MUMBAI ANCH (Мумбаи, Индия)", "destination_context": "Маршалловы Острова", "arrival_datetime": "1 ноября 2026 г., 07:30 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "speed_knots"}, {"rank": 29, "imo": "9965435", "vessel_name": "ENERGY 5435", "dwt_tons": 159400.0, "gt": 194468.0, "loa_m": 298.5, "beam_m": 46.44, "draft_m": 9.4, "speed_knots": 15.3, "age_years": 19.0, "built_year": 2007, "flag": "Либерия [LR]", "vessel_type": "LNG Tanker (Танкер-газовоз)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "SG SIN (Сингапур)", "destination_port": "балласте (пустым). После разгрузки в Юго-Восточной Азии танкер возвращается на терминал Oman LNG в Кальхате (OM QAL) для приема новой партии сжиженного газа", "destination_context": "LNG Tanker · флаг: Либерия [LR] · маршрут: SG SIN (Сингапур) → балласте (пустым). После разгрузки в Юго-Восточной Азии т", "arrival_datetime": "01 мая 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 30, "imo": "9972373", "vessel_name": "HL SEA EAGLE", "dwt_tons": 158200.0, "gt": 193004.0, "loa_m": 290.0, "beam_m": 45.83, "draft_m": 11.5, "speed_knots": 14.0, "age_years": 12.0, "built_year": 2014, "flag": "LIBERIA", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа).", "vtype": "LNG", "nav_status": "Moored (Пришвартовано)", "risk": "LOW", "departure_port": "US NSS (Sabine Pass, США)", "destination_port": "US POA (Порт-Артур, США)", "destination_context": "Либерия", "arrival_datetime": "25 мая 2026 г", "region": "Америка", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "speed_knots"}, {"rank": 31, "imo": "1023425", "vessel_name": "OCEAN 3425", "dwt_tons": 157930.0, "gt": 84246.0, "loa_m": 274.0, "beam_m": 48.0, "draft_m": 15.8, "speed_knots": 2.2, "age_years": 1.0, "built_year": 2025, "flag": "Маршалловы Острова", "vessel_type": "LNG Tanker / LNGC", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Singapore (SG SIN)", "destination_port": "Fujairah, UAE (AE FUJ)", "destination_context": "флаг: Маршалловы Острова · At Anchor · возраст: 1 лет", "arrival_datetime": "5 сентября 2026 г., 12:00 UTC", "region": "Ближний Восток", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "vessel_type", "registry_mock_fields": "arrival_datetime; destination_port"}, {"rank": 32, "imo": "9210828", "vessel_name": "ENERGY 0828", "dwt_tons": 154100.0, "gt": 188002.0, "loa_m": 290.0, "beam_m": 46.28, "draft_m": 11.0, "speed_knots": 9.5, "age_years": 8.0, "built_year": 2018, "flag": "Либерия", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу, под мотором)", "risk": "LOW", "departure_port": "RU PGN (Пригородное, Россия — терминал СПГ проекта «Сахалин-2»), выход 23 апреля 2026 г., 10:49 UTC+11", "destination_port": "FOR ORDERS (В ожидании распоряжений)", "destination_context": "Liberia", "arrival_datetime": "31 августа 2026 г., 07:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime"}, {"rank": 33, "imo": "9325697", "vessel_name": "AL AREESH", "dwt_tons": 153000.0, "gt": 186660.0, "loa_m": 288.2, "beam_m": 43.4, "draft_m": 9.1, "speed_knots": 12.1, "age_years": 25.0, "built_year": 2001, "flag": "БАГАМСКИЕ ОСТРОВА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "На ходу (Underway using Engine)", "risk": "LOW", "departure_port": "Адриатический СПГ-терминал (Adriatic LNG)", "destination_port": "«WAITING FOR ORDERS» (Судно следует в ожидании дальнейших распоряжений)", "destination_context": "BAHAMAS", "arrival_datetime": "1 сентября 2026 г., 14:00 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign"}, {"rank": 34, "imo": "9980540", "vessel_name": "ELISA ARDEA", "dwt_tons": 152600.0, "gt": 186172.0, "loa_m": 299.0, "beam_m": 47.0, "draft_m": 9.7, "speed_knots": 13.1, "age_years": 15.0, "built_year": 2011, "flag": "ФРАНЦИЯ", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Йоккаити, Япония (JP YKK)", "destination_port": "США (US XXX)", "destination_context": "FRANCE", "arrival_datetime": "1 июля 2026 г", "region": "Америка", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 35, "imo": "9917567", "vessel_name": "SM GOLDEN EAGLE", "dwt_tons": 151850.0, "gt": 185257.0, "loa_m": 298.97, "beam_m": 46.43, "draft_m": 11.6, "speed_knots": 12.1, "age_years": 2.0, "built_year": 2024, "flag": "ПАНАМА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Китимат, Канада (CA KTM)", "destination_port": "Пхёнтхэк, Южная Корея (KR PTK)", "destination_context": "PANAMA", "arrival_datetime": "20 мая 2026 г", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 36, "imo": "9904209", "vessel_name": "ENERGY 4209", "dwt_tons": 146950.0, "gt": 179279.0, "loa_m": 296.87, "beam_m": 46.43, "draft_m": 11.3, "speed_knots": 14.0, "age_years": 23.0, "built_year": 2003, "flag": "Норвегия [NO]", "vessel_type": "LNG Tanker (Танкер-газовоз)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "NG BON (Бонни, Нигерия)", "destination_port": "Tianjin, China (CN TJN)", "destination_context": "LNG Tanker · флаг: Норвегия [NO] · отход: NG BON (Бонни, Нигерия) · Underway using Engine", "arrival_datetime": "2 сентября 2026 г., 14:15 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; destination_port"}, {"rank": 37, "imo": "9317200", "vessel_name": "NORTH PIONEER", "dwt_tons": 146100.0, "gt": 178242.0, "loa_m": 89.23, "beam_m": 15.3, "draft_m": 4.5, "speed_knots": 0.1, "age_years": 3.0, "built_year": 2023, "flag": "ЯПОНИЯ", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "At Anchor (На якоре)", "risk": "LOW", "departure_port": "Исикари, Япония (JP ISI)", "destination_port": "Хакодате, ЯПОНИЯ (HAKODATE ANCH / JP HKP OFF)", "destination_context": "JAPAN", "arrival_datetime": "20 мая 2026 г", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 38, "imo": "9888481", "vessel_name": "PRISM COURAGE", "dwt_tons": 145550.0, "gt": 177571.0, "loa_m": 299.0, "beam_m": 47.0, "draft_m": 11.4, "speed_knots": 12.3, "age_years": 17.0, "built_year": 2009, "flag": "PANAMA", "vessel_type": "Tanker / LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "US FPO (Фрипорт, Техас, США)", "destination_port": "PA CTB (Кристобаль, Панама)", "destination_context": "Панама", "arrival_datetime": "12 мая 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": ""}, {"rank": 39, "imo": "9873852", "vessel_name": "BW HELIOS", "dwt_tons": 145250.0, "gt": 177205.0, "loa_m": 294.9, "beam_m": 46.4, "draft_m": 11.3, "speed_knots": 19.0, "age_years": 8.0, "built_year": 2018, "flag": "СИНГАПУР", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Пойнт-Фортин, Тринидад и Тобаго (TT PTF)", "destination_port": "Дахедж, Индия (IN DAH)", "destination_context": "SINGAPORE", "arrival_datetime": "23 мая 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 40, "imo": "5233573", "vessel_name": "LNG JAMAL", "dwt_tons": 144900.0, "gt": 176778.0, "loa_m": 290.0, "beam_m": 46.0, "draft_m": 8.6, "speed_knots": 11.3, "age_years": 8.0, "built_year": 2018, "flag": "Япония", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "SIKKA ANCH (Сикка, Индия)", "destination_port": "Данные о конечном порте (TBA) на момент последнего сигнала не были обновлены", "destination_context": "JAPAN", "arrival_datetime": "27 октября 2026 г., 09:30 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime"}, {"rank": 41, "imo": "9981427", "vessel_name": "AL NIGYAN", "dwt_tons": 144300.0, "gt": 176046.0, "loa_m": 299.0, "beam_m": 47.0, "draft_m": 5.5, "speed_knots": 14.0, "age_years": 8.0, "built_year": 2018, "flag": "ФРАНЦИЯ", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа / газовоз)", "vtype": "LNG", "nav_status": "Restricted Manoeuvrability (Ограниченная маневренность)", "risk": "LOW", "departure_port": "Ульсан, Южная Корея (KR USN)", "destination_port": "HHI-3387 S/T (Морские ходовые испытания верфи HD Hyundai Heavy Industries)", "destination_context": "FRANCE", "arrival_datetime": "20 мая 2026 г. в 10:04 (UTC+9)", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 42, "imo": "9690145", "vessel_name": "LNG FINIMA II", "dwt_tons": 143900.0, "gt": 175558.0, "loa_m": 292.0, "beam_m": 47.8, "draft_m": 9.3, "speed_knots": 13.8, "age_years": 13.0, "built_year": 2013, "flag": "Бермудские острова", "vessel_type": "LNG Tanker (Специализированный газовоз для перевозки СПГ)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "IN DAH (Дахедж, Индия)", "destination_port": "MU PLU (Порт-Луи, Маврикий)", "destination_context": "BERMUDA", "arrival_datetime": "04 мая 2026 г. в 08:30 (UTC+4)", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 43, "imo": "9864667", "vessel_name": "VIVIT AMERICAS LNG", "dwt_tons": 143150.0, "gt": 174643.0, "loa_m": 299.0, "beam_m": 46.4, "draft_m": 11.6, "speed_knots": 11.3, "age_years": 2.0, "built_year": 2024, "flag": "Мальта", "vessel_type": "LNG Tanker (Газовоз СПГ)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "US CP6 (Коув-Пойнт, Мэриленд, США)", "destination_port": "FOR ORDERS (Ожидает распоряжений)", "destination_context": "MALTA", "arrival_datetime": "16 октября 2026 г., 01:30 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime"}, {"rank": 44, "imo": "9962421", "vessel_name": "WOODSIDE JIRRUBAKURA", "dwt_tons": 140350.0, "gt": 171227.0, "loa_m": 299.0, "beam_m": 47.0, "draft_m": 9.3, "speed_knots": 12.3, "age_years": 6.0, "built_year": 2020, "flag": "БЕРМУДСКИЕ ОСТРОВА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Сакай, Япония (JP SAK)", "destination_port": "Эшбертон, АВСТРАЛИЯ (AU ASB)", "destination_context": "международных энергетических перевозках. Текущая осадка (9.3 м) характерна для судна, следующего в балласте или с частич", "arrival_datetime": "5 июня 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 45, "imo": "9986635", "vessel_name": "MIHZEM", "dwt_tons": 137850.0, "gt": 168177.0, "loa_m": 4.0, "beam_m": 1.0, "draft_m": 10.7, "speed_knots": 14.0, "age_years": 9.0, "built_year": 2017, "flag": "SINGAPORE", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "At Anchor (На якоре)", "risk": "LOW", "departure_port": "QA RLF (Рас-Лаффан, Катар)", "destination_port": "QA RLF (согласно Reported destination)", "destination_context": "Сингапур", "arrival_datetime": "4 мая 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "speed_knots"}, {"rank": 46, "imo": "9397303", "vessel_name": "MEKAINES", "dwt_tons": 136740.0, "gt": 166823.0, "loa_m": 345.0, "beam_m": 53.0, "draft_m": 9.4, "speed_knots": 1.8, "age_years": 17.0, "built_year": 2009, "flag": "МАРШАЛЛОВЫ ОСТРОВА", "vessel_type": "LNG Carrier (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway (на ходу, однако данные устарели на 17 дней)", "risk": "EXTREME", "departure_port": "Ras Laffan, Qatar (QA RLF)", "destination_port": "порт Сингапура. Учитывая спецификацию судна и флаг", "destination_context": "MARSHALL ISLANDS", "arrival_datetime": "11 сентября 2026 г., 15:30 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": ["Dark Activity"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; departure_port"}, {"rank": 47, "imo": "9377547", "vessel_name": "ASEEM", "dwt_tons": 135800.0, "gt": 165676.0, "loa_m": 285.0, "beam_m": 43.0, "draft_m": 9.0, "speed_knots": 14.0, "age_years": 15.0, "built_year": 2011, "flag": "Мальта", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "На якоре (At Anchor)", "risk": "LOW", "departure_port": "Дахедж, Индия (IN DAH)", "destination_port": "Кочин (рейдовая стоянка), Индия (Cochin Anch, India)", "destination_context": "MALTA", "arrival_datetime": "12 сентября 2026 г., 14:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; speed_knots"}, {"rank": 48, "imo": "9862918", "vessel_name": "ARISTARCHOS", "dwt_tons": 133400.0, "gt": 162748.0, "loa_m": 299.08, "beam_m": 46.43, "draft_m": 11.6, "speed_knots": 17.8, "age_years": 22.0, "built_year": 2004, "flag": "GREECE", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "US NSS (Сабин-Пасс, США)", "destination_port": "FOR ORDERS (Ожидание распоряжений)", "destination_context": "Греция", "arrival_datetime": "8 октября 2026 г., 04:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime"}, {"rank": 49, "imo": "9969388", "vessel_name": "IGNACY JAN PADEREWSKI", "dwt_tons": 132750.0, "gt": 161955.0, "loa_m": 299.0, "beam_m": 47.0, "draft_m": 9.0, "speed_knots": 14.0, "age_years": 3.0, "built_year": 2023, "flag": "FRANCE", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа).", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Cove Point LNG, USA (US COV)", "destination_port": "Лейк-Чарльз, США (Lake Charles, UNITED STATES OF AMERICA)", "destination_context": "Франция", "arrival_datetime": "9 мая 2026 г", "region": "Америка", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": "departure_port"}, {"rank": 50, "imo": "9834296", "vessel_name": "LNG DUBHE", "dwt_tons": 132700.0, "gt": 161894.0, "loa_m": 298.58, "beam_m": 48.03, "draft_m": 11.5, "speed_knots": 16.1, "age_years": 26.0, "built_year": 2000, "flag": "HONG KONG", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу под двигателем)", "risk": "LOW", "departure_port": "FR MTX (Монтуар, Франция)", "destination_port": "FOR ORDERS (По распоряжению)", "destination_context": "Гонконг", "arrival_datetime": "30 октября 2026 г., 04:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 51, "imo": "9945435", "vessel_name": "CELSIUS GENEVA", "dwt_tons": 132450.0, "gt": 161589.0, "loa_m": 293.0, "beam_m": 45.83, "draft_m": 11.2, "speed_knots": 14.1, "age_years": 8.0, "built_year": 2018, "flag": "МАРШАЛЛОВЫ ОСТРОВА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Инчхон, Южная Корея (KR INC)", "destination_port": "PT PTF (вероятно, порт назначения в системе отслеживания)", "destination_context": "MARSHALL ISLANDS", "arrival_datetime": "16 октября 2026 г., 11:00 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; mmsi"}, {"rank": 52, "imo": "9904704", "vessel_name": "KONSTANTIN POSIET", "dwt_tons": 131050.0, "gt": 159881.0, "loa_m": 299.0, "beam_m": 47.0, "draft_m": 9.5, "speed_knots": 0.4, "age_years": 20.0, "built_year": 2006, "flag": "РОССИЯ", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway (На ходу)", "risk": "LOW", "departure_port": "Большой Камень, Россия (RU BKN)", "destination_port": "SEATRIAL ZVEZDA-045 (Ходовые испытания, ССК «Звезда», заказ 045)", "destination_context": "RUSSIA", "arrival_datetime": "25 октября 2026 г., 21:30 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; draft_m; loa_m", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 53, "imo": "9397315", "vessel_name": "AL MAFYAR", "dwt_tons": 130441.0, "gt": 159138.0, "loa_m": 345.28, "beam_m": 53.8, "draft_m": 9.4, "speed_knots": 1.3, "age_years": 14.0, "built_year": 2012, "flag": "МАРШАЛЛОВЫ ОСТРОВА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "На ходу (Underway using Engine)", "risk": "LOW", "departure_port": "Инчхон, Южная Корея (KR INC)", "destination_port": "Grain LNG, UK (GB GRA)", "destination_context": "MARSHALL ISLANDS", "arrival_datetime": "7 сентября 2026 г., 13:15 UTC", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; destination_port"}, {"rank": 54, "imo": "9443413", "vessel_name": "RASHEEDA", "dwt_tons": 130208.0, "gt": 163922.0, "loa_m": 345.0, "beam_m": 53.8, "draft_m": 12.1, "speed_knots": 14.1, "age_years": 16.0, "built_year": 2010, "flag": "Маршалловы Острова", "vessel_type": "СПГ-танкер (LNG Tanker, Q-Max)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Corpus Christi LNG, USA (US CRP)", "destination_port": "порт Цаофейдянь (Caofeidian)", "destination_context": "Примечание: в данных AIS указан Оман, однако исторически и по реестрам судно зарегистрировано под флагом Маршалловых Ост", "arrival_datetime": "28 сентября 2026 г., 04:30 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; departure_port; mmsi"}, {"rank": 55, "imo": "9337755", "vessel_name": "MOZAH", "dwt_tons": 130102.0, "gt": 163922.0, "loa_m": 345.33, "beam_m": 53.8, "draft_m": 9.5, "speed_knots": 5.7, "age_years": 18.0, "built_year": 2008, "flag": "Маршалловы Острова", "vessel_type": "СПГ-танкер (LNG Tanker, Q-Max)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Sabine Pass LNG, USA (US SAB)", "destination_port": "Grain LNG, UK (GB GRA)", "destination_context": "СПГ-танкер · флаг: Маршалловы Острова · Underway using Engine · возраст: 18 лет", "arrival_datetime": "2 сентября 2026 г., 20:30 UTC", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; destination_port; mmsi"}, {"rank": 56, "imo": "9418365", "vessel_name": "SHAGRA", "dwt_tons": 130102.0, "gt": 163922.0, "loa_m": 345.0, "beam_m": 53.8, "draft_m": 9.5, "speed_knots": 14.3, "age_years": 17.0, "built_year": 2009, "flag": "Маршалловы Острова", "vessel_type": "СПГ-танкер (LNG Tanker, Q-Max)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Hammerfest LNG, Norway (NO HAM)", "destination_port": "район оперативного назначения", "destination_context": "СПГ-танкер · флаг: Маршалловы Острова · следует в: район оперативного назначения · At Anchor · возраст: 17 лет", "arrival_datetime": "9 октября 2026 г., 20:30 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; mmsi"}, {"rank": 57, "imo": "9360843", "vessel_name": "AL SHEEHAN", "dwt_tons": 127500.0, "gt": 155550.0, "loa_m": 314.0, "beam_m": 50.04, "draft_m": 9.3, "speed_knots": 17.3, "age_years": 16.0, "built_year": 2010, "flag": "Маршалловы Острова", "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker)", "vtype": "LNG", "nav_status": "На ходу с использованием двигателя", "risk": "LOW", "departure_port": "Сингапур (Singapore Anch. 1)", "destination_port": "Рас-Лаффан, Катар (QA RLF)", "destination_context": "Танкер для перевозки сжиженного природного газа · флаг: Маршалловы Острова · маршрут: Сингапур (Singapore Anch. 1) → Рас", "arrival_datetime": "12 октября 2026 г., 19:45 UTC", "region": "Ближний Восток", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 58, "imo": "9994046", "vessel_name": "NEW FRONTIER 2", "dwt_tons": 126150.0, "gt": 153903.0, "loa_m": 166.0, "beam_m": 24.4, "draft_m": 5.7, "speed_knots": 14.1, "age_years": 5.0, "built_year": 2021, "flag": "СИНГАПУР", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа / Бункеровщик ЛНГ)", "vtype": "LNG", "nav_status": "Restricted Manoeuvrability (Ограниченная маневренность)", "risk": "LOW", "departure_port": "Самчхок, Южная Корея (KR SAM / Samcheok, South Korea)", "destination_port": "HMD H.8395 SEA TRIAL", "destination_context": "SINGAPORE", "arrival_datetime": "29 августа 2026 г., 21:00 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; mmsi"}, {"rank": 59, "imo": "9086734", "vessel_name": "AL RAYYAN", "dwt_tons": 124900.0, "gt": 152378.0, "loa_m": 297.5, "beam_m": 45.75, "draft_m": 10.5, "speed_knots": 14.0, "age_years": 26.0, "built_year": 2000, "flag": "MARSHALL ISLANDS", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway (На ходу)", "risk": "LOW", "departure_port": "QA RLF (Рас-Лаффан, Катар)", "destination_port": "RAS LAFFAN ANCH (Якорная стоянка Рас-Лаффан, Катар)", "destination_context": "Маршалловы Острова", "arrival_datetime": "4 мая 2026 г", "region": "Ближний Восток", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 60, "imo": "9397339", "vessel_name": "AL REKAYYAT", "dwt_tons": 124700.0, "gt": 152134.0, "loa_m": 315.16, "beam_m": 50.0, "draft_m": 9.6, "speed_knots": 14.0, "age_years": 12.0, "built_year": 2014, "flag": "MARSHALL ISLANDS", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "At Anchor (На якоре)", "risk": "LOW", "departure_port": "CN BHX (Бэйхай, Китай)", "destination_port": "MUMBAI ANCH (Мумбаи, Индия)", "destination_context": "Маршалловы Острова", "arrival_datetime": "10 октября 2026 г., 05:00 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "speed_knots"}, {"rank": 61, "imo": "9974606", "vessel_name": "LAKE MODRO", "dwt_tons": 124350.0, "gt": 151707.0, "loa_m": 299.0, "beam_m": 47.0, "draft_m": 9.3, "speed_knots": 1.1, "age_years": 18.0, "built_year": 2008, "flag": "БАГАМСКИЕ ОСТРОВА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Restricted Manoeuvrability (Ограниченная маневренность)", "risk": "LOW", "departure_port": "Анъён, Южная Корея (KR ANJ / Anjeong, South Korea)", "destination_port": "SEA TRIAL HWO.2552", "destination_context": "BAHAMAS", "arrival_datetime": "31 октября 2026 г., 15:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": "arrival_datetime; call_sign; mmsi"}, {"rank": 62, "imo": "9373008", "vessel_name": "K.JASMINE", "dwt_tons": 124150.0, "gt": 151463.0, "loa_m": 285.4, "beam_m": 43.4, "draft_m": 8.8, "speed_knots": 13.8, "age_years": 2.0, "built_year": 2024, "flag": "ПАНАМА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (В пути, под управлением главного двигателя)", "risk": "LOW", "departure_port": "Люхэн, Китай (CN LHE / Liuheng, China)", "destination_port": "KRJSP", "destination_context": "PANAMA", "arrival_datetime": "2 октября 2026 г., 13:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; mmsi"}, {"rank": 63, "imo": "9957737", "vessel_name": "APOSTOLOSIMO: 9957737", "dwt_tons": 122250.0, "gt": 149145.0, "loa_m": 299.0, "beam_m": 46.43, "draft_m": 9.3, "speed_knots": 0.1, "age_years": 9.0, "built_year": 2017, "flag": "Либерия Габариты: Длина (LOA) — 299 м, ширина — 46.43 м 2. Оперативные данные (Контрольный блок)Навигационный статус: At anchor (На якоре) Локация: Район порта Фрипорт, США (Мексиканский залив) Скорость (Speed): 0.1 узла Осадка (Draught): 9.3 м Актуальность: Данные получены 7 июня 2026 года3. Анализ параметровАнализ состояния: Судно находится на якорной стоянке в районе порта Фрипорт, США, после завершения перехода.Операционная активность: Последний заход в порт был зафиксирован 30 мая 2026 года. Текущий статус \"At anchor\" указывает на ожидание очереди на постановку к терминалу. 4. Риск-профильСанкции: Не числится в санкционных списках.Оператор: Современное судно (год постройки — 2024), специализирующееся на перевозках СПГ. Заключение: Объект классифицируется как «Активен / Коммерческий энергетический транспорт». Судно выполняет плановую логистическую деятельность. Риск взаимодействия оценивается как низкий", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "At anchor (На якоре) Локация: Район порта Фрипорт, США (Мексиканский залив) Скорость (Speed): 0.1 узла Осадка (Draught): 9.3 м Актуальность: Данные получены 7 июня 2026 года3. Анализ параметровАнализ состояния: Судно находится на якорной стоянке в районе порта Фрипорт, США, после завершения перехода.Операционная активность: Последний заход в порт был зафиксирован 30 мая 2026 года. Текущий статус \"At anchor\" указывает на ожидание очереди на постановку к терминалу. 4. Риск-профильСанкции: Не числится в санкционных списках.Оператор: Современное судно (год постройки — 2024), специализирующееся на перевозках СПГ. Заключение: Объект классифицируется как «Активен / Коммерческий энергетический транспорт». Судно выполняет плановую логистическую деятельность. Риск взаимодействия оценивается как низкий", "risk": "LOW", "departure_port": "Ras Laffan, Qatar (QA RLF)", "destination_port": "порт был зафиксирован 30 мая 2026 года. Текущий статус \"At anchor\" указывает на ожидание очереди на постановку к терминалу. 4. Риск-профильСанкции: Не числится в санкционных списках.Оператор: Современное судно (год постройки — 2024)", "destination_context": "LNG Tanker · флаг: Либерия Габариты: Длина (LOA) — 299 м, ширина — 46.43 м 2. Оперативные данные (Контрольный блок)Навиг", "arrival_datetime": "30 августа 2026 г., 12:00 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; departure_port"}, {"rank": 64, "imo": "9360790", "vessel_name": "AL ORAIQ", "dwt_tons": 122079.0, "gt": 136685.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.1, "speed_knots": 14.0, "age_years": 18.0, "built_year": 2008, "flag": "Маршалловы Острова", "vessel_type": "Танкер для перевозки сжиженного природного газа / LNG Carrier (Q-Flex)", "vtype": "LNG", "nav_status": "на якоре / в режиме ожидания", "risk": "LOW", "departure_port": "Дхамра, Индия (Dhamra Port, India — прибытие 4 августа 2026 г., около 3 дней назад)", "destination_port": "Fos-sur-Mer, France (FR FOS)", "destination_context": "Танкер для перевозки сжиженного природного газа / LNG Carrier · флаг: Маршалловы Острова · отход: Дхамра, Индия (Dhamra ", "arrival_datetime": "5 августа 2026 г", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "destination_port; speed_knots"}, {"rank": 65, "imo": "9431123", "vessel_name": "AL KARAANA", "dwt_tons": 122052.0, "gt": 136980.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.5, "speed_knots": 14.0, "age_years": 17.0, "built_year": 2009, "flag": "Маршалловы Острова (Marshall Islands) — первоклассный «белый» судовой реестр", "vessel_type": "Танкер-газовоз СПГ (LNG Tanker — Q-Flex class)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "EXTREME", "departure_port": "Gladstone LNG, Australia (AU GLA)", "destination_port": "FOR ORDERS (ожидание распоряжений фрахтователя / коммерческих инструкций)", "destination_context": "White List", "arrival_datetime": "24 октября 2026 г., 01:45 UTC", "region": "Прочее", "sanctions_tags": ["OFAC", "Shadow Fleet"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; departure_port; speed_knots"}, {"rank": 66, "imo": "9360831", "vessel_name": "AL SHEEHANIYA.IMO номер: 9360831.Тип судна: LNG Tanker (газовоз для перевозки сжиженного природного газа).Год постройки: 2009 (17 лет).Флаг: Маршалловы Острова.Размерения: 315.00 м (длина) × 50.00 м (ширина).Дедвейт (DWT): 122 006 т.Валовая вместимость (GT): 136 980.2. Операционные показатели (на 16 июля 2026 г.)Текущий навигационный статус: На якорной стоянке / в режиме ожидания (основано на данных AIS).История заходов: Интенсивная эксплуатация на глобальных маршрутах (включая порты Катара, Индии, Китая и Южной Кореи). Последние значимые портовые операции зафиксированы в Мумбаи, Индия.Текущее состояние: Судно находится в активной эксплуатации, используется для транспортировки СПГ в рамках долгосрочных контрактов.3. Комплаенс-профильОператор: Nakilat (Qatar Gas Transport Company) — ведущий мировой оператор в сфере транспортировки СПГ. Судно находится в управлении дочерней структуры NSQL (Nakilat Shipping Qatar Ltd). Статус: НИЗКИЙ РИСК.Санкционный статус: Судно не числится в санкционных списках (OFAC, ЕС, Великобритания).Анализ: AL SHEEHANIYA является абсолютно прозрачным промышленным активом. Судно принадлежит крупнейшей государственной транспортной компании Катара (Nakilat) и обслуживает стратегические энергетические цепочки поставок. Паттерны поведения судна полностью соответствуют статусу легитимного коммерческого актива мирового уровня.4. РезюмеAL SHEEHANIYA (IMO 9360831) — это первоклассный газовоз, входящий в состав флота государственной компании Nakilat. Актив является «Белым списком». Комплаенс-риски при взаимодействии отсутствуют; эксплуатация судна соответствует самым высоким международным стандартам безопасности и регуляторной прозрачности", "dwt_tons": 122006.0, "gt": 136980.2, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.5, "speed_knots": 14.0, "age_years": 17.0, "built_year": 2009, "flag": "Маршалловы Острова", "vessel_type": "LNG Tanker (газовоз для перевозки сжиженного природного газа).", "vtype": "LNG", "nav_status": "На якорной стоянке / в режиме ожидания (основано на данных AIS).История заходов: Интенсивная эксплуатация на глобальных маршрутах (включая порты Катара, Индии, Китая и Южной Кореи). Последние значимые портовые операции зафиксированы в Мумбаи, Индия.Текущее состояние: Судно находится в активной эксплуатации, используется для транспортировки СПГ в рамках долгосрочных контрактов.3. Комплаенс-профильОператор: Nakilat (Qatar Gas Transport Company) — ведущий мировой оператор в сфере транспортировки СПГ. Судно находится в управлении дочерней структуры NSQL (Nakilat Shipping Qatar Ltd). Статус: НИЗКИЙ РИСК.Санкционный статус: Судно не числится в санкционных списках (OFAC, ЕС, Великобритания).Анализ: AL SHEEHANIYA является абсолютно прозрачным промышленным активом. Судно принадлежит крупнейшей государственной транспортной компании Катара (Nakilat) и обслуживает стратегические энергетические цепочки поставок. Паттерны поведения судна полностью соответствуют статусу легитимного коммерческого актива мирового уровня.4. РезюмеAL SHEEHANIYA (IMO 9360831) — это первоклассный газовоз, входящий в состав флота государственной компании Nakilat. Актив является «Белым списком». Комплаенс-риски при взаимодействии отсутствуют; эксплуатация судна соответствует самым высоким международным стандартам безопасности и регуляторной прозрачности", "risk": "EXTREME", "departure_port": "Sabine Pass LNG, USA (US SAB)", "destination_port": "Incheon, South Korea (KR INC)", "destination_context": "LNG Tanker · флаг: Маршалловы Острова · На якорной стоянке · возраст: 17 лет", "arrival_datetime": "31 августа 2026 г., 09:30 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": ["OFAC"], "synthetic_fields": "", "imputed_fields": "draft_m", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; destination_port; mmsi; speed_knots"}, {"rank": 67, "imo": "9337963", "vessel_name": "AL SAFLIYA", "dwt_tons": 121963.0, "gt": 137535.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 11.2, "speed_knots": 16.2, "age_years": 19.0, "built_year": 2007, "flag": "Багамские Острова", "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, Q-Flex)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "HIGH", "departure_port": "Hammerfest LNG, Norway (NO HAM)", "destination_port": "Revithoussa, Greece (GR REV)", "destination_context": "Танкер для перевозки сжиженного природного газа · флаг: Багамские Острова · Underway using Engine · возраст: 19 лет", "arrival_datetime": "23 октября 2026 г., 05:30 UTC", "region": "Европа", "sanctions_tags": ["Shadow Fleet"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; destination_port; mmsi"}, {"rank": 68, "imo": "9397353", "vessel_name": "ONAIZA", "dwt_tons": 121939.0, "gt": 148766.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.4, "speed_knots": 0.1, "age_years": 17.0, "built_year": 2009, "flag": "Маршалловы острова", "vessel_type": "Газовоз (LNG Tanker / Q-Flex LNG)", "vtype": "LNG", "nav_status": "На якоре (At anchor)", "risk": "HIGH", "departure_port": "Bonny LNG, Nigeria (NG BNL)", "destination_port": "Gate Terminal Rotterdam, Netherlands (NL RTM)", "destination_context": "Газовоз · флаг: Маршалловы острова · На якоре (At anchor) · возраст: 17 лет", "arrival_datetime": "30 мая 2026 г", "region": "Европа", "sanctions_tags": ["Shadow Fleet"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; departure_port; destination_port; mmsi"}, {"rank": 69, "imo": "9338266", "vessel_name": "AL AAMRIYA", "dwt_tons": 121935.0, "gt": 136685.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.0, "speed_knots": 0.4, "age_years": 18.0, "built_year": 2008, "flag": "Маршалловы Острова", "vessel_type": "Танкер для перевозки сжиженного природного газа / СПГ-газовоз (LNG Tanker / Q-Flex)", "vtype": "LNG", "nav_status": "на позиции/ожидание", "risk": "EXTREME", "departure_port": "Hammerfest LNG, Norway (NO HAM)", "destination_port": "Tianjin, China (CN TJN)", "destination_context": "Танкер для перевозки сжиженного природного газа / СПГ-газовоз · флаг: Маршалловы Острова · на позиции · возраст: 18 лет", "arrival_datetime": "14 мая 2026 г", "region": "Азиатско-Тихоокеанский", "sanctions_tags": ["OFAC"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "departure_port; destination_port"}, {"rank": 70, "imo": "9360817", "vessel_name": "FRAIHA", "dwt_tons": 121914.0, "gt": 136685.0, "loa_m": 305.57, "beam_m": 50.0, "draft_m": 9.3, "speed_knots": 14.0, "age_years": 18.0, "built_year": 2008, "flag": "Маршалловы Острова", "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker, Q-Flex)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Hammerfest LNG, Norway (NO HAM)", "destination_port": "Fos-sur-Mer, France (FR FOS)", "destination_context": "Танкер для перевозки сжиженного природного газа · флаг: Маршалловы Острова · At Anchor · возраст: 18 лет", "arrival_datetime": "21 сентября 2026 г., 19:00 UTC", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; destination_port; mmsi"}, {"rank": 71, "imo": "9397341", "vessel_name": "AL SADD", "dwt_tons": 121913.0, "gt": 148734.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.4, "speed_knots": 0.1, "age_years": 17.0, "built_year": 2009, "flag": "Маршалловы острова", "vessel_type": "Газовоз (LNG Tanker / Q-Flex LNG)", "vtype": "LNG", "nav_status": "Судно находится в районе якорной стоянки Мумбаи (MUMBAI OPL — Outer Port Limit). Плановая дата прибытия — 12 июня 2026 года", "risk": "HIGH", "departure_port": "Gladstone LNG, Australia (AU GLA)", "destination_port": "Revithoussa, Greece (GR REV)", "destination_context": "Газовоз · флаг: Маршалловы острова · Судно находится в районе якорной стоянки Мумбаи (MUMBAI OPL — Outer Port Limit). Пл", "arrival_datetime": "11 октября 2026 г., 00:15 UTC", "region": "Европа", "sanctions_tags": ["Shadow Fleet"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; departure_port; destination_port; mmsi"}, {"rank": 72, "imo": "9337951", "vessel_name": "AL RUWAIS (ранее также упоминается как Alexandra)", "dwt_tons": 121823.0, "gt": 137535.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.5, "speed_knots": 0.2, "age_years": 19.0, "built_year": 2007, "flag": "Багамские Острова", "vessel_type": "Танкер для перевозки сжиженного природного газа / СПГ-газовоз (LNG Tanker / Q-Flex, классификация HAZ-D)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "EXTREME", "departure_port": "Gladstone LNG, Australia (AU GLA)", "destination_port": "Shanghai LNG, China (CN SHA)", "destination_context": "Танкер для перевозки сжиженного природного газа / СПГ-газовоз · флаг: Багамские Острова · At Anchor · возраст: 19 лет", "arrival_datetime": "25 июля 2026 г", "region": "Азиатско-Тихоокеанский", "sanctions_tags": ["OFAC"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "departure_port; destination_port"}, {"rank": 73, "imo": "9337975", "vessel_name": "DUHAIL", "dwt_tons": 121639.0, "gt": 137535.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.5, "speed_knots": 2.3, "age_years": 18.0, "built_year": 2008, "flag": "Багамские острова", "vessel_type": "Газовоз для перевозки сжиженного природного газа (LNG Tanker / Q-Flex)", "vtype": "LNG", "nav_status": "На текущий момент судно находится в Индийском океане (район Маврикия/Реюньона), демонстрируя крайне низкую скорость (ок. 0.9—2.3 узла), что часто характерно для ожидания очереди на вход в терминал или получения новых операционных указаний", "risk": "LOW", "departure_port": "Darwin LNG, Australia (AU DRW)", "destination_port": "Yokohama, Japan (JP YOK)", "destination_context": "Газовоз для перевозки сжиженного природного газа · флаг: Багамские острова · На текущий момент судно находится в Индийск", "arrival_datetime": "1 июля 2026 г", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "draft_m", "registry_mock_fields": "call_sign; departure_port; destination_port; mmsi"}, {"rank": 74, "imo": "9965423", "vessel_name": "GAS 5423", "dwt_tons": 119850.0, "gt": 146217.0, "loa_m": 293.5, "beam_m": 46.0, "draft_m": 9.3, "speed_knots": 12.6, "age_years": 16.0, "built_year": 2010, "flag": "Либерия [LR]", "vessel_type": "LNG Tanker (Танкер-газовоз)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "CHHARA (Терминал Чхара, Индия)", "destination_port": "Fos-sur-Mer, France (FR FOS)", "destination_context": "LNG Tanker · флаг: Либерия [LR] · отход: CHHARA (Терминал Чхара, Индия) · Underway using Engine", "arrival_datetime": "25 апреля 2026 г", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": "destination_port"}, {"rank": 75, "imo": "9200316", "vessel_name": "LNG JAMAL", "dwt_tons": 119850.0, "gt": 146217.0, "loa_m": 290.0, "beam_m": 46.0, "draft_m": 8.6, "speed_knots": 11.3, "age_years": 8.0, "built_year": 2018, "flag": "Япония", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "SIKKA ANCH (Сикка, Индия)", "destination_port": "Данные о конечном порте (TBA) на момент последнего сигнала не были обновлены", "destination_context": "JAPAN", "arrival_datetime": "21 сентября 2026 г., 08:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime"}, {"rank": 76, "imo": "9211872", "vessel_name": "PACIFIC 1872", "dwt_tons": 118050.0, "gt": 144021.0, "loa_m": 293.5, "beam_m": 46.0, "draft_m": 7.0, "speed_knots": 0.1, "age_years": 24.0, "built_year": 2002, "flag": "Малайзия", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Moored (Пришвартовано)", "risk": "HIGH", "departure_port": "MY PGU (Пасир-Гуданг, Малайзия), выход 19 июля 2025 г", "destination_port": "MY PGG (Пенгеранг, Малайзия)", "destination_context": "челночных операциях внутри одного энергетического кластера без сброса старого маршрутного задания в AIS", "arrival_datetime": "23 октября 2026 г., 11:15 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": "arrival_datetime"}, {"rank": 77, "imo": "9748899", "vessel_name": "AZURE 8899", "dwt_tons": 116450.0, "gt": 142069.0, "loa_m": 289.93, "beam_m": 45.65, "draft_m": 9.4, "speed_knots": 12.6, "age_years": 23.0, "built_year": 2003, "flag": "Бермудские острова [BERMUDA]", "vessel_type": "LNG Tanker (Газовоз СПГ)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Неизвестен (загрузка данных ограничена)", "destination_port": "балласте (пустым) или с минимальным остатком груза", "destination_context": "LNG Tanker · флаг: Бермудские острова [BERMUDA] · маршрут: Неизвестен (загрузка данных ограничена) → балласте (пустым) и", "arrival_datetime": "22 апреля 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 78, "imo": "9307190", "vessel_name": "ENERGY 7190", "dwt_tons": 116300.0, "gt": 141886.0, "loa_m": 283.06, "beam_m": 43.4, "draft_m": 6.5, "speed_knots": 14.0, "age_years": 13.0, "built_year": 2013, "flag": "Индонезия", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Moored (Пришвартовано)", "risk": "LOW", "departure_port": "ID PSS (Бату-Ампар, Индонезия)", "destination_port": "Yokohama, Japan (JP YOK)", "destination_context": "INDONESIA", "arrival_datetime": "30 сентября 2026 г., 11:30 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "destination_port; speed_knots"}, {"rank": 79, "imo": "9213416", "vessel_name": "AZURE 3416", "dwt_tons": 116200.0, "gt": 141764.0, "loa_m": 276.02, "beam_m": 43.43, "draft_m": 7.0, "speed_knots": 14.0, "age_years": 26.0, "built_year": 2000, "flag": "Либерия", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Out of Service / Выведено из эксплуатации", "risk": "HIGH", "departure_port": "Якорная стоянка Читтагонг (Chittagong Anch)", "destination_port": "CHITTAGONG BREAKYARD (Площадка по разборке судов, Читтагонг)", "destination_context": "Liberia", "arrival_datetime": "15 марта 2025 г. в 13:16 UTC+6", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 80, "imo": "9626273", "vessel_name": "GASLOG SYDNEY", "dwt_tons": 115800.0, "gt": 141276.0, "loa_m": 285.12, "beam_m": 43.4, "draft_m": 9.5, "speed_knots": 16.8, "age_years": 24.0, "built_year": 2002, "flag": "БЕРМУДСКИЕ ОСТРОВА", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Йокогама, Япония (JP YOK)", "destination_port": "Дампир, АВСТРАЛИЯ (AU DAM)", "destination_context": "BERMUDA", "arrival_datetime": "5 июня 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 81, "imo": "9976927", "vessel_name": "LEBRETHAH", "dwt_tons": 115250.0, "gt": 140605.0, "loa_m": 3.0, "beam_m": 13.0, "draft_m": 11.1, "speed_knots": 14.3, "age_years": 15.0, "built_year": 2011, "flag": "LIBERIA", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Underway using Engine (На ходу, используется двигатель)", "risk": "LOW", "departure_port": "AE AUH (Abu Dhabi, ОАЭ)", "destination_port": "KW MZR (Mina Al Zour, Кувейт)", "destination_context": "Либерия", "arrival_datetime": "5 мая 2026 г. в 06:00 (UTC+3)", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 82, "imo": "9801524", "vessel_name": "VESSEL 1524", "dwt_tons": 114674.0, "gt": 105500.0, "loa_m": 250.0, "beam_m": 44.0, "draft_m": 13.2, "speed_knots": 10.5, "age_years": 9.0, "built_year": 2017, "flag": "Багамские острова", "vessel_type": "LNG Tanker / LNGC", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Houston, USA (US HOU)", "destination_port": "груженом состоянии", "destination_context": "ближневосточном секторе логистики нефти, включая частые заходы в порты Саудовской Аравии (Янбу) и Египта (EGAS LNG, Порт", "arrival_datetime": "4 июня 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "vessel_type", "registry_mock_fields": "call_sign; departure_port; mmsi"}, {"rank": 83, "imo": "9337717", "vessel_name": "AL GHARRAFA", "dwt_tons": 113861.0, "gt": 136410.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 12.2, "speed_knots": 0.6, "age_years": 18.0, "built_year": 2008, "flag": "Оман", "vessel_type": "Судно для перевозки сжиженного природного газа / Газовоз СПГ (LNG Tanker - HAZ-D)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "EXTREME", "departure_port": "Cove Point LNG, USA (US COV)", "destination_port": "Ningbo, China (CN NGB)", "destination_context": "Судно для перевозки сжиженного природного газа / Газовоз СПГ · флаг: Оман · At Anchor · возраст: 18 лет", "arrival_datetime": "5 августа 2026 г", "region": "Азиатско-Тихоокеанский", "sanctions_tags": ["OFAC"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "departure_port; destination_port"}, {"rank": 84, "imo": "9360867", "vessel_name": "AL UTOURIYA", "dwt_tons": 113609.0, "gt": 136355.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.4, "speed_knots": 14.0, "age_years": 18.0, "built_year": 2008, "flag": "Маршалловы Острова", "vessel_type": "Газовоз (LNG Tanker)", "vtype": "LNG", "nav_status": "На ходу (в пути)", "risk": "HIGH", "departure_port": "Гибралтар (рейд), отход 3 апреля 2026 г. (судно находилось в длительном переходе)", "destination_port": "порт Рас-Лаффан (Ras Laffan)", "destination_context": "Газовоз · флаг: Маршалловы Острова · маршрут: Гибралтар (рейд), отход 3 апреля 2026 г. (судно находилось в длительном пе", "arrival_datetime": "3 апреля 2026 г", "region": "Ближний Восток", "sanctions_tags": ["Shadow Fleet"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi"}, {"rank": 85, "imo": "9337705", "vessel_name": "AL GATTARA", "dwt_tons": 113590.0, "gt": 136410.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.7, "speed_knots": 0.1, "age_years": 19.0, "built_year": 2007, "flag": "Оман", "vessel_type": "Судно для перевозки сжиженного природного газа / Газовоз СПГ (LNG Tanker)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "EXTREME", "departure_port": "Corpus Christi LNG, USA (US CRP)", "destination_port": "Shanghai LNG, China (CN SHA)", "destination_context": "долгосрочных цепочках поставок энергоносителей с Ближнего Востока на мировые рынки (включая Азию и Европу)", "arrival_datetime": "17 октября 2026 г., 07:00 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": ["OFAC"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "departure_port; destination_port"}, {"rank": 86, "imo": "9795062", "vessel_name": "EAGLE BRASILIA", "dwt_tons": 113416.0, "gt": 62150.0, "loa_m": 249.84, "beam_m": 43.8, "draft_m": 9.0, "speed_knots": 14.0, "age_years": 7.0, "built_year": 2019, "flag": "Сингапур", "vessel_type": "Танкер для перевозки сырой нефти (Aframax / LR2, LNG Dual-Fuel)", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Sabine Pass LNG, USA (US SAB)", "destination_port": "Incheon, South Korea (KR INC)", "destination_context": "Танкер для перевозки сырой нефти · флаг: Сингапур · At Anchor · возраст: 7 лет", "arrival_datetime": "22 октября 2026 г., 16:15 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; destination_port; mmsi; speed_knots"}, {"rank": 87, "imo": "9554729", "vessel_name": "AKEBONO MARU", "dwt_tons": 111500.0, "gt": 136030.0, "loa_m": 99.37, "beam_m": 17.2, "draft_m": 4.7, "speed_knots": 14.0, "age_years": 16.0, "built_year": 2010, "flag": "ЯПОНИЯ", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Moored (Ошвартован)", "risk": "LOW", "departure_port": "Хакодате, Япония (JP HKD)", "destination_port": "Хакодате, ЯПОНИЯ (Hakodate / JP AOM OFF)", "destination_context": "JAPAN", "arrival_datetime": "23 мая 2026 г", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; mmsi; speed_knots"}, {"rank": 88, "imo": "9207039", "vessel_name": "PACIFIC 7039", "dwt_tons": 110850.0, "gt": 99765.0, "loa_m": 272.69, "beam_m": 46.24, "draft_m": 10.2, "speed_knots": 15.8, "age_years": 8.0, "built_year": 2018, "flag": "США", "vessel_type": "Crude Oil Tanker (Танкер для сырой нефти)", "vtype": "CRUDE", "nav_status": "Underway using Engine (На ходу)", "risk": "LOW", "departure_port": "Лонг-Бич (US LGB), США. Выход — 18 апреля 2026 г. в 19:54 UTC-7", "destination_port": "Валдиз (US VDZ), Аляска, США", "destination_context": "United States of America", "arrival_datetime": "24 апреля 2026 г. в 23:00 UTC-8", "region": "Америка", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 89, "imo": "9923437", "vessel_name": "PROTEUS BOHEMIA", "dwt_tons": 109999.0, "gt": 66970.0, "loa_m": 249.94, "beam_m": 44.0, "draft_m": 8.5, "speed_knots": 12.5, "age_years": 4.0, "built_year": 2022, "flag": "Сингапур", "vessel_type": "Танкер для сырой нефти / Продуктовоз класса Aframax / LR2 (Crude Oil Tanker / LNG dual-fuel)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Гданьск, Польша (Gdansk, Poland)", "destination_port": "Хьюстон, США / Houston, United States, плановое", "destination_context": "Танкер для сырой нефти / Продуктовоз класса Aframax / LR2 · флаг: Сингапур · маршрут: Гданьск, Польша (Gdansk, Poland) →", "arrival_datetime": "30 августа 2026 г", "region": "Америка", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": ""}, {"rank": 90, "imo": "9360893", "vessel_name": "AL SHAMAL", "dwt_tons": 109662.0, "gt": 133788.0, "loa_m": 315.16, "beam_m": 50.0, "draft_m": 9.5, "speed_knots": 0.1, "age_years": 18.0, "built_year": 2008, "flag": "Багамские острова", "vessel_type": "Газовоз (LNG Tanker / Q-Flex LNG)", "vtype": "LNG", "nav_status": "На якоре (At anchor)", "risk": "HIGH", "departure_port": "Sabetta, Russia (RU SAB)", "destination_port": "Tianjin, China (CN TJN)", "destination_context": "Газовоз · флаг: Багамские острова · На якоре (At anchor) · возраст: 18 лет", "arrival_datetime": "1 октября 2026 г., 17:45 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": ["Shadow Fleet"], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; destination_port; mmsi"}, {"rank": 91, "imo": "9360881", "vessel_name": "AL KHARSAAH", "dwt_tons": 109484.0, "gt": 135848.0, "loa_m": 315.0, "beam_m": 50.0, "draft_m": 9.6, "speed_knots": 14.0, "age_years": 18.0, "built_year": 2008, "flag": "Багамские острова", "vessel_type": "Газовоз для перевозки сжиженного природного газа (LNG Tanker / Q-Flex)", "vtype": "LNG", "nav_status": "На ходу (Under way)", "risk": "LOW", "departure_port": "Darwin LNG, Australia (AU DRW)", "destination_port": "Gate Terminal Rotterdam, Netherlands (NL RTM)", "destination_context": "Газовоз для перевозки сжиженного природного газа · флаг: Багамские острова · На ходу (Under way) · возраст: 18 лет", "arrival_datetime": "17 сентября 2026 г., 02:15 UTC", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "draft_m", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; destination_port; mmsi; speed_knots"}, {"rank": 92, "imo": "9477593", "vessel_name": "RIBERA DEL DUERO KNUTSEN", "dwt_tons": 108200.0, "gt": 132004.0, "loa_m": 290.0, "beam_m": 45.8, "draft_m": 11.8, "speed_knots": 18.1, "age_years": 16.0, "built_year": 2010, "flag": "Норвегия", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Under way (На ходу)", "risk": "LOW", "departure_port": "Gladstone LNG, Australia (AU GLA)", "destination_port": "Fos-sur-Mer, France (FR FOS)", "destination_context": "LNG Tanker · флаг: Норвегия · Under way (На ходу) · возраст: 16 лет", "arrival_datetime": "21 июня 2026 г", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "departure_port; destination_port"}, {"rank": 93, "imo": "9970569", "vessel_name": "VENTURE PELICAN", "dwt_tons": 107840.0, "gt": 130695.0, "loa_m": 298.0, "beam_m": 51.0, "draft_m": 9.6, "speed_knots": 14.0, "age_years": 1.0, "built_year": 2025, "flag": "Маршалловы Острова", "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Bintulu LNG, Malaysia (MY BTU)", "destination_port": "Ningbo, China (CN NGB)", "destination_context": "обеспечении экспортных поставок СПГ с терминалов компании в США (последний порт захода — Venture Global Plaquemines LNG ", "arrival_datetime": "28 июня 2026 г", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "draft_m", "registry_mock_fields": "call_sign; departure_port; destination_port; mmsi"}, {"rank": 94, "imo": "9886732", "vessel_name": "CLEAN CAJUNТип судна: Газовоз для перевозки СПГ (LNG Tanker)", "dwt_tons": 107662.0, "gt": 131348.0, "loa_m": 299.8, "beam_m": 48.9, "draft_m": 9.3, "speed_knots": 19.3, "age_years": 4.0, "built_year": 2022, "flag": "Мальта IMO номер: 9886732 Год постройки: 2022", "vessel_type": "Газовоз для перевозки СПГ (LNG Tanker)", "vtype": "LNG", "nav_status": "На ходу (использует двигатель).Маршрут: Пункт назначения не указан (в пути).Операционные данные: Текущая скорость — около 19.3 узлов, осадка — 9.3 м. История: Последний зафиксированный порт захода — Дахедж (Dahej), Индия, который судно покинуло 17 мая 2026 года. Эксплуатация и управлениеЗарегистрированный владелец: PLATIA SHIPPING LTD. Коммерческий и технический менеджер (ISM): DYNAGAS LTD (Греция). Эксплуатационный и санкционный статусСанкционный статус: Судно не находится под международными санкциями. Профиль: CLEAN CAJUN — современный крупнотоннажный СПГ-газовоз, введенный в эксплуатацию в 2022 году. Судно находится в управлении известной компании Dynagas и задействовано в глобальных энергетических цепочках поставок. Оно является высокотехнологичным коммерческим активом, работает в строгом соответствии с международными стандартами отрасли и не имеет рискованного профиля", "risk": "LOW", "departure_port": "Bonny LNG, Nigeria (NG BNL)", "destination_port": "Gate Terminal Rotterdam, Netherlands (NL RTM)", "destination_context": "глобальных энергетических цепочках поставок. Оно является высокотехнологичным коммерческим активом, работает в строгом с", "arrival_datetime": "29 октября 2026 г., 03:00 UTC", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "arrival_datetime; call_sign; departure_port; destination_port; mmsi"}, {"rank": 95, "imo": "9943504", "vessel_name": "CLEAN FUTURE", "dwt_tons": 107661.0, "gt": 128653.0, "loa_m": 299.78, "beam_m": 48.9, "draft_m": 9.6, "speed_knots": 15.6, "age_years": 2.0, "built_year": 2024, "flag": "Мальта", "vessel_type": "LNG Tanker", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Bintulu LNG, Malaysia (MY BTU)", "destination_port": "поисках следующего коммерческого назначения или следует к месту ожидания погрузки/разгрузки, характерному для глобальной логистики сжиженного природного газа", "destination_context": "LNG Tanker · флаг: Мальта · следует в: поисках следующего коммерческого назначения или следует к месту ожидания погрузки", "arrival_datetime": "28 октября 2026 г., 10:00 UTC", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "draft_m", "registry_mock_fields": "arrival_datetime; call_sign; departure_port"}, {"rank": 96, "imo": "1013494", "vessel_name": "SEA ENERGY", "dwt_tons": 107650.0, "gt": 131333.0, "loa_m": 293.5, "beam_m": 46.0, "draft_m": 10.5, "speed_knots": 2.2, "age_years": 18.0, "built_year": 2008, "flag": "ГОНКОНГ", "vessel_type": "LNG Tanker (Танкер для перевозки сжиженного природного газа)", "vtype": "LNG", "nav_status": "Restricted Manoeuvrability (Ограниченная маневренность)", "risk": "LOW", "departure_port": "Далянь, Китай (CN DAL)", "destination_port": "Yokohama, Japan (JP YOK)", "destination_context": "HONG KONG", "arrival_datetime": "31 августа 2026 г., 20:30 UTC", "region": "Азиатско-Тихоокеанский", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "beam_m; loa_m", "registry_mock_fields": "arrival_datetime; call_sign; destination_port; mmsi"}, {"rank": 97, "imo": "9943475", "vessel_name": "CLEAN RESOLUTIONТип судна: Газовоз для перевозки сжиженного природного газа (LNG Tanker / Large)", "dwt_tons": 107573.0, "gt": 128653.0, "loa_m": 299.78, "beam_m": 48.9, "draft_m": 9.6, "speed_knots": 14.0, "age_years": 3.0, "built_year": 2023, "flag": "Мальта IMO номер: 9943475 Год постройки: 2023", "vessel_type": "Газовоз для перевозки сжиженного природного газа (LNG Tanker / Large)", "vtype": "LNG", "nav_status": "На ходу (Under way). Маршрут: Судно находится в плавании в Индийском океане. Назначение указано как «OPEN SEA FOR ORDER» (открытое море, ожидание распоряжений), расчетное время прибытия в целевую зону — 19 июня 2026 года в 15:00. История: Последний зафиксированный порт захода — Сабин (США), который судно покинуло 16 мая 2026 года. Эксплуатация и управлениеУправление:Оператор (ISM Manager) и коммерческий менеджмент: Dynagas Ltd (Греция). Зарегистрированный владелец: Blue Ships Ltd. Контекст: CLEAN RESOLUTION — современный высокотехнологичный LNG-танкер, введенный в эксплуатацию в конце 2023 года. Судно не имеет санкционных ограничений и активно задействовано в международных логистических цепочках по перевозке СПГ, совершая регулярные рейсы между терминалами США и ключевыми рынками Азии", "risk": "LOW", "departure_port": "Angola LNG, Angola (AO LNG)", "destination_port": "Gate Terminal Rotterdam, Netherlands (NL RTM)", "destination_context": "международных логистических цепочках по перевозке СПГ, совершая регулярные рейсы между терминалами США и ключевыми рынка", "arrival_datetime": "5 октября 2026 г., 13:30 UTC", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "draft_m", "registry_mock_fields": "call_sign; departure_port; destination_port; mmsi"}, {"rank": 98, "imo": "9994008", "vessel_name": "AZURE 4008", "dwt_tons": 107544.0, "gt": 128679.0, "loa_m": 300.0, "beam_m": 49.0, "draft_m": 9.2, "speed_knots": 16.2, "age_years": 0.0, "built_year": 2026, "flag": "Мальта", "vessel_type": "Танкер для перевозки сжиженного природного газа (LNG Tanker).", "vtype": "LNG", "nav_status": "At Anchor / На якорной стоянке", "risk": "LOW", "departure_port": "Gladstone LNG, Australia (AU GLA)", "destination_port": "Zeebrugge LNG, Belgium (BE ZEE)", "destination_context": "Танкер для перевозки сжиженного природного газа · флаг: Мальта · At Anchor", "arrival_datetime": "15 июня 2026 г", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "call_sign; departure_port; destination_port; mmsi"}, {"rank": 99, "imo": "9994034", "vessel_name": "CLEAN RIO GRANDE", "dwt_tons": 107499.0, "gt": 128679.0, "loa_m": 300.0, "beam_m": 49.0, "draft_m": 9.6, "speed_knots": 14.0, "age_years": 0.0, "built_year": 2026, "flag": "Мальта", "vessel_type": "Газовоз (LNG Tanker)", "vtype": "LNG", "nav_status": "Ограниченный в маневрировании (Restricted / Restricted maneuverability)", "risk": "LOW", "departure_port": "Sabine Pass LNG, USA (US SAB)", "destination_port": "Gate Terminal Rotterdam, Netherlands (NL RTM)", "destination_context": "Газовоз · флаг: Мальта · Ограниченный в маневрировании (Restricted", "arrival_datetime": "12 октября 2026 г., 16:15 UTC", "region": "Европа", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "draft_m", "registry_mock_fields": "call_sign; departure_port; destination_port; mmsi; speed_knots"}, {"rank": 100, "imo": "9967342", "vessel_name": "CLEAN SIROCCO", "dwt_tons": 107398.0, "gt": 128653.0, "loa_m": 300.0, "beam_m": 49.0, "draft_m": 11.5, "speed_knots": 14.9, "age_years": 0.0, "built_year": 2026, "flag": "Мальта", "vessel_type": "Судно для перевозки сжиженного природного газа / Газовоз (LNG Tanker)", "vtype": "LNG", "nav_status": "Underway using Engine / В пути", "risk": "LOW", "departure_port": "Sabetta, Russia (RU SAB)", "destination_port": "В ОТКРЫТОМ МОРЕ ПО РАСПОРЯЖЕНИЮ / OPEN SEA FOR ORDERS", "destination_context": "Судно для перевозки сжиженного природного газа / Газовоз · флаг: Мальта · следует в: В ОТКРЫТОМ МОРЕ ПО РАСПОРЯЖЕНИЮ / O", "arrival_datetime": "25 августа 2026 г", "region": "Прочее", "sanctions_tags": [], "synthetic_fields": "", "imputed_fields": "", "registry_mock_fields": "departure_port"}]};
+const ALL = PAYLOAD.vessels;
+const FLEET_DWT = PAYLOAD.fleet_total_dwt;
+const TOP100_DWT = PAYLOAD.top100_dwt || ALL.reduce((s,v)=>s+(v.dwt_tons||0),0);
+const TOP100_N = ALL.length || 100;
+
+const COLORS = {
+  LNG:"#00f2fe", LPG:"#10b981", CRUDE:"#f59e0b", TANKER:"#3b82f6", OTHER:"#8aa4bf",
+  EXTREME:"#ef4444", HIGH:"#f59e0b", MID:"#3b82f6", LOW:"#10b981", UNK:"#6b7fa0",
+  OSINT:"#10b981", SYNTH:"#f59e0b", KNN:"#00f2fe", AIS:"#63caff"
+};
+const PAL = ["#00f2fe","#10b981","#f59e0b","#3b82f6","#a78bfa","#ef4444","#ec4899","#14b8a6"];
+const VTYPE_RU = {LNG:"СПГ-газовозы", LPG:"СУГ-газовозы", CRUDE:"Нефтеналивные", TANKER:"Танкеры", OTHER:"Прочие типы"};
+const FILTER_RU = {risk:"Риск", vtype:"Тип", flag:"Флаг", tag:"Тег", region:"Регион", port:"Порт", imo:"IMO"};
+
+let filter = { risk:null, vtype:null, flag:null, tag:null, region:null, port:null, imo:null };
+
+function fmtTons(n){ return Math.round(n||0).toLocaleString("ru-RU")+" т"; }
+function fmtMlnTons(n){
+  const m=(Number(n)||0)/1e6;
+  return (Math.abs(m)>=10?m.toFixed(1):m.toFixed(2))+" млн т";
+}
+function fmtPct(n){ return (Number(n)||0).toFixed(2)+"%"; }
+function fmtPct1(n){ return (Number(n)||0).toFixed(1)+"%"; }
+function shortPort(p){
+  if(!p) return "—";
+  const m = p.match(/^([^,(]+)/);
+  return (m?m[1]:p).trim().slice(0,28);
+}
+function vesselPortKey(v){ return shortPort(v.destination_port)||"—"; }
+
+function filtered(){
+  return ALL.filter(v=>{
+    if(filter.risk && v.risk !== filter.risk) return false;
+    if(filter.vtype && v.vtype !== filter.vtype) return false;
+    if(filter.flag && !(v.flag||"").toLowerCase().includes(String(filter.flag).toLowerCase())) return false;
+    if(filter.tag && !(v.sanctions_tags||[]).some(t=>t.toUpperCase().includes(String(filter.tag).toUpperCase()))) return false;
+    if(filter.region && v.region !== filter.region) return false;
+    if(filter.port && vesselPortKey(v) !== filter.port) return false;
+    if(filter.imo && String(v.imo) !== String(filter.imo)) return false;
+    return true;
+  });
+}
+
+function setFilter(key, val){
+  if(filter[key]===val) filter[key]=null;
+  else filter[key]=val;
+  renderAll(true);
+}
+
+function clearFilters(){
+  filter={risk:null,vtype:null,flag:null,tag:null,region:null,port:null,imo:null};
+  renderAll(true);
+}
+
+function clearSectorFilters(){
+  filter.vtype=null; filter.region=null; filter.port=null;
+  renderAll(true);
+}
+
+function hasSectorFilter(){
+  return !!(filter.vtype || filter.region || filter.port);
+}
+
+/** Broadcast D10/TOP-100 slice → OSINT LV / мульти-селект (localStorage). */
+function syncCrossFilterBroadcast(rows){
+  const imos=(rows||filtered()).map(v=>String(v.imo));
+  const payload={
+    imos,
+    ts:Date.now(),
+    source:"top100-d10",
+    sector:hasSectorFilter(),
+    filters:{vtype:filter.vtype, region:filter.region, port:filter.port, risk:filter.risk, flag:filter.flag, tag:filter.tag, imo:filter.imo}
+  };
+  try{ localStorage.setItem("oracle1001_cross_filter", JSON.stringify(payload)); }catch(_e){}
+  window.__TOP100__ = Object.assign(window.__TOP100__||{}, {
+    count: ALL.length, fleetDwt: FLEET_DWT, topDwt: TOP100_DWT, share: PAYLOAD.top100_share_pct,
+    filteredImos: imos, filter: Object.assign({}, filter), sector: payload.sector
+  });
+  try{ window.dispatchEvent(new CustomEvent("oracle1001:crossfilter", {detail:payload})); }catch(_e){}
+}
+
+function animateNum(el, to, isTons){
+  if(!el) return;
+  const from = parseFloat(el.dataset.raw||"0")||0;
+  const target = Number(to)||0;
+  el.dataset.raw = String(target);
+  const t0 = performance.now();
+  function frame(now){
+    const p=Math.min(1,(now-t0)/300);
+    const e=1-Math.pow(1-p,3);
+    const cur=from+(target-from)*e;
+    el.textContent = isTons?fmtTons(cur):String(Math.round(cur));
+    if(p<1) requestAnimationFrame(frame);
+    else el.textContent = isTons?fmtTons(target):String(Math.round(target));
+  }
+  requestAnimationFrame(frame);
+}
+
+function showTip(e, html){
+  const tip=document.getElementById("tip");
+  tip.innerHTML=html; tip.style.display="block";
+  tip.style.left=Math.min(window.innerWidth-270, e.clientX+12)+"px";
+  tip.style.top=Math.min(window.innerHeight-80, e.clientY+12)+"px";
+}
+function hideTip(){ document.getElementById("tip").style.display="none"; }
+
+function svgBox(el){
+  const r=el.getBoundingClientRect();
+  return {w:Math.max(280, r.width||400), h:Math.max(220, r.height||240)};
+}
+
+function counter(arr, keyFn){
+  const m={};
+  arr.forEach(x=>{ const k=keyFn(x)||"—"; m[k]=(m[k]||0)+1; });
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]);
+}
+
+function provTok(s){
+  return new Set(String(s||"").split(";").map(x=>x.trim().toLowerCase()).filter(Boolean));
+}
+function provenanceOf(v){
+  // 9 key columns × TOP-100 = 900 cells (D07 treemap)
+  const fields=["dwt_tons","gt","built_year","speed_knots","loa_m","draft_m","mmsi","call_sign","departure_port"];
+  const sf=provTok(v.synthetic_fields), kf=provTok(v.imputed_fields), rf=provTok(v.registry_mock_fields);
+  let os=0,sy=0,kn=0,ai=0;
+  fields.forEach(f=>{
+    if(rf.has(f)) ai++;
+    else if(kf.has(f)) kn++;
+    else if(sf.has(f)) sy++;
+    else os++;
+  });
+  return {OSINT:os, SYNTH:sy, KNN:kn, AIS:ai};
+}
+const PROV_RU = {OSINT:"Прямой OSINT", SYNTH:"⚡ Синтетика", KNN:"🔬 Профиль", AIS:"🌐 Реестр AIS"};
+const RISK_RU = {EXTREME:"Крайний", HIGH:"Высокий", MID:"Средний", LOW:"Низкий", UNK:"Без метки"};
+
+// ── KPI ──────────────────────────────────────────────────────────────────────
+function renderKPI(rows, animate){
+  const dwt=rows.reduce((s,v)=>s+v.dwt_tons,0);
+  const avgAge=rows.length? rows.reduce((s,v)=>s+v.age_years,0)/rows.length : 0;
+  const provPct = (PAYLOAD && PAYLOAD.provenance && PAYLOAD.provenance.pct) || {};
+  let osintPct = Number(provPct.OSINT != null ? provPct.OSINT : 98.6);
+  let synthPct = Math.max(0, +(100.0 - osintPct).toFixed(1));
+  const box=document.getElementById("kpiRow");
+  box.innerHTML=`
+    <div class="kpi"><div class="k">Суда в срезе</div><div class="v" id="kN" data-raw="0">0</div><div class="s">из ТОП-100</div></div>
+    <div class="kpi"><div class="k">Суммарный DWT ТОП-срез</div><div class="v" id="kD" data-raw="0">0</div><div class="s">${fmtPct(100*dwt/FLEET_DWT)} флота</div></div>
+    <div class="kpi"><div class="k">Средний возраст</div><div class="v" id="kA" data-raw="0">0</div><div class="s">лет</div></div>
+    <div class="kpi"><div class="k">Провенанс OSINT</div><div class="v" id="kP" data-raw="0">0</div><div class="s">${osintPct}% · Synth OSINT: ${synthPct}%</div></div>`;
+  document.querySelectorAll(".kpi").forEach(k=>{k.classList.add("pulse"); setTimeout(()=>k.classList.remove("pulse"),320);});
+  if(animate){
+    animateNum(document.getElementById("kN"), rows.length, false);
+    animateNum(document.getElementById("kD"), dwt, true);
+    animateNum(document.getElementById("kA"), avgAge, false);
+    animateNum(document.getElementById("kP"), Math.round(osintPct), false);
+  } else {
+    document.getElementById("kN").textContent=rows.length;
+    document.getElementById("kD").textContent=fmtTons(dwt);
+    document.getElementById("kA").textContent=Math.round(avgAge);
+    document.getElementById("kP").textContent=Math.round(osintPct)+"%";
+  }
+  const fb=document.getElementById("filterBar");
+  const chips=[];
+  Object.entries(filter).forEach(([k,v])=>{
+    if(v){
+      const label = k==="vtype" ? (VTYPE_RU[v]||v) : v;
+      chips.push(`<span class="chip-f">${FILTER_RU[k]||k}: ${label}<button data-k="${k}" title="Снять">×</button></span>`);
+    }
+  });
+  if(chips.length) chips.push(`<button class="pill" id="clrF" style="cursor:pointer">Сбросить фильтры</button>`);
+  fb.innerHTML=chips.join("") || `<span style="font-size:11px;color:var(--muted)">Нажмите элемент любого дашборда для кросс-фильтрации</span>`;
+  fb.querySelectorAll("button[data-k]").forEach(b=>b.onclick=()=>{filter[b.dataset.k]=null;renderAll(true);});
+  const clr=document.getElementById("clrF"); if(clr) clr.onclick=clearFilters;
+  updateD10Chrome();
+}
+
+function boxStats(vals){
+  if(!vals.length) return {min:0,q1:0,med:0,q3:0,max:0};
+  const a=[...vals].sort((x,y)=>x-y);
+  const q=p=>{ const i=(a.length-1)*p; const lo=Math.floor(i), hi=Math.ceil(i); return a[lo]+(a[hi]-a[lo])*(i-lo); };
+  return {min:a[0], q1:q(.25), med:q(.5), q3:q(.75), max:a[a.length-1]};
+}
+
+// ── D01 Scatter ──────────────────────────────────────────────────────────────
+function render01(rows, el){
+  const {w,h}=svgBox(el);
+  const pad={l:48,r:16,t:16,b:36};
+  const xs=rows.map(v=>v.gt), ys=rows.map(v=>v.dwt_tons);
+  const xmin=Math.min(...xs,0), xmax=Math.max(...xs,1);
+  const ymin=Math.min(...ys,0), ymax=Math.max(...ys,1);
+  const X=x=>pad.l+(x-xmin)/(xmax-xmin||1)*(w-pad.l-pad.r);
+  const Y=y=>h-pad.b-(y-ymin)/(ymax-ymin||1)*(h-pad.t-pad.b);
+  const dots=rows.map(v=>`<circle class="seg" cx="${X(v.gt)}" cy="${Y(v.dwt_tons)}" r="4.5"
+    fill="${COLORS[v.vtype]||COLORS.OTHER}" data-vtype="${v.vtype}"
+    opacity=".85"><title>${v.vessel_name}</title></circle>`).join("");
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">
+    <line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="rgba(160,220,255,.25)"/>
+    <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${h-pad.b}" stroke="rgba(160,220,255,.25)"/>
+    <text x="${w/2}" y="${h-8}" fill="#8aa4bf" font-size="10" text-anchor="middle" font-family="JetBrains Mono">Валовая вместимость (GT) →</text>
+    <text x="12" y="${h/2}" fill="#8aa4bf" font-size="10" transform="rotate(-90 12 ${h/2})" font-family="JetBrains Mono">Дедвейт ↑</text>
+    ${dots}</svg>`;
+  el.querySelectorAll("circle").forEach(c=>{
+    c.onmouseenter=e=>showTip(e, `<b>${c.querySelector("title").textContent}</b><br>${c.dataset.vtype}`);
+    c.onmouseleave=hideTip;
+    c.onclick=()=>setFilter("vtype", c.dataset.vtype);
+  });
+}
+
+// ── D02 Box dims ─────────────────────────────────────────────────────────────
+function render02(rows, el){
+  const {w,h}=svgBox(el);
+  const dims=[["LOA", rows.map(v=>v.loa_m)],["BEAM", rows.map(v=>v.beam_m)],["DRAFT", rows.map(v=>v.draft_m)]];
+  const pad=40; const slot=(w-pad*2)/3;
+  const all=dims.flatMap(d=>d[1]).filter(x=>x>0);
+  const mn=Math.min(...all,0), mx=Math.max(...all,1);
+  const Y=v=>h-30-(v-mn)/(mx-mn||1)*(h-60);
+  let g="";
+  dims.forEach((d,i)=>{
+    const st=boxStats(d[1].filter(x=>x>0));
+    const cx=pad+slot*i+slot/2, bw=28;
+    g+=`<text x="${cx}" y="${h-10}" fill="#8aa4bf" font-size="10" text-anchor="middle" font-family="Orbitron">${({LOA:"Длина",BEAM:"Ширина",DRAFT:"Осадка"})[d[0]]||d[0]}</text>`;
+    g+=`<line x1="${cx}" y1="${Y(st.min)}" x2="${cx}" y2="${Y(st.max)}" stroke="#00f2fe" stroke-width="1.5"/>`;
+    g+=`<rect x="${cx-bw/2}" y="${Y(st.q3)}" width="${bw}" height="${Math.max(2,Y(st.q1)-Y(st.q3))}"
+         fill="rgba(0,242,254,.2)" stroke="#00f2fe" rx="3"/>`;
+    g+=`<line x1="${cx-bw/2}" y1="${Y(st.med)}" x2="${cx+bw/2}" y2="${Y(st.med)}" stroke="#10b981" stroke-width="2"/>`;
+    g+=`<title>${d[0]}: med ${st.med.toFixed(1)} · ${st.min.toFixed(1)}–${st.max.toFixed(1)}</title>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">${g}</svg>`;
+}
+
+// ── D03 Speed donut ──────────────────────────────────────────────────────────
+function render03(rows, el){
+  const {w,h}=svgBox(el);
+  const buckets=[["0–5",0],["5–10",0],["10–14",0],["14–18",0],["18+",0]];
+  rows.forEach(v=>{
+    const s=v.speed_knots;
+    if(s<5) buckets[0][1]++; else if(s<10) buckets[1][1]++; else if(s<14) buckets[2][1]++;
+    else if(s<18) buckets[3][1]++; else buckets[4][1]++;
+  });
+  const total=buckets.reduce((s,b)=>s+b[1],0)||1;
+  const cx=w*0.38, cy=h/2, R=Math.min(w,h)*0.32, r=R*0.58;
+  let a=-Math.PI/2, paths="";
+  buckets.forEach((b,i)=>{
+    const sweep=b[1]/total*Math.PI*2; const a2=a+sweep;
+    const large=sweep>Math.PI?1:0;
+    const x1=cx+R*Math.cos(a), y1=cy+R*Math.sin(a);
+    const x2=cx+R*Math.cos(a2), y2=cy+R*Math.sin(a2);
+    const ix1=cx+r*Math.cos(a2), iy1=cy+r*Math.sin(a2);
+    const ix2=cx+r*Math.cos(a), iy2=cy+r*Math.sin(a);
+    paths+=`<path class="seg" d="M${x1} ${y1} A${R} ${R} 0 ${large} 1 ${x2} ${y2} L${ix1} ${iy1} A${r} ${r} 0 ${large} 0 ${ix2} ${iy2} Z"
+      fill="${PAL[i]}" opacity=".9"><title>${b[0]} kn: ${b[1]}</title></path>`;
+    a=a2;
+  });
+  const nav=counter(rows, v=> (v.nav_status||"UNK").split(/[/(]/)[0].trim().slice(0,18) ).slice(0,5);
+  const legend=buckets.map((b,i)=>`<div style="display:flex;gap:6px;align-items:center;font-size:10px;margin:3px 0">
+    <span style="width:8px;height:8px;border-radius:50%;background:${PAL[i]}"></span>${b[0]} kn · ${b[1]}</div>`).join("")
+    +`<div style="margin-top:8px;font-size:9px;color:#8aa4bf;font-family:Orbitron">НАВ. СТАТУС</div>`
+    +nav.map(([k,c])=>`<div style="font-size:10px;color:#cfe">· ${k}: ${c}</div>`).join("");
+  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 120px;height:100%"><svg viewBox="0 0 ${w*0.7} ${h}">${paths}
+    <text x="${cx}" y="${cy}" text-anchor="middle" fill="#00f2fe" font-size="14" font-family="Orbitron">${rows.length}</text>
+    <text x="${cx}" y="${cy+14}" text-anchor="middle" fill="#8aa4bf" font-size="8">СУДОВ</text></svg>
+    <div style="padding:8px 4px;overflow:auto">${legend}</div></div>`;
+}
+
+// ── D04 Age hist ─────────────────────────────────────────────────────────────
+function render04(rows, el){
+  const {w,h}=svgBox(el);
+  const bins=[["0–5",0],["6–10",0],["11–15",0],["16–20",0],["21–25",0],["26–30",0],["30+",0]];
+  rows.forEach(v=>{
+    const a=v.age_years;
+    if(a<=5) bins[0][1]++; else if(a<=10) bins[1][1]++; else if(a<=15) bins[2][1]++;
+    else if(a<=20) bins[3][1]++; else if(a<=25) bins[4][1]++; else if(a<=30) bins[5][1]++; else bins[6][1]++;
+  });
+  const max=Math.max(...bins.map(b=>b[1]),1);
+  const pad={l:36,r:12,t:12,b:40}; const bw=(w-pad.l-pad.r)/bins.length;
+  let g="";
+  bins.forEach((b,i)=>{
+    const bh=(b[1]/max)*(h-pad.t-pad.b);
+    const x=pad.l+i*bw+4, y=h-pad.b-bh;
+    g+=`<rect class="seg" x="${x}" y="${y}" width="${bw-8}" height="${Math.max(bh,1)}" rx="4"
+      fill="url(#ag)" opacity=".9"><title>${b[0]} лет: ${b[1]}</title></rect>`;
+    g+=`<text x="${x+(bw-8)/2}" y="${h-14}" fill="#8aa4bf" font-size="9" text-anchor="middle">${b[0]}</text>`;
+    g+=`<text x="${x+(bw-8)/2}" y="${y-4}" fill="#00f2fe" font-size="9" text-anchor="middle">${b[1]}</text>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}"><defs>
+    <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#00f2fe"/><stop offset="1" stop-color="#10b981" stop-opacity=".4"/></linearGradient>
+  </defs>${g}</svg>`;
+}
+
+// ── D05 Risk radar / polar ───────────────────────────────────────────────────
+function render05(rows, el){
+  const {w,h}=svgBox(el);
+  const order=["EXTREME","HIGH","MID","LOW","UNK"];
+  const counts=Object.fromEntries(order.map(k=>[k,0]));
+  rows.forEach(v=>{ counts[v.risk]=(counts[v.risk]||0)+1; });
+  const cx=w/2, cy=h/2-6, R=Math.min(w,h)*0.34;
+  const max=Math.max(...Object.values(counts),1);
+  let poly=[], labels="", rings="";
+  for(let ring=1;ring<=4;ring++){
+    const rr=R*ring/4; let pts=[];
+    order.forEach((_,i)=>{ const a=-Math.PI/2+i*2*Math.PI/order.length; pts.push([cx+rr*Math.cos(a),cy+rr*Math.sin(a)]); });
+    rings+=`<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="rgba(160,220,255,.15)"/>`;
+  }
+  order.forEach((k,i)=>{
+    const a=-Math.PI/2+i*2*Math.PI/order.length;
+    const rr=R*(counts[k]/max);
+    poly.push([cx+rr*Math.cos(a), cy+rr*Math.sin(a)]);
+    const lx=cx+(R+18)*Math.cos(a), ly=cy+(R+18)*Math.sin(a);
+    labels+=`<text class="seg" data-risk="${k}" x="${lx}" y="${ly}" fill="${COLORS[k]}" font-size="10"
+      text-anchor="middle" font-family="Orbitron" style="cursor:pointer">${RISK_RU[k]||k} ${counts[k]}</text>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">${rings}
+    <polygon class="seg" points="${poly.map(p=>p.join(",")).join(" ")}" fill="rgba(239,68,68,.2)" stroke="#ef4444" stroke-width="2"/>
+    ${poly.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="#00f2fe"/>`).join("")}
+    ${labels}</svg>`;
+  el.querySelectorAll("[data-risk]").forEach(t=>{
+    t.onclick=()=>setFilter("risk", t.dataset.risk);
+  });
+}
+
+// ── D06 Flag heatmap ─────────────────────────────────────────────────────────
+function render06(rows, el){
+  const {w,h}=svgBox(el);
+  const flags=counter(rows, v=>v.flag||"UNK").slice(0,8).map(x=>x[0]);
+  const risks=["EXTREME","HIGH","MID","LOW"];
+  const cell={};
+  rows.forEach(v=>{
+    if(!flags.includes(v.flag||"UNK")) return;
+    const k=(v.flag||"UNK")+"|"+v.risk;
+    cell[k]=(cell[k]||0)+1;
+  });
+  const max=Math.max(...Object.values(cell),1);
+  const pad={l:110,t:28,r:10,b:10};
+  const cw=(w-pad.l-pad.r)/risks.length, ch=(h-pad.t-pad.b)/Math.max(flags.length,1);
+  let g="";
+  risks.forEach((r,i)=> g+=`<text x="${pad.l+i*cw+cw/2}" y="16" fill="#8aa4bf" font-size="9" text-anchor="middle">${r}</text>`);
+  flags.forEach((f,fi)=>{
+    g+=`<text x="${pad.l-6}" y="${pad.t+fi*ch+ch/2+3}" fill="#cfe" font-size="9" text-anchor="end">${f.slice(0,16)}</text>`;
+    risks.forEach((r,ri)=>{
+      const n=cell[f+"|"+r]||0;
+      const intens=n/max;
+      g+=`<rect class="seg" data-flag="${f}" x="${pad.l+ri*cw+2}" y="${pad.t+fi*ch+2}" width="${cw-4}" height="${ch-4}" rx="3"
+        fill="rgba(0,242,254,${0.08+intens*0.75})" stroke="rgba(0,242,254,.2)" style="cursor:pointer">
+        <title>${f} · ${r}: ${n}</title></rect>`;
+      if(n) g+=`<text x="${pad.l+ri*cw+cw/2}" y="${pad.t+fi*ch+ch/2+3}" fill="#fff" font-size="10" text-anchor="middle">${n}</text>`;
+    });
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">${g}</svg>`;
+  el.querySelectorAll("[data-flag]").forEach(r=>{
+    r.onclick=()=>setFilter("flag", r.dataset.flag);
+  });
+}
+
+// ── D07 Treemap provenance ───────────────────────────────────────────────────
+function render07(rows, el){
+  const {w,h}=svgBox(el);
+  const tot={OSINT:0,SYNTH:0,KNN:0,AIS:0};
+  rows.forEach(v=>{ const p=provenanceOf(v); Object.keys(tot).forEach(k=>tot[k]+=p[k]); });
+  const entries=Object.entries(tot).sort((a,b)=>b[1]-a[1]);
+  const sum=entries.reduce((s,e)=>s+e[1],0)||1;
+  // simple slice-and-dice treemap (2 columns)
+  let x=0, rects="";
+  entries.forEach(([k,v],i)=>{
+    const ww=w*(v/sum);
+    rects+=`<rect class="seg" x="${x}" y="0" width="${ww}" height="${h}" fill="${COLORS[k]}" opacity=".75"
+      stroke="rgba(3,7,15,.6)" stroke-width="2"><title>${k}: ${v}</title></rect>`;
+    if(ww>50) rects+=`<text x="${x+ww/2}" y="${h/2-4}" fill="#031018" font-size="11" font-weight="700" text-anchor="middle" font-family="Orbitron">${PROV_RU[k]||k}</text>
+      <text x="${x+ww/2}" y="${h/2+14}" fill="#031018" font-size="11" text-anchor="middle">${v} · ${fmtPct(100*v/sum)}</text>`;
+    x+=ww;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">${rects}</svg>`;
+}
+
+// ── D08 Tags bars ────────────────────────────────────────────────────────────
+function render08(rows, el){
+  const {w,h}=svgBox(el);
+  const tags={};
+  rows.forEach(v=> (v.sanctions_tags||[]).forEach(t=>{ tags[t]=(tags[t]||0)+1; }));
+  // also synthetic anomaly proxies
+  rows.forEach(v=>{
+    if(["EXTREME","HIGH"].includes(v.risk)) tags["HIGH/EXTREME RISK"]=(tags["HIGH/EXTREME RISK"]||0)+1;
+    if(/comor|gabon|palau|mali|cameroon|комор|габон|палау|мали|камерун/i.test(v.flag||""))
+      tags["GREY FLAG"]=(tags["GREY FLAG"]||0)+1;
+  });
+  const list=Object.entries(tags).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(!list.length){ el.innerHTML=`<div class="empty">Нет тегов в срезе</div>`; return; }
+  const max=list[0][1];
+  const pad={l:130,r:40,t:10,b:10}; const rowH=(h-pad.t-pad.b)/list.length;
+  let g="";
+  list.forEach(([k,c],i)=>{
+    const bw=(c/max)*(w-pad.l-pad.r);
+    const y=pad.t+i*rowH;
+    g+=`<text x="${pad.l-6}" y="${y+rowH/2+3}" fill="#cfe" font-size="10" text-anchor="end">${k.slice(0,18)}</text>`;
+    g+=`<rect class="seg" data-tag="${k}" x="${pad.l}" y="${y+4}" width="${Math.max(bw,2)}" height="${rowH-8}" rx="4"
+      fill="${PAL[i%PAL.length]}" opacity=".85" style="cursor:pointer"><title>${k}: ${c}</title></rect>`;
+    g+=`<text x="${pad.l+bw+6}" y="${y+rowH/2+3}" fill="#00f2fe" font-size="10">${c}</text>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">${g}</svg>`;
+  el.querySelectorAll("[data-tag]").forEach(r=>{
+    r.onclick=()=>setFilter("tag", r.dataset.tag.replace("HIGH/EXTREME RISK","OFAC").replace("GREY FLAG",""));
+  });
+}
+
+// ── D09 Ports ────────────────────────────────────────────────────────────────
+function render09(rows, el){
+  const {w,h}=svgBox(el);
+  const dep=counter(rows, v=>shortPort(v.departure_port)).slice(0,6);
+  const dst=counter(rows, v=>shortPort(v.destination_port)).slice(0,6);
+  const mid=w/2;
+  const max=Math.max(...dep.map(x=>x[1]), ...dst.map(x=>x[1]), 1);
+  let g=`<text x="${mid/2}" y="14" fill="#00f2fe" font-size="10" text-anchor="middle" font-family="Orbitron">ОТБЫТИЕ</text>
+         <text x="${mid+mid/2}" y="14" fill="#10b981" font-size="10" text-anchor="middle" font-family="Orbitron">НАЗНАЧЕНИЕ</text>`;
+  dep.forEach(([k,c],i)=>{
+    const y=28+i*28; const bw=(c/max)*(mid-80);
+    g+=`<text x="${mid-10}" y="${y+12}" fill="#cfe" font-size="9" text-anchor="end">${k}</text>`;
+    g+=`<rect x="${mid-14-bw}" y="${y}" width="${bw}" height="16" rx="3" fill="#00f2fe" opacity=".75"/>`;
+    g+=`<text x="${mid-18-bw}" y="${y+12}" fill="#8aa4bf" font-size="9" text-anchor="end">${c}</text>`;
+  });
+  dst.forEach(([k,c],i)=>{
+    const y=28+i*28; const bw=(c/max)*(mid-80);
+    g+=`<text x="${mid+10}" y="${y+12}" fill="#cfe" font-size="9">${k}</text>`;
+    g+=`<rect x="${mid+14}" y="${y}" width="${bw}" height="16" rx="3" fill="#10b981" opacity=".75"/>`;
+    g+=`<text x="${mid+18+bw}" y="${y+12}" fill="#8aa4bf" font-size="9">${c}</text>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">${g}</svg>`;
+}
+
+// ── D10 Sunburst · 3 кольца · % ТОП-100 / % флота · NASA tooltip ─────────────
+function updateD10Chrome(){
+  const crumbs=document.getElementById("d10Crumbs");
+  const reset=document.getElementById("d10Reset");
+  if(!crumbs||!reset) return;
+  const parts=[];
+  if(filter.vtype) parts.push(`<span>${VTYPE_RU[filter.vtype]||filter.vtype}</span>`);
+  if(filter.region) parts.push(`<span>${filter.region}</span>`);
+  if(filter.port) parts.push(`<span>${filter.port}</span>`);
+  crumbs.innerHTML = parts.length
+    ? `Сектор: ${parts.join(" → ")}`
+    : "Обзор: 100% ТОП-100";
+  reset.hidden = !hasSectorFilter();
+  if(!reset._bound){
+    reset._bound=true;
+    reset.onclick=()=>clearSectorFilters();
+  }
+}
+
+function sunburstArc(cx,cy,rOut,rIn,a0,a1){
+  const large=(a1-a0)>Math.PI?1:0;
+  const x1=cx+rOut*Math.cos(a0), y1=cy+rOut*Math.sin(a0);
+  const x2=cx+rOut*Math.cos(a1), y2=cy+rOut*Math.sin(a1);
+  const ix1=cx+rIn*Math.cos(a1), iy1=cy+rIn*Math.sin(a1);
+  const ix2=cx+rIn*Math.cos(a0), iy2=cy+rIn*Math.sin(a0);
+  return `M${x1} ${y1} A${rOut} ${rOut} 0 ${large} 1 ${x2} ${y2} L${ix1} ${iy1} A${rIn} ${rIn} 0 ${large} 0 ${ix2} ${iy2} Z`;
+}
+
+function render10(rows, el){
+  const {w,h}=svgBox(el);
+  const cx=w/2, cy=h/2;
+  const R0=42, R1=72, R2=104, R3=Math.min(w,h)*0.46;
+  updateD10Chrome();
+
+  // Дерево: тип → регион → порт {n, dwt}
+  const tree={};
+  rows.forEach(v=>{
+    const a=v.vtype||"OTHER", b=v.region||"Прочее", c=vesselPortKey(v);
+    if(!tree[a]) tree[a]={};
+    if(!tree[a][b]) tree[a][b]={};
+    if(!tree[a][b][c]) tree[a][b][c]={n:0,dwt:0};
+    tree[a][b][c].n += 1;
+    tree[a][b][c].dwt += (v.dwt_tons||0);
+  });
+
+  const sliceN = rows.length || 0;
+  const sliceDwt = rows.reduce((s,v)=>s+(v.dwt_tons||0),0);
+  const baseN = Math.max(TOP100_N, 1);
+  const fleetDwt = Math.max(FLEET_DWT, 1);
+
+  function pctTop(n){ return 100*n/baseN; }
+  function pctFleet(dwt){ return 100*dwt/fleetDwt; }
+  function wordShips(n){
+    const k=n%100, m=n%10;
+    if(k>10&&k<20) return "судов";
+    if(m===1) return "судно";
+    if(m>=2&&m<=4) return "судна";
+    return "судов";
+  }
+
+  let paths="", labels="";
+  let a=-Math.PI/2;
+  const types=Object.keys(tree).sort((x,y)=>{
+    const nx=Object.values(tree[x]).reduce((s,reg)=>s+Object.values(reg).reduce((p,q)=>p+q.n,0),0);
+    const ny=Object.values(tree[y]).reduce((s,reg)=>s+Object.values(reg).reduce((p,q)=>p+q.n,0),0);
+    return ny-nx;
+  });
+
+  types.forEach((t,ti)=>{
+    const nT=Object.values(tree[t]).reduce((s,reg)=>s+Object.values(reg).reduce((p,q)=>p+q.n,0),0);
+    const dwtT=Object.values(tree[t]).reduce((s,reg)=>s+Object.values(reg).reduce((p,q)=>p+q.dwt,0),0);
+    const sweepT=(nT/Math.max(sliceN,1))*Math.PI*2;
+    const a2=a+sweepT;
+    const activeT = !filter.vtype || filter.vtype===t;
+    const colT = COLORS[t]||PAL[ti%PAL.length];
+    const pctT = pctTop(nT), pctTF = pctFleet(dwtT);
+    paths+=`<path class="seg sb-type${(filter.vtype===t)?' sb-active':''}${activeT?'':' dim'}" data-level="type" data-vtype="${t}"
+      d="${sunburstArc(cx,cy,R1,R0,a,a2)}" fill="${colT}" opacity=".88" style="cursor:pointer"></path>`;
+    if(sweepT>0.28){
+      const mid=a+sweepT/2, lr=(R0+R1)/2;
+      labels+=`<text class="sb-lbl" x="${cx+lr*Math.cos(mid)}" y="${cy+lr*Math.sin(mid)+3}" text-anchor="middle"
+        fill="#031018" font-size="9" font-weight="700" font-family="Orbitron">${fmtPct1(pctT)}</text>`;
+    }
+
+    let ra=a;
+    Object.entries(tree[t]).sort((A,B)=>{
+      const nA=Object.values(A[1]).reduce((s,x)=>s+x.n,0);
+      const nB=Object.values(B[1]).reduce((s,x)=>s+x.n,0);
+      return nB-nA;
+    }).forEach(([reg, ports], ri)=>{
+      const nR=Object.values(ports).reduce((s,x)=>s+x.n,0);
+      const dwtR=Object.values(ports).reduce((s,x)=>s+x.dwt,0);
+      const sw=(nR/Math.max(sliceN,1))*Math.PI*2;
+      const ra2=ra+sw;
+      const activeR = activeT && (!filter.region || filter.region===reg);
+      const colR = PAL[(ti+ri)%PAL.length];
+      const pctR = pctTop(nR), pctRF = pctFleet(dwtR);
+      paths+=`<path class="seg sb-region${(filter.region===reg && (!filter.vtype||filter.vtype===t))?' sb-active':''}${activeR?'':' dim'}"
+        data-level="region" data-vtype="${t}" data-region="${reg}"
+        d="${sunburstArc(cx,cy,R2,R1,ra,ra2)}" fill="${colR}" opacity=".62" style="cursor:pointer"></path>`;
+      if(sw>0.35){
+        const mid=ra+sw/2, lr=(R1+R2)/2;
+        labels+=`<text class="sb-lbl" x="${cx+lr*Math.cos(mid)}" y="${cy+lr*Math.sin(mid)+3}" text-anchor="middle"
+          fill="#e8f4ff" font-size="8" font-family="JetBrains Mono">${fmtPct1(pctR)}</text>`;
+      }
+
+      let pa=ra;
+      Object.entries(ports).sort((A,B)=>B[1].n-A[1].n).forEach(([port, cell], pi)=>{
+        const nP=cell.n, dwtP=cell.dwt;
+        const pw=(nP/Math.max(sliceN,1))*Math.PI*2;
+        const pa2=pa+pw;
+        const activeP = activeR && (!filter.port || filter.port===port);
+        const colP = PAL[(ti+ri+pi+3)%PAL.length];
+        const pctP = pctTop(nP), pctPF = pctFleet(dwtP);
+        paths+=`<path class="seg sb-port${(filter.port===port)?' sb-active':''}${activeP?'':' dim'}"
+          data-level="port" data-vtype="${t}" data-region="${reg}" data-port="${port.replace(/"/g,'&quot;')}"
+          d="${sunburstArc(cx,cy,R3,R2,pa,pa2)}" fill="${colP}" opacity=".48" style="cursor:pointer"></path>`;
+        if(pw>0.22){
+          const mid=pa+pw/2, lr=(R2+R3)/2;
+          labels+=`<text class="sb-lbl" x="${cx+lr*Math.cos(mid)}" y="${cy+lr*Math.sin(mid)+3}" text-anchor="middle"
+            fill="#cfe" font-size="7" font-family="JetBrains Mono">${fmtPct1(pctP)}</text>`;
+        }
+        pa=pa2;
+      });
+      ra=ra2;
+    });
+    a=a2;
+  });
+
+  const centerPct = sliceN ? pctTop(sliceN) : 0;
+  const centerFleet = sliceN ? pctFleet(sliceDwt) : 0;
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">${paths}${labels}
+    <circle cx="${cx}" cy="${cy}" r="${R0-3}" fill="rgba(3,7,15,.94)" stroke="rgba(0,242,254,.35)" stroke-width="1.2"/>
+    <text id="sbCorePct" x="${cx}" y="${cy-6}" text-anchor="middle" fill="#00f2fe" font-size="15" font-family="Orbitron" font-weight="700">${fmtPct1(centerPct)}</text>
+    <text id="sbCoreSub" x="${cx}" y="${cy+10}" text-anchor="middle" fill="#8aa4bf" font-size="8" font-family="JetBrains Mono">${sliceN} ${wordShips(sliceN)} · ${fmtMlnTons(sliceDwt)}</text>
+    <text id="sbCoreFleet" x="${cx}" y="${cy+22}" text-anchor="middle" fill="#ff0080" font-size="7" font-family="JetBrains Mono">${fmtPct1(centerFleet)} от ${fmtMlnTons(FLEET_DWT)}</text>
+  </svg>`;
+
+  const corePct=el.querySelector("#sbCorePct");
+  const coreSub=el.querySelector("#sbCoreSub");
+  const coreFleet=el.querySelector("#sbCoreFleet");
+
+  function setCore(n, dwt){
+    if(!corePct) return;
+    corePct.textContent = fmtPct1(pctTop(n));
+    coreSub.textContent = `${n} ${wordShips(n)} · ${fmtMlnTons(dwt)}`;
+    coreFleet.textContent = `${fmtPct1(pctFleet(dwt))} от ${fmtMlnTons(FLEET_DWT)}`;
+  }
+  function resetCore(){ setCore(sliceN, sliceDwt); }
+
+  function tipHtml(level, vtype, region, port, n, dwt){
+    const pctT = fmtPct1(pctTop(n));
+    const pctF = fmtPct1(pctFleet(dwt));
+    const typeRu = VTYPE_RU[vtype]||vtype;
+    if(level==="type"){
+      return `<b>${typeRu}</b>: ${n} ${wordShips(n)} (<span class="tip-pct">${pctT} ТОП-100</span>)<br>`+
+             `DWT: <b>${fmtMlnTons(dwt)}</b> · <span class="tip-muted">${pctF} от ${fmtMlnTons(FLEET_DWT)}</span>`;
+    }
+    if(level==="region"){
+      return `<b>${region}</b>: ${n} ${wordShips(n)} (<span class="tip-pct">${pctT} ТОП-100</span>)<br>`+
+             `<span class="tip-muted">${typeRu} · DWT ${fmtMlnTons(dwt)} · ${pctF} флота</span>`;
+    }
+    return `<b>Порт назначения: ${port}</b> — ${n} ${wordShips(n)} (<span class="tip-pct">${pctT} ТОП-100</span>)<br>`+
+           `<span class="tip-muted">${typeRu} → ${region} · DWT ${fmtMlnTons(dwt)} · ${pctF} от ${fmtMlnTons(FLEET_DWT)}</span>`;
+  }
+
+  function nodeStats(level, vtype, region, port){
+    if(level==="type"){
+      const regs=tree[vtype]||{};
+      let n=0,dwt=0;
+      Object.values(regs).forEach(ports=>Object.values(ports).forEach(c=>{n+=c.n;dwt+=c.dwt;}));
+      return {n,dwt};
+    }
+    if(level==="region"){
+      const ports=(tree[vtype]||{})[region]||{};
+      return {n:Object.values(ports).reduce((s,c)=>s+c.n,0), dwt:Object.values(ports).reduce((s,c)=>s+c.dwt,0)};
+    }
+    const cell=(((tree[vtype]||{})[region]||{})[port])||{n:0,dwt:0};
+    return {n:cell.n,dwt:cell.dwt};
+  }
+
+  function applySectorClick(level, vtype, region, port){
+    if(level==="type"){
+      if(filter.vtype===vtype && !filter.region && !filter.port){ clearSectorFilters(); return; }
+      filter.vtype=vtype; filter.region=null; filter.port=null;
+    } else if(level==="region"){
+      if(filter.vtype===vtype && filter.region===region && !filter.port){ filter.region=null; renderAll(true); return; }
+      filter.vtype=vtype; filter.region=region; filter.port=null;
+    } else {
+      if(filter.port===port && filter.region===region && filter.vtype===vtype){ filter.port=null; renderAll(true); return; }
+      filter.vtype=vtype; filter.region=region; filter.port=port;
+    }
+    renderAll(true);
+  }
+
+  el.querySelectorAll("path.seg").forEach(p=>{
+    const level=p.dataset.level;
+    const vtype=p.dataset.vtype;
+    const region=p.dataset.region||"";
+    const port=p.dataset.port||"";
+    const st=nodeStats(level, vtype, region, port);
+    p.onmouseenter=e=>{
+      setCore(st.n, st.dwt);
+      showTip(e, tipHtml(level, vtype, region, port, st.n, st.dwt));
+      p.classList.add("hl");
+    };
+    p.onmousemove=e=>showTip(e, tipHtml(level, vtype, region, port, st.n, st.dwt));
+    p.onmouseleave=()=>{ hideTip(); resetCore(); p.classList.remove("hl"); };
+    p.onclick=()=>applySectorClick(level, vtype, region, port);
+  });
+}
+
+// ── D11 Матрица стратегической важности и риска (пузырьковая) ───────────────
+const GREY_FLAG_RE = /comor|комор|gabon|габон|palau|палау|cameroon|камерун|eswatini|свазиленд|cook|кука|belize|белиз|mali|мали|togo|того|tuvalu|тувалу/i;
+
+function isLngOrFlng(v){
+  const t = String(v.vessel_type||"")+" "+String(v.vtype||"");
+  return /lng|flng|газовоз/i.test(t);
+}
+
+function riskBaseScore(risk){
+  return ({EXTREME:100, HIGH:75, MID:45, LOW:15, UNK:30})[risk] || 30;
+}
+
+function riskScoreOf(v){
+  let s = riskBaseScore(v.risk);
+  if(GREY_FLAG_RE.test(v.flag||"")) s += 15;
+  if((v.age_years||0) > 20) s += 10;
+  return Math.max(0, Math.min(100, s));
+}
+
+function importanceOf(v, maxDwt, maxGt){
+  const dwtPart = maxDwt > 0 ? (v.dwt_tons / maxDwt) * 50 : 0;
+  const gtPart  = maxGt  > 0 ? (v.gt / maxGt) * 30 : 0;
+  const typeBonus = isLngOrFlng(v) ? 20 : 10;
+  return Math.max(0, Math.min(100, dwtPart + gtPart + typeBonus));
+}
+
+function bubbleColor(risk){
+  if(risk==="EXTREME" || risk==="HIGH") return "#ef4444";
+  if(risk==="MID") return "#f59e0b";
+  return "#10b981";
+}
+
+function render11(rows, el){
+  const {w,h}=svgBox(el);
+  if(!rows.length){ el.innerHTML=`<div class="empty">Нет данных</div>`; return; }
+
+  const maxDwt = Math.max(...ALL.map(v=>v.dwt_tons), 1);
+  const maxGt  = Math.max(...ALL.map(v=>v.gt), 1);
+  const maxRowDwt = Math.max(...rows.map(v=>v.dwt_tons), 1);
+
+  const pad={l:52, r:16, t:28, b:42};
+  const plotW=w-pad.l-pad.r, plotH=h-pad.t-pad.b;
+  const X=x=>pad.l + (x/100)*plotW;
+  const Y=y=>pad.t + plotH - (y/100)*plotH; // risk up
+  const midX=X(50), midY=Y(50);
+
+  // Bubble radius ~ sqrt(DWT)
+  const rOf=dwt=>{
+    const t=Math.sqrt(dwt/maxRowDwt);
+    return 3.5 + t*11;
+  };
+
+  // Quadrant fills
+  let g=`
+    <rect x="${pad.l}" y="${pad.t}" width="${plotW/2}" height="${plotH/2}" fill="rgba(239,68,68,.06)"/>
+    <rect x="${midX}" y="${pad.t}" width="${plotW/2}" height="${plotH/2}" fill="rgba(239,68,68,.10)"/>
+    <rect x="${pad.l}" y="${midY}" width="${plotW/2}" height="${plotH/2}" fill="rgba(16,185,129,.05)"/>
+    <rect x="${midX}" y="${midY}" width="${plotW/2}" height="${plotH/2}" fill="rgba(0,242,254,.07)"/>
+    <!-- grid -->
+    ${[25,50,75].map(p=>`
+      <line x1="${X(p)}" y1="${pad.t}" x2="${X(p)}" y2="${h-pad.b}" stroke="rgba(0,242,254,.12)" stroke-dasharray="3 4"/>
+      <line x1="${pad.l}" y1="${Y(p)}" x2="${w-pad.r}" y2="${Y(p)}" stroke="rgba(0,242,254,.12)" stroke-dasharray="3 4"/>
+    `).join("")}
+    <line x1="${midX}" y1="${pad.t}" x2="${midX}" y2="${h-pad.b}" stroke="rgba(0,242,254,.35)" stroke-width="1.2"/>
+    <line x1="${pad.l}" y1="${midY}" x2="${w-pad.r}" y2="${midY}" stroke="rgba(0,242,254,.35)" stroke-width="1.2"/>
+    <rect x="${pad.l}" y="${pad.t}" width="${plotW}" height="${plotH}" fill="none" stroke="rgba(0,242,254,.3)" stroke-width="1"/>
+    <!-- quadrant labels -->
+    <text x="${pad.l+6}" y="${pad.t+12}" fill="rgba(239,68,68,.75)" font-size="8" font-family="Orbitron">ОПЕРАЦИОННЫЙ РИСК</text>
+    <text x="${pad.l+6}" y="${pad.t+22}" fill="rgba(239,68,68,.55)" font-size="7">(низкая важность + высокий риск)</text>
+    <text x="${midX+6}" y="${pad.t+12}" fill="rgba(239,68,68,.9)" font-size="8" font-family="Orbitron">КРИТИЧЕСКАЯ УГРОЗА</text>
+    <text x="${midX+6}" y="${pad.t+22}" fill="rgba(239,68,68,.7)" font-size="7">(высокая важность + высокий риск)</text>
+    <text x="${pad.l+6}" y="${h-pad.b-14}" fill="rgba(16,185,129,.75)" font-size="8" font-family="Orbitron">СТАНДАРТНЫЙ ФЛОТ</text>
+    <text x="${pad.l+6}" y="${h-pad.b-4}" fill="rgba(16,185,129,.55)" font-size="7">(низкая важность + низкий риск)</text>
+    <text x="${midX+6}" y="${h-pad.b-14}" fill="rgba(0,242,254,.9)" font-size="8" font-family="Orbitron">СТРАТЕГИЧЕСКИЙ АКТИВ</text>
+    <text x="${midX+6}" y="${h-pad.b-4}" fill="rgba(0,242,254,.7)" font-size="7">(высокая важность + низкий риск)</text>
+    <!-- axes -->
+    <text x="${w/2}" y="${h-6}" fill="#8aa4bf" font-size="9" text-anchor="middle" font-family="JetBrains Mono">Индекс стратегической важности →</text>
+    <text x="12" y="${h/2}" fill="#8aa4bf" font-size="9" transform="rotate(-90 12 ${h/2})" font-family="JetBrains Mono">Комплаенс-риск ↑</text>
+    <text x="${pad.l}" y="${h-pad.b+14}" fill="#6b7fa0" font-size="8">0</text>
+    <text x="${midX}" y="${h-pad.b+14}" fill="#6b7fa0" font-size="8" text-anchor="middle">50</text>
+    <text x="${w-pad.r}" y="${h-pad.b+14}" fill="#6b7fa0" font-size="8" text-anchor="end">100</text>
+  `;
+
+  // Sort so large bubbles drawn first (under), small on top — or reverse for visibility of small ones on top
+  const plotted = rows.slice().sort((a,b)=>b.dwt_tons-a.dwt_tons);
+  plotted.forEach((v,i)=>{
+    const imp = importanceOf(v, maxDwt, maxGt);
+    const rsk = riskScoreOf(v);
+    const cx = X(imp), cy = Y(rsk), r = rOf(v.dwt_tons);
+    const col = bubbleColor(v.risk);
+    const delay = Math.min(i*8, 400);
+    g+=`<circle class="seg bubble" data-imo="${v.imo}" data-risk="${v.risk}"
+      cx="${cx}" cy="${cy}" r="${r}"
+      fill="${col}" fill-opacity="0.72" stroke="${col}" stroke-width="1.2"
+      style="cursor:pointer;filter:drop-shadow(0 0 5px ${col});
+             animation:bubbleIn .45s ease ${delay}ms both">
+      <title>${v.vessel_name}</title>
+    </circle>`;
+  });
+
+  // Legend
+  g+=`
+    <circle cx="${w-78}" cy="14" r="4.5" fill="#ef4444"/><text x="${w-70}" y="17" fill="#cfe" font-size="8">Высокий</text>
+    <circle cx="${w-78}" cy="28" r="4.5" fill="#f59e0b"/><text x="${w-70}" y="31" fill="#cfe" font-size="8">Средний</text>
+    <circle cx="${w-78}" cy="42" r="4.5" fill="#10b981"/><text x="${w-70}" y="45" fill="#cfe" font-size="8">Низкий</text>
+  `;
+
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">
+    <style>
+      @keyframes bubbleIn {
+        from { opacity:0; transform: scale(0.2); transform-box:fill-box; transform-origin:center; }
+        to   { opacity:1; transform: scale(1); transform-box:fill-box; transform-origin:center; }
+      }
+    </style>${g}</svg>`;
+
+  el.querySelectorAll("circle.bubble").forEach(c=>{
+    const v = rows.find(x=>String(x.imo)===String(c.dataset.imo))
+           || ALL.find(x=>String(x.imo)===String(c.dataset.imo));
+    if(!v) return;
+    const imp = importanceOf(v, maxDwt, maxGt);
+    const rsk = riskScoreOf(v);
+    const riskRu = RISK_RU[v.risk] || v.risk;
+    c.onmouseenter = e => showTip(e,
+      `<b>${v.vessel_name}</b> (IMO ${v.imo})<br>`+
+      `Индекс важности: <b>${imp.toFixed(1)}</b> / 100<br>`+
+      `Индекс риска: <b>${rsk.toFixed(0)}</b> / 100<br>`+
+      `Дедвейт: <b>${fmtTons(v.dwt_tons)}</b><br>`+
+      `Уровень риска: <b>${riskRu}</b><br>`+
+      `Флаг и тип: ${v.flag||"—"} | ${v.vessel_type||v.vtype||"—"}`
+    );
+    c.onmouseleave = hideTip;
+    c.onclick = () => {
+      // Drill-down: toggle vessel IMO filter + sync risk context
+      setFilter("imo", String(v.imo));
+    };
+  });
+}
+
+// ── D12 Gauges ───────────────────────────────────────────────────────────────
+function render12(rows, el){
+  const {w,h}=svgBox(el);
+  const dwt=rows.reduce((s,v)=>s+v.dwt_tons,0);
+  const share=FLEET_DWT? dwt/FLEET_DWT : 0;
+  const avgShare=rows.length? share/rows.length : 0;
+  const top1=rows.slice().sort((a,b)=>b.dwt_tons-a.dwt_tons)[0];
+  const top1Share=top1&&FLEET_DWT? top1.dwt_tons/FLEET_DWT : 0;
+  const gauges=[
+    {label:"ТОП-срез / Флот", pct:share, color:"#00f2fe"},
+    {label:"Avg судно / Флот", pct:avgShare*100>1?avgShare:avgShare, color:"#10b981"},
+    {label: top1?`#1 ${top1.vessel_name.slice(0,12)}`:"#1", pct:top1Share, color:"#f59e0b"},
+  ];
+  // fix avg display as fraction of fleet
+  gauges[1].pct=avgShare;
+  const gw=w/3;
+  let g="";
+  gauges.forEach((G,i)=>{
+    const cx=gw*i+gw/2, cy=h*0.48, R=Math.min(gw,h)*0.32, r=R*0.68;
+    const pct=Math.max(0,Math.min(1,G.pct));
+    const start=-Math.PI*0.75, span=Math.PI*1.5, end=start+span*pct;
+    const bgEnd=start+span;
+    function arc(a0,a1,Ro,ri,col){
+      const large=(a1-a0)>Math.PI?1:0;
+      const x1=cx+Ro*Math.cos(a0), y1=cy+Ro*Math.sin(a0);
+      const x2=cx+Ro*Math.cos(a1), y2=cy+Ro*Math.sin(a1);
+      const ix1=cx+ri*Math.cos(a1), iy1=cy+ri*Math.sin(a1);
+      const ix2=cx+ri*Math.cos(a0), iy2=cy+ri*Math.sin(a0);
+      return `<path d="M${x1} ${y1} A${Ro} ${Ro} 0 ${large} 1 ${x2} ${y2} L${ix1} ${iy1} A${ri} ${ri} 0 ${large} 0 ${ix2} ${iy2} Z" fill="${col}"/>`;
+    }
+    g+=arc(start,bgEnd,R,r,"rgba(160,220,255,.12)");
+    if(pct>0.001) g+=arc(start,end,R,r,G.color);
+    g+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" fill="${G.color}" font-size="14" font-family="Orbitron">${fmtPct(pct*100)}</text>`;
+    g+=`<text x="${cx}" y="${cy+R+22}" text-anchor="middle" fill="#8aa4bf" font-size="9">${G.label}</text>`;
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${w} ${h}">${g}
+    <text x="${w/2}" y="${h-8}" text-anchor="middle" fill="#8aa4bf" font-size="10">Общий дедвейт флота = ${fmtTons(FLEET_DWT)} · срез ${fmtTons(dwt)}</text></svg>`;
+}
+
+function renderAll(animate){
+  const rows=filtered();
+  renderKPI(rows, !!animate);
+  render01(rows, document.getElementById("c01"));
+  render02(rows, document.getElementById("c02"));
+  render03(rows, document.getElementById("c03"));
+  render04(rows, document.getElementById("c04"));
+  render05(rows, document.getElementById("c05"));
+  render06(rows, document.getElementById("c06"));
+  render07(rows, document.getElementById("c07"));
+  render08(rows, document.getElementById("c08"));
+  render09(rows, document.getElementById("c09"));
+  render10(rows, document.getElementById("c10"));
+  render11(rows, document.getElementById("c11"));
+  render12(rows, document.getElementById("c12"));
+  syncCrossFilterBroadcast(rows);
+}
+
+document.getElementById("tabs").querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("on"));
+    t.classList.add("on");
+    document.getElementById(t.dataset.tab).classList.add("on");
+    // reflow charts for newly visible panel
+    setTimeout(()=>renderAll(false), 40);
+  };
+});
+
+window.addEventListener("resize", ()=>renderAll(false));
+renderAll(true);
+window.__TOP100__ = { count: ALL.length, fleetDwt: FLEET_DWT, topDwt: TOP100_DWT, share: PAYLOAD.top100_share_pct, filteredImos: ALL.map(v=>String(v.imo)), filter: Object.assign({}, filter), sector:false };
+</script>
+<script src="js/top_validation_suite.js"></script>
+</body>
+</html>

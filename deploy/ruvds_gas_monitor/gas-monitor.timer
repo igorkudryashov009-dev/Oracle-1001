@@ -1,0 +1,14 @@
+[Unit]
+Description=Weekly timer for Oracle-1001 gas-carrier monitor
+Documentation=file:///opt/oracle1001/weekly_monitor/README_VPS_GAS_MONITOR.md
+
+[Timer]
+# Monday 04:00 UTC
+OnCalendar=Mon *-*-* 04:00:00 UTC
+# Spread load if many hosts share a provider (harmless single-host jitter)
+RandomizedDelaySec=900
+Persistent=true
+Unit=gas-monitor.service
+
+[Install]
+WantedBy=timers.target

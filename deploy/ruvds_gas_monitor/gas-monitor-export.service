@@ -1,0 +1,8 @@
+[Unit]
+Description=Export Oracle-1001 gas weekly JSON (no secrets) after successful monitor run
+After=gas-monitor.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/oracle1001/weekly_monitor
+ExecStart=/opt/oracle1001/weekly_monitor/bin/export_gas_artifacts.sh

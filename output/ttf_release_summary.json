@@ -1,0 +1,86 @@
+{
+  "ok": true,
+  "mode": "catboost_ensemble",
+  "perf": [
+    {
+      "step": "1_ingest_features",
+      "ok": true,
+      "seconds": 4.213,
+      "rss_mb_before": null,
+      "rss_mb_after": null,
+      "error": null
+    },
+    {
+      "step": "2_spectral_markov_causality",
+      "ok": true,
+      "seconds": 0.602,
+      "rss_mb_before": null,
+      "rss_mb_after": null,
+      "error": null
+    },
+    {
+      "step": "3_catboost_ensemble",
+      "ok": true,
+      "seconds": 8.834,
+      "rss_mb_before": null,
+      "rss_mb_after": null,
+      "error": null
+    },
+    {
+      "step": "4_hedging_portfolio",
+      "ok": true,
+      "seconds": 0.853,
+      "rss_mb_before": null,
+      "rss_mb_after": null,
+      "error": null
+    },
+    {
+      "step": "5_paper_ledger_mtm",
+      "ok": true,
+      "seconds": 0.009,
+      "rss_mb_before": null,
+      "rss_mb_after": null,
+      "error": null
+    }
+  ],
+  "forecast_path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\ttf_ensemble_forecast.json",
+  "spot": 71.952,
+  "horizons": {
+    "7": {
+      "p10": 66.7,
+      "p50": 71.21,
+      "p90": 76.12
+    },
+    "14": {
+      "p10": 64.55,
+      "p50": 70.99,
+      "p90": 78.25
+    },
+    "30": {
+      "p10": 61.56,
+      "p50": 71.9,
+      "p90": 84.21
+    }
+  },
+  "optimal_range": {
+    "label": "B_68_75",
+    "confidence_pct": 64.0
+  },
+  "total_seconds": 14.511,
+  "hedging": {
+    "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\ttf_hedging_portfolio.json",
+    "recommended": "B",
+    "center": {
+      "from_usd": 1000.0,
+      "to_usd": 1184.0,
+      "return_pct": 18.4,
+      "label": "$1,000 \u2192 $1,184 / +18.4%"
+    },
+    "roi_30d_pct": 18.4
+  },
+  "paper_ledger": {
+    "open_count": 3,
+    "badge": "MtM: $-0.17 / Target: +18.4%",
+    "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\ttf_paper_ledger.json"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "generated_at_utc": "2026-09-05T06:11:12Z",
+  "currency": "USD",
+  "combined_monthly_cap_usd": 80.0,
+  "known_planned_or_estimated_spend_usd": 34.0,
+  "remaining_headroom_usd": 46.0,
+  "legs": [
+    {
+      "id": "ais_infra",
+      "label": "AIS stream + optional VPS",
+      "monthly_cap_usd": 30.0,
+      "planned_spend_usd": 0.0,
+      "mode": "local_scheduled",
+      "notes": [
+        "AISstream free tier = $0",
+        "VPS always-on counted only when mode=vps_always_on (now: local_scheduled)",
+        "Cap from config.yaml budget.total_cap_usd"
+      ]
+    },
+    {
+      "id": "gas_weekly",
+      "label": "Gas carrier weekly paid API",
+      "monthly_cap_usd": 50.0,
+      "cost_per_call_usd": 0.05,
+      "last_run_estimated_week_spend_usd": 1.5,
+      "last_run_estimated_month_spend_usd": 6.5175,
+      "dry_run": true,
+      "budget_trimmed": false,
+      "coverage_of_top_n_target_pct": 100.0,
+      "notes": [
+        "Cap from PROVIDER_MONTHLY_BUDGET_USD / gas summary",
+        "Spend estimate uses last summary only — not a billing API pull",
+        "dry_run=true means no provider credits were spent"
+      ]
+    },
+    {
+      "id": "vesselfinder_ingest",
+      "label": "VesselFinder AIS Ingestion & Scraping",
+      "monthly_cap_usd": 34.0,
+      "planned_spend_usd": 34.0,
+      "actual_spend_usd": 34.0,
+      "spent_usd": 34.0,
+      "status": "ACTIVE",
+      "plan": "VesselFinder Premium (valid through 2026-10-05, My Fleet 500 vessels)",
+      "vfid_token_status": "VALID",
+      "active_until": "2026-10-05",
+      "my_fleet_capacity": 500,
+      "dry_run": false,
+      "transaction": {
+        "amount_usd": 34.0,
+        "currency": "USD",
+        "date": "2026-09-05",
+        "description": "VesselFinder Premium 500-vessel fleet subscription",
+        "status": "ACTIVE"
+      },
+      "notes": [
+        "VesselFinder Premium active subscription ($34.00 spent, status ACTIVE)",
+        "Active token vfid authenticated until 2026-10-05",
+        "My Fleet capacity: 500 vessels",
+        "Proxy scraping node: LD8 London (185.39.19.75)"
+      ]
+    }
+  ],
+  "disclaimer": "Ledger aggregates configured caps and last-known estimates. It does not scrape provider invoices. dry_run gas spend is excluded from known spend. VesselFinder Premium transaction recorded as ACTIVE."
+}

@@ -1,0 +1,724 @@
+{
+  "generated_at_utc": "2026-09-05T15:29:26Z",
+  "base_investment_usd": 1000.0,
+  "usd_eur_rate": 0.86044,
+  "fx_source": "api.frankfurter.app",
+  "capital_eur": 860.44,
+  "ttf_spot_eur_mwh": 71.952,
+  "forecast_path_p50": {
+    "d0": 71.952,
+    "d7": 71.212,
+    "d14": 70.989,
+    "d30": 71.902
+  },
+  "cone_width_30d": 22.641,
+  "recommended_strategy_id": "B",
+  "panel_g": {
+    "title": "Allocation & Yield Profile ($1,000 Investment)",
+    "donut": [
+      {
+        "label": "Futures",
+        "weight_pct": 45.0,
+        "color": "#00e5ff"
+      },
+      {
+        "label": "Options Collar",
+        "weight_pct": 20.0,
+        "color": "#f59e0b"
+      },
+      {
+        "label": "AIS-driven Spread",
+        "weight_pct": 35.0,
+        "color": "#10b981"
+      }
+    ],
+    "center": {
+      "from_usd": 1000.0,
+      "to_usd": 1184.0,
+      "return_pct": 18.4,
+      "label": "$1,000 \u2192 $1,184 / +18.4%"
+    },
+    "strategy_ref": "B \u00b7 AIS-Gated Dynamic Futures"
+  },
+  "panel_h": {
+    "title": "3 Optimal Energy Desk Hedging Strategies",
+    "strategies": [
+      {
+        "id": "A",
+        "code": "delta_neutral_collar",
+        "name": "Delta-Neutral Collar",
+        "alias": "Conservative Alpha / Delta-Neutral Call Spread",
+        "risk_tier": "Low Risk / Low Volatility",
+        "allocation_pct": {
+          "options_collar": 60.0,
+          "spot": 30.0,
+          "cash": 10.0
+        },
+        "allocation_raw": {
+          "options_collar": 0.6,
+          "spot": 0.3,
+          "cash": 0.1,
+          "futures": 0.0,
+          "ais_spread": 0.0,
+          "otm_puts": 0.0,
+          "atm_calls": 0.0,
+          "ttf_brent_spread": 0.0,
+          "ais_gap_trigger": 0.0
+        },
+        "expected_yield_pct": {
+          "lo": 8.5,
+          "hi": 12.2,
+          "mid": 10.35
+        },
+        "terminal_usd": {
+          "lo": 1085.0,
+          "hi": 1122.0,
+          "mid": 1103.5
+        },
+        "var_95_pct": -2.1,
+        "max_drawdown_pct": -2.1,
+        "expected_sharpe": 1.85,
+        "risk_reward": 4.2,
+        "execution_rules": [
+          "Buy ATM\u20131\u03c3 call / sell OTM call (call spread) sized to 60% NAV",
+          "Hold 30% physical/spot TTF exposure delta-hedged weekly",
+          "Keep 10% EUR cash buffer for margin & roll",
+          "Rebalance if spot exits ensemble P10\u2013P90 7d cone"
+        ],
+        "donut": [
+          {
+            "label": "Cash",
+            "weight_pct": 10.0,
+            "color": "#64748b"
+          },
+          {
+            "label": "Futures",
+            "weight_pct": 30.0,
+            "color": "#00e5ff"
+          },
+          {
+            "label": "Options Collar",
+            "weight_pct": 60.0,
+            "color": "#f59e0b"
+          }
+        ],
+        "paper_mtm_pnl_usd": -0.07,
+        "paper_nav_usd": 999.93,
+        "paper_badge": "MtM: $-0.07 / Target: +8.5%",
+        "paper_order_id": "PAPER-R-062B3CFA1C",
+        "paper_status": "OPEN"
+      },
+      {
+        "id": "B",
+        "code": "ais_gated_futures",
+        "name": "AIS-Gated Dynamic Futures",
+        "alias": "Balanced Dynamic / Futures Cross-Hedge with AIS Signals",
+        "risk_tier": "Optimal Risk-Reward / Balanced",
+        "allocation_pct": {
+          "futures": 45.0,
+          "ais_spread": 35.0,
+          "otm_puts": 20.0
+        },
+        "allocation_raw": {
+          "options_collar": 0.0,
+          "spot": 0.0,
+          "cash": 0.0,
+          "futures": 0.45,
+          "ais_spread": 0.35,
+          "otm_puts": 0.2,
+          "atm_calls": 0.0,
+          "ttf_brent_spread": 0.0,
+          "ais_gap_trigger": 0.0
+        },
+        "expected_yield_pct": {
+          "lo": 18.4,
+          "hi": 24.1,
+          "mid": 18.4
+        },
+        "terminal_usd": {
+          "lo": 1184.0,
+          "hi": 1241.0,
+          "mid": 1184.0
+        },
+        "var_95_pct": -5.8,
+        "max_drawdown_pct": -5.8,
+        "expected_sharpe": 2.15,
+        "risk_reward": 3.6,
+        "execution_rules": [
+          "Long ICE TTF futures 45% NAV; roll front month before expiry\u22123d",
+          "AIS Shadow Fleet proxy 35%: long when Rotterdam/Zeebrugge density\u2191",
+          "OTM puts 20% as crash hedge (strike \u2248 spot\u00d70.92)",
+          "Gate: cut futures if AIS dark-gap anomaly > 4h near Gate terminal"
+        ],
+        "donut": [
+          {
+            "label": "Futures",
+            "weight_pct": 45.0,
+            "color": "#00e5ff"
+          },
+          {
+            "label": "Options Collar",
+            "weight_pct": 20.0,
+            "color": "#f59e0b"
+          },
+          {
+            "label": "AIS-driven Spread",
+            "weight_pct": 35.0,
+            "color": "#10b981"
+          }
+        ],
+        "paper_mtm_pnl_usd": -0.17,
+        "paper_nav_usd": 999.83,
+        "paper_badge": "MtM: $-0.17 / Target: +18.4%",
+        "paper_order_id": "PAPER-S-447AB1C454",
+        "paper_status": "OPEN"
+      },
+      {
+        "id": "C",
+        "code": "convexity_vol_long",
+        "name": "Convexity Volatility Long",
+        "alias": "Aggressive Quant / Asymmetric Convexity Volatility Spike",
+        "risk_tier": "High Return / High Risk",
+        "allocation_pct": {
+          "atm_calls": 40.0,
+          "ttf_brent_spread": 40.0,
+          "ais_gap_trigger": 20.0
+        },
+        "allocation_raw": {
+          "options_collar": 0.0,
+          "spot": 0.0,
+          "cash": 0.0,
+          "futures": 0.0,
+          "ais_spread": 0.0,
+          "otm_puts": 0.0,
+          "atm_calls": 0.4,
+          "ttf_brent_spread": 0.4,
+          "ais_gap_trigger": 0.2
+        },
+        "expected_yield_pct": {
+          "lo": 35.0,
+          "hi": 52.0,
+          "mid": 43.5
+        },
+        "terminal_usd": {
+          "lo": 1350.0,
+          "hi": 1520.0,
+          "mid": 1435.0
+        },
+        "var_95_pct": -14.2,
+        "max_drawdown_pct": -14.2,
+        "expected_sharpe": 1.45,
+        "risk_reward": 2.9,
+        "execution_rules": [
+          "ATM call strip 40% \u2014 long gamma into supply-shock HMM state",
+          "TTF/Brent cross-commodity spread 40% (energy relative value)",
+          "Dynamic AIS gap trigger 20%: add convexity when dark AIS spikes",
+          "Hard stop: mark-to-market \u221214.2% (VaR 95% desk limit)"
+        ],
+        "donut": [
+          {
+            "label": "Options Collar",
+            "weight_pct": 40.0,
+            "color": "#f59e0b"
+          },
+          {
+            "label": "AIS-driven Spread",
+            "weight_pct": 60.0,
+            "color": "#10b981"
+          }
+        ],
+        "paper_mtm_pnl_usd": -0.27,
+        "paper_nav_usd": 999.73,
+        "paper_badge": "MtM: $-0.27 / Target: +35.0%",
+        "paper_order_id": "PAPER-Y-9FF44140A3",
+        "paper_status": "OPEN"
+      }
+    ]
+  },
+  "panel_i": {
+    "title": "30-Day Strategy Equity Curves",
+    "labels": [
+      "D0",
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "D6",
+      "D7",
+      "D8",
+      "D9",
+      "D10",
+      "D11",
+      "D12",
+      "D13",
+      "D14",
+      "D15",
+      "D16",
+      "D17",
+      "D18",
+      "D19",
+      "D20",
+      "D21",
+      "D22",
+      "D23",
+      "D24",
+      "D25",
+      "D26",
+      "D27",
+      "D28",
+      "D29",
+      "D30"
+    ],
+    "benchmark": [
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0
+    ],
+    "series": {
+      "A": {
+        "name": "Delta-Neutral Collar",
+        "values": [
+          1000.0,
+          999.83,
+          1001.03,
+          1001.6,
+          1001.44,
+          1000.87,
+          1000.5,
+          1001.07,
+          1003.38,
+          1007.65,
+          1013.85,
+          1021.52,
+          1029.91,
+          1038.15,
+          1045.49,
+          1051.63,
+          1056.39,
+          1060.12,
+          1063.43,
+          1066.99,
+          1071.32,
+          1076.62,
+          1082.69,
+          1088.99,
+          1094.82,
+          1099.48,
+          1102.47,
+          1103.67,
+          1103.33,
+          1101.98,
+          1103.5
+        ],
+        "color": "#34d399"
+      },
+      "B": {
+        "name": "AIS-Gated Dynamic Futures",
+        "values": [
+          1000.0,
+          998.93,
+          996.25,
+          993.65,
+          991.79,
+          991.38,
+          993.02,
+          997.05,
+          1003.79,
+          1012.59,
+          1022.87,
+          1033.94,
+          1045.14,
+          1056.06,
+          1066.57,
+          1077.17,
+          1087.85,
+          1098.92,
+          1110.51,
+          1122.41,
+          1134.13,
+          1145.0,
+          1154.36,
+          1161.75,
+          1167.08,
+          1170.62,
+          1172.94,
+          1174.74,
+          1176.57,
+          1178.71,
+          1184.0
+        ],
+        "color": "#00e5ff"
+      },
+      "C": {
+        "name": "Convexity Volatility Long",
+        "values": [
+          1000.0,
+          991.23,
+          989.74,
+          990.48,
+          993.19,
+          997.53,
+          1003.29,
+          1010.49,
+          1019.96,
+          1031.85,
+          1046.86,
+          1065.59,
+          1088.28,
+          1114.71,
+          1144.22,
+          1176.24,
+          1208.89,
+          1240.73,
+          1270.46,
+          1297.11,
+          1320.17,
+          1339.67,
+          1356.13,
+          1370.34,
+          1383.22,
+          1395.44,
+          1407.28,
+          1418.5,
+          1428.36,
+          1435.81,
+          1435.0
+        ],
+        "color": "#f59e0b"
+      }
+    },
+    "mtm_overlay": {
+      "A": {
+        "labels": [
+          "2026-09-05"
+        ],
+        "nav": [
+          999.93
+        ],
+        "mtm": [
+          -0.07
+        ]
+      },
+      "B": {
+        "labels": [
+          "2026-09-05"
+        ],
+        "nav": [
+          999.83
+        ],
+        "mtm": [
+          -0.17
+        ]
+      },
+      "C": {
+        "labels": [
+          "2026-09-05"
+        ],
+        "nav": [
+          999.73
+        ],
+        "mtm": [
+          -0.27
+        ]
+      }
+    },
+    "mtm_series": {
+      "A": {
+        "name": "MtM A",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          999.93
+        ],
+        "color": "#6ee7b7"
+      },
+      "B": {
+        "name": "MtM B",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          999.83
+        ],
+        "color": "#67e8f9"
+      },
+      "C": {
+        "name": "MtM C",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          999.73
+        ],
+        "color": "#fcd34d"
+      }
+    }
+  },
+  "summary": {
+    "strategies": 3,
+    "recommended": "B",
+    "roi_30d_usd": 184.0,
+    "roi_30d_pct": 18.4
+  },
+  "paper_ledger": {
+    "generated_at_utc": "2026-09-05T15:29:26Z",
+    "live_spot_eur_mwh": 71.952,
+    "p50_30": 71.90213298794671,
+    "base_usd": 1000.0,
+    "orders": [
+      {
+        "order_id": "PAPER-R-062B3CFA1C",
+        "strategy_id": "STRAT_A_COLLAR",
+        "short_id": "A",
+        "name": "Delta-Neutral Collar",
+        "timestamp_utc": "2026-09-05T15:28:59Z",
+        "spot_ref_price": 71.952,
+        "live_spot": 71.952,
+        "position_size_usd": 1000.0,
+        "target_horizon_days": 30,
+        "projected_return_pct": 8.5,
+        "current_mtm_pnl_usd": -0.07,
+        "current_nav_usd": 999.93,
+        "mtm_return_pct": -0.007,
+        "days_held": 0,
+        "status": "OPEN",
+        "badge": "MtM: $-0.07 / Target: +8.5%",
+        "marks": [
+          {
+            "date": "2026-09-05",
+            "spot": 71.952,
+            "mtm_pnl_usd": -0.07,
+            "nav_usd": 999.93
+          }
+        ]
+      },
+      {
+        "order_id": "PAPER-S-447AB1C454",
+        "strategy_id": "STRAT_B_AIS_FUTURES",
+        "short_id": "B",
+        "name": "AIS-Gated Dynamic Futures",
+        "timestamp_utc": "2026-09-05T15:28:59Z",
+        "spot_ref_price": 71.952,
+        "live_spot": 71.952,
+        "position_size_usd": 1000.0,
+        "target_horizon_days": 30,
+        "projected_return_pct": 18.4,
+        "current_mtm_pnl_usd": -0.17,
+        "current_nav_usd": 999.83,
+        "mtm_return_pct": -0.017,
+        "days_held": 0,
+        "status": "OPEN",
+        "badge": "MtM: $-0.17 / Target: +18.4%",
+        "marks": [
+          {
+            "date": "2026-09-05",
+            "spot": 71.952,
+            "mtm_pnl_usd": -0.17,
+            "nav_usd": 999.83
+          }
+        ]
+      },
+      {
+        "order_id": "PAPER-Y-9FF44140A3",
+        "strategy_id": "STRAT_C_CONVEXITY",
+        "short_id": "C",
+        "name": "Convexity Volatility Long",
+        "timestamp_utc": "2026-09-05T15:28:59Z",
+        "spot_ref_price": 71.952,
+        "live_spot": 71.952,
+        "position_size_usd": 1000.0,
+        "target_horizon_days": 30,
+        "projected_return_pct": 35.0,
+        "current_mtm_pnl_usd": -0.27,
+        "current_nav_usd": 999.73,
+        "mtm_return_pct": -0.027,
+        "days_held": 0,
+        "status": "OPEN",
+        "badge": "MtM: $-0.27 / Target: +35.0%",
+        "marks": [
+          {
+            "date": "2026-09-05",
+            "spot": 71.952,
+            "mtm_pnl_usd": -0.27,
+            "nav_usd": 999.73
+          }
+        ]
+      }
+    ],
+    "open_count": 3,
+    "strategy_b": {
+      "order_id": "PAPER-S-447AB1C454",
+      "strategy_id": "STRAT_B_AIS_FUTURES",
+      "short_id": "B",
+      "name": "AIS-Gated Dynamic Futures",
+      "timestamp_utc": "2026-09-05T15:28:59Z",
+      "spot_ref_price": 71.952,
+      "live_spot": 71.952,
+      "position_size_usd": 1000.0,
+      "target_horizon_days": 30,
+      "projected_return_pct": 18.4,
+      "current_mtm_pnl_usd": -0.17,
+      "current_nav_usd": 999.83,
+      "mtm_return_pct": -0.017,
+      "days_held": 0,
+      "status": "OPEN",
+      "badge": "MtM: $-0.17 / Target: +18.4%",
+      "marks": [
+        {
+          "date": "2026-09-05",
+          "spot": 71.952,
+          "mtm_pnl_usd": -0.17,
+          "nav_usd": 999.83
+        }
+      ]
+    },
+    "live_paper_badge": "MtM: $-0.17 / Target: +18.4%",
+    "equity_overlay": {
+      "A": {
+        "labels": [
+          "2026-09-05"
+        ],
+        "nav": [
+          999.93
+        ],
+        "mtm": [
+          -0.07
+        ]
+      },
+      "B": {
+        "labels": [
+          "2026-09-05"
+        ],
+        "nav": [
+          999.83
+        ],
+        "mtm": [
+          -0.17
+        ]
+      },
+      "C": {
+        "labels": [
+          "2026-09-05"
+        ],
+        "nav": [
+          999.73
+        ],
+        "mtm": [
+          -0.27
+        ]
+      }
+    }
+  },
+  "live_paper_badge": "MtM: $-0.17 / Target: +18.4%"
+}

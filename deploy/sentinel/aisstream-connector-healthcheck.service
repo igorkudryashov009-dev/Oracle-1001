@@ -1,0 +1,9 @@
+[Unit]
+Description=Oracle-1001 AISStream connector healthcheck (MPS / systemd)
+After=aisstream-connector.service
+OnFailure=sentinel-alert@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/oracle1001/deploy/sentinel/aisstream_healthcheck.sh
+User=root
