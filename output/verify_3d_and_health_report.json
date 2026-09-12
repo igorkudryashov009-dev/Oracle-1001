@@ -1,0 +1,148 @@
+{
+  "ok": false,
+  "failures": [
+    "pipeline_health_status='CRITICAL' (required NOMINAL) source=disk",
+    "ais_lag=1412.5s >= 300s"
+  ],
+  "glb": {
+    "ok": true,
+    "models": [
+      {
+        "imo": "9388833",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9388833.glb",
+        "bytes": 1913280,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      },
+      {
+        "imo": "9397303",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9397303.glb",
+        "bytes": 1800768,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      },
+      {
+        "imo": "9397315",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9397315.glb",
+        "bytes": 1832224,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      },
+      {
+        "imo": "9397327",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9397327.glb",
+        "bytes": 1933240,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      },
+      {
+        "imo": "9337755",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9337755.glb",
+        "bytes": 1712868,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      },
+      {
+        "imo": "9372731",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9372731.glb",
+        "bytes": 1711320,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      },
+      {
+        "imo": "9372743",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9372743.glb",
+        "bytes": 1797664,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      },
+      {
+        "imo": "9388819",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9388819.glb",
+        "bytes": 2033480,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      },
+      {
+        "imo": "9388821",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9388821.glb",
+        "bytes": 1881536,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      },
+      {
+        "imo": "9397298",
+        "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\assets\\3d_models\\vessel_9397298.glb",
+        "bytes": 1836876,
+        "magic": "0x46546c67",
+        "gltf_version": 2,
+        "ok": true
+      }
+    ]
+  },
+  "sre_bindings": {
+    "ok": true,
+    "dashboard_port": 8765,
+    "port_8478": "unbound",
+    "port_8765": "listening",
+    "db": "C:\\Users\\MSI\\Oracle-1001\\7000\\\u0438\u0441\u0442\u043e\u0440\u0438\u044f1\\sentinel_ais.db",
+    "db_bytes": 67289088
+  },
+  "web_assets": {
+    "ok": true,
+    "pairs": 25,
+    "mismatched": 0
+  },
+  "health": {
+    "ok": false,
+    "source": "disk",
+    "pipeline_health_status": "CRITICAL",
+    "fleet_sample_status": "INSUFFICIENT",
+    "top500_live_coverage": 0,
+    "ais_lag_sec": 1412.5
+  },
+  "ui": {
+    "ok": true,
+    "pages": [
+      {
+        "path": "output/sentinel_dashboard.html",
+        "bytes": 1006787,
+        "disk_ok": true
+      },
+      {
+        "path": "output/top100_analytics.html",
+        "bytes": 161988,
+        "disk_ok": true
+      },
+      {
+        "path": "output/fleet_meta_analysis.html",
+        "bytes": 26081,
+        "disk_ok": true
+      }
+    ]
+  },
+  "contract": {
+    "blocking": [
+      "glb_integrity_>100KiB",
+      "pipeline_health_status==NOMINAL",
+      "ais_lag<300",
+      "port_8765_not_8478",
+      "db_sentinel_ais_only",
+      "web_output_md5_sync",
+      "ui_html"
+    ],
+    "informational": [
+      "fleet_sample_status"
+    ],
+    "note": "fleet_sample never uses NOMINAL; FULL/LIMITED/INSUFFICIENT only. N<100 does not fail this gate (G3 terrestrial ceiling)."
+  }
+}

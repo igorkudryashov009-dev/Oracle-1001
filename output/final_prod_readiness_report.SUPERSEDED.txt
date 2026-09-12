@@ -1,0 +1,11 @@
+SUPERSEDED — do not use this report for Deploy Gate decisions.
+
+Authoritative semantics (Prompt 8 / 10):
+  - services/dual_gate.py
+  - services/release_gate.py
+  - AGENTS.md
+  - README.md "READ THIS FIRST"
+
+This JSON may still narrate the old "coverage < 100 blocks publish" rule.
+That rule is obsolete. Publish blocks only when pipeline_health_status != NOMINAL.
+Fleet sample LIMITED/INSUFFICIENT is expected on terrestrial AIS (G3).

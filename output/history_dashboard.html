@@ -68,7 +68,7 @@
   </div>
 </div>
 <script>
-const META = {"archive_start": "2026-07-28", "days_accumulated": 0, "daily_files": [], "last_updated": null, "targets_path": "targets.json", "daily_glob": "история1/daily/*.csv", "by_vessel_dir": "история1/by_vessel/", "forecast_dir": "история1/forecast/", "generated_at": "2026-09-05T10:31:42Z", "honest_note": "Data collection started: 28.07.2026. There is no retroactive history before this date. Archive depth only grows forward while the collector runs.", "n_targets": 1253, "stats": {"vessel_rows": 1253, "unique_imo_vessel": 1253, "unique_imo_with_mmsi": 1253, "unique_imo_without_mmsi": 0, "unique_mmsi_for_subscription": 1251, "websocket_batches_needed": 26}};
+const META = {"archive_start": "2026-07-28", "days_accumulated": 0, "daily_files": [], "last_updated": null, "targets_path": "targets.json", "daily_glob": "история1/daily/*.csv", "by_vessel_dir": "история1/by_vessel/", "forecast_dir": "история1/forecast/", "generated_at": "2026-09-09T14:03:03Z", "honest_note": "Data collection started: 28.07.2026. There is no retroactive history before this date. Archive depth only grows forward while the collector runs.", "n_targets": 1253, "stats": {"vessel_rows": 1253, "unique_imo_vessel": 1253, "unique_imo_with_mmsi": 1253, "unique_imo_without_mmsi": 0, "unique_mmsi_for_subscription": 1251, "websocket_batches_needed": 26}};
 const PERIOD_DAYS = { "30":30, "90":90, "365":365, "all":null };
 let periodKey = "30";
 let selected = null;
@@ -251,7 +251,7 @@ function renderDossier(){
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">Km period</span><strong>${km.toFixed(1)}</strong></div>
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">Days w/ data</span><strong>${rows.length}</strong></div>
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">Last src</span><strong>${last?last.source:"—"}</strong></div>
-    <p class="fi-muted" style="margin-top:12px;font-size:13px">${fc?fc.disclaimer:"Forecast appears after live points exist in raw_positions.db"}</p>`;
+    <p class="fi-muted" style="margin-top:12px;font-size:13px">${fc?fc.disclaimer:"Forecast appears after live points exist in sentinel_ais.db"}</p>`;
 }
 function renderChart(){
   const c = chartColors();
@@ -278,8 +278,8 @@ function setPeriod(k){
 async function init(){
   renderBanner();
   map = L.map("map").setView([20,40],2);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{
-    attribution:"&copy; OSM &copy; CARTO", maxZoom:18
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
+    attribution:"&copy; OpenStreetMap &copy; CARTO", maxZoom:18, subdomains:"abcd"
   }).addTo(map);
   await loadDailyIndex();
   document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>setPeriod(b.dataset.p));

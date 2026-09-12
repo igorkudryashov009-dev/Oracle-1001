@@ -362,10 +362,137 @@ def validate_html_artifact(html_path: Path, *, min_bytes: int = MIN_DASHBOARD_BY
     ttf = payload.get("ttf_forecast") or {}
     assert_ttf_ui_payload(ttf)
 
+    top10_gate = assert_top10_flagships(html_path)
+    route_gate = assert_route_analytics(html_path, payload=payload)
+
     return {
         "ok": True,
         "bytes": size,
         "payload_chars": blob_len,
         "spot": ttf.get("spot_eur_mwh"),
         "integrity": ttf.get("integrity_status") or "PASS",
+        "top10": top10_gate,
+        "route": route_gate,
+    }
+
+
+def assert_route_analytics(html_path: Optional[Path] = None, payload: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    """Verify ROUTE sheet markers + embedded route_analytics payload contract."""
+    from services.route_analytics import assert_route_payload
+
+    html = html_path or (OUT / "sentinel_dashboard.html")
+    route = None
+    if payload is not None:
+        route = payload.get("route_analytics")
+    if route is None and html.exists():
+        text = html.read_text(encoding="utf-8", errors="ignore")
+        marker = "window.__SENTINEL_PAYLOAD__ = "
+        idx = text.find(marker)
+        if idx >= 0:
+            try:
+                blob, _ = json.JSONDecoder().raw_decode(text, idx + len(marker))
+                route = (blob or {}).get("route_analytics")
+            except json.JSONDecodeError as exc:
+                raise SREBuildError("ROUTE_HTML_JSON", str(exc)) from exc
+
+    gate = assert_route_payload(route or {})
+
+    if html.exists():
+        text = html.read_text(encoding="utf-8", errors="ignore")
+        for m in ('data-sheet="route"', "МАРШРУТ", "sheet-route", "route_sheet.js", "routeP1", "routeMap"):
+            if m not in text:
+                raise SREBuildError("ROUTE_HTML_MARKER", f"missing marker: {m}")
+    for js_name in (
+        "route_sheet.js",
+        "route_analytics_engine.js",
+        "route_map_view.js",
+        "route_infographics.js",
+    ):
+        if not (OUT / "js" / js_name).exists():
+            raise SREBuildError("ROUTE_JS_MISSING", f"missing output/js/{js_name}")
+
+    return {**gate, "integrity": "PASS"}
+
+
+def assert_top10_flagships(html_path: Optional[Path] = None) -> dict[str, Any]:
+    """
+    Verify TOP 10 LNG Flagships sheet: 10 IMOs, orthographic refs on disk,
+    synced HTTP assets, and dashboard markers (no 404 paths).
+    """
+    from services.top10_vessels import (
+        ASSET_OUT,
+        TOP10_VESSELS,
+        assert_reference_images_exist,
+        ref_paths,
+        web_urls,
+    )
+
+    refs = assert_reference_images_exist()
+    missing_http: list[str] = []
+    for v in TOP10_VESSELS:
+        rank = int(v["rank"])
+        for _key, src in ref_paths(rank).items():
+            if not src.exists() or src.stat().st_size < 1000:
+                missing_http.append(str(src))
+
+    if missing_http:
+        raise SREBuildError(
+            "TOP10_ASSET_404",
+            f"Desktop orthographic refs missing: {missing_http[:6]}",
+        )
+
+    html = html_path or (OUT / "sentinel_dashboard.html")
+    if html.exists():
+        text = html.read_text(encoding="utf-8", errors="ignore")
+        brand_ok = (
+            ("Q-Flex" in text)
+            or ("Q-FLEX" in text)
+            or ("ТОП 10 ФЛАГМАНОВ" in text)
+        )
+        if not brand_ok:
+            raise SREBuildError(
+                "TOP10_HTML_MARKER",
+                "missing Q-Flex brand marker in HTML (expected 'Q-Flex')",
+            )
+        markers = (
+            "sheet-top10",
+            "top10_sheet.js",
+        )
+        has_sheet_attr = ('data-sheet="top10"' in text) or ('data-sheet="qflex"' in text)
+        if not has_sheet_attr:
+            raise SREBuildError("TOP10_HTML_MARKER", "missing data-sheet top10/qflex in HTML")
+        for m in markers:
+            if m not in text:
+                raise SREBuildError("TOP10_HTML_MARKER", f"missing marker in HTML: {m}")
+
+    for js_name in (
+        "top10_sheet.js",
+        "top10_vessels_manifest.js",
+        "vessel_3d_reconstruction.js",
+    ):
+        path = OUT / "js" / js_name
+        if not path.exists():
+            raise SREBuildError("TOP10_JS_MISSING", f"missing {path}")
+
+    manifest = OUT / "js" / "top10_vessels_manifest.js"
+    man_txt = manifest.read_text(encoding="utf-8", errors="ignore")
+    for v in TOP10_VESSELS:
+        if str(v["imo"]) not in man_txt:
+            raise SREBuildError(
+                "TOP10_IMO_MISSING",
+                f"IMO {v['imo']} not registered in top10_vessels_manifest.js",
+            )
+        for rel in web_urls(int(v["rank"])).values():
+            if rel not in man_txt:
+                raise SREBuildError(
+                    "TOP10_URL_MISSING",
+                    f"ref url {rel} missing from manifest",
+                )
+
+    return {
+        "ok": True,
+        "vessels": len(TOP10_VESSELS),
+        "images": refs["images"],
+        "asset_dir": str(ASSET_OUT),
+        "integrity": "PASS",
     }

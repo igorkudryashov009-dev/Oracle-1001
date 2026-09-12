@@ -1,0 +1,138 @@
+{
+  "generated_at_utc": "2026-09-07T03:31:16Z",
+  "ais_gate": {
+    "ok": true,
+    "detail": "AIS live: mode=live_ais lag_min=0.0",
+    "health_snapshot": {
+      "source_mode": "live_ais",
+      "live_vessel_count": 21,
+      "ensemble_accuracy_pct_before": 42.9,
+      "replica": {
+        "stale": false,
+        "live_ok": true,
+        "db_path": "./\u0438\u0441\u0442\u043e\u0440\u0438\u044f1/sentinel_ais.db",
+        "mtime_epoch": 1788751864.8948278,
+        "age_sec": 0.7,
+        "lag_minutes": 0.0,
+        "status": "FRESH",
+        "ais_truth": "live_ok",
+        "signal_source": "ais_positions.timestamp_utc",
+        "latest_ts": "2026-09-07T03:31:04.179376+00:00",
+        "integrity_ok": true,
+        "banner": null,
+        "live_ok_lag_sec": 300
+      }
+    }
+  },
+  "fleet_csv": {
+    "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\fleet_database.csv",
+    "age_days": 1.89,
+    "stale_warning": false,
+    "top500_rows": 500,
+    "sample_vessel_types": [
+      "\u0421\u0432\u0435\u0440\u0445\u043a\u0440\u0443\u043f\u043d\u044b\u0439 \u0442\u0430\u043d\u043a\u0435\u0440 \u0434\u043b\u044f \u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0438 \u0441\u044b\u0440\u043e\u0439 \u043d\u0435\u0444\u0442\u0438 (VLCC \u2014 Very Large Crude Carrier / Dual-Fuel LNG option)",
+      "\u0421\u0432\u0435\u0440\u0445\u043a\u0440\u0443\u043f\u043d\u044b\u0439 \u0442\u0430\u043d\u043a\u0435\u0440 \u0434\u043b\u044f \u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0438 \u0441\u044b\u0440\u043e\u0439 \u043d\u0435\u0444\u0442\u0438 (VLCC \u2014 Very Large Crude Carrier / Dual-Fuel LNG option)",
+      "Crude Oil Tanker",
+      "\u0422\u0430\u043d\u043a\u0435\u0440-\u0433\u0430\u0437\u043e\u0432\u043e\u0437 (LNG Tanker)",
+      "LNG Carrier (\u0422\u0430\u043d\u043a\u0435\u0440 \u0434\u043b\u044f \u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0438 \u0441\u0436\u0438\u0436\u0435\u043d\u043d\u043e\u0433\u043e \u043f\u0440\u0438\u0440\u043e\u0434\u043d\u043e\u0433\u043e \u0433\u0430\u0437\u0430)"
+    ]
+  },
+  "spatial_matching": {
+    "payload_build_ms": 662.51,
+    "spatial_delta_v_ms": 0.04,
+    "live_vessel_count": 19,
+    "top500_universe": 500,
+    "source_mode": "live_ais",
+    "complexity_note": "\u0394V is O(N) over vessels+STS \u2014 no N\u00b2 pairwise; KD-tree not required at N\u2264500",
+    "delta_v_index": 11.0,
+    "coverage_gap": 481
+  },
+  "component_holdout_14d": {
+    "horizon_days": 14,
+    "n_eval": 13,
+    "holdout_end": "130",
+    "markov": {
+      "directional_accuracy_pct": 84.62
+    },
+    "spectral": {
+      "directional_accuracy_pct": 84.62
+    },
+    "elliott": {
+      "directional_accuracy_pct": 15.38
+    },
+    "heuristic_blend_ex_catboost": {
+      "directional_accuracy_pct": 15.38
+    }
+  },
+  "ttf_pipeline": {
+    "seconds": 78.17,
+    "summary": {
+      "ok": true,
+      "mode": "catboost_ensemble",
+      "spot": 71.952,
+      "total_seconds": 78.132,
+      "horizons": {
+        "7": {
+          "p10": 66.46,
+          "p50": 70.98,
+          "p90": 75.88
+        },
+        "14": {
+          "p10": 64.25,
+          "p50": 70.69,
+          "p90": 77.95
+        },
+        "30": {
+          "p10": 61.78,
+          "p50": 72.12,
+          "p90": 84.42
+        }
+      },
+      "optimal_range": {
+        "label": "B_68_75",
+        "confidence_pct": 64.0
+      }
+    }
+  },
+  "accuracy": {
+    "ensemble_before_pct": 42.9,
+    "ensemble_after_pct": 70.4,
+    "accuracy_basis": "purged_cv_directional",
+    "component_accuracy_pct": {
+      "catboost": 75.0,
+      "markov": 84.6,
+      "spectral": 84.6,
+      "elliott": 15.4
+    },
+    "per_model_table": {
+      "CatBoost_h7": 57.14,
+      "CatBoost_h14": 75.0,
+      "CatBoost_h30": 50.0,
+      "Markov_14d": 84.62,
+      "Spectral_14d": 84.62,
+      "Elliott_14d": 15.38
+    },
+    "threshold_80_met": false
+  },
+  "regression_pre_degradation": {
+    "available": true,
+    "generated_at_utc": "2026-09-06T18:07:17Z",
+    "note": "Legacy AIS-flow ensemble report; architecture intact if file parses. Not a directional holdout score \u2014 used as smoke regression only.",
+    "signals_used_keys": [
+      "dwt_flow_lags",
+      "fourier_periods",
+      "markov_laden_p",
+      "elliott_flag",
+      "elliott_method_type",
+      "causal_flags"
+    ]
+  },
+  "status": "OK_BELOW_THRESHOLD",
+  "hypotheses_if_below_80": [
+    "AIS TOP-500 coverage << 500 (only MMSIs ever observed in DB contribute); flow features starved",
+    "14d holdout after AIS restore may still be short / contaminated by STALE window",
+    "Static Markov/Spectral/Elliott artifacts not re-fit on post-restore window",
+    "Prior 41% figure was confidence-proxy average, not directional holdout \u2014 baseline not comparable 1:1",
+    "Model drift vs ICE regime; need longer purged WF or feature refresh"
+  ]
+}

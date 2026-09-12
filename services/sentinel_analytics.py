@@ -25,6 +25,10 @@ from services.storage import AISStorage
 ROOT = Path(__file__).resolve().parents[1]
 TOP500_N = 500
 
+# Physical upper bound for LNG membrane / Q-Max hulls (knots)
+LNG_PHYSICAL_SPEED_KN = 21.0
+
+
 # Major destination ports for chart 5
 TOP_PORTS = (
     "Pattaya", "Si Chang", "Sichang", "Singapore", "Fujairah",
@@ -40,6 +44,159 @@ def _haversine_nm(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     dlmb = math.radians(lon2 - lon1)
     a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlmb / 2) ** 2
     return 2 * r * math.asin(min(1.0, math.sqrt(a)))
+
+
+def _parse_ts(raw: Any) -> datetime | None:
+    if not raw:
+        return None
+    s = str(raw).strip().replace("Z", "+00:00")
+    try:
+        dt = datetime.fromisoformat(s)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt
+    except ValueError:
+        return None
+
+
+def detect_ais_spoofing(
+    position_rows: list[dict[str, Any]],
+    vessels: list[dict[str, Any]],
+    *,
+    speed_bound_kn: float = LNG_PHYSICAL_SPEED_KN,
+) -> dict[str, Any]:
+    """
+    Ghost / spoof detector: physical displacement velocity between consecutive AIS pings.
+
+    If distance_nm / Δt_hours > speed_bound_kn → is_spoofed=True.
+    Mutates vessel dicts in-place with is_spoofed / spoof_speed_kn / spoof_tag.
+    """
+    by_key: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for r in position_rows:
+        key = str(r.get("mmsi") or r.get("imo") or "")
+        if not key:
+            continue
+        if r.get("lat") is None or r.get("lon") is None:
+            continue
+        by_key[key].append(r)
+
+    spoofed_imos: set[str] = set()
+    spoofed_mmsis: set[str] = set()
+    details: list[dict[str, Any]] = []
+
+    for key, rows in by_key.items():
+        dated = []
+        for r in rows:
+            ts = _parse_ts(r.get("timestamp_utc") or r.get("received_at"))
+            if ts is None:
+                continue
+            dated.append((ts, r))
+        dated.sort(key=lambda x: x[0])
+        if len(dated) < 2:
+            continue
+
+        # Compare last two distinct pings (and a few prior pairs for robustness)
+        max_speed = 0.0
+        trigger_pair = None
+        for i in range(1, len(dated)):
+            t0, r0 = dated[i - 1]
+            t1, r1 = dated[i]
+            dt_h = (t1 - t0).total_seconds() / 3600.0
+            if dt_h <= 0.002:  # < ~7 seconds — ignore duplicate bursts
+                continue
+            try:
+                dist = _haversine_nm(
+                    float(r0["lat"]), float(r0["lon"]),
+                    float(r1["lat"]), float(r1["lon"]),
+                )
+            except (TypeError, ValueError, KeyError):
+                continue
+            speed = dist / dt_h
+            if speed > max_speed:
+                max_speed = speed
+                trigger_pair = (r0, r1, dt_h, dist)
+
+        if max_speed > speed_bound_kn and trigger_pair is not None:
+            r0, r1, dt_h, dist = trigger_pair
+            imo = str(r1.get("imo") or r0.get("imo") or "")
+            mmsi = str(r1.get("mmsi") or r0.get("mmsi") or key)
+            if imo:
+                spoofed_imos.add(imo)
+            spoofed_mmsis.add(mmsi)
+            details.append({
+                "imo": imo,
+                "mmsi": mmsi,
+                "name": r1.get("vessel_name") or r0.get("vessel_name"),
+                "calc_speed_kn": round(max_speed, 2),
+                "bound_kn": speed_bound_kn,
+                "delta_nm": round(dist, 2),
+                "delta_hours": round(dt_h, 3),
+                "lat": r1.get("lat"),
+                "lon": r1.get("lon"),
+                "tag": "SPOOFED TRACK DETECTED",
+            })
+
+    # Also flag instantaneous SOG > bound (reported AIS lie / GNSS jump)
+    for v in vessels:
+        try:
+            sog = float(v.get("sog") or 0)
+        except (TypeError, ValueError):
+            sog = 0.0
+        if sog > speed_bound_kn:
+            imo = str(v.get("imo") or "")
+            mmsi = str(v.get("mmsi") or "")
+            if imo:
+                spoofed_imos.add(imo)
+            if mmsi:
+                spoofed_mmsis.add(mmsi)
+            details.append({
+                "imo": imo,
+                "mmsi": mmsi,
+                "name": v.get("vessel_name"),
+                "calc_speed_kn": round(sog, 2),
+                "bound_kn": speed_bound_kn,
+                "delta_nm": None,
+                "delta_hours": None,
+                "lat": v.get("lat"),
+                "lon": v.get("lon"),
+                "tag": "SPOOFED TRACK DETECTED",
+                "reason": "reported_sog",
+            })
+
+    # Mutate vessels
+    for v in vessels:
+        imo = str(v.get("imo") or "")
+        mmsi = str(v.get("mmsi") or "")
+        flagged = (imo and imo in spoofed_imos) or (mmsi and mmsi in spoofed_mmsis)
+        v["is_spoofed"] = bool(flagged)
+        if flagged:
+            v["spoof_tag"] = "SPOOFED TRACK DETECTED"
+            match = next(
+                (d for d in details if d.get("imo") == imo or d.get("mmsi") == mmsi),
+                None,
+            )
+            v["spoof_speed_kn"] = match["calc_speed_kn"] if match else None
+        else:
+            v["spoof_tag"] = None
+            v["spoof_speed_kn"] = None
+
+    # Deduplicate details by imo/mmsi
+    seen: set[str] = set()
+    uniq: list[dict[str, Any]] = []
+    for d in sorted(details, key=lambda x: -float(x.get("calc_speed_kn") or 0)):
+        k = str(d.get("imo") or d.get("mmsi") or "")
+        if k in seen:
+            continue
+        seen.add(k)
+        uniq.append(d)
+
+    return {
+        "bound_kn": speed_bound_kn,
+        "spoofed_count": len(uniq),
+        "spoofed_imos": sorted(spoofed_imos),
+        "vessels": uniq[:40],
+        "engine": "ais_ghost_detector_v1",
+    }
 
 
 def _seed_positions_from_fleet(registry: FleetRegistry) -> list[dict[str, Any]]:
@@ -124,17 +281,21 @@ def build_sentinel_payload(
     reg = registry or FleetRegistry.from_csv(ROOT / "output" / "fleet_database.csv", top_n=1001)
     top_df = select_top500_fleet(ROOT / "output" / "fleet_database.csv", top_n=top_n)
     store = storage or AISStorage(sqlite_path=ROOT / "история1" / "sentinel_ais.db")
+    top_mmsis_list = [str(x) for x in top_df["mmsi"].astype(str).tolist()]
+    top_mmsis = set(top_mmsis_list)
     try:
         store.open()
-        live = store.fetch_recent(limit=8000, matched_only=False)
+        # Fleet-scoped latest positions (full TOP-N universe) — not a diluted global window.
+        live = store.fetch_latest_positions_for_mmsis(top_mmsis_list, matched_only=False)
+        # Recent matched history for spoofing velocity pairs (safety net if fleet query empty).
+        history = store.fetch_recent(limit=8000, matched_only=True)
         telemetry = store.fetch_telemetry(limit=120)
     except Exception:  # noqa: BLE001
-        live, telemetry = [], []
+        live, history, telemetry = [], [], []
 
-    matched_live = [r for r in live if int(r.get("matched") or 0) == 1]
+    matched_live = list(live) if live else [r for r in history if str(r.get("mmsi") or "") in top_mmsis]
     if not matched_live and use_synthetic_if_empty:
-        # Seed from TOP-500 slice of registry for OOTB demos
-        top_mmsis = {str(x) for x in top_df["mmsi"].astype(str).tolist()}
+        # Safety net when AIS empty/STALE — keep synthetic seed, do not pretend live=500.
         seeded = _seed_positions_from_fleet(reg)
         matched_live = [r for r in seeded if str(r.get("mmsi")) in top_mmsis] or seeded[:top_n]
         source_mode = "synthetic_seed"
@@ -153,12 +314,18 @@ def build_sentinel_payload(
             latest[mmsi] = r
     vessels = filter_vessels_to_top500(list(latest.values()), top_df)
 
+    # ── AIS Spoofing / Ghost Detector (physical displacement velocity) ────────
+    # Prefer recent history for consecutive pairs; fall back to latest-only sheet.
+    spoof_src = history if history else matched_live
+    spoof_report = detect_ais_spoofing(spoof_src, vessels)
+    clean_vessels = [v for v in vessels if not v.get("is_spoofed")]
+
     # Live STS / Dark from anomaly engine (replaces synthetic dark timeline)
     anomalies = build_live_anomaly_cards()
     sts_clusters = anomalies.get("sts_clusters") or []
     dark_events = anomalies.get("dark_timeline") or []
 
-    # ── Chart 1: Heatmap points ──────────────────────────────────────────────
+    # ── Chart 1: Heatmap points (spoofed tracks tagged, still visible for OSINT) ─
     heatmap = [
         {
             "lat": float(v["lat"]),
@@ -168,6 +335,13 @@ def build_sentinel_payload(
             "imo": v.get("imo"),
             "sog": v.get("sog"),
             "color": TIER_COLORS.get(v.get("tier") or "DELTA", "#10b981"),
+            "is_spoofed": bool(v.get("is_spoofed")),
+            "spoof_tag": v.get("spoof_tag"),
+            "spoof_speed_kn": v.get("spoof_speed_kn"),
+            "draft_m": v.get("draft_m"),
+            "dwt_tons": v.get("dwt_tons"),
+            "risk": v.get("risk"),
+            "mmsi": v.get("mmsi"),
         }
         for v in vessels
         if v.get("lat") is not None and v.get("lon") is not None
@@ -223,13 +397,20 @@ def build_sentinel_payload(
     flag_pack = flag_sanctions_matrix(vessels)
 
     # ── Chart 10: Spoofing / GNSS radar ──────────────────────────────────────
-    spoof_flags = {"coord_jump": 0, "velocity_spike": 0, "heading_incoherent": 0, "clean": 0}
+    spoof_flags = {
+        "coord_jump": 0,
+        "velocity_spike": int(spoof_report.get("spoofed_count") or 0),
+        "heading_incoherent": 0,
+        "clean": max(0, len(vessels) - int(spoof_report.get("spoofed_count") or 0)),
+        "physical_bound_kn": LNG_PHYSICAL_SPEED_KN,
+        "ghost_detector": spoof_report.get("engine"),
+    }
     for v in vessels:
         sog = float(v.get("sog") or 0)
         heading = v.get("heading")
         cog = v.get("cog")
-        flagged = False
-        if sog > 25:
+        flagged = bool(v.get("is_spoofed"))
+        if sog > LNG_PHYSICAL_SPEED_KN and not flagged:
             spoof_flags["velocity_spike"] += 1
             flagged = True
         if heading is not None and cog is not None:
@@ -243,16 +424,18 @@ def build_sentinel_payload(
         if abs(float(v.get("lat") or 0)) < 0.01 and abs(float(v.get("lon") or 0)) < 0.01:
             spoof_flags["coord_jump"] += 1
             flagged = True
-        if not flagged:
-            spoof_flags["clean"] += 1
+        if not flagged and not v.get("is_spoofed"):
+            pass  # already counted in clean baseline
 
-    # ── Chart 11: Tanker tonnage in transit ──────────────────────────────────
-    floating = sum(float(v.get("dwt_tons") or 0) for v in vessels if float(v.get("sog") or 0) < 1.0)
-    steaming = sum(float(v.get("dwt_tons") or 0) for v in vessels if float(v.get("sog") or 0) >= 1.0)
+    # Balance Fleet Model uses CLEAN vessels only (spoofed coords excluded)
+    tonnage_source = clean_vessels
+    floating = sum(float(v.get("dwt_tons") or 0) for v in tonnage_source if float(v.get("sog") or 0) < 1.0)
+    steaming = sum(float(v.get("dwt_tons") or 0) for v in tonnage_source if float(v.get("sog") or 0) >= 1.0)
     tonnage_transit = {
         "floating_storage_dwt": round(floating, 0),
         "steaming_dwt": round(steaming, 0),
         "utilization_pct": round(100.0 * floating / max(floating + steaming, 1), 1),
+        "spoofed_excluded": int(spoof_report.get("spoofed_count") or 0),
         "series": [
             {"t": f"T-{i}", "floating": round(floating * (0.85 + 0.03 * i), 0), "steaming": round(steaming * (0.9 + 0.02 * i), 0)}
             for i in range(12)
@@ -330,6 +513,22 @@ def build_sentinel_payload(
         for r in top_df.head(80).to_dict(orient="records")
     ]
 
+    # Dual-gate fleet sample (terrestrial AIS ceiling) — caveat for PIL / consumers
+    from services.dual_gate import compute_fleet_sample_status
+
+    try:
+        from services.ais_health import compute_top500_live_coverage
+
+        cov_blob = compute_top500_live_coverage()
+        cov_n = int(cov_blob.get("top500_live_coverage") or 0)
+    except Exception as exc:  # noqa: BLE001
+        # Never substitute dashboard vessel list for AIS coverage window.
+        cov_n = 0
+        cov_blob = {"top500_live_coverage": 0, "error": str(exc), "ok": False}
+    sample = compute_fleet_sample_status(
+        cov_n, universe=int(len(top_df) or 500)
+    )
+
     return {
         "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "source_mode": source_mode,
@@ -339,6 +538,10 @@ def build_sentinel_payload(
         "tier_colors": TIER_COLORS,
         "top500": True,
         "top500_preview": top500_preview,
+        "top500_live_coverage": cov_n,
+        "top500_coverage": cov_blob,
+        "fleet_sample_status": sample["fleet_sample_status"],
+        "sample_size_caveat": sample.get("sample_size_caveat"),
         "kinematics": {
             "sog_spectrum": speed_spectrum,
             "course_deviation": course_deviation,
@@ -363,6 +566,8 @@ def build_sentinel_payload(
         "c08_speed_spectrum": speed_spectrum,
         "c09_course_deviation": course_deviation,
         "c10_spoofing_radar": spoof_flags,
+        "ais_spoofing": spoof_report,
+        "balance_fleet_clean_count": len(clean_vessels),
         # Group C
         "c11_tonnage_transit": tonnage_transit,
         "c12_flag_tree": flag_tree,

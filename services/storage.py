@@ -15,7 +15,17 @@ from typing import Any, Optional
 logger = logging.getLogger("sentinel.storage")
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB = ROOT / "история1" / "sentinel_ais.db"
+
+
+def _default_db_path() -> Path:
+    """Prefer SENTINEL_DB_PATH (container) → repo-relative история1/."""
+    env = (os.getenv("SENTINEL_DB_PATH") or "").strip()
+    if env:
+        return Path(env)
+    return ROOT / "история1" / "sentinel_ais.db"
+
+
+DEFAULT_DB = _default_db_path()
 
 POSITIONS_DDL = """
 CREATE TABLE IF NOT EXISTS ais_positions (
@@ -117,11 +127,26 @@ class AISStorage:
             check_same_thread=False,
         )
         self._conn.execute("PRAGMA journal_mode=WAL")
-        self._conn.execute("PRAGMA busy_timeout=30000")
         self._conn.execute("PRAGMA synchronous=NORMAL")
+        self._conn.execute("PRAGMA busy_timeout=5000")
+        try:
+            self._conn.execute("PRAGMA wal_checkpoint(PASSIVE)")
+        except sqlite3.Error:
+            pass
         self._conn.execute(POSITIONS_DDL)
         self._conn.execute(TELEMETRY_DDL)
         self._conn.execute(DEAD_LETTER_DDL)
+        try:
+            from services.archive_schema import (
+                VESSEL_DAILY_ARCHIVE_DDL,
+                VESSEL_DAILY_ARCHIVE_INDEXES,
+            )
+
+            self._conn.execute(VESSEL_DAILY_ARCHIVE_DDL)
+            for stmt in VESSEL_DAILY_ARCHIVE_INDEXES:
+                self._conn.execute(stmt)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("archive schema ensure skipped: %s", exc)
         self._conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_ais_mmsi_ts ON ais_positions(mmsi, timestamp_utc)"
         )
@@ -335,6 +360,46 @@ class AISStorage:
         cur = self._conn.execute(sql, (limit,))
         cols = [d[0] for d in cur.description]
         return [dict(zip(cols, row)) for row in cur.fetchall()]
+
+    def fetch_latest_positions_for_mmsis(
+        self,
+        mmsis: list[str],
+        *,
+        matched_only: bool = False,
+    ) -> list[dict[str, Any]]:
+        """
+        Latest row per MMSI for an explicit fleet universe (e.g. TOP-500).
+
+        Avoids the fetch_recent(limit=N) trap where unmatched bbox noise dilutes
+        the window and collapses live TOP-500 coverage to ~N≈20.
+        Empty result is intentional — callers keep synthetic/stale fallback.
+        """
+        if not self._conn:
+            self.open()
+        assert self._conn is not None
+        clean = [str(m).strip() for m in mmsis if str(m).strip()]
+        if not clean:
+            return []
+        out: list[dict[str, Any]] = []
+        # SQLite default max variable number is 999; chunk conservatively.
+        chunk = 400
+        for i in range(0, len(clean), chunk):
+            part = clean[i : i + chunk]
+            placeholders = ",".join("?" * len(part))
+            match_clause = " AND matched=1" if matched_only else ""
+            sql = f"""
+                SELECT p.* FROM ais_positions p
+                INNER JOIN (
+                    SELECT mmsi, MAX(id) AS mid
+                    FROM ais_positions
+                    WHERE mmsi IN ({placeholders}){match_clause}
+                    GROUP BY mmsi
+                ) t ON p.id = t.mid
+            """
+            cur = self._conn.execute(sql, part)
+            cols = [d[0] for d in cur.description]
+            out.extend(dict(zip(cols, row)) for row in cur.fetchall())
+        return out
 
     def fetch_telemetry(self, limit: int = 120) -> list[dict[str, Any]]:
         if not self._conn:

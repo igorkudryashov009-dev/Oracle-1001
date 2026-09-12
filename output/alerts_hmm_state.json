@@ -1,0 +1,209 @@
+{
+  "vessels": {
+    "9926908": {
+      "p_europe": 0.866,
+      "p_asia": 0.134,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9771913": {
+      "p_europe": 0.861,
+      "p_asia": 0.139,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-07T03:04:24Z"
+    },
+    "9709489": {
+      "p_europe": 0.861,
+      "p_asia": 0.139,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-07T03:04:24Z"
+    },
+    "9748899": {
+      "p_europe": 0.858,
+      "p_asia": 0.142,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-07T03:04:24Z"
+    },
+    "9851634": {
+      "p_europe": 0.854,
+      "p_asia": 0.146,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-07T03:04:24Z"
+    },
+    "9946374": {
+      "p_europe": 0.763,
+      "p_asia": 0.237,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-07T03:04:24Z"
+    },
+    "9621077": {
+      "p_europe": 0.774,
+      "p_asia": 0.226,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-07T03:04:24Z"
+    },
+    "9324344": {
+      "p_europe": 0.763,
+      "p_asia": 0.237,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-07T03:04:24Z"
+    },
+    "9958664": {
+      "p_europe": 0.857,
+      "p_asia": 0.143,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9721724": {
+      "p_europe": 0.758,
+      "p_asia": 0.242,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-07T03:04:24Z"
+    },
+    "9859741": {
+      "p_europe": 0.762,
+      "p_asia": 0.238,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9732369": {
+      "p_europe": 0.76,
+      "p_asia": 0.24,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9785158": {
+      "p_europe": 0.756,
+      "p_asia": 0.244,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-07T03:04:24Z"
+    },
+    "9207039": {
+      "p_europe": 0.757,
+      "p_asia": 0.243,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9917543": {
+      "p_europe": 0.851,
+      "p_asia": 0.149,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9638915": {
+      "p_europe": 0.814,
+      "p_asia": 0.186,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9968932": {
+      "p_europe": 0.851,
+      "p_asia": 0.149,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9852975": {
+      "p_europe": 0.82,
+      "p_asia": 0.18,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-08T10:26:16Z"
+    },
+    "9949027": {
+      "p_europe": 0.815,
+      "p_asia": 0.185,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-07T05:39:03Z"
+    },
+    "9210828": {
+      "p_europe": 0.776,
+      "p_asia": 0.224,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9923437": {
+      "p_europe": 0.764,
+      "p_asia": 0.236,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9896921": {
+      "p_europe": 0.757,
+      "p_asia": 0.243,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9629536": {
+      "p_europe": 0.711,
+      "p_asia": 0.289,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-08T10:08:42Z"
+    },
+    "9901350": {
+      "p_europe": 0.849,
+      "p_asia": 0.151,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-09T14:03:09Z"
+    },
+    "9918157": {
+      "p_europe": 0.857,
+      "p_asia": 0.143,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9930806": {
+      "p_europe": 0.84,
+      "p_asia": 0.16,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-09T14:03:09Z"
+    },
+    "9947500": {
+      "p_europe": 0.764,
+      "p_asia": 0.236,
+      "name": null,
+      "hmm_state": "rerouting_uncertain",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9247962": {
+      "p_europe": 0.875,
+      "p_asia": 0.125,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-11T22:22:18Z"
+    },
+    "9874820": {
+      "p_europe": 0.854,
+      "p_asia": 0.146,
+      "name": null,
+      "hmm_state": "eu_bound",
+      "ts": "2026-09-11T22:22:18Z"
+    }
+  },
+  "updated_at": "2026-09-11T22:22:18Z",
+  "window_hours": 6.0
+}

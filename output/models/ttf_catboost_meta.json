@@ -1,5 +1,5 @@
 {
-  "primary_model": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\models\\ttf_ensemble.cbm",
+  "primary_model": "./output/models/ttf_ensemble.cbm",
   "horizons": [
     7,
     14,

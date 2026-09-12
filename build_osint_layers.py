@@ -281,40 +281,46 @@ def write_osint_layers(
         "layers": LAYERS,
         "vessels": records,
     }
-    # Flagship for LV 3D exhibit (heaviest by DWT)
+    # Flagship for LV 3D exhibit — prefer IMO 9001772 (LARA, 239×40 m LNG)
     def _dwt(r: dict) -> float:
         try:
             return float(r.get("dwt_tons") or 0)
         except (TypeError, ValueError):
             return 0.0
 
-    top = max(records, key=_dwt) if records else {}
+    preferred = next((r for r in records if str(r.get("imo") or "") == "9001772"), None)
+    top = preferred or (max(records, key=_dwt) if records else {})
     flagship = {
-        "vessel_name": top.get("vessel_name") or "PRELUDE",
-        "imo": top.get("imo") or "9648714",
-        "dwt_tons": top.get("dwt_tons") or 394330,
-        "gt": top.get("gt") or 499167,
-        "flag": top.get("flag") or "Австралия",
-        "loa_m": top.get("loa_m") or 488.8,
-        "beam_m": top.get("beam_m"),
+        "vessel_name": top.get("vessel_name") or "LARA",
+        "imo": top.get("imo") or "9001772",
+        "dwt_tons": top.get("dwt_tons") or 48817,
+        "gt": top.get("gt"),
+        "flag": top.get("flag") or "",
+        "loa_m": float(top.get("loa_m") or 239.0),
+        "beam_m": float(top.get("beam_m") or 40.0),
         "draft_m": top.get("draft_m"),
+        "vessel_type": top.get("vessel_type") or "LNG Tanker",
     }
     html = _TEMPLATE.replace(
         "__PAYLOAD__",
         json.dumps(payload, ensure_ascii=False).replace("</", "<\\/"),
     ).replace(
-        "__LV3D_FLAGSHIP__",
+        "%%LV3D_FLAGSHIP%%",
         json.dumps(flagship, ensure_ascii=False).replace("</", "<\\/"),
     )
     path.parent.mkdir(parents=True, exist_ok=True)
-    # Deploy Three.js exhibit module next to HTML
-    js_src = Path(__file__).resolve().parent / "web" / "vessel_lv_3d.js"
-    js_dst = path.parent / "js" / "vessel_lv_3d.js"
-    if js_src.is_file():
-        js_dst.parent.mkdir(parents=True, exist_ok=True)
-        js_dst.write_text(js_src.read_text(encoding="utf-8"), encoding="utf-8")
+    # Deploy Three.js exhibit modules next to HTML
+    js_dir = path.parent / "js"
+    js_dir.mkdir(parents=True, exist_ok=True)
+    web_root = Path(__file__).resolve().parent / "web"
+    for src in (
+        web_root / "js" / "vessel_3d_viewer.js",
+        web_root / "vessel_lv_3d.js",
+    ):
+        if src.is_file():
+            (js_dir / src.name).write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
     path.write_text(html, encoding="utf-8")
-    print(f"Wrote {path} (vessels={len(records)})")
+    print(f"Wrote {path} (vessels={len(records)} · 3d={flagship.get('imo')})")
 
 
 def main() -> int:
@@ -1241,31 +1247,52 @@ select#fillPreset:focus { box-shadow: 0 0 0 3px rgba(0,242,254,.22); }
     <div class="metrics" id="metrics"></div>
   </section>
 
-  <section class="lv-exhibit" id="lvVesselExhibit" aria-label="3D-экспонат судна · Тяжелый люкс">
+  <section class="lv-exhibit" id="lvVesselExhibit" aria-label="3D LNG Tanker · IMO 9001772">
     <div class="lv-exhibit-head">
       <div>
-        <div class="lv-kicker">ORACLE-1001 · Haute Horlogerie Exhibit</div>
-        <h2>Цифровой экспонат флагмана</h2>
-        <p>Полированный титан, матовое золото и кинематографический свет. Пять режимов интерактивного осмотра газовоза класса PRELUDE.</p>
+        <div class="lv-kicker">ORACLE-1001 · WebGL LNG Exhibit</div>
+        <h2>LARA · IMO 9001772</h2>
+        <p>Procedural Moss-class LNG tanker — LOA 239 m × Beam 40 m. R1–R5 interactive layers: cinematic PBR, X-ray, hydrodynamics, OSINT risk heatmap, identity plate.</p>
       </div>
       <div class="lv-fps" data-lv-fps>— FPS</div>
     </div>
     <div class="lv-hairline"></div>
     <div class="lv-body">
-      <aside class="lv-rail" aria-label="Режимы анимации">
-        <div class="lv-rail-label">Режимы · 01–05</div>
-        <div data-lv-modes></div>
+      <aside class="lv-rail" aria-label="Режимы R1–R5">
+        <div class="lv-rail-label">Modes · R1–R5</div>
+        <div data-lv-modes>
+          <button type="button" class="lv-mode on" id="mode-r1" data-mode="r1" aria-pressed="true">
+            <span class="lv-mode-idx">R1</span>
+            <span class="lv-mode-label">Cinematic</span>
+          </button>
+          <button type="button" class="lv-mode" id="mode-r2" data-mode="r2" aria-pressed="false">
+            <span class="lv-mode-idx">R2</span>
+            <span class="lv-mode-label">X-Ray Profiling</span>
+          </button>
+          <button type="button" class="lv-mode" id="mode-r3" data-mode="r3" aria-pressed="false">
+            <span class="lv-mode-idx">R3</span>
+            <span class="lv-mode-label">Hydrodynamics</span>
+          </button>
+          <button type="button" class="lv-mode" id="mode-r4" data-mode="r4" aria-pressed="false">
+            <span class="lv-mode-idx">R4</span>
+            <span class="lv-mode-label">Risk Scan</span>
+          </button>
+          <button type="button" class="lv-mode" id="mode-r5" data-mode="r5" aria-pressed="false">
+            <span class="lv-mode-idx">R5</span>
+            <span class="lv-mode-label">Spec Plate</span>
+          </button>
+        </div>
       </aside>
       <div class="lv-stage-wrap">
-        <div class="lv-stage" data-lv-stage></div>
+        <div class="lv-stage" data-lv-stage id="vessel-3d-stage"></div>
         <div class="lv-stage-meta">
-          <strong data-lv-mode-title>Кинематографический обзор</strong>
-          <span data-lv-mode-hint>Элегантный облёт 360°</span>
+          <strong data-lv-mode-title>R1 · Cinematic</strong>
+          <span data-lv-mode-hint>PBR Titanium / Dark Chrome · 360° orbit</span>
         </div>
         <div data-lv-badges hidden></div>
       </div>
     </div>
-    <div class="lv-footnote">Клавиши 1–5 — смена режима · вращение мышью · GPU-адаптация при прокрутке</div>
+    <div class="lv-footnote">Keys 1–5 switch modes · mouse orbit · adaptive GPU · target ≥60 FPS</div>
   </section>
 
   <section class="analytics-wrap dashboard-panel" id="colAnalytics">
@@ -2525,8 +2552,8 @@ renderDossier();
   }
 }
 </script>
-<script>window.__LV3D_FLAGSHIP__ = __LV3D_FLAGSHIP__;</script>
-<script type="module" src="js/vessel_lv_3d.js"></script>
+<script>window.__LV3D_FLAGSHIP__ = %%LV3D_FLAGSHIP%%;</script>
+<script type="module" src="js/vessel_3d_viewer.js"></script>
 </body>
 </html>
 """

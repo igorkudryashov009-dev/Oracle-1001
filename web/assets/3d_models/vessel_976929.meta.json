@@ -1,0 +1,91 @@
+{
+  "imo": "976929",
+  "rank": 10,
+  "alg": "top10-glb-v3.4.1-triplanar-bounds",
+  "pipeline": "generate_geometry||apply_presentation",
+  "texturing": "photo_composite_triplanar_mask_aware",
+  "mask_dilate_px": 10,
+  "taubin_iters": 3,
+  "facet_fix": "geometry_taubin_plus_smooth_normals",
+  "source_hash": "8bb40cfb6f3ceb4f",
+  "bytes": 1813436,
+  "atlas_px": 2048,
+  "jpeg_quality": 70,
+  "loa_m": 345.0,
+  "beam_m": 53.8,
+  "draft_m": 9.5,
+  "voxel_res": 80,
+  "anisotropic_pitch": [
+    0.02531645569620253,
+    0.003947899467987525,
+    0.0032899162233229378
+  ],
+  "half_extents": {
+    "hx": 1.0,
+    "hy": 0.15594202898550724,
+    "hz": 0.12995169082125604
+  },
+  "design_proportions": {
+    "loa_extent": 2.0,
+    "beam_extent": 0.3118840579710145,
+    "depth_extent": 0.2599033816425121,
+    "lb_ratio": 6.4126394052044615,
+    "bd_ratio": 1.2
+  },
+  "mesh_proportions": {
+    "loa_extent": 1.8953230222666972,
+    "beam_extent": 0.2752673415323177,
+    "depth_extent": 0.20569656533217612,
+    "lb_ratio": 6.885390078300216,
+    "bd_ratio": 1.3382204077534927
+  },
+  "bbox_smoothing": {
+    "visual_depth": {
+      "raw_side_height_m": 84.6984126984127,
+      "visual_depth_m": 49.285714285714285,
+      "clamp_lo_m": 23.75,
+      "clamp_hi_m": 49.285714285714285
+    },
+    "stage": "generate_geometry",
+    "alg_carving": "top10-glb-v3.3.0-content-bbox",
+    "z_inflate_iters": 0,
+    "fit_mesh_to_extents": false,
+    "bbox_before": [
+      1.9245804861791331,
+      0.27912570263940506,
+      0.21055463829266802
+    ],
+    "bbox_after_taubin_raw": [
+      1.8953230222666972,
+      0.2752673415323177,
+      0.20569656533217612
+    ],
+    "bbox_drift_pct": [
+      1.5201995511510504,
+      1.3823023356870447,
+      2.307274254267078
+    ],
+    "bbox_drift_ok": false,
+    "bbox_after_refit": [
+      1.8953230222666972,
+      0.2752673415323177,
+      0.20569656533217612
+    ],
+    "mesh_extents": [
+      1.8953230222666972,
+      0.2752673415323177,
+      0.20569656533217612
+    ],
+    "mesh_proportions": {
+      "loa_extent": 1.8953230222666972,
+      "beam_extent": 0.2752673415323177,
+      "depth_extent": 0.20569656533217612,
+      "lb_ratio": 6.885390078300216,
+      "bd_ratio": 1.3382204077534927
+    }
+  },
+  "raw_vertex_hash": "fec5970f67b1d5f3b003422a33c1553fdeb539b1d9ca388a9bd1cf0d7b8949d0",
+  "axis_contract": "X=LOA Y=Beam Z=height (Z-up)",
+  "glb_url": "/output/assets/3d_models/vessel_976929.glb",
+  "web_glb": "/web/assets/3d_models/vessel_976929.glb"
+}

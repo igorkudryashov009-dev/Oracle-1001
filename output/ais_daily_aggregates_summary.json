@@ -1,29 +1,29 @@
 {
   "ok": true,
   "db": "C:\\Users\\MSI\\Oracle-1001\\7000\\\u0438\u0441\u0442\u043e\u0440\u0438\u044f1\\sentinel_ais.db",
-  "rows_total": 90,
+  "rows_total": 94,
   "days_targeted": 90,
-  "raw_days_aggregated": 1,
-  "climatology_seeded": 89,
+  "raw_days_aggregated": 5,
+  "climatology_seeded": 85,
   "errors": [],
   "tail": [
     {
-      "date": "2026-09-05",
-      "tankers": 6733,
-      "sts": 4685,
-      "choke": 2.6625
+      "date": "2026-09-09",
+      "tankers": 1,
+      "sts": 0,
+      "choke": 0.0
     },
     {
-      "date": "2026-09-04",
-      "tankers": 392,
-      "sts": 8,
-      "choke": 9.9546
+      "date": "2026-09-08",
+      "tankers": 14,
+      "sts": 0,
+      "choke": 3.5294
     },
     {
-      "date": "2026-09-03",
-      "tankers": 397,
-      "sts": 8,
-      "choke": 9.6942
+      "date": "2026-09-07",
+      "tankers": 6725,
+      "sts": 6274,
+      "choke": 3.1875
     }
   ]
 }

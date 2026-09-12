@@ -21,6 +21,7 @@ import pandas as pd
 
 from services.ttf_forecast.logging_utils import get_quant_logger
 from services.ttf_forecast.schema import migrate_ttf_schema, resolve_db
+from services.utils.path_sanitizer import sanitize_structure
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT_JSON = ROOT / "output" / "ttf_ensemble_forecast.json"
@@ -33,6 +34,9 @@ WEIGHTS = {
     "elliott": 0.15,
 }
 HORIZONS = (7, 14, 30)
+CV_METRICS_JSON = MODELS_DIR / "ttf_cv_metrics.json"
+# Soft floor: never hard-remove a component (governance, not deletion).
+MIN_COMPONENT_WEIGHT = 0.02
 logger = get_quant_logger("ttf.ensemble")
 
 
@@ -40,6 +44,102 @@ def _safe_load_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def load_component_directional_accuracy(
+    cv: dict[str, Any] | None = None,
+) -> dict[str, float | None]:
+    """Read per-model directional accuracy from ttf_cv_metrics.json."""
+    blob = cv if cv is not None else _safe_load_json(CV_METRICS_JSON)
+    out: dict[str, float | None] = {
+        "catboost": None,
+        "markov": None,
+        "spectral": None,
+        "elliott": None,
+    }
+    h14 = (blob.get("h14") or {}).get("directional_accuracy_pct")
+    if h14 is not None:
+        out["catboost"] = float(h14)
+    else:
+        vals = [
+            float((blob.get(k) or {}).get("directional_accuracy_pct"))
+            for k in ("h7", "h14", "h30")
+            if (blob.get(k) or {}).get("directional_accuracy_pct") is not None
+        ]
+        if vals:
+            out["catboost"] = float(sum(vals) / len(vals))
+    for key in ("markov", "spectral", "elliott"):
+        val = (blob.get(key) or {}).get("directional_accuracy_pct")
+        if val is not None:
+            out[key] = float(val)
+    return out
+
+
+def adaptive_ensemble_weights(
+    base: dict[str, float] | None = None,
+    *,
+    cv: dict[str, Any] | None = None,
+    margin_pp: float = 15.0,
+) -> tuple[dict[str, float], dict[str, Any]]:
+    """
+    Adaptive downweighting (not hard removal).
+
+    If a component's directional accuracy is below
+    (mean of other measured components − margin_pp), scale its weight by
+    relative_performance = max(eps, acc_i / peer_mean), then renormalize.
+    Floor each weight at MIN_COMPONENT_WEIGHT before final renorm.
+    """
+    weights = dict(base or WEIGHTS)
+    acc = load_component_directional_accuracy(cv)
+    measured = {k: v for k, v in acc.items() if v is not None and k in weights}
+    governance: dict[str, Any] = {
+        "applied": False,
+        "margin_pp": margin_pp,
+        "component_accuracy_pct": {k: (round(v, 2) if v is not None else None) for k, v in acc.items()},
+        "base_weights": dict(weights),
+        "downweighted": [],
+        "reason": "insufficient_component_metrics" if len(measured) < 2 else "ok",
+    }
+    if len(measured) < 2:
+        governance["effective_weights"] = dict(weights)
+        return weights, governance
+
+    adjusted = dict(weights)
+    for name, acc_i in measured.items():
+        peers = [v for k, v in measured.items() if k != name]
+        if not peers:
+            continue
+        peer_mean = float(sum(peers) / len(peers))
+        threshold = peer_mean - float(margin_pp)
+        if acc_i >= threshold:
+            continue
+        relative = max(0.05, float(acc_i) / max(peer_mean, 1e-6))
+        old_w = float(adjusted[name])
+        new_w = max(MIN_COMPONENT_WEIGHT, old_w * relative)
+        adjusted[name] = new_w
+        governance["downweighted"].append(
+            {
+                "model": name,
+                "dir_acc_pct": round(float(acc_i), 2),
+                "peer_mean_pct": round(peer_mean, 2),
+                "threshold_pct": round(threshold, 2),
+                "relative_performance": round(relative, 4),
+                "weight_before": round(old_w, 4),
+                "weight_after": round(new_w, 4),
+            }
+        )
+        governance["applied"] = True
+
+    # Renormalize to sum=1
+    total = sum(adjusted.values()) or 1.0
+    adjusted = {k: float(v) / total for k, v in adjusted.items()}
+    governance["effective_weights"] = {k: round(v, 4) for k, v in adjusted.items()}
+    if governance["applied"]:
+        logger.warning(
+            "Ensemble governance downweight applied: %s",
+            governance["downweighted"],
+        )
+    return adjusted, governance
 
 
 def markov_price_distribution(
@@ -237,6 +337,8 @@ def run_ensemble(
     range_info = (catboost_result or {}).get("optimal_range") or {}
     range_proba = (catboost_result or {}).get("latest_range_proba_pct") or {}
 
+    eff_weights, weight_governance = adaptive_ensemble_weights(WEIGHTS)
+
     horizons_out: dict[str, Any] = {}
     for h in HORIZONS:
         parts = {
@@ -245,18 +347,45 @@ def run_ensemble(
             "spectral": spectral_price_projection(spot, spectral, h),
             "elliott": elliott_target_projection(spot, elliott, h),
         }
-        merged = weighted_merge(parts)
+        merged = weighted_merge(parts, weights=eff_weights)
         horizons_out[str(h)] = {
             **merged,
             "components": parts,
-            "weights": WEIGHTS,
+            "weights": eff_weights,
         }
 
     max_conf = float(range_info.get("confidence_pct") or max(range_proba.values(), default=0.0))
+
+    # Dual-Truth on confidence: offline CV vs live fleet representativeness
+    from services.dual_gate import compute_fleet_sample_status, live_inference_confidence
+
+    try:
+        acc_map = load_component_directional_accuracy()
+        measured = [v for v in acc_map.values() if v is not None]
+        model_cv = round(sum(measured) / len(measured), 2) if measured else None
+    except Exception:  # noqa: BLE001
+        model_cv = None
+
+    cov_n = 0
+    try:
+        from services.ais_health import compute_top500_live_coverage
+
+        cov_n = int(compute_top500_live_coverage().get("top500_live_coverage") or 0)
+    except Exception:  # noqa: BLE001
+        pass
+    sample = compute_fleet_sample_status(cov_n)
+    live_conf = live_inference_confidence(
+        model_cv_accuracy_pct=model_cv,
+        fleet_sample_status=sample["fleet_sample_status"],
+        coverage=cov_n,
+    )
+
     forecast = {
         "model_id": "ttf_meta_ensemble_v1",
         "spot_eur_mwh": spot,
-        "weights": WEIGHTS,
+        "weights": eff_weights,
+        "weights_base": WEIGHTS,
+        "weight_governance": weight_governance,
         "horizons": horizons_out,
         "optimal_range": range_info or {
             "label": max(range_proba, key=range_proba.get) if range_proba else "B_68_75",
@@ -264,6 +393,12 @@ def run_ensemble(
         },
         "range_proba_pct": range_proba,
         "max_confidence_pct": max_conf,
+        "model_cv_accuracy_pct": live_conf.get("model_cv_accuracy_pct"),
+        "live_inference_confidence": live_conf.get("live_inference_confidence"),
+        "live_inference_confidence_pct": live_conf.get("live_inference_confidence_pct"),
+        "live_confidence_factor": live_conf.get("live_confidence_factor"),
+        "fleet_sample_status": sample["fleet_sample_status"],
+        "sample_size_caveat": sample.get("sample_size_caveat"),
         "artifacts": {
             "ensemble_cbm": str(MODELS_DIR / "ttf_ensemble.cbm"),
             "importance": str(MODELS_DIR / "ttf_feature_importance.json"),
@@ -272,8 +407,8 @@ def run_ensemble(
     }
 
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
-    # Strip non-serializable if any
-    serializable = json.loads(json.dumps(forecast, default=str))
+    # Strip host-absolute Windows paths before JSON dump (Linux/container safe)
+    serializable = sanitize_structure(json.loads(json.dumps(forecast, default=str)))
     OUT_JSON.write_text(json.dumps(serializable, indent=2), encoding="utf-8")
     n = persist_predictions(serializable)
     logger.info(
@@ -285,7 +420,7 @@ def run_ensemble(
         n,
         OUT_JSON,
     )
-    return forecast
+    return serializable
 
 
 def main() -> int:

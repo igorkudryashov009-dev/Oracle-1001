@@ -1,0 +1,36 @@
+{
+  "bad_data_gate": {
+    "exit": 1,
+    "failures": [
+      "ais_lag>600s (got 2369.4s)",
+      "pil_status!='NOMINAL' (got DEGRADED)",
+      "top500_live_coverage<100 (got 0)"
+    ],
+    "expect_fail": true,
+    "ok": true
+  },
+  "good_mock_gate": {
+    "exit": 1,
+    "failures": [
+      "ais_lag>600s (got 2370.5s)"
+    ],
+    "non_lag_failures": [],
+    "lag_only_blocker": true,
+    "coverage_pil_basis_ok": true,
+    "ok": true
+  },
+  "prod_rebuild_rollback": {
+    "note": "Validated in live run: --prod-rebuild on STALE/coverage=0 restored health.md5 identical",
+    "log": "logs/prod_rebuild_bad.log"
+  },
+  "good_full_prod_rebuild": {
+    "status": "SKIPPED",
+    "reason": "Requires prompt1(v2)+prompt4(v2): coverage>=100, live AIS, NOMINAL pil"
+  },
+  "cli_modes": {
+    "prod_gate": "check-only, no rebuild",
+    "prod_rebuild": "snapshot \u2192 rebuild \u2192 Deploy Gate \u2192 rollback on fail",
+    "serve": "orthogonal HTTP :8765",
+    "cron_recommendation": "python run_release.py --prod-rebuild --serve --no-open"
+  }
+}

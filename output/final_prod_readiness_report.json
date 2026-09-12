@@ -1,0 +1,66 @@
+{
+  "generated_at_utc": "2026-09-07T05:44:33Z",
+  "http_status": 200,
+  "dimension_I_gate": {
+    "pass": false,
+    "ais_lag_sec": 7.9,
+    "ais_lag_ok": true,
+    "top500_live_coverage": null,
+    "coverage_ok": false,
+    "pil_status": "DEGRADED",
+    "pil_ok": false,
+    "accuracy_basis": "purged_cv_directional",
+    "basis_ok": true
+  },
+  "dimension_II_rebuild": {
+    "pass": false,
+    "published_at": null,
+    "build_mode": null,
+    "published_at_delta_min": null,
+    "note": "prod-rebuild ran but Deploy Gate rolled back publish; active health lacks fresh rebuild markers"
+  },
+  "dimension_III_sync": {
+    "pass": true,
+    "backend_ensemble_accuracy_pct": 78.0,
+    "backend_accuracy_basis": "purged_cv_directional",
+    "ui_ensemble_accuracy_pct": 78.0,
+    "ui_accuracy_basis": "purged_cv_directional"
+  },
+  "port": {
+    "pass": true,
+    "listening_8765": true,
+    "listening_8478": false,
+    "http": 200
+  },
+  "top10_css": {
+    "pass": true
+  },
+  "reactive": {
+    "pass": true
+  },
+  "coverage_trend_18min": [
+    {
+      "t_min": 0,
+      "coverage": 0
+    },
+    {
+      "t_min": 5,
+      "coverage": 2
+    },
+    {
+      "t_min": 10,
+      "coverage": 4
+    },
+    {
+      "t_min": 15,
+      "coverage": 4
+    },
+    {
+      "t_min": 18,
+      "coverage": 3
+    }
+  ],
+  "aisstream_blocker": "HTTP 429 rate limit on multi-batch mmsi WebSockets; matched\u224813 over 18min",
+  "prod_rebuild_exit": 1,
+  "prod_rebuild_gate_failure": "top500_live_coverage<100 (got 1) \u2014 publish rolled back"
+}

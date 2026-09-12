@@ -1,0 +1,9 @@
+{
+  "files": [
+    "sentinel_dashboard.html",
+    "sentinel_dashboard.html.meta.json",
+    "api/v1/health.json",
+    "api/v1/health"
+  ],
+  "created_at": "20260908T103843Z"
+}

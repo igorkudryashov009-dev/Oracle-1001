@@ -1,0 +1,87 @@
+{
+  "coverage_gate": {
+    "passed": false,
+    "live_vessel_count": 19,
+    "top500_live_coverage": null,
+    "threshold": 100,
+    "note": "Prompt 1 v2 incomplete \u2014 full TOP-500 recalibration SKIPPED"
+  },
+  "dual_truth_audit": {
+    "formula_a": "purged_cv_directional = sum(dir_acc_i * w_i) / sum(w_i) over CatBoost(h14 purged WF) + Markov/Spectral/Elliott holdout; w_i = adaptive_ensemble_weights()",
+    "formula_b_legacy": "unlabeled ensemble_accuracy_pct \u2248 mean(ICE.confidence, abs(fleet_p_eu_avg-0.5)*2*0.7, hardcoded_72/100*0.9) * 100 \u2014 NOT directional holdout",
+    "production_kpi": "purged_cv_directional",
+    "diagnostic_field": "ensemble_confidence_proxy_pct"
+  },
+  "published": {
+    "ensemble_accuracy_pct": 78.0,
+    "accuracy_basis": "purged_cv_directional",
+    "ensemble_confidence_proxy_pct": 23.5,
+    "component_accuracy_pct": {
+      "catboost": 75.0,
+      "markov": 84.6,
+      "spectral": 84.6,
+      "elliott": 15.4
+    },
+    "ensemble_weights": {
+      "catboost": 0.4554,
+      "markov": 0.2846,
+      "spectral": 0.2277,
+      "elliott": 0.0323
+    },
+    "weight_governance": {
+      "applied": true,
+      "margin_pp": 15.0,
+      "component_accuracy_pct": {
+        "catboost": 75.0,
+        "markov": 84.62,
+        "spectral": 84.62,
+        "elliott": 15.38
+      },
+      "base_weights": {
+        "catboost": 0.4,
+        "markov": 0.25,
+        "spectral": 0.2,
+        "elliott": 0.15
+      },
+      "downweighted": [
+        {
+          "model": "elliott",
+          "dir_acc_pct": 15.38,
+          "peer_mean_pct": 81.41,
+          "threshold_pct": 66.41,
+          "relative_performance": 0.1889,
+          "weight_before": 0.15,
+          "weight_after": 0.0283
+        }
+      ],
+      "reason": "ok",
+      "effective_weights": {
+        "catboost": 0.4554,
+        "markov": 0.2846,
+        "spectral": 0.2277,
+        "elliott": 0.0323
+      }
+    }
+  },
+  "before_after": {
+    "health_before_pct": 42.9,
+    "health_before_basis": "unlabeled_confidence_proxy",
+    "health_after_pct": 78.0,
+    "health_after_basis": "purged_cv_directional",
+    "pre_governance_fixed_weights_pct": 70.4,
+    "post_governance_adaptive_weights_pct": 78.0,
+    "threshold_80_met": false
+  },
+  "ui_payload": {
+    "ensemble_accuracy_pct": 78.0,
+    "accuracy_basis": "purged_cv_directional",
+    "ensemble_confidence_proxy_pct": 23.5
+  },
+  "ui_backend_sync": true,
+  "recalibration_on_full_top500": "SKIPPED_COVERAGE_LT_100",
+  "freshness_note": {
+    "source_mode": "live_ais+STALE",
+    "ais_truth": "stale",
+    "age_sec": 1514.7
+  }
+}

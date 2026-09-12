@@ -1,0 +1,172 @@
+[
+  {
+    "imo": "9388833",
+    "rank": 1,
+    "name": "BU SAMRA",
+    "bytes": 1564548,
+    "alg": "top10-glb-v3.2-presentation",
+    "texturing": "photo_composite_triplanar_mask_aware",
+    "mask_dilate_px": 10,
+    "taubin_iters": 3,
+    "facet_fix": "geometry_taubin_plus_smooth_normals",
+    "bbox_drift_pct": [
+      0.8964900512338669,
+      0.7234760657475325,
+      3.209834200639319
+    ],
+    "bbox_drift_ok": false,
+    "blue_frac_side_chart": 0.0,
+    "mean_rgb_atlas_side": [
+      102.0999984741211,
+      88.9000015258789,
+      90.5
+    ],
+    "mean_rgb_ortho": [
+      102.80000305175781,
+      134.8000030517578,
+      162.0
+    ],
+    "dihedral": {
+      "mean_deg": 11.559322774301167,
+      "p50_deg": 4.939858194690565,
+      "p90_deg": 31.80720979745557,
+      "n_adj": 4784
+    }
+  },
+  {
+    "imo": "9397303",
+    "rank": 2,
+    "name": "AL MAYEDA",
+    "bytes": 1425700,
+    "alg": "top10-glb-v3.2-presentation",
+    "texturing": "photo_composite_triplanar_mask_aware",
+    "mask_dilate_px": 10,
+    "taubin_iters": 3,
+    "facet_fix": "geometry_taubin_plus_smooth_normals",
+    "bbox_drift_pct": [
+      0.7224329958042897,
+      1.4392137645304859,
+      4.14101004641133
+    ],
+    "bbox_drift_ok": false,
+    "blue_frac_side_chart": 1.8518518518518518e-05,
+    "mean_rgb_atlas_side": [
+      93.69999694824219,
+      86.69999694824219,
+      95.5
+    ],
+    "mean_rgb_ortho": [
+      101.69999694824219,
+      139.6999969482422,
+      170.3000030517578
+    ],
+    "dihedral": {
+      "mean_deg": 12.996112276268736,
+      "p50_deg": 5.556141676145819,
+      "p90_deg": 33.590357242975806,
+      "n_adj": 4784
+    }
+  },
+  {
+    "imo": "9397315",
+    "rank": 3,
+    "name": "AL MAFYAR",
+    "bytes": 1387428,
+    "alg": "top10-glb-v3.2-presentation",
+    "texturing": "photo_composite_triplanar_mask_aware",
+    "mask_dilate_px": 10,
+    "taubin_iters": 3,
+    "facet_fix": "geometry_taubin_plus_smooth_normals",
+    "bbox_drift_pct": [
+      0.5832362986355699,
+      0.9076791374806303,
+      4.920330795482036
+    ],
+    "bbox_drift_ok": false,
+    "blue_frac_side_chart": 3.7037037037037037e-05,
+    "mean_rgb_atlas_side": [
+      108.19999694824219,
+      103.5999984741211,
+      102.80000305175781
+    ],
+    "mean_rgb_ortho": [
+      105.9000015258789,
+      139.60000610351562,
+      169.8000030517578
+    ],
+    "dihedral": {
+      "mean_deg": 11.207736673914793,
+      "p50_deg": 5.070491681582153,
+      "p90_deg": 30.989619771443426,
+      "n_adj": 4788
+    }
+  },
+  {
+    "imo": "9397327",
+    "rank": 4,
+    "name": "AL KHARAITIYAT",
+    "bytes": 1598388,
+    "alg": "top10-glb-v3.2-presentation",
+    "texturing": "photo_composite_triplanar_mask_aware",
+    "mask_dilate_px": 10,
+    "taubin_iters": 3,
+    "facet_fix": "geometry_taubin_plus_smooth_normals",
+    "bbox_drift_pct": [
+      1.282913908283223,
+      3.352903150723938,
+      2.902492925985839
+    ],
+    "bbox_drift_ok": false,
+    "blue_frac_side_chart": 0.0,
+    "mean_rgb_atlas_side": [
+      64.5,
+      59.400001525878906,
+      67.0
+    ],
+    "mean_rgb_ortho": [
+      88.0,
+      118.69999694824219,
+      142.3000030517578
+    ],
+    "dihedral": {
+      "mean_deg": 12.89161375338506,
+      "p50_deg": 6.116200953981934,
+      "p90_deg": 32.21733442528599,
+      "n_adj": 4781
+    }
+  },
+  {
+    "imo": "9337755",
+    "rank": 5,
+    "name": "MOZAH",
+    "bytes": 1177956,
+    "alg": "top10-glb-v3.2-presentation",
+    "texturing": "photo_composite_triplanar_mask_aware",
+    "mask_dilate_px": 10,
+    "taubin_iters": 3,
+    "facet_fix": "geometry_taubin_plus_smooth_normals",
+    "bbox_drift_pct": [
+      1.4560774975078017,
+      1.9606753588533536,
+      3.12688007563548
+    ],
+    "bbox_drift_ok": false,
+    "blue_frac_side_chart": 0.0,
+    "mean_rgb_atlas_side": [
+      99.0,
+      92.0999984741211,
+      95.5
+    ],
+    "mean_rgb_ortho": [
+      112.69999694824219,
+      144.3000030517578,
+      171.5
+    ],
+    "dihedral": {
+      "mean_deg": 10.394058512142909,
+      "p50_deg": 4.134738264465003,
+      "p90_deg": 28.451466072523758,
+      "n_adj": 4785
+    }
+  }
+]

@@ -4,25 +4,27 @@
 mode: local_scheduled
 
 aisstream:
-  # Official limit: max 50 MMSI per WebSocket FiltersShipMMSI
-  # https://aisstream.io/documentation
-  mmsi_batch_size: 50
+  # Official limits (https://aisstream.io/documentation, re-checked 2026-09-07):
+  #   - MMSI filters: 200 per subscription
+  #   - Connections per account: 3 subscribed
+  #   - Connections per originating IP: 3 open
+  #   - Subscription updates: 1 per second per connection
+  # Empirical probe: 200 MMSI → SubscriptionConfirmation; 201+/500 → socket close
+  # after subscribe (often WITHOUT HTTP 429). Multi-socket batching violates the
+  # 3-connection cap — sentinel uses ONE persistent WS + rotation.
+  mmsi_per_subscription: 200
+  mmsi_batch_size: 200  # legacy alias for collector.py
   websocket_url: wss://stream.aisstream.io/v0/stream
-  # For smoke tests, limit parallel batches (null = all batches)
   max_batches: null
-  # No published concurrent-connection limit exists (docs only mention
-  # unspecified "throttling at the api key/user level") -- collector.py
-  # therefore staggers batch startup and caps in-flight handshakes.
-  # These are the defaults baked into collector.py; override via its
-  # --stagger-seconds / --max-concurrent-handshakes CLI flags if a real
-  # limit is discovered empirically during testing.
   stagger_seconds: 2.5
-  max_concurrent_handshakes: 20
+  max_concurrent_handshakes: 1
   unreachable_after_consecutive_failures: 3
-  # WebSocket disconnect retry: 2s → 4s → 8s → … max 30s (honest degradation on handshake)
-  reconnect_backoff_initial_seconds: 2
-  reconnect_backoff_max_seconds: 30
-  # SQLite WAL + busy timeout for ~55 concurrent batch writers
+  reconnect_backoff_initial_seconds: 1
+  reconnect_backoff_max_seconds: 60
+  rate_limit_backoff_initial_seconds: 30
+  rate_limit_backoff_max_seconds: 300
+  reconnect_alert_after_attempts: 10
+  silence_watchdog_seconds: 600
   sqlite_timeout_seconds: 30
 
 # Sentinel live AIS connector (services/aisstream_connector.py)
@@ -34,17 +36,22 @@ sentinel:
   batch_size: 50
   flush_interval_sec: 1.0
   heartbeat_interval_seconds: 15.0
-  # bbox_global = world stream (high MPS, needs stable path)
-  # mmsi_batches = FiltersShipMMSI ×50 (production default, AISStream hard limit)
-  subscription_mode: mmsi_batches
-  mmsi_batch_size: 50
-  max_batches: 2
-  stagger_seconds: 10
-  max_concurrent_handshakes: 2
+  coverage_log_interval_seconds: 120
+  silence_watchdog_seconds: 600
+  silence_force_reconnect: false
+  # single_persistent = ONE WS; rotate ≤200 MMSI subsets across TOP-500
+  # bbox_global = world stream without MMSI filter (degraded coverage)
+  subscription_mode: single_persistent
+  mmsi_per_subscription: 200
+  rotation_interval_seconds: 180
+  try_full_mmsi_list: false
+  subscribe_rate_per_minute: 6
+  subscribe_burst: 3
   filter_message_types:
     - PositionReport
     - ShipStaticData
     - StandardClassBPositionReport
+    - ExtendedClassBPositionReport
   # websocket_url inherited from aisstream.websocket_url unless overridden
   # api_key_env: AISSTREAM_API_KEY
 

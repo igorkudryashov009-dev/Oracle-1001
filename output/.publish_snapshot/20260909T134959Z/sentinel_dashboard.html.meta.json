@@ -1,0 +1,63 @@
+{
+  "path": "./output/sentinel_dashboard.html",
+  "bytes": 994259,
+  "live_vessel_count": 26,
+  "source_mode": "live_ais",
+  "operational_status": "NOMINAL",
+  "replica_freshness": {
+    "stale": false,
+    "live_ok": true,
+    "db_path": "./история1/sentinel_ais.db",
+    "mtime_epoch": 1788873835.0989375,
+    "age_sec": 9.6,
+    "lag_minutes": 0.2,
+    "status": "FRESH",
+    "ais_truth": "live_ok",
+    "signal_source": "pipeline_telemetry.ts_utc",
+    "latest_ts": "2026-09-08T13:23:55Z",
+    "integrity_ok": true,
+    "banner": null,
+    "live_ok_lag_sec": 300
+  },
+  "truth_contract": {
+    "top10": "http_assets_ok",
+    "ais": "live_ok",
+    "route": "live_ok",
+    "ttf": "ensemble"
+  },
+  "ttf_kpi": {
+    "h7_p50": 74.12,
+    "h14_p50": 73.64,
+    "h30_p50": 73.72,
+    "h7_band": {
+      "p10": 69.64,
+      "p90": 78.92
+    },
+    "market_state": "MeanReverting_Transit",
+    "market_state_probs": {
+      "LowVol_Accumulation": 0.0,
+      "MeanReverting_Transit": 99.0,
+      "HighVol_SupplyShock": 1.0
+    },
+    "ais_causal_index": 1.187,
+    "ais_causal_best_lag": 6,
+    "ais_causal_p": 0.33079342848634896,
+    "optimal_range": "B_68_75",
+    "max_confidence_pct": 64.0,
+    "portfolio_roi_pct": 18.4,
+    "portfolio_terminal_usd": 1184.0
+  },
+  "ttf_integrity": "PASS",
+  "top10_assets": {
+    "ok": true,
+    "copied": 30,
+    "missing": [],
+    "asset_dir": "./output/assets/top10"
+  },
+  "route_analytics": {
+    "source_mode": "live_telemetry",
+    "truth": "live_ok",
+    "vessels": 22,
+    "aggregates_days": 45
+  }
+}

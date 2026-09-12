@@ -1,0 +1,24 @@
+{
+  "date": "2026-09-12",
+  "generated_at": "2026-09-12T09:53:45Z",
+  "oil_transit_ktons": 11476.6,
+  "gas_transit_ktons": 4575.8,
+  "oil_vessels": 203,
+  "gas_vessels": 144,
+  "sample_n": 667,
+  "lookback_hours": 168,
+  "coverage_status": "ADEQUATE",
+  "coverage_thresholds": {
+    "adequate_min": 150,
+    "limited_min": 30
+  },
+  "assumptions": {
+    "ballast_frac": 0.38,
+    "gas_density": 0.45,
+    "oil_density": 0.85
+  },
+  "sources": {
+    "telemetry_unique": 177,
+    "ais_overlay_unique": 668
+  }
+}

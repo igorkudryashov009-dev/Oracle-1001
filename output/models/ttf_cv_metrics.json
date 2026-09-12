@@ -11,39 +11,66 @@
       "gap": 5,
       "horizons": {
         "7": {
-          "mae": 2.8897126399270876,
-          "rmse": 3.554013008913849
+          "mae": 3.2052590943075514,
+          "rmse": 4.031794921005532,
+          "directional_accuracy_pct": 42.857142857142854,
+          "n_dir": 14
         },
         "14": {
-          "mae": 1.1788040091846186,
-          "rmse": 1.4170377670841752
+          "mae": 1.0193071110222311,
+          "rmse": 1.3536430874484686,
+          "directional_accuracy_pct": 85.71428571428571,
+          "n_dir": 14
         },
         "30": {
-          "mae": 7.587629834106171,
-          "rmse": 9.344732087941471
+          "mae": 7.8074743689832555,
+          "rmse": 9.819376549502536,
+          "directional_accuracy_pct": 57.14285714285714,
+          "n_dir": 14
         }
       }
     },
     {
       "fold_id": 1,
-      "n_train": 82,
+      "n_train": 84,
       "n_test": 14,
       "gap": 5,
       "horizons": {
         "7": {
-          "mae": 5.261587099229018,
-          "rmse": 6.158144705588062
+          "mae": 6.6011776804614675,
+          "rmse": 7.844419739588354,
+          "directional_accuracy_pct": 57.14285714285714,
+          "n_dir": 14
         },
         "14": {
-          "mae": 4.612832966715577,
-          "rmse": 5.499427692168575
+          "mae": 5.4242856769673455,
+          "rmse": 6.1936025961152374,
+          "directional_accuracy_pct": 64.28571428571429,
+          "n_dir": 14
         },
         "30": {
-          "mae": 11.208965982848238,
-          "rmse": 11.350973050980075
+          "mae": 13.428447136152291,
+          "rmse": 13.920388089884147,
+          "directional_accuracy_pct": 28.57142857142857,
+          "n_dir": 14
         }
       }
     }
   ],
-  "skipped": false
+  "skipped": false,
+  "h7": {
+    "directional_accuracy_pct": 50.0,
+    "mae_mean": 4.9032,
+    "n_folds": 2
+  },
+  "h14": {
+    "directional_accuracy_pct": 75.0,
+    "mae_mean": 3.2218,
+    "n_folds": 2
+  },
+  "h30": {
+    "directional_accuracy_pct": 42.86,
+    "mae_mean": 10.618,
+    "n_folds": 2
+  }
 }

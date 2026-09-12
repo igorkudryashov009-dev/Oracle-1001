@@ -1,0 +1,188 @@
+{
+  "service": "sentinel_dashboard",
+  "status": "ok",
+  "http": "200",
+  "port": 8765,
+  "operational_status": "NOMINAL",
+  "replica": {
+    "stale": false,
+    "live_ok": true,
+    "db_path": "./история1/sentinel_ais.db",
+    "mtime_epoch": 1788863467.3438785,
+    "age_sec": 0.7,
+    "lag_minutes": 0.0,
+    "status": "FRESH",
+    "ais_truth": "live_ok",
+    "signal_source": "pipeline_telemetry.ts_utc",
+    "latest_ts": "2026-09-08T10:31:07Z",
+    "integrity_ok": true,
+    "banner": null,
+    "live_ok_lag_sec": 300
+  },
+  "source_mode": "live_ais",
+  "truth_contract": {
+    "top10": "http_assets_ok",
+    "ais": "live_ok",
+    "route": "live_ok",
+    "ttf": "ensemble"
+  },
+  "generated_at": "2026-09-08T10:31:07Z",
+  "ais_spoofing": {
+    "spoofed_count": 38,
+    "bound_kn": 21.0,
+    "engine": "ais_ghost_detector_v1"
+  },
+  "reactive_alerts": {
+    "alert_count": 0,
+    "monitored_vessels": 15,
+    "delta_threshold": 0.25,
+    "window_hours": 6.0,
+    "production_actionable": false,
+    "signal_status": "insufficient_sample",
+    "fleet_sample_status": "INSUFFICIENT"
+  },
+  "top500_balance_status": {
+    "status": "OK",
+    "fleet_size": 21,
+    "spoofed_excluded": 38,
+    "laden_pct": 45.0,
+    "dar_pct": 2.41,
+    "dar_signal_status": "insufficient_sample",
+    "dfs_grade": "A",
+    "dfs_signal_status": "insufficient_sample",
+    "lssi_signal": "INSUFFICIENT_SAMPLE",
+    "lssi_signal_status": "insufficient_sample",
+    "pil_status": "NOMINAL",
+    "pil_status_display": "NOMINAL · SAMPLE INSUFFICIENT (N=4)",
+    "sample_size_caveat": "based on N=4 vessels (of 500), statistically insufficient for fleet-wide balance inference (terrestrial AIS coverage)",
+    "total_m3_transit": 3730878
+  },
+  "quant_pipeline": {
+    "direction": "LONG",
+    "confidence": 0.302,
+    "ensemble_accuracy_pct": 78.6,
+    "model_cv_accuracy_pct": 78.6,
+    "accuracy_basis": "purged_cv_directional",
+    "ensemble_confidence_proxy_pct": 30.2,
+    "live_inference_confidence": "LOW",
+    "live_inference_confidence_pct": 3.14,
+    "live_confidence_factor": 0.04,
+    "fleet_sample_status": "INSUFFICIENT",
+    "sample_size_caveat": "based on N=4 vessels (of 500), statistically insufficient for fleet-wide balance inference (terrestrial AIS coverage)",
+    "catboost_accuracy_pct": 78.6,
+    "component_accuracy_pct": {
+      "catboost": 78.6,
+      "markov": null,
+      "spectral": null,
+      "elliott": null
+    },
+    "ensemble_weights": {
+      "catboost": 0.4,
+      "markov": 0.25,
+      "spectral": 0.2,
+      "elliott": 0.15
+    },
+    "weight_governance": {
+      "applied": false,
+      "margin_pp": 15.0,
+      "component_accuracy_pct": {
+        "catboost": 78.57,
+        "markov": null,
+        "spectral": null,
+        "elliott": null
+      },
+      "base_weights": {
+        "catboost": 0.4,
+        "markov": 0.25,
+        "spectral": 0.2,
+        "elliott": 0.15
+      },
+      "downweighted": [],
+      "reason": "insufficient_component_metrics",
+      "effective_weights": {
+        "catboost": 0.4,
+        "markov": 0.25,
+        "spectral": 0.2,
+        "elliott": 0.15
+      }
+    },
+    "markov_state": "MeanReverting_Transit",
+    "bog_loss_pct": 0.82,
+    "eu_bound_count": 11,
+    "tbi_score": 0.0,
+    "ice_p_bull": 0.651,
+    "errors": []
+  },
+  "top10": {
+    "ok": true,
+    "copied": 30,
+    "missing": [],
+    "asset_dir": "./output/assets/top10",
+    "truth": "http_assets_ok"
+  },
+  "route": {
+    "source_mode": "live_telemetry",
+    "truth": "live_ok",
+    "vessels": 22,
+    "aggregates_days": 45
+  },
+  "ttf_spot": 74.97,
+  "ttf_integrity": "PASS",
+  "live_vessel_count": 25,
+  "top500_live_coverage": 5,
+  "top500_coverage": {
+    "top500_live_coverage": 5,
+    "top500_universe": 500,
+    "window_minutes": 9.0,
+    "coverage_window_seconds": 540.0,
+    "cutoff_utc": "2026-09-08T10:22:07Z",
+    "fleet_csv": "./output/fleet_database.csv",
+    "ok": true,
+    "error": null
+  },
+  "coverage_window_seconds": 540.0,
+  "subscription_mode": "single_persistent:rotation",
+  "published_at": "2026-09-08T10:26:17Z",
+  "build_mode": "rebuild",
+  "pipeline_health_status": "NOMINAL",
+  "pipeline_health": {
+    "pipeline_health_status": "NOMINAL",
+    "reasons": [],
+    "ais_lag_sec": 0.7,
+    "live_ok": true,
+    "reconnects": 0,
+    "rate_limit_hits": 0,
+    "port_ok": true
+  },
+  "fleet_sample_status": "LIMITED",
+  "fleet_sample": {
+    "fleet_sample_status": "LIMITED",
+    "top500_live_coverage": 5,
+    "top500_universe": 500,
+    "limited_min": 5,
+    "full_min": 100,
+    "sample_size_caveat": "based on N=5 vessels (of 500), statistically insufficient for fleet-wide balance inference (terrestrial AIS coverage)",
+    "fleet_wide_metrics_eligible": false
+  },
+  "sample_size_caveat": "based on N=5 vessels (of 500), statistically insufficient for fleet-wide balance inference (terrestrial AIS coverage)",
+  "connector": {
+    "mps": 0.04,
+    "matched": 47,
+    "unmatched": 2,
+    "raw_subscribed_hits": 49,
+    "unique_subscribed_mmsis": 10,
+    "insert_latency_ms": 1.6,
+    "reconnects": 0,
+    "rate_limit_hits": 0,
+    "http_429_count": 0,
+    "subscribe_attempts": 19,
+    "heartbeat_ok": true,
+    "silence_sec": 16.3,
+    "uptime_sec": 3415.2,
+    "strategy": "single_persistent:rotation",
+    "chunk_index": 0,
+    "chunk_size": 200,
+    "rotation_cycle_seconds": 540.0,
+    "last_rate_limit_stage": null
+  }
+}

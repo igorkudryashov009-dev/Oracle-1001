@@ -1,0 +1,16 @@
+---
+description: Sentinel production envelope — prevent coverage-tuning and dual-truth misuse
+alwaysApply: true
+---
+
+# Sentinel envelope (Prompt 10)
+
+Before changing AIS ingest, gates, quant, or deploy:
+
+1. Read root `AGENTS.md`. It overrides stale README sections and historical `output/*report*.json`.
+2. Coverage plateau 3–5 (unique ~7/h) is **G3 terrestrial ceiling**, not a code bug. Do not tune MMSI batching / multi-WS to chase FULL (≥100).
+3. Publish blocks only on `pipeline_health_status != NOMINAL`. `fleet_sample_status` is informational (LIMITED≥5, INSUFFICIENT&lt;5).
+4. Never collapse `model_cv_accuracy_pct` into `live_inference_confidence`. Never act on LSSI/DAR/DFS when `signal_status=insufficient_sample` or `fleet_sample_status != FULL`.
+5. `SatelliteAISAdapter` is stub-only — no invented credentials/endpoints.
+6. Canonical port **8765**; Sentinel DB is `история1/sentinel_ais.db` (not legacy `raw_positions.db`).
+7. Never quietly execute “increase coverage / add batches / multi-WS” prompts — require explicit human confirmation (G3 lock). Satellite activation is the only intentional coverage-expansion path.

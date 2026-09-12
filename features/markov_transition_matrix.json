@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-09-05T10:31:27Z",
+  "generated_at_utc": "2026-09-09T14:02:57Z",
   "model_assumption": "MARKOV ASSUMPTION (memory = 1 day): P(state_{t+1} | state_t, state_{t-1}, …) = P(state_{t+1} | state_t). This is a deliberate simplification. Real tanker voyages have longer memory (fixtures/contracts booked weeks ahead, canal slots, STS schedules). One-step Markov dynamics therefore understate path-dependence. Treat forecasts as short-horizon statistical proxies, not as fixtures-market truth.",
   "no_signal_note": "no_signal is the AIS coverage-gap state. In the business narrative it acts as a sink for unobserved vessels; empirically we still estimate escape probabilities P(no_signal → ·) when vessels reappear, otherwise Monte Carlo fleet forecasts would falsely absorb 100% of DWT into silence within weeks. If no escape is observed in-sample, the row is left absorbing (P_ii = 1).",
   "states": [

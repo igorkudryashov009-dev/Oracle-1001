@@ -14,5 +14,10 @@ statsmodels>=0.14.0
 scikit-learn>=1.3.0
 lightgbm>=4.0.0
 catboost>=1.2.0
+# TOP-10 photogrammetric GLB pipeline
+trimesh>=4.0.0
+Pillow>=10.0.0
+scikit-image>=0.22.0
+fast_simplification>=0.1.0
 # Optional: enable DATABASE_URL Postgres dual-store for Sentinel connector
 asyncpg>=0.29.0

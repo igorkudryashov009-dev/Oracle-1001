@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-09-11T22:23:28Z",
+  "latest": "2026-09-11",
+  "dates": [
+    "2026-09-08",
+    "2026-09-09",
+    "2026-09-11"
+  ],
+  "vessel_count_latest": 1253,
+  "json_url": "/output/archive/snapshots/2026-09-11.json",
+  "csv_url": "/output/archive/snapshots/2026-09-11.csv",
+  "latest_url": "/output/archive/latest.json"
+}

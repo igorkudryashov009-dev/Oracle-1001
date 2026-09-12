@@ -1,25 +1,134 @@
-# Optional PostgreSQL / TimescaleDB for Sentinel AIS dual-store.
-# SQLite remains the default out-of-the-box backend (история1/sentinel_ais.db).
-# Start with: docker compose up -d timescaledb
+# ─── Oracle-1001 / Sentinel — Compose stack (DASHBOARD_PORT, default 8765) ────
+# Planes: sentinel-core (AIS + TTF) · sentinel-web (HTTP HUD)
+#
+# Quick start:
+#   docker compose up -d --build
+#   open http://127.0.0.1:${DASHBOARD_PORT:-8765}/output/sentinel_dashboard.html?sheet=top10
+#   health: http://127.0.0.1:${DASHBOARD_PORT:-8765}/output/api/v1/health
+#
+# Paths inside containers (no Windows absolutes):
+#   SENTINEL_DB_PATH=/app/история1/sentinel_ais.db
+#   OUTPUT_DIR=/app/output
+#   ASSETS_7000_DIR=/app/assets/7000
+# ─────────────────────────────────────────────────────────────────────────────
+
+x-sentinel-env: &sentinel-env
+  APP_HOME: /app
+  PORT: "${DASHBOARD_PORT:-8765}"
+  PYTHONUNBUFFERED: "1"
+  DASHBOARD_HOST: 0.0.0.0
+  DASHBOARD_PORT: "${DASHBOARD_PORT:-8765}"
+  ASSETS_7000_DIR: /app/assets/7000
+  ASSETS_1_10_DIR: /app/assets/1-10
+  SENTINEL_DB_PATH: /app/история1/sentinel_ais.db
+  OUTPUT_DIR: /app/output
+  DATA_DIR: /app/data
+  TTF_ROLLUP_INTERVAL_SEC: ${TTF_ROLLUP_INTERVAL_SEC:-21600}
+  TTF_ROLLUP_INITIAL_DELAY_SEC: ${TTF_ROLLUP_INITIAL_DELAY_SEC:-90}
+
+x-sentinel-base: &sentinel-base
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: oracle1001-sentinel:2026
+  env_file:
+    - .env
+  environment:
+    <<: *sentinel-env
+  volumes:
+    # Isolated volume: .db + -wal + -shm on same FS (prevents WAL lock/corruption)
+    - data_sqlite:/app/история1
+    # Built dashboards / API health / JS artifacts
+    - output_artifacts:/app/output
+    # Archive telemetry + rotation state (host bind for out-of-box continuity)
+    - ./data:/app/data
+    # Fleet registries (named output volume would otherwise hide host CSVs)
+    - ./output/fleet_database.csv:/app/output/fleet_database.csv:ro
+    - ./output/fleet_oil_tankers.csv:/app/output/fleet_oil_tankers.csv:ro
+    - ./output/fleet_database_full.csv:/app/output/fleet_database_full.csv:ro
+    # Orthographic assets (host bind — optional; empty dir OK)
+    - ./assets/7000:/app/assets/7000:ro
+    # Q-Flex REAL VIDEO source dir (Windows host SoT)
+    - C:/111/1001/1-10:/app/assets/1-10:ro
+  restart: unless-stopped
+  # Persistent ingest ≠ one-shot: bound log growth (json-file rotation)
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "5"
+  networks:
+    - sentinel-net
 
 services:
-  timescaledb:
-    image: timescale/timescaledb:latest-pg16
-    container_name: oracle1001-timescaledb
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: oracle
-      POSTGRES_PASSWORD: oracle1001
-      POSTGRES_DB: sentinel_ais
-    ports:
-      - "5432:5432"
-    volumes:
-      - sentinel_pgdata:/var/lib/postgresql/data
+
+  # ── Plane A: continuous AIS ingest + scheduled TTF rollups ─────────────────
+  sentinel-core:
+    <<: *sentinel-base
+    container_name: sentinel-core
+    command: ["python", "-u", "scripts/run_sentinel_core.py"]
+    # Alias service name for SRE briefs that refer to ais-ingest
+    # No public ports — ingest/analytics only
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U oracle -d sentinel_ais"]
-      interval: 10s
+      test: ["CMD-SHELL", "bash /app/scripts/ais_ingest_healthcheck.sh"]
+      interval: 60s
+      timeout: 20s
+      start_period: 90s
+      retries: 3
+    environment:
+      <<: *sentinel-env
+      HEALTH_URL: http://sentinel-web:${DASHBOARD_PORT:-8765}/output/api/v1/health
+      PIL_LAG_LIMIT_SEC: "1800"
+      WAL_PURGE_ON_LAG: "1"
+      # Out-of-box: force archive slot + 7d balance after core start
+      SENTINEL_BOOTSTRAP_ARCHIVE: "1"
+      SENTINEL_BOOTSTRAP_DELAY_SEC: "20"
+    labels:
+      oracle1001.plane: "sentinel-core"
+      oracle1001.role: "aisstream ingest + TTF rollups"
+      oracle1001.alias: "ais-ingest"
+
+  # ── Plane B: public HTTP / dashboard layer on host DASHBOARD_PORT ──────────
+  sentinel-web:
+    <<: *sentinel-base
+    container_name: sentinel-web
+    command:
+      [
+        "python",
+        "scripts/serve_dashboard.py",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "${DASHBOARD_PORT:-8765}",
+      ]
+    ports:
+      - "${DASHBOARD_PORT:-8765}:${DASHBOARD_PORT:-8765}"
+    depends_on:
+      sentinel-core:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS --max-time 5 http://127.0.0.1:$${DASHBOARD_PORT:-8765}/output/api/v1/health || exit 1",
+        ]
+      interval: 30s
       timeout: 5s
-      retries: 5
+      start_period: 20s
+      retries: 3
+    labels:
+      oracle1001.plane: "sentinel-web"
+      oracle1001.role: "Sentinel HUD HTTP (DASHBOARD_PORT)"
 
 volumes:
-  sentinel_pgdata:
+  # Persistent SQLite state (sentinel_ais.db + WAL/SHM sidecars)
+  data_sqlite:
+    driver: local
+  # Dashboard / analytics artifacts
+  output_artifacts:
+    driver: local
+
+networks:
+  sentinel-net:
+    driver: bridge
+    name: oracle1001-sentinel-net

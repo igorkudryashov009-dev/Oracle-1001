@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-09-11T22:23:27Z",
+  "tier1_gas_count": 1253,
+  "tier2_oil_count": 4410,
+  "gas_csv": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\fleet_database.csv",
+  "oil_csv": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\fleet_oil_tankers.csv",
+  "oil_csv_missing": false,
+  "note": null,
+  "registry_rows": 5663,
+  "gas_batches": 3,
+  "oil_batches": 9,
+  "slot_limit": 500,
+  "gas_full_refresh_hours": 4.5,
+  "oil_full_refresh_hours": 27
+}

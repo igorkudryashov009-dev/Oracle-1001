@@ -1,8 +1,37 @@
-# Oracle-1001 · AIS Continuous Archive
+# Oracle-1001 · AIS Continuous Archive / Sentinel
 
 Система непрерывного сбора AIS-позиций для судов из `fleet_database.csv`
 через бесплатный поток [AISstream.io](https://aisstream.io), с ежедневными
-снапшотами в `история1\` и браузерной витриной.
+снапшотами в `история1\` и браузерной витриной Sentinel HUD.
+
+---
+
+## READ THIS FIRST (Prompt 10 — out-of-box contract)
+
+**Binding contract for humans and AI agents:** [`AGENTS.md`](./AGENTS.md)  
+Install maintenance hook (Prompt 11): `python scripts/install_githooks.py`  
+If this README (especially older “multi-batch collector” sections) conflicts with
+`AGENTS.md` / `services/dual_gate.py` — **those win**.
+
+| Question | Answer |
+|---|---|
+| Is coverage 3–5 a bug? | **No.** Terrestrial AIS ceiling (G3). Do not re-tune subscription to chase ≥100. |
+| What blocks `--prod-rebuild`? | Only `pipeline_health_status != NOMINAL` — **not** low coverage. |
+| Can I trade on LSSI/DAR/DFS now? | **No**, unless `fleet_sample_status=FULL` and `signal_status != insufficient_sample`. |
+| Satellite AIS? | Stub only (`services/satellite_ais_adapter.py`) — no invented keys/endpoints. |
+| Production ingest? | **`docker compose up -d`** (`sentinel-core` + `sentinel-web`). Manual `python -m services.aisstream_connector` = diagnostic only. |
+| Canonical port / DB | **8765** · `история1/sentinel_ais.db` (Compose volume `data_sqlite`) |
+
+```powershell
+.\venv\Scripts\python.exe scripts\assert_out_of_box_contract.py
+.\venv\Scripts\python.exe run_release.py --prod-gate --no-open
+```
+
+HUD: `http://127.0.0.1:8765/output/sentinel_dashboard.html?sheet=top10`  
+Health: `http://127.0.0.1:8765/output/api/v1/health`
+
+Historical reports under `output/*readiness*` / old “coverage gate=100” narratives are
+**superseded** by dual-gate semantics (see Deploy Gate below + `CHANGELOG.md`).
 
 ---
 
@@ -87,9 +116,12 @@ STANDBY / NO FORECAST / AWAITING) — никогда не имитирует н�
 - Vessel-строк в `fleet_database` ≈ 5908  
 - **Уникальных IMO с MMSI** ≈ **3021** (не 5900)  
 - Уникальных IMO **без** MMSI ≈ 2307 → `targets_missing_mmsi.csv`  
-- AISstream принимает фильтр **только по MMSI**, лимит **50 MMSI на одно WebSocket**  
+- AISstream принимает фильтр **только по MMSI**  
+- **Official limits (2026-09):** ≤**200 MMSI / subscription**, ≤**3 connections / account & IP**  
   ([документация](https://aisstream.io/documentation))  
-- Нужно ≈ **ceil(unique_mmsi / 50)** параллельных подключений (легитимный батчинг)
+- **Sentinel production:** **one** persistent WS + rotation of ≤200-MMSI chunks  
+  (`config.yaml` → `sentinel.subscription_mode: single_persistent`).  
+  Do **not** open ceil(N/200) parallel sockets — that hits the 3-connection cap (Prompt 6).
 
 ---
 
@@ -128,15 +160,36 @@ python prepare_targets.py
 
 Создаёт: `targets.json`, `targets_batches.json`, `targets_missing_mmsi.csv`.
 
-### 4. Тест коллектора (поэтапно — не все 55 батчей сразу)
+### 4. Production ingest (persistent) — canonical ops path
 
-**Риск-аудит (28.07.2026):** в [документации AISstream](https://aisstream.io/documentation)
-**нет** опубликованной цифры лимита на количество *одновременных* WebSocket-соединений
-с одним API-ключом. Есть только общая фраза про throttling «at the api key and user
-level» без числа, плюс жёсткий факт: **max 1 subscribe-сообщение/сек на соединение**
-(не проблема — мы отправляем subscribe один раз при коннекте) и рекомендация не отдавать
-ключ на клиентские сокеты (не наш случай — сборщик работает как backend-процесс).
-Поэтому `collector.py` **не считает 55 соединений безопасными по умолчанию** и:
+```powershell
+docker compose up -d --build
+# planes: sentinel-core (AIS + TTF) · sentinel-web (:8765 HUD)
+# restart: unless-stopped · logs: json-file max-size=20m max-file=5
+```
+
+Ожидайте terrestrial plateau **единиц** (типично 3–5 simultaneous). Это не регресс.
+Deploy Gate при `pipeline_health=NOMINAL` и `fleet_sample=LIMITED|INSUFFICIENT` — **PASS**.
+
+### 4a. Diagnostic / manual mode only (not ops)
+
+```powershell
+# Process dies when you stop it — health.json will go stale between sessions.
+.\venv\Scripts\python.exe -m services.aisstream_connector
+# optional short soak:
+.\venv\Scripts\python.exe -m services.aisstream_connector --once --duration 1800
+```
+
+### 4b. Legacy `collector.py` (архивный контур — не Sentinel prod)
+
+> **WARNING:** секции ниже описывают исторический multi-batch collector →
+> `история1/raw_positions.db`. Для Sentinel HUD / dual-gate / Docker core
+> используйте §4 выше. Параллельный multi-WS против актуальных лимитов AISstream
+> (3 connections) — известный антипаттерн (Prompt 6 → 429 / socket close).
+
+**Риск-аудит (legacy, 28.07.2026; частично устарел):** ранее в документации не было
+явной цифры на число одновременных WS. **Сейчас зафиксировано:** ≤3 connections /
+account & IP, ≤200 MMSI/subscription. Legacy `collector.py` по-прежнему:
 
 - запускает батчи с задержкой **2.5 сек** между стартами (`--stagger-seconds`), а не все
   в первую же миллисекунду;
@@ -314,18 +367,41 @@ Cron для снапшота (00:05 UTC):
 
 | Файл | Роль |
 |---|---|
+| `AGENTS.md` | **Binding** out-of-box contract (Prompt 10/11) |
+| `githooks/pre-commit` | Contract drift guard (Prompt 11) |
+| `services/aisstream_connector.py` | Sentinel production AIS ingest (1 WS + rotation) |
+| `services/dual_gate.py` / `release_gate.py` | Pipeline vs fleet-sample Deploy Gate |
+| `build_sentinel_dashboard.py` | Sentinel HUD + health.json |
 | `prepare_targets.py` | IMO+MMSI из fleet → targets |
-| `collector.py` | WebSocket AISstream → SQLite |
+| `collector.py` | Legacy WebSocket AISstream → `raw_positions.db` (не Sentinel prod) |
 | `daily_snapshot.py` | 24ч срез → daily/ + by_vessel/ |
 | `forecast.py` | dead-reckoning JSON |
 | `build_history_dashboard.py` | витрина HTML |
-| `run_server.py` | http://127.0.0.1:8765 |
-| `config.yaml` | mode / лимиты |
-| `история1/` | архив |
+| `run_server.py` / `scripts/serve_dashboard.py` | http://127.0.0.1:8765 |
+| `config.yaml` | mode / Sentinel limits (`single_persistent`) |
+| `история1/sentinel_ais.db` | Sentinel production replica |
+| `история1/` | архив (+ legacy `raw_positions.db`) |
 | `история1/collector_unreachable_mmsi.json` | батчи, не подключившиеся 3+ раз подряд за сессию (генерируется, если такие есть) |
 
 Mock-траектории (`trajectories.html` / `sample_ais_history_MOCK.csv`) —
 **отдельная демо-витрина**, не путать с live-архивом.
+
+---
+
+## Deploy Gate (dual semantics)
+
+`--prod-rebuild` / `--prod-gate` **block publish only** when `pipeline_health_status != NOMINAL`:
+
+- AIS lag &lt; 300s, WAL/DB integrity OK, no HTTP 429 / reconnect storm, dashboard port **8765** only
+
+`fleet_sample_status` (`FULL` ≥100 / `LIMITED` ≥5 / `INSUFFICIENT` &lt;5) is **informational** —
+it does **not** fail Deploy Gate. It **must** be checked by any automatic downstream
+consumer (alerts, trading signals) before acting on fleet-wide quant fields
+(LSSI / DAR / DFS / live ensemble confidence). Observed terrestrial AIS ceiling
+(Prompt 7 soak): peak coverage ≈5, cumulative unique ≈7/hour.
+
+Satellite AIS: `services/satellite_ais_adapter.py` is a **stub only** — activate only
+after an explicit provider choice and real credentials (never invent endpoints/keys).
 
 ---
 
@@ -335,17 +411,20 @@ Mock-траектории (`trajectories.html` / `sample_ais_history_MOCK.csv`) 
 |---|---|
 | `logs/collector_log.txt` | подписки, обрывы, POS-сэмплы |
 | `logs/snapshot_log.txt` | итоги daily snapshot |
+| `logs/aisstream_ws_attempts.jsonl` | handshake/subscribe attempts |
+| `logs/health_coverage_daily.jsonl` | append-only G3 health/coverage (Prompt 11) |
 
 Типичные проблемы:
 
-- Нет `POS` 10+ минут → проверьте ключ, firewall, что `--max-batches` не 0  
+- Нет `POS` 10+ минут → проверьте ключ, firewall; TOP-500 в океане часто невидимы terrestrial AIS  
 - Много `no_signal_24h` → судно в океане вне terrestrial AIS / collector не работал  
-- Disconnect loop → смотрите throttle AISstream; уменьшите число параллельных батчей временно через `--max-batches`
+- HTTP 429 / reconnect storm → `pipeline_health_status` → CRITICAL; single-WS connector should not multi-batch
 
 ---
 
 ## Юридическое / этическое
 
 Используется только легитимный бесплатный API AISstream.io.
-Лимит 50 MMSI/сокет обходится **разделением на параллельные подписки**, не хаками.
-Ключ не светить в фронтенде (браузерный CORS к AISstream запрещён их политикой).
+Официальный лимит: **до 200 MMSI / подписку**, **до 3 соединений / аккаунт**
+([документация](https://aisstream.io/documentation)). Sentinel держит **одно** WS и
+ротирует FiltersShipMMSI. Ключ не светить в фронтенде (браузерный CORS к AISstream запрещён их политикой).

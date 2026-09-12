@@ -23,8 +23,12 @@
       const q = new URLSearchParams(window.location.search || "");
       const sheet = String(q.get("sheet") || "").toLowerCase().trim();
       const hash = String(window.location.hash || "").replace(/^#/, "").toLowerCase().trim();
-      if (sheet === "ttf" || hash === "ttf" || hash === "tab-ttf-forecast") return "ttf";
-      if (sheet === "ais" || hash === "ais" || hash === "sheet-ais") return "ais";
+      if (sheet === "ttf"     || hash === "ttf"     || hash === "tab-ttf-forecast") return "ttf";
+      if (sheet === "top10" || sheet === "qflex" || sheet === "q-flex" || hash === "top10" || hash === "qflex" || hash === "q-flex" || hash === "sheet-top10") return "top10";
+      if (sheet === "route"   || hash === "route"   || hash === "sheet-route")     return "route";
+      if (sheet === "balance" || hash === "balance" || hash === "sheet-balance")   return "balance";
+      if (sheet === "archive" || hash === "archive" || hash === "sheet-archive")   return "archive";
+      if (sheet === "ais"     || hash === "ais"     || hash === "sheet-ais")       return "ais";
     } catch (_) { /* ignore */ }
     return "ais";
   }
@@ -96,8 +100,28 @@
       banner.classList.add("on");
     }
     if (opsEl) {
-      opsEl.textContent = fr.stale ? `OPS DEGRADED · LAG ${fr.lag_minutes}m` : "OPS NOMINAL · FRESH";
+      const pipe = P.pipeline_health_status || (fr.stale ? "DEGRADED" : "NOMINAL");
+      opsEl.textContent = fr.stale
+        ? `OPS DEGRADED · LAG ${fr.lag_minutes}m`
+        : `OPS ${pipe} · PIPELINE`;
       opsEl.classList.add(fr.stale ? "stale" : "fresh");
+    }
+
+    // Persistent fleet-sample banner (all sheets) — never requires a click
+    const fsBanner = document.getElementById("fleetSampleBanner");
+    if (fsBanner) {
+      const fs = String(P.fleet_sample_status || "").toUpperCase();
+      const n = P.top500_live_coverage != null ? P.top500_live_coverage : "—";
+      if (fs && fs !== "FULL") {
+        fsBanner.innerHTML =
+          `<strong>Fleet sample: ${fs}</strong> (N=${n} of 500, terrestrial AIS coverage) — ` +
+          `quant signals reduced confidence` +
+          (P.sample_size_caveat ? ` · ${P.sample_size_caveat}` : "");
+        fsBanner.classList.add("on");
+      } else {
+        fsBanner.classList.remove("on");
+        fsBanner.textContent = "";
+      }
     }
   }
 
@@ -265,18 +289,30 @@
 
   function switchSheet(name, opts) {
     const force = !!(opts && opts.force);
-    const sheet = name === "ttf" ? "ttf" : "ais";
+    let sheet = "ais";
+    if (name === "ttf") sheet = "ttf";
+    else if (name === "top10" || name === "qflex" || name === "q-flex") sheet = "top10";
+    else if (name === "route") sheet = "route";
+    else if (name === "balance") sheet = "balance";
+    else if (name === "archive") sheet = "archive";
 
     document.documentElement.dataset.sheet = sheet;
 
     document.querySelectorAll(".sheet-tab").forEach((t) => {
-      const on = t.getAttribute("data-sheet") === sheet;
+      const ds = t.getAttribute("data-sheet");
+      const on =
+        ds === sheet ||
+        (sheet === "top10" && (ds === "qflex" || ds === "q-flex" || ds === "top10"));
       t.classList.toggle("active", on);
       t.setAttribute("aria-selected", on ? "true" : "false");
     });
 
     const ais = document.getElementById("sheet-ais");
     const ttf = document.getElementById("tab-ttf-forecast");
+    const top10 = document.getElementById("sheet-top10");
+    const route = document.getElementById("sheet-route");
+    const balance = document.getElementById("sheet-balance");
+    const archive = document.getElementById("sheet-archive");
     const kpi = document.getElementById("kpiRow");
 
     if (ais) {
@@ -287,10 +323,36 @@
       ttf.classList.toggle("active", sheet === "ttf");
       ttf.style.display = sheet === "ttf" ? "block" : "none";
     }
+    if (top10) {
+      top10.classList.toggle("active", sheet === "top10");
+      top10.style.display = sheet === "top10" ? "block" : "none";
+    }
+    if (route) {
+      route.classList.toggle("active", sheet === "route");
+      route.style.display = sheet === "route" ? "block" : "none";
+    }
+    if (balance) {
+      balance.classList.toggle("active", sheet === "balance");
+      balance.style.display = sheet === "balance" ? "block" : "none";
+    }
+    if (archive) {
+      archive.classList.toggle("active", sheet === "archive");
+      archive.style.display = sheet === "archive" ? "block" : "none";
+    }
     if (kpi) kpi.style.display = sheet === "ais" ? "" : "none";
 
     const title = document.getElementById("heroTitle");
     const sub = document.getElementById("heroSub");
+
+    if (window.__TOP10__ && typeof window.__TOP10__.pause === "function" && sheet !== "top10") {
+      try { window.__TOP10__.pause(); } catch (_) { /* ignore */ }
+    }
+
+    try {
+      if (window.__HUD_STATE__ && typeof window.__HUD_STATE__.setSheet === "function") {
+        window.__HUD_STATE__.setSheet(sheet);
+      }
+    } catch (_) { /* ignore */ }
 
     if (sheet === "ttf") {
       if (title) title.textContent = "ПРОГНОЗ TTF · MARKET FORECAST ENSEMBLE";
@@ -311,8 +373,66 @@
           console.error("TTF render failed", err);
         }
       });
+    } else if (sheet === "top10") {
+      if (title) title.textContent = "ТОП 10 LNG ФЛАГМАНОВ · PHOTOGRAMMETRIC 3D";
+      if (sub) {
+        sub.textContent = "Q-Max / Membrane · orthographic triplets · WebGL ACESFilmic · ACTIVE OSINT TRACK";
+      }
+      afterLayout(() => {
+        const boot = () => {
+          if (window.__TOP10__ && typeof window.__TOP10__.boot === "function") {
+            window.__TOP10__.boot({ force: !!force });
+          } else {
+            setTimeout(boot, 40);
+          }
+        };
+        boot();
+      });
+    } else if (sheet === "route") {
+      if (title) title.textContent = "МАРШРУТ · ROUTE ANALYTICS · SPATIOTEMPORAL";
+      if (sub) {
+        const R = P.route_analytics || {};
+        sub.textContent = `${R.source_mode || "route"} · 1D/7D/30D kinematics · DWT · anomaly KPIs · Orbitron HUD`;
+      }
+      afterLayout(() => {
+        const boot = () => {
+          if (window.__ROUTE__ && typeof window.__ROUTE__.boot === "function") {
+            window.__ROUTE__.boot({ force: !!force });
+          } else {
+            setTimeout(boot, 40);
+          }
+        };
+        boot();
+      });
+    } else if (sheet === "balance") {
+      if (title) title.textContent = "БАЛАНС · TOP-500 FLEET BALANCE · 6 QUANT METRICS";
+      if (sub) {
+        const B = P.balance || {};
+        const spoofN = B.spoofed_excluded || 0;
+        sub.textContent = `Clean fleet ${B.fleet_size || "—"} · spoofed excluded ${spoofN} · What-If LSSI · Apple×NASA HUD`;
+      }
+      afterLayout(() => {
+        document.dispatchEvent(new CustomEvent("sentinelSheetChange", { detail: { sheet: "balance" } }));
+        if (window.__BALANCE__ && typeof window.__BALANCE__.boot === "function") {
+          window.__BALANCE__.boot();
+        }
+      });
+    } else if (sheet === "archive") {
+      if (title) title.textContent = "ARCHIVE · VESSEL DAILY SNAPSHOTS · FULL FLEET";
+      if (sub) {
+        sub.textContent = "Immutable UTC freeze · 20-parameter registry + AIS overlay · CSV/JSON export";
+      }
+      afterLayout(() => {
+        document.dispatchEvent(new CustomEvent("sentinelSheetChange", { detail: { sheet: "archive" } }));
+        if (window.__ARCHIVE__ && typeof window.__ARCHIVE__.boot === "function") {
+          window.__ARCHIVE__.boot();
+        }
+      });
     } else {
       if (title) title.textContent = "SENTINEL LIVE AIS · 18 INFOGRAPHICS";
+      if (sub) {
+        sub.textContent = "Strategic fleet Alpha–Delta · AISStream ingestion · Real-time kinetics & pipeline health";
+      }
       renderKPI();
       afterLayout(() => forceChartRelayout(ais));
     }
@@ -320,7 +440,11 @@
 
   /** Alias for desk / external callers (Plotly-style API from brief). */
   function switchTab(tabId) {
-    if (tabId === "tab-ttf-forecast" || tabId === "ttf") return switchSheet("ttf", { force: true });
+    if (tabId === "tab-ttf-forecast" || tabId === "ttf")   return switchSheet("ttf",     { force: true });
+    if (tabId === "sheet-top10" || tabId === "top10" || tabId === "qflex" || tabId === "q-flex") return switchSheet("top10", { force: true });
+    if (tabId === "sheet-route"      || tabId === "route") return switchSheet("route",   { force: true });
+    if (tabId === "sheet-balance"    || tabId === "balance") return switchSheet("balance", { force: true });
+    if (tabId === "sheet-archive"    || tabId === "archive") return switchSheet("archive", { force: true });
     return switchSheet("ais");
   }
 
@@ -328,12 +452,23 @@
     document.querySelectorAll(".sheet-tab").forEach((btn) => {
       btn.addEventListener("click", () => {
         const target = btn.getAttribute("data-sheet") || "ais";
-        switchSheet(target, { force: target === "ttf" });
+        const needsForce =
+          target === "ttf" ||
+          target === "top10" ||
+          target === "qflex" ||
+          target === "q-flex" ||
+          target === "route" ||
+          target === "balance" ||
+          target === "archive";
+        switchSheet(target, { force: needsForce });
+        // Fire custom event so balance_engine.js can boot lazily
+        document.dispatchEvent(new CustomEvent("sentinelSheetChange", { detail: { sheet: target === "qflex" || target === "q-flex" ? "top10" : target } }));
         try {
           const url = new URL(window.location.href);
-          if (target === "ttf") url.searchParams.set("sheet", "ttf");
-          else url.searchParams.delete("sheet");
-          window.history.replaceState({}, "", url.pathname + url.search + (target === "ttf" ? "" : url.hash));
+          const urlSheet = target === "top10" ? "qflex" : target;
+          if (urlSheet === "ais") url.searchParams.delete("sheet");
+          else url.searchParams.set("sheet", urlSheet);
+          window.history.replaceState({}, "", url.pathname + url.search);
         } catch (_) { /* ignore */ }
       });
     });
@@ -818,10 +953,14 @@
 
     renderLists();
 
-    // Deep-link: ?sheet=ttf | #ttf | #tab-ttf-forecast → activate TTF + force canvas reflow
+    // Deep-link: ?sheet=ttf|top10|route
     const initialSheet = parseSheetFromUrl();
     if (initialSheet === "ttf") {
       switchTab("tab-ttf-forecast");
+    } else if (initialSheet === "top10") {
+      switchTab("top10");
+    } else if (initialSheet === "route") {
+      switchTab("route");
     } else {
       afterLayout(() => forceChartRelayout(document.getElementById("sheet-ais")));
     }
@@ -836,7 +975,11 @@
       const sheet = document.documentElement.dataset.sheet || parseSheetFromUrl();
       const root = sheet === "ttf"
         ? document.getElementById("tab-ttf-forecast")
-        : document.getElementById("sheet-ais");
+        : sheet === "top10"
+          ? document.getElementById("sheet-top10")
+          : sheet === "route"
+            ? document.getElementById("sheet-route")
+            : document.getElementById("sheet-ais");
       forceChartRelayout(root);
     });
   }

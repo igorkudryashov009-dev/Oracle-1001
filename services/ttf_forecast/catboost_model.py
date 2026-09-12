@@ -185,7 +185,22 @@ def purged_cv_train(
             y_te_px = bundle["y_price"][h][te]
             mae = float(np.mean(np.abs(pred_px - y_te_px)))
             rmse = float(np.sqrt(np.mean((pred_px - y_te_px) ** 2)))
-            fold_row["horizons"][str(h)] = {"mae": mae, "rmse": rmse}
+            y_true_ret = np.asarray(bundle["y"][h][te], dtype=float)
+            pred_ret = np.asarray(ret_pred, dtype=float)
+            # Directional: sign agreement; zeros count as miss (no free accuracy).
+            mask = (np.abs(y_true_ret) > 1e-12) | (np.abs(pred_ret) > 1e-12)
+            if int(np.sum(mask)) == 0:
+                dir_acc = None
+            else:
+                dir_acc = float(
+                    np.mean(np.sign(pred_ret[mask]) == np.sign(y_true_ret[mask])) * 100.0
+                )
+            fold_row["horizons"][str(h)] = {
+                "mae": mae,
+                "rmse": rmse,
+                "directional_accuracy_pct": dir_acc,
+                "n_dir": int(np.sum(mask)),
+            }
         fold_metrics.append(fold_row)
         mae7 = (fold_row["horizons"].get("7") or {}).get("mae")
         logger.info(
@@ -196,6 +211,24 @@ def purged_cv_train(
             fold_row["gap"],
             f"{mae7:.3f}" if mae7 is not None else "n/a",
         )
+
+    # Horizon summaries for consumers (quant_pipeline expects h7/h14/h30 keys).
+    horizon_summary: dict[str, Any] = {}
+    for h in HORIZONS:
+        dir_vals: list[float] = []
+        mae_vals: list[float] = []
+        for fold in fold_metrics:
+            cell = (fold.get("horizons") or {}).get(str(h)) or {}
+            if cell.get("directional_accuracy_pct") is not None:
+                dir_vals.append(float(cell["directional_accuracy_pct"]))
+            if cell.get("mae") is not None:
+                mae_vals.append(float(cell["mae"]))
+        horizon_summary[f"h{h}"] = {
+            "directional_accuracy_pct": round(float(np.mean(dir_vals)), 2) if dir_vals else None,
+            "mae_mean": round(float(np.mean(mae_vals)), 4) if mae_vals else None,
+            "n_folds": len(dir_vals),
+        }
+
     return {
         "n_splits": n_splits_eff,
         "purge_days": purge_eff,
@@ -203,6 +236,7 @@ def purged_cv_train(
         "test_size": test_size,
         "folds": fold_metrics,
         "skipped": False,
+        **horizon_summary,
     }
 
 
@@ -291,14 +325,17 @@ def save_artifacts(
         "feature_cols": feature_cols,
         "n_features": len(feature_cols),
     }
+    from services.utils.path_sanitizer import sanitize_structure
+
+    meta = sanitize_structure(meta)
     META_JSON.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     logger.info("Saved primary CBM → %s", ENSEMBLE_CBM)
-    return {
+    return sanitize_structure({
         "ensemble_cbm": str(ENSEMBLE_CBM),
         "importance": str(IMPORTANCE_JSON),
         "cv_metrics": str(CV_METRICS_JSON),
         "meta": str(META_JSON),
-    }
+    })
 
 
 def predict_quantiles(

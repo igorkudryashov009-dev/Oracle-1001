@@ -1,39 +1,63 @@
 {
-  "path": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\sentinel_dashboard.html",
-  "bytes": 227844,
-  "live_vessel_count": 430,
-  "source_mode": "synthetic_seed",
-  "operational_status": "NOMINAL",
+  "path": "./output/sentinel_dashboard.html",
+  "bytes": 1006787,
+  "live_vessel_count": 29,
+  "source_mode": "live_ais+STALE",
+  "operational_status": "DEGRADED_STALE_REPLICA",
   "replica_freshness": {
-    "stale": false,
-    "db_path": "C:\\Users\\MSI\\Oracle-1001\\7000\\история1\\sentinel_ais.db",
-    "mtime_epoch": 1788622164.4570773,
-    "age_sec": 1.0,
-    "lag_minutes": 0.0,
-    "status": "FRESH",
-    "banner": null
+    "stale": true,
+    "live_ok": false,
+    "db_path": "./история1/sentinel_ais.db",
+    "mtime_epoch": 1789165333.9430585,
+    "age_sec": 1412.5,
+    "lag_minutes": 23.5,
+    "status": "STALE",
+    "ais_truth": "stale",
+    "signal_source": "ais_positions.received_at",
+    "latest_ts": "2026-09-11T21:58:43Z",
+    "integrity_ok": true,
+    "banner": "[STALE AIS REPLICA DETECTED - DATA LAG > 23.5 MINS]",
+    "live_ok_lag_sec": 300
+  },
+  "truth_contract": {
+    "top10": "http_assets_ok",
+    "ais": "stale",
+    "route": "live_ok",
+    "ttf": "ensemble"
   },
   "ttf_kpi": {
-    "h7_p50": 71.21,
-    "h14_p50": 70.99,
-    "h30_p50": 71.9,
+    "h7_p50": 77.25,
+    "h14_p50": 77.16,
+    "h30_p50": 77.05,
     "h7_band": {
-      "p10": 66.7,
-      "p90": 76.12
+      "p10": 72.57,
+      "p90": 82.27
     },
     "market_state": "MeanReverting_Transit",
     "market_state_probs": {
       "LowVol_Accumulation": 0.0,
-      "MeanReverting_Transit": 99.3,
-      "HighVol_SupplyShock": 0.7
+      "MeanReverting_Transit": 99.1,
+      "HighVol_SupplyShock": 0.9
     },
-    "ais_causal_index": 2.975,
-    "ais_causal_best_lag": 8,
-    "ais_causal_p": 0.011214806349929034,
-    "optimal_range": "B_68_75",
+    "ais_causal_index": 0.925,
+    "ais_causal_best_lag": 9,
+    "ais_causal_p": 0.5152135319821431,
+    "optimal_range": "C_75_82",
     "max_confidence_pct": 64.0,
     "portfolio_roi_pct": 18.4,
     "portfolio_terminal_usd": 1184.0
   },
-  "ttf_integrity": "PASS"
+  "ttf_integrity": "PASS_STALE_REPLICA",
+  "top10_assets": {
+    "ok": true,
+    "copied": 30,
+    "missing": [],
+    "asset_dir": "./output/assets/top10"
+  },
+  "route_analytics": {
+    "source_mode": "live_telemetry",
+    "truth": "live_ok",
+    "vessels": 22,
+    "aggregates_days": 45
+  }
 }

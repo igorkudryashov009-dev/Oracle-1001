@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-09-11T22:21:14Z",
+  "full_source": "git:b132925:output/fleet_database.csv",
+  "full_rows": 5908,
+  "full_unique_imos": 5328,
+  "tier1_gas_imos": 1253,
+  "tier1_gas_overlap_with_full": 890,
+  "tier2_oil_exported": 4410,
+  "gas_like_skipped_in_residual": 51,
+  "oil_csv": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\fleet_oil_tankers.csv",
+  "full_cache": "C:\\Users\\MSI\\Oracle-1001\\7000\\output\\fleet_database_full.csv",
+  "note": "Tier-2 = full OSINT fleet minus Tier-1 gas IMOs (unique). Target ~4655 assumes gas⊂full; actual unique residual depends on overlap between curated gas CSV and historical 5908 registry."
+}

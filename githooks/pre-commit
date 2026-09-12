@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Prompt 11 — contract drift guard (pre-commit).
+# Blocks commits that touch ingest/gate/UI contract surfaces when
+# scripts/assert_out_of_box_contract.py is not PASS.
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "${ROOT}" ]]; then
+  echo "pre-commit: not a git repo" >&2
+  exit 1
+fi
+cd "${ROOT}"
+
+# Paths that can drift the out-of-box contract (Prompt 10/11).
+WATCH_REGEX='^(services/aisstream_connector\.py|services/dual_gate\.py|services/ais_health\.py|services/release_gate\.py|services/satellite_ais_adapter\.py|build_sentinel_dashboard\.py|README\.md|AGENTS\.md|CHANGELOG\.md|config\.yaml|scripts/assert_out_of_box_contract\.py|\.cursor/rules/sentinel-envelope\.mdc)$'
+
+STAGED="$(git diff --cached --name-only --diff-filter=ACMR || true)"
+if [[ -z "${STAGED}" ]]; then
+  exit 0
+fi
+
+NEED=0
+while IFS= read -r f; do
+  [[ -z "${f}" ]] && continue
+  # Normalize Windows backslashes
+  f="${f//\\//}"
+  if echo "${f}" | grep -Eq "${WATCH_REGEX}"; then
+    NEED=1
+    break
+  fi
+done <<< "${STAGED}"
+
+if [[ "${NEED}" -eq 0 ]]; then
+  exit 0
+fi
+
+echo "pre-commit: contract surfaces staged — running assert_out_of_box_contract.py"
+PY=""
+if [[ -x "./venv/Scripts/python.exe" ]]; then
+  PY="./venv/Scripts/python.exe"
+elif [[ -x "./venv/bin/python" ]]; then
+  PY="./venv/bin/python"
+elif command -v python >/dev/null 2>&1; then
+  PY="python"
+else
+  echo "pre-commit: FAIL — no Python found to run contract assert" >&2
+  exit 1
+fi
+
+set +e
+"${PY}" scripts/assert_out_of_box_contract.py
+RC=$?
+set -e
+if [[ "${RC}" -ne 0 ]]; then
+  echo "" >&2
+  echo "pre-commit: BLOCKED — out-of-box contract is not PASS (exit ${RC})." >&2
+  echo "Fix AGENTS.md / dual_gate / README drift, then re-stage and commit." >&2
+  exit "${RC}"
+fi
+exit 0

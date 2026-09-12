@@ -1,0 +1,15 @@
+{
+  "status": "ok",
+  "mode": "live",
+  "generated_at": "2026-09-09T14:03:12Z",
+  "db": "./история1/sentinel_ais.db",
+  "summary": {
+    "sts_pairs": 0,
+    "dark_ais": 0,
+    "registry_positions": 1,
+    "positions_total": 192188
+  },
+  "sts": [],
+  "dark": [],
+  "caveat": null
+}

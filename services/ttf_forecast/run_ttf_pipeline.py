@@ -115,6 +115,9 @@ def _spectral_markov_fallback_forecast() -> dict[str, Any]:
         "fallback": True,
         "artifacts": {"forecast_json": str(OUT_JSON)},
     }
+    from services.utils.path_sanitizer import sanitize_structure
+
+    forecast = sanitize_structure(forecast)
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(forecast, indent=2, default=str), encoding="utf-8")
     try:
@@ -252,6 +255,9 @@ def run_ttf_release_pipeline(*, skip_catboost: bool = False) -> dict[str, Any]:
 
     summary["total_seconds"] = round(sum(p["seconds"] for p in perf), 3)
     log.info("=== TTF RELEASE PIPELINE OK mode=%s spot=%s ===", mode, summary.get("spot"))
+    from services.utils.path_sanitizer import sanitize_structure
+
+    summary = sanitize_structure(summary)
     (OUT / "ttf_release_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary
 

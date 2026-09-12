@@ -1,0 +1,74 @@
+# ── Oracle-1001 / Sentinel — Docker Build Context Filter ─────────────────────
+# Excludes heavy/unnecessary paths from COPY . . in Dockerfile
+# Target: ~800MB runtime image (not 3GB with venv + ML data copied into context)
+
+# Python virtualenv (rebuilt inside Docker via requirements.txt)
+venv/
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.dist-info/
+.eggs/
+
+# Large data files / legacy ML artifacts (not needed in serve image)
+features/
+input/source.xlsx
+storia1/
+история1/
+# Keep sentinel_ais.db available via Docker volume, not in image
+*.db
+*.db-shm
+*.db-wal
+
+# Output HTML (rebuilt by sentinel-core service; served from volume mount)
+# NOTE: output/ dir itself IS needed for the directory structure
+output/*.html
+output/*.json
+output/models/
+output/assets/
+# TripoSR / generative pilot — isolated, never bake into production image
+output/generative_pilot/
+web/assets/3d_models/generative_pilot/
+.venv-triposr/
+
+# Test files
+tests/
+*.pyc
+pytest_cache/
+
+# Logs (mounted as volume)
+logs/
+
+# Git and editor metadata
+.git/
+.gitignore
+.cursor/
+*.md
+!README.md
+
+# Windows-specific
+Thumbs.db
+desktop.ini
+*.lnk
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# CI / local scripts
+*.bat
+*.ps1
+deploy/
+
+# Large parquet / CSV data files
+**/*.parquet
+fleet_database.csv
+fleet_database.xlsx
+targets.json
+targets_batches.json

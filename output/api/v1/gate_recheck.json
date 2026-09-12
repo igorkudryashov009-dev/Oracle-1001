@@ -1,0 +1,12 @@
+{
+  "mode": "prod_gate",
+  "build_mode": "gate_only_recheck",
+  "checked_at": "2026-09-12T07:31:13Z",
+  "exit_code": 1,
+  "failures": [
+    "pipeline_health_status!='NOMINAL' (got CRITICAL; reasons=['ais_stale'])",
+    "verify_3d_and_health failed"
+  ],
+  "verify_3d_and_health": 1,
+  "health_published_at": "2026-09-11T22:22:19Z"
+}

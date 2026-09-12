@@ -304,7 +304,7 @@ function renderDossier(){
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">Km period</span><strong>${km.toFixed(1)}</strong></div>
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">Days w/ data</span><strong>${rows.length}</strong></div>
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--separator)"><span class="fi-muted">Last src</span><strong>${last?last.source:"—"}</strong></div>
-    <p class="fi-muted" style="margin-top:12px;font-size:13px">${fc?fc.disclaimer:"Forecast appears after live points exist in raw_positions.db"}</p>`;
+    <p class="fi-muted" style="margin-top:12px;font-size:13px">${fc?fc.disclaimer:"Forecast appears after live points exist in sentinel_ais.db"}</p>`;
 }
 function renderChart(){
   const c = chartColors();
@@ -331,8 +331,8 @@ function setPeriod(k){
 async function init(){
   renderBanner();
   map = L.map("map").setView([20,40],2);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{
-    attribution:"&copy; OSM &copy; CARTO", maxZoom:18
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
+    attribution:"&copy; OpenStreetMap &copy; CARTO", maxZoom:18, subdomains:"abcd"
   }).addTo(map);
   await loadDailyIndex();
   document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>setPeriod(b.dataset.p));

@@ -126,7 +126,7 @@ def main() -> int:
     print(f"  Wrote {OUT_MISSING} ({len(without)} rows)")
     print()
     print(
-        "NOTE: ~5900 vessel *rows* in fleet ≠ vessels with MMSI. "
+        "NOTE: ~5900 vessel *rows* in fleet != vessels with MMSI. "
         "AISstream requires MMSI; IMO without MMSI cannot be subscribed."
     )
     return 0
