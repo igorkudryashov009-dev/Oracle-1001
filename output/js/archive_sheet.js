@@ -43,8 +43,19 @@ async function loadApiStatus() {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       return r.json();
     });
+
+    let liveCoverage = "—";
+    try {
+      const h = await fetch("/output/api/v1/health", { cache: "no-store" }).then((r) => r.json());
+      const n = h.top500_live_coverage ?? (h.fleet_sample || {}).top500_live_coverage;
+      if (n != null) liveCoverage = String(n);
+    } catch {
+      /* health fetch optional */
+    }
+
     const wrap = el("arch-api-status");
-    const tone = String(s.ui_tone || (s.ingest_mode === "commercial_rest" ? "ok" : "hybrid"));
+    const isCommercial = s.ingest_mode === "commercial_rest" && s.status === "OK";
+    const tone = String(s.ui_tone || (isCommercial ? "ok" : "hybrid"));
     if (wrap) {
       wrap.classList.remove("is-ok", "is-hybrid", "is-degraded");
       wrap.classList.add(
@@ -52,12 +63,9 @@ async function loadApiStatus() {
       );
     }
     if (el("arch-api-plan")) {
-      el("arch-api-plan").textContent = String(
-        s.ui_api ||
-          (s.ingest_mode === "commercial_rest"
-            ? "COMMERCIAL REST API"
-            : "HYBRID LOCAL FALLBACK")
-      );
+      el("arch-api-plan").textContent = isCommercial
+        ? "COMMERCIAL REST API"
+        : "HYBRID LOCAL (OSINT SNAPSHOT)";
     }
     if (el("arch-api-key")) {
       el("arch-api-key").textContent = String(
@@ -68,17 +76,30 @@ async function loadApiStatus() {
     if (el("arch-api-status-text")) {
       el("arch-api-status-text").textContent = String(s.ui_status || s.status || "NOMINAL");
     }
+
+    const t1 = Number(s.tier1_gas_count) || 1253;
+    const t2 = Number(s.tier2_oil_count) || 0;
+    const knownTotal = t2 > 0 ? `${fmtInt(t1)}+${fmtInt(t2)}` : fmtInt(s.total_monitored || t1);
+
+    if (el("arch-known-fleet-kpi")) {
+      el("arch-known-fleet-kpi").textContent = `${knownTotal} vessels`;
+    }
+    if (el("arch-live-g3-kpi")) {
+      el("arch-live-g3-kpi").textContent = `N=${liveCoverage} live`;
+    }
+    if (el("arch-known-fleet-desc")) {
+      const snapDate = s.last_sync_at ? s.last_sync_at.slice(0, 10) : "2026-09-12";
+      el("arch-known-fleet-desc").textContent = `${knownTotal} known vessels`;
+    }
+    if (el("arch-live-g3-desc")) {
+      el("arch-live-g3-desc").textContent = `N=${liveCoverage} live AIS-tracked`;
+    }
+
     if (el("arch-api-slots")) {
       const slots =
         s.slots_label ||
         `${s.slots_used ?? "—"}/${s.slots_limit ?? 500} (ROTATING)`;
-      const t1 = Number(s.tier1_gas_count);
-      const t2 = Number(s.tier2_oil_count);
-      const total =
-        Number.isFinite(t1) && Number.isFinite(t2) && t2 > 0
-          ? `${fmtInt(t1)}+${fmtInt(t2)}`
-          : fmtInt(s.total_monitored || t1 || 1253);
-      el("arch-api-slots").textContent = `${slots} · ${total}`;
+      el("arch-api-slots").textContent = slots;
     }
     if (el("arch-bal-tier")) {
       const label = s.rotation_label || s.active_tier_label || "";

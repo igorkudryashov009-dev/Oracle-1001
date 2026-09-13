@@ -211,7 +211,9 @@ def save_rotation_state(state: dict[str, Any]) -> None:
     )
 
 
-def write_api_status(state: dict[str, Any], *, plan: str = "PREMIUM SATELLITE") -> dict[str, Any]:
+def write_api_status(
+    state: dict[str, Any], *, plan: str = "OSINT REGISTRY (HYBRID LOCAL FALLBACK)"
+) -> dict[str, Any]:
     limit = int(state.get("slots_limit") or slot_limit())
     used = int(state.get("last_batch_size") or 0)
     total = int(state.get("monitored_total") or 0)
@@ -229,15 +231,19 @@ def write_api_status(state: dict[str, Any], *, plan: str = "PREMIUM SATELLITE") 
         ui_key = f"DETECTED ({key_masked}) · REST PENDING" if key_masked else "—"
         ui_status = "NOMINAL"
         ui_tone = "hybrid"
-        api_plan = plan
+        api_plan = "OSINT REGISTRY (HYBRID LOCAL FALLBACK)"
     payload = {
         "generated_at": _utc_iso(),
         "api_plan": api_plan,
-        "provider": "vesselfinder",
+        "provider": "vesselfinder" if commercial else "osint_static_registry",
         "ingest_mode": ingest_mode,
         "auth_mode": state.get("auth_mode"),
         "key_masked": key_masked,
         "key_source": state.get("key_source"),
+        "is_synthetic": not commercial,
+        "registry_source": "OSINT static snapshot (fleet_database.csv)",
+        "live_ais_source": "terrestrial_g3_aisstream",
+        "known_fleet_count": total if total > 0 else 1253,
         "ui_api": ui_api,
         "ui_key": ui_key,
         "ui_status": ui_status,
@@ -246,7 +252,7 @@ def write_api_status(state: dict[str, Any], *, plan: str = "PREMIUM SATELLITE") 
         "slots_limit": limit,
         "slots_label": f"{used}/{limit} (ROTATING)",
         "snapshot_cycle_days": cycle_days(),
-        "total_monitored": total,
+        "total_monitored": total if total > 0 else 1253,
         "batch_index": int(state.get("batch_index") or 0),
         "total_batches": int(state.get("total_batches") or 0),
         "last_sync_at": state.get("last_sync_at"),
@@ -259,6 +265,10 @@ def write_api_status(state: dict[str, Any], *, plan: str = "PREMIUM SATELLITE") 
         "tier1_gas_count": state.get("tier1_gas_count"),
         "tier2_oil_count": state.get("tier2_oil_count"),
         "slot_interval_hours": slot_interval_hours(),
+        "disclaimer": (
+            "Archive registry is an OSINT snapshot (~1,253 vessels) with 500-slot local rotation. "
+            "It does NOT provide live satellite coverage and does NOT affect Dual Gate fleet_sample_status."
+        ),
         "status": "OK"
         if commercial and state.get("last_success_at") and not state.get("last_error")
         else ("HYBRID" if ingest_mode == "hybrid_local" else "DEGRADED"),
@@ -653,6 +663,7 @@ def upsert_sentinel_ais(records: list[dict[str, Any]], db_path: Path) -> int:
             lat = r.get("lat")
             lon = r.get("lon")
             ts = r.get("timestamp_utc") or received
+            rec_at = r.get("received_at") or ts
             if not mmsi or lat is None or lon is None:
                 continue
             rows.append(
@@ -672,7 +683,7 @@ def upsert_sentinel_ais(records: list[dict[str, Any]], db_path: Path) -> int:
                     r.get("destination"),
                     1,
                     "vesselfinder_vesselslist",
-                    received,
+                    rec_at,
                 )
             )
         if not rows:
@@ -1057,7 +1068,7 @@ def sync_archive(
 
         note = (
             f"VesselFinder commercial handshake rejected ({auth.get('error')}). "
-            "Auto-fallback: PREMIUM SATELLITE HYBRID_LOCAL."
+            "Auto-fallback: OSINT REGISTRY HYBRID_LOCAL."
         )
         LOG.warning(note)
         return hybrid_local_sync(

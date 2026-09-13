@@ -55,6 +55,22 @@ def _run_ttf_rollup() -> int:
                 _log(f"health_snapshot warn exit={snap.returncode}")
         except Exception as snap_exc:  # noqa: BLE001
             _log(f"health_snapshot skipped: {snap_exc}")
+        # Retention: jsonl age/size + corrupt_backup cap (host paths inside container too)
+        try:
+            ret = subprocess.run(
+                [sys.executable, "-m", "services.log_retention"],
+                cwd=str(ROOT),
+                check=False,
+                capture_output=True,
+                text=True,
+                errors="replace",
+            )
+            if ret.stdout:
+                _log(f"log_retention {ret.stdout.strip().splitlines()[0][:200]}")
+            if ret.returncode != 0:
+                _log(f"log_retention warn exit={ret.returncode}")
+        except Exception as ret_exc:  # noqa: BLE001
+            _log(f"log_retention skipped: {ret_exc}")
         return int(proc.returncode)
     except Exception as exc:  # noqa: BLE001
         _log(f"TTF rollup failed: {exc}")
@@ -93,13 +109,30 @@ def main() -> int:
 
     db = os.environ.get("SENTINEL_DB_PATH", str(ROOT / "история1" / "sentinel_ais.db"))
     assets = os.environ.get("ASSETS_7000_DIR", str(ROOT / "assets" / "7000"))
+    # on = local AIS WS (single-node). off = analytics-only (DB replicated from edge).
+    ais_mode = (os.environ.get("SENTINEL_AIS_MODE") or "on").strip().lower()
     _log(f"APP_HOME={os.environ.get('APP_HOME', ROOT)}")
     _log(f"SENTINEL_DB_PATH={db}")
     _log(f"ASSETS_7000_DIR={assets}")
+    _log(f"SENTINEL_AIS_MODE={ais_mode}")
     _log(f"DASHBOARD_PORT={os.environ.get('DASHBOARD_PORT') or os.environ.get('PORT', '8765')}")
 
     rollup = threading.Thread(target=_rollup_loop, name="ttf-rollup", daemon=True)
     rollup.start()
+
+    if ais_mode in {"off", "0", "false", "no", "analytics", "replica"}:
+        _log("AIS connector disabled — waiting for edge DB replica (London relay)")
+        code = 0
+        try:
+            while not STOP.wait(30.0):
+                pass
+        except KeyboardInterrupt:
+            code = 0
+        finally:
+            STOP.set()
+            _wal_checkpoint(db)
+            time.sleep(0.2)
+        return int(code or 0)
 
     from services import aisstream_connector
 

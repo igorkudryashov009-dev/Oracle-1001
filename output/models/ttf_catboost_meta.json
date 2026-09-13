@@ -37,5 +37,8 @@
     "eu_terminal_anchorage_density__robust",
     "ais_gap_anomaly_vol_proxy__robust"
   ],
-  "n_features": 19
+  "n_features": 19,
+  "trained_at": "2026-09-09T14:02:55Z",
+  "model_last_retrained": "2026-09-09T14:02:55Z",
+  "training_locus": "offline_batch"
 }

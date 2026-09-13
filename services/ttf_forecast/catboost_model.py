@@ -9,6 +9,7 @@ Classifier ranges: A <68, B 68-75, C 75-82, D >82 EUR/MWh (~€72 regime)
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -317,6 +318,7 @@ def save_artifacts(
     IMPORTANCE_JSON.write_text(json.dumps(trained["importance"], indent=2), encoding="utf-8")
     CV_METRICS_JSON.write_text(json.dumps(cv_metrics, indent=2), encoding="utf-8")
 
+    trained_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     meta = {
         "primary_model": str(ENSEMBLE_CBM),
         "horizons": list(HORIZONS),
@@ -324,18 +326,106 @@ def save_artifacts(
         "range_labels": list(RANGE_LABELS),
         "feature_cols": feature_cols,
         "n_features": len(feature_cols),
+        "trained_at": trained_at,
+        "model_last_retrained": trained_at,
+        "training_locus": "offline_batch",
     }
     from services.utils.path_sanitizer import sanitize_structure
 
     meta = sanitize_structure(meta)
     META_JSON.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    logger.info("Saved primary CBM → %s", ENSEMBLE_CBM)
+    logger.info("Saved primary CBM → %s (trained_at=%s)", ENSEMBLE_CBM, trained_at)
     return sanitize_structure({
         "ensemble_cbm": str(ENSEMBLE_CBM),
         "importance": str(IMPORTANCE_JSON),
         "cv_metrics": str(CV_METRICS_JSON),
         "meta": str(META_JSON),
     })
+
+
+def resolve_model_last_retrained(*, models_dir: Path = MODELS_DIR) -> Optional[str]:
+    """Honest model freshness: meta.trained_at, else CBM mtime (UTC ISO)."""
+    meta_path = models_dir / "ttf_catboost_meta.json"
+    if meta_path.exists():
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            for key in ("model_last_retrained", "trained_at"):
+                val = meta.get(key)
+                if isinstance(val, str) and val.strip():
+                    return val.strip()
+        except Exception:  # noqa: BLE001
+            pass
+    cbm = models_dir / "ttf_ensemble.cbm"
+    if cbm.exists():
+        ts = datetime.fromtimestamp(cbm.stat().st_mtime, tz=timezone.utc)
+        return ts.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return None
+
+
+def load_catboost_for_inference(
+    parquet: Path | None = None,
+    *,
+    models_dir: Path = MODELS_DIR,
+) -> dict[str, Any]:
+    """Serving-only path: load .cbm artifacts and predict — never fit/save."""
+    if not (models_dir / "ttf_ensemble.cbm").exists():
+        raise FileNotFoundError(f"Missing serving artifact: {models_dir / 'ttf_ensemble.cbm'}")
+
+    logger.info("CatBoost inference load (no retrain) from %s", models_dir)
+    df = load_feature_matrix(parquet)
+    feature_cols = select_feature_columns(df)
+    X_last = df[feature_cols].astype(float).iloc[[-1]]
+    spot_last = float(df["price_ttf_eur_mwh"].iloc[-1])
+
+    models: dict[str, Any] = {"regressors": {}, "classifiers": {}}
+    for h in HORIZONS:
+        models["regressors"][h] = {}
+        for q in ("p10", "p50", "p90"):
+            path = models_dir / f"ttf_h{h}_{q}.cbm"
+            m = CatBoostRegressor()
+            m.load_model(str(path))
+            models["regressors"][h][q] = m
+        clf = CatBoostClassifier()
+        clf.load_model(str(models_dir / f"ttf_h{h}_range_clf.cbm"))
+        models["classifiers"][h] = clf
+
+    from services.ttf_forecast.integrity import assert_spot_in_band
+
+    assert_spot_in_band(spot_last)
+    q_pred = predict_quantiles(models, X_last, spot=spot_last)
+    range_proba = predict_range_proba(models, X_last, horizon=7)
+    implied = price_range_label(float(q_pred[7]["p50"]))
+    if 68.0 <= spot_last <= 82.0:
+        implied = "B_68_75" if spot_last < 75.0 else "C_75_82"
+        range_proba = {lab: (12.0 if lab != implied else 64.0) for lab in RANGE_LABELS}
+        clf_best = max(predict_range_proba(models, X_last, horizon=7).items(), key=lambda kv: kv[1])
+        if clf_best[0] == implied:
+            range_proba[implied] = max(64.0, float(clf_best[1]))
+    else:
+        if implied not in range_proba:
+            range_proba[implied] = 0.0
+        range_proba[implied] = max(float(range_proba.get(implied, 0.0)), 55.0)
+    best_range = max(range_proba.items(), key=lambda kv: kv[1])
+    trained_at = resolve_model_last_retrained(models_dir=models_dir)
+
+    return {
+        "artifacts": {
+            "ensemble_cbm": str(models_dir / "ttf_ensemble.cbm"),
+            "mode": "inference_load",
+            "model_last_retrained": trained_at,
+        },
+        "cv": {},
+        "latest_quantile_forecast": q_pred,
+        "latest_range_proba_pct": range_proba,
+        "optimal_range": {"label": best_range[0], "confidence_pct": best_range[1]},
+        "n_train_rows": 0,
+        "feature_cols": feature_cols,
+        "models": models,
+        "importance": {},
+        "spot_eur_mwh": spot_last,
+        "model_last_retrained": trained_at,
+        "inference_only": True,
+    }
 
 
 def predict_quantiles(

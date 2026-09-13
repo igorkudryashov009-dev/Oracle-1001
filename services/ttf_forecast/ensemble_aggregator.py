@@ -300,13 +300,37 @@ def persist_predictions(
 def run_ensemble(
     *,
     catboost_result: Optional[dict[str, Any]] = None,
-    train_if_needed: bool = True,
+    train_if_needed: bool = False,
+    force_retrain: bool = False,
 ) -> dict[str, Any]:
-    logger.info("Ensemble aggregator start")
-    if catboost_result is None and train_if_needed:
-        from services.ttf_forecast.catboost_model import run_catboost_pipeline
+    """Aggregate TTF ensemble forecast.
 
-        catboost_result = run_catboost_pipeline()
+    Serving contract (Node A/B): default is inference-only.
+    - force_retrain=True → offline batch training (dev/worker only)
+    - existing .cbm → load_catboost_for_inference (never silent retrain)
+    - train_if_needed=True and no .cbm → train once (local bootstrap only)
+    """
+    logger.info("Ensemble aggregator start")
+    if catboost_result is None:
+        from services.ttf_forecast.catboost_model import (
+            ENSEMBLE_CBM,
+            load_catboost_for_inference,
+            run_catboost_pipeline,
+        )
+
+        if force_retrain:
+            logger.warning("CatBoost force_retrain=True — offline batch path")
+            catboost_result = run_catboost_pipeline()
+        elif ENSEMBLE_CBM.exists():
+            try:
+                catboost_result = load_catboost_for_inference()
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("CatBoost inference load failed: %s", exc)
+                if train_if_needed:
+                    catboost_result = run_catboost_pipeline()
+        elif train_if_needed:
+            logger.warning("No .cbm on disk — bootstrap train_if_needed")
+            catboost_result = run_catboost_pipeline()
 
     # Spot from features
     feat_path = ROOT / "output" / "ttf_features.parquet"
@@ -394,6 +418,7 @@ def run_ensemble(
         "range_proba_pct": range_proba,
         "max_confidence_pct": max_conf,
         "model_cv_accuracy_pct": live_conf.get("model_cv_accuracy_pct"),
+        "model_last_retrained": (catboost_result or {}).get("model_last_retrained"),
         "live_inference_confidence": live_conf.get("live_inference_confidence"),
         "live_inference_confidence_pct": live_conf.get("live_inference_confidence_pct"),
         "live_confidence_factor": live_conf.get("live_confidence_factor"),
@@ -405,6 +430,13 @@ def run_ensemble(
             "forecast_json": str(OUT_JSON),
         },
     }
+    if not forecast["model_last_retrained"]:
+        try:
+            from services.ttf_forecast.catboost_model import resolve_model_last_retrained
+
+            forecast["model_last_retrained"] = resolve_model_last_retrained()
+        except Exception:  # noqa: BLE001
+            pass
 
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     # Strip host-absolute Windows paths before JSON dump (Linux/container safe)
@@ -424,7 +456,7 @@ def run_ensemble(
 
 
 def main() -> int:
-    forecast = run_ensemble(train_if_needed=True)
+    forecast = run_ensemble(train_if_needed=False, force_retrain=False)
     # Print compact summary (no model objects)
     summary = {
         "spot": forecast["spot_eur_mwh"],

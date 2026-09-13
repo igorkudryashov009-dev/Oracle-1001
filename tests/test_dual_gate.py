@@ -63,6 +63,28 @@ def test_lssi_insufficient_sample_flag():
     assert metric["production_signal"] is False
 
 
+def test_pipeline_degraded_on_low_disk():
+    pipe = compute_pipeline_health_status(
+        freshness={"age_sec": 12.0, "live_ok": True, "stale": False, "integrity_ok": True},
+        connector={"reconnects": 0, "http_429_count": 0},
+        port_ok=True,
+        disk={"disk_free_pct": 18.0},
+    )
+    assert pipe["pipeline_health_status"] == "DEGRADED"
+    assert any(r.startswith("disk_free_low") for r in pipe["reasons"])
+
+
+def test_pipeline_critical_on_disk_near_full():
+    pipe = compute_pipeline_health_status(
+        freshness={"age_sec": 12.0, "live_ok": True, "stale": False, "integrity_ok": True},
+        connector={"reconnects": 0, "http_429_count": 0},
+        port_ok=True,
+        disk={"disk_free_pct": 8.0},
+    )
+    assert pipe["pipeline_health_status"] == "CRITICAL"
+    assert any(r.startswith("disk_free_critical") for r in pipe["reasons"])
+
+
 def test_satellite_adapter_is_stub():
     import asyncio
 

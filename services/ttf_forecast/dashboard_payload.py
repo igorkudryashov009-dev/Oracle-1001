@@ -70,7 +70,7 @@ def _ensure_forecast() -> dict[str, Any]:
                 "optimal_range": {"label": best[0], "confidence_pct": best[1]},
             }
             return run_ensemble(catboost_result=catboost_result, train_if_needed=False)
-        return run_ensemble(train_if_needed=True)
+        return run_ensemble(train_if_needed=False, force_retrain=False)
     except Exception as exc:  # noqa: BLE001
         return {"error": str(exc), "horizons": {}}
 
@@ -208,7 +208,7 @@ def build_ttf_forecast_payload(*, refresh_ensemble: bool = False) -> dict[str, A
         try:
             from services.ttf_forecast.ensemble_aggregator import run_ensemble
 
-            forecast = run_ensemble(train_if_needed=True)
+            forecast = run_ensemble(train_if_needed=False, force_retrain=False)
         except Exception as exc:  # noqa: BLE001
             forecast = _ensure_forecast()
             forecast["refresh_error"] = str(exc)

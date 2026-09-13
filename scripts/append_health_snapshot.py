@@ -95,7 +95,21 @@ def maybe_append_from_rollup(
     row = build_snapshot()
     row["rollup_count"] = count
     _append(row, path)
-    return {"appended": True, "rollup_count": count, "every_n": n, "path": str(path), "row": row}
+    retention: dict[str, Any] = {}
+    try:
+        from services.log_retention import run_retention
+
+        retention = run_retention()
+    except Exception as exc:  # noqa: BLE001
+        retention = {"ok": False, "error": str(exc)}
+    return {
+        "appended": True,
+        "rollup_count": count,
+        "every_n": n,
+        "path": str(path),
+        "row": row,
+        "retention": retention,
+    }
 
 
 def main() -> int:

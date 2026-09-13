@@ -129,9 +129,15 @@
     const el = document.getElementById(elId);
     if (!el || typeof L === "undefined") return null;
     const map = L.map(el, { zoomControl: true, attributionControl: false }).setView([20, 40], 2);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      maxZoom: 10,
-    }).addTo(map);
+    if (window.__SENTINEL_MAP_TILES__ && window.__SENTINEL_MAP_TILES__.addBasemap) {
+      window.__SENTINEL_MAP_TILES__.addBasemap(map, { maxZoom: 10 });
+    } else {
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 10,
+        subdomains: "abc",
+        attribution: "&copy; OpenStreetMap",
+      }).addTo(map);
+    }
     (points || []).forEach((p) => {
       const color = p.color || COLORS[p.tier] || "#10b981";
       const r = opts && opts.alphaOnly ? 5 : (p.tier === "ALPHA" ? 5 : 3);
@@ -792,9 +798,15 @@
         matrix.innerHTML = skel("HEDGING MATRIX · NEED 3 STRATEGIES");
         return;
       }
-      matrix.innerHTML = strategies.map((s) => {
+      const hasRec = Boolean(H.recommended_strategy_id);
+      const blockedAlert = !hasRec
+        ? `<div class="hedge-gate-alert" style="grid-column: 1 / -1; background: rgba(239, 68, 68, 0.14); border: 1px solid #ef4444; color: #fca5a5; padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 11px; margin-bottom: 8px;">
+            ⛔ NO ACTIONABLE STRATEGY — ${H.blocked_reason || "INSUFFICIENT SAMPLE (N < 30) · GATE BLOCKED"}
+          </div>`
+        : "";
+      matrix.innerHTML = blockedAlert + strategies.map((s) => {
         const y = s.expected_yield_pct || {};
-        const rec = s.id === (H.recommended_strategy_id || "B");
+        const rec = hasRec && s.id === H.recommended_strategy_id;
         const rules = (s.execution_rules || []).slice(0, 4).map((r) => `<li>${r}</li>`).join("");
         const mtm = s.paper_mtm_pnl_usd;
         const mtmTxt = mtm == null ? "—" : `${mtm >= 0 ? "+" : ""}$${Number(mtm).toFixed(2)}`;

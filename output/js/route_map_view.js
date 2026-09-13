@@ -26,10 +26,15 @@ export function createRouteMap(containerId) {
     preferCanvas: true,
   }).setView([18, 55], 3);
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-    maxZoom: 12,
-    subdomains: "abcd",
-  }).addTo(map);
+  if (window.__SENTINEL_MAP_TILES__ && window.__SENTINEL_MAP_TILES__.addBasemap) {
+    window.__SENTINEL_MAP_TILES__.addBasemap(map, { maxZoom: 12 });
+  } else {
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 12,
+      subdomains: "abc",
+      attribution: "&copy; OpenStreetMap",
+    }).addTo(map);
+  }
 
   // Subtle gold grid overlay via pane tint
   el.style.background = "#0b0e14";

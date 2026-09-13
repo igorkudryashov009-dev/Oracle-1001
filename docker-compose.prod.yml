@@ -1,0 +1,59 @@
+# ─── Production overlay for Node A (Korolev) — 1 GB VPS ─────────────────────
+# Live AIS DB stays on named volume `data_sqlite` (NOT host bind).
+# Host bind caused recurring SQLite malformed under WAL + dual readers + OOM kills.
+# Staging export for London sync: deploy/sentinel/export_ais_db_to_host.sh → /opt/oracle1001/ais_data
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  sentinel-core:
+    mem_limit: 512m
+    mem_reservation: 192m
+    memswap_limit: 768m
+    cpus: "0.70"
+    environment:
+      # Current SoT: Korolev live AIS. Set off only after London cutover.
+      SENTINEL_AIS_MODE: ${SENTINEL_AIS_MODE:-on}
+      SENTINEL_BOOTSTRAP_ARCHIVE: "0"
+      TTF_ROLLUP_INTERVAL_SEC: "21600"
+      TTF_ROLLUP_INITIAL_DELAY_SEC: "180"
+      MALLOC_ARENA_MAX: "2"
+      SENTINEL_DB_PATH: /app/история1/sentinel_ais.db
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - data_sqlite:/app/история1
+      - output_artifacts:/app/output
+      - ./data:/app/data
+      - ./output/fleet_database.csv:/app/output/fleet_database.csv:ro
+      - ./output/fleet_oil_tankers.csv:/app/output/fleet_oil_tankers.csv:ro
+      - ./output/fleet_database_full.csv:/app/output/fleet_database_full.csv:ro
+      - ./assets/7000:/app/assets/7000:ro
+      - ./assets/1-10:/app/assets/1-10:ro
+
+  sentinel-web:
+    mem_limit: 384m
+    mem_reservation: 96m
+    memswap_limit: 512m
+    cpus: "0.45"
+    environment:
+      MALLOC_ARENA_MAX: "2"
+      SENTINEL_DB_PATH: /app/история1/sentinel_ais.db
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - data_sqlite:/app/история1
+      - output_artifacts:/app/output
+      - ./data:/app/data
+      - ./output/fleet_database.csv:/app/output/fleet_database.csv:ro
+      - ./output/fleet_oil_tankers.csv:/app/output/fleet_oil_tankers.csv:ro
+      - ./output/fleet_database_full.csv:/app/output/fleet_database_full.csv:ro
+      - ./assets/7000:/app/assets/7000:ro
+      - ./assets/1-10:/app/assets/1-10:ro

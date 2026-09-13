@@ -178,7 +178,8 @@ def run_ttf_release_pipeline(*, skip_catboost: bool = False) -> dict[str, Any]:
         def _ensemble():
             from services.ttf_forecast.ensemble_aggregator import run_ensemble
 
-            return run_ensemble(train_if_needed=True)
+            # Serving path: load .cbm only — never retrain on Node A/B
+            return run_ensemble(train_if_needed=False, force_retrain=False)
 
         forecast, meta = _timed("3_catboost_ensemble", _ensemble, log)
         perf.append(meta)

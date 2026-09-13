@@ -80,6 +80,14 @@ def _iter_source_assets(root: Path) -> list[tuple[Path, Path, str]]:
             pairs.append((src, out_js / src.name, "css_dual"))
             pairs.append((src, out_css / src.name, "css"))
 
+    # 3D assets & voxel data (web/assets/3d_models/ -> output/assets/3d_models/)
+    web_3d = web / "assets" / "3d_models"
+    out_3d = root / "output" / "assets" / "3d_models"
+    if web_3d.is_dir():
+        for src in sorted(web_3d.iterdir()):
+            if src.is_file() and src.suffix.lower() in (".glb", ".json", ".gltf"):
+                pairs.append((src, out_3d / src.name, "3d_model"))
+
     return pairs
 
 

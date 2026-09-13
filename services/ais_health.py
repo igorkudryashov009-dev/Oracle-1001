@@ -386,6 +386,7 @@ def build_health_document(
         "status": status,
         "http": "200",
         "port": int(os.environ.get("DASHBOARD_PORT") or os.environ.get("PORT") or 8765),
+        "active_node": "korolev",
         "operational_status": "NOMINAL" if fr.get("live_ok") else (
             "DEGRADED_STALE_REPLICA" if fr.get("stale") else "WARMING"
         ),
@@ -445,6 +446,9 @@ def build_health_document(
         from services.dual_gate import (
             compute_fleet_sample_status,
             compute_pipeline_health_status,
+            resolve_active_node,
+            check_failover_status,
+            probe_disk_usage,
         )
 
         cov_n = int(doc.get("top500_live_coverage") or 0)
@@ -460,18 +464,28 @@ def build_health_document(
             ),
         )
         connector = doc.get("connector") if isinstance(doc.get("connector"), dict) else {}
+        node = resolve_active_node(freshness=fr)
+        is_failover, failover_reason = check_failover_status(node, freshness=fr, root=ROOT)
+        disk = probe_disk_usage("/")
         pipe = compute_pipeline_health_status(
             freshness=fr,
             connector=connector,
             port_ok=True,
             port_drift_8478=False,
+            active_node=node,
+            failover_in_progress=is_failover,
+            disk=disk,
         )
+        doc["active_node"] = node
         doc["pipeline_health_status"] = pipe["pipeline_health_status"]
         doc["pipeline_health"] = pipe
         doc["fleet_sample_status"] = sample["fleet_sample_status"]
         doc["fleet_sample"] = sample
         doc["sample_size_caveat"] = sample.get("sample_size_caveat")
         doc["top500_live_coverage"] = cov_n
+        doc["disk"] = disk
+        doc["disk_free_pct"] = disk.get("disk_free_pct")
+        doc["disk_used_pct"] = disk.get("disk_used_pct")
     except Exception:  # noqa: BLE001
         pass
 

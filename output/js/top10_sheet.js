@@ -143,7 +143,9 @@ function cardHtml(v) {
   const fb = v.refs?.side?.fallback_url || `assets/top10/${rank}-1.jpg`;
   const flag = String(v.flag || "—").toUpperCase();
   const glbOk = v?.glb?.ready === true;
-  const videoOk = isLumaVideoReady(v);
+  const clip = resolveVesselVideo(v);
+  const videoOk = !!clip;
+  const videoUrl = clip?.url ? String(clip.url).replace(/"/g, "&quot;") : "";
   const risk = String(v.destination_risk || "—").toUpperCase();
   const riskCls =
     risk === "HIGH" || risk === "EXTREME"
@@ -158,16 +160,24 @@ function cardHtml(v) {
     ? ""
     : ' disabled aria-disabled="true" title="REAL VIDEO unavailable"';
   const ais = Number(v.ais_integrity_pct || 0).toFixed(1);
+  const hoverVideo = videoOk
+    ? `<video class="t10-hover-video" muted loop playsinline preload="auto"
+        poster="${photo}" data-src="${videoUrl}" data-imo="${imo}"
+        aria-label="Hover preview REAL VIDEO IMO ${imo}"></video>`
+    : "";
   return `
-  <article class="t10-card" data-imo="${imo}" data-rank="${rank}" data-vessel-id="${imo}">
-    <div class="t10-media t10-viewport" data-viewport data-open-inspector="${imo}">
-      <img class="t10-photo-fallback" src="${photo}" alt="${v.name || imo} side profile"
-        decoding="async" loading="eager" data-fallback="${fb}"
-        onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=this.dataset.fallback}"/>
+  <article class="t10-card vessel-card" data-imo="${imo}" data-rank="${rank}" data-vessel-id="${imo}"${videoOk ? ` data-video-src="${videoUrl}"` : ""}>
+    <div class="t10-media t10-viewport t10-parallax" data-viewport data-open-inspector="${imo}" data-parallax="1"${videoOk ? ` data-hover-video="1"` : ""}>
+      <div class="t10-parallax-inner">
+        <img class="t10-photo-fallback" src="${photo}" alt="${v.name || imo} side profile"
+          decoding="async" loading="eager" data-fallback="${fb}"
+          onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=this.dataset.fallback}"/>
+        ${hoverVideo}
+      </div>
       <div class="t10-media-fade" aria-hidden="true"></div>
       <div class="t10-seg" role="group" aria-label="Media mode">
-        <button type="button" class="t10-seg-btn is-primary" data-open-video="${imo}" data-vessel-id="${imo}" title="Open REAL VIDEO"${videoDisabled}>▶ REAL VIDEO</button>
-        <button type="button" class="t10-seg-btn" data-open-glb="${imo}" data-vessel-id="${imo}" title="Open DIGITAL TWIN"${twinDisabled}>DIGITAL TWIN</button>
+        <button type="button" class="t10-seg-btn ${glbOk ? "is-primary" : ""}" data-open-glb="${imo}" data-vessel-id="${imo}" title="Open DIGITAL TWIN"${twinDisabled}>◈ DIGITAL TWIN</button>
+        <button type="button" class="t10-seg-btn ${!glbOk && videoOk ? "is-primary" : ""}" data-open-video="${imo}" data-vessel-id="${imo}" title="Open REAL VIDEO"${videoDisabled}>▶ REAL VIDEO</button>
       </div>
     </div>
     <header class="t10-card-head">
@@ -216,6 +226,260 @@ function formatVideoBadge(v) {
   const mb = Number(fv.bytes || 0) / (1024 * 1024);
   const label = `OPTIMIZED MP4 · ${mb.toFixed(1)} MB`;
   return `<span class="t10-vid-badge" title="${fv.local_path || fv.url || ""}"><span class="dot"></span>${label}</span>`;
+}
+
+/** Frame-accurate poster↔video hover (frame-0 = 0.0001s) + 3D tilt + scrub. */
+function bindParallaxHoverVideo(grid) {
+  if (!grid || grid.dataset.parallaxBound === "1") return;
+  grid.dataset.parallaxBound = "1";
+
+  const MAX_TILT = 9;
+  const FRAME0 = 0.0001;
+  const reduceMotion =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let activeCard = null;
+
+  function mediaOf(card) {
+    return card?.querySelector?.(".t10-parallax") || null;
+  }
+
+  function seekFrame0(vid) {
+    if (!vid) return;
+    const apply = () => {
+      try {
+        vid.currentTime = FRAME0;
+      } catch (_) {
+        /* ignore */
+      }
+    };
+    if (vid.readyState >= 1) apply();
+    else vid.addEventListener("loadedmetadata", apply, { once: true });
+  }
+
+  /** Pre-warm: bind poster=img, assign src, decode frame-0 into VRAM. */
+  function prewarmCardVideo(card) {
+    const media = mediaOf(card);
+    const vid = media?.querySelector?.(".t10-hover-video");
+    if (!vid) return;
+    const img = media.querySelector(".t10-photo-fallback");
+    const imgSrc = img?.currentSrc || img?.src || vid.getAttribute("poster") || "";
+    if (imgSrc) {
+      try {
+        vid.poster = imgSrc;
+      } catch (_) {
+        /* ignore */
+      }
+    }
+    const src =
+      vid.getAttribute("data-src") ||
+      card.getAttribute("data-video-src") ||
+      "";
+    if (src && vid.getAttribute("src") !== src) {
+      vid.preload = "auto";
+      vid.setAttribute("muted", "");
+      vid.setAttribute("playsinline", "");
+      vid.setAttribute("loop", "");
+      vid.muted = true;
+      vid.defaultMuted = true;
+      vid.loop = true;
+      vid.playsInline = true;
+      vid.src = src;
+      vid.load();
+    } else {
+      vid.setAttribute("muted", "");
+      vid.muted = true;
+      vid.defaultMuted = true;
+    }
+    seekFrame0(vid);
+    // Force decode of first frame without audible play
+    const kick = vid.play();
+    if (kick && typeof kick.then === "function") {
+      kick
+        .then(() => {
+          vid.pause();
+          seekFrame0(vid);
+        })
+        .catch(() => seekFrame0(vid));
+    }
+  }
+
+  function deactivateCardVideo(card) {
+    if (!card) return;
+    card.classList.remove("is-video-active");
+    card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+    const media = mediaOf(card);
+    if (!media) return;
+    media.classList.remove("is-hover-playing");
+    const vid = media.querySelector(".t10-hover-video");
+    if (vid) {
+      try {
+        vid.pause();
+      } catch (_) {
+        /* ignore */
+      }
+      seekFrame0(vid);
+    }
+    const inner = media.querySelector(".t10-parallax-inner");
+    if (inner) inner.style.transform = "";
+  }
+
+  function activateCardVideo(card) {
+    if (!card || reduceMotion) return;
+    if (modalEl && !modalEl.hidden) return; // Lazy-unmount: never play background videos when modal inspector is open
+    const media = mediaOf(card);
+    if (!media || media.getAttribute("data-hover-video") !== "1") return;
+    const vid = media.querySelector(".t10-hover-video");
+    if (!vid) return;
+    prewarmCardVideo(card);
+    seekFrame0(vid);
+    vid.setAttribute("muted", "");
+    vid.muted = true;
+    vid.defaultMuted = true;
+    card.classList.add("is-video-active");
+    media.classList.add("is-hover-playing");
+    const p = vid.play();
+    if (p && typeof p.then === "function") {
+      p.catch((err) => {
+        console.warn("[Sentinel HUD] Video playback blocked or missing asset:", err);
+      });
+    }
+  }
+
+  /** Chrome autoplay policy: unlock muted play after first user gesture. */
+  function bindAutoplayUnlock() {
+    if (grid.dataset.autoplayUnlock === "1") return;
+    grid.dataset.autoplayUnlock = "1";
+    const unlock = () => {
+      grid.querySelectorAll(".t10-hover-video, .vessel-card video, video").forEach((v) => {
+        try {
+          v.setAttribute("muted", "");
+          v.muted = true;
+          v.defaultMuted = true;
+          const kick = v.play();
+          if (kick && typeof kick.then === "function") {
+            kick
+              .then(() => {
+                v.pause();
+                seekFrame0(v);
+              })
+              .catch(() => {});
+          }
+        } catch (_) {
+          /* ignore */
+        }
+      });
+      window.removeEventListener("pointerdown", unlock, true);
+      window.removeEventListener("keydown", unlock, true);
+    };
+    window.addEventListener("pointerdown", unlock, true);
+    window.addEventListener("keydown", unlock, true);
+  }
+
+  bindAutoplayUnlock();
+
+  function tiltAndScrub(card, clientX, clientY) {
+    if (reduceMotion || !card) return;
+    const rect = card.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const x = clientX - rect.left - rect.width / 2;
+    const y = clientY - rect.top - rect.height / 2;
+    const rotX = Math.max(-MAX_TILT, Math.min(MAX_TILT, (y / (rect.height / 2)) * -MAX_TILT));
+    const rotY = Math.max(-MAX_TILT, Math.min(MAX_TILT, (x / (rect.width / 2)) * MAX_TILT));
+    card.style.transform =
+      `perspective(1000px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`;
+
+    const media = mediaOf(card);
+    const inner = media?.querySelector(".t10-parallax-inner");
+    if (inner) {
+      inner.style.transform =
+        `perspective(1000px) rotateX(${(rotX * 0.85).toFixed(2)}deg) rotateY(${(rotY * 0.85).toFixed(2)}deg) scale(1.04)`;
+    }
+    // Scrub only after frame-0 is warm and duration known
+    const vid = media?.querySelector(".t10-hover-video");
+    if (vid && Number.isFinite(vid.duration) && vid.duration > 0.05) {
+      const px = (clientX - rect.left) / rect.width;
+      const t = Math.max(FRAME0, Math.min(vid.duration - 0.05, px * vid.duration));
+      try {
+        vid.currentTime = t;
+      } catch (_) {
+        /* ignore seek race */
+      }
+    }
+  }
+
+  // Pre-warm all card videos once (frame-0 decode)
+  if (!reduceMotion) {
+    grid.querySelectorAll(".t10-card[data-video-src], .vessel-card[data-video-src]").forEach((card) => {
+      prewarmCardVideo(card);
+    });
+  }
+
+  grid.__t10ActivateCardVideo = activateCardVideo;
+  grid.__t10DeactivateCardVideo = deactivateCardVideo;
+
+  grid.addEventListener("pointerover", (ev) => {
+    const card = ev.target.closest?.(".t10-card, .vessel-card, [data-vessel-card]");
+    if (!card || !grid.contains(card)) return;
+    if (activeCard === card) return;
+    if (activeCard) deactivateCardVideo(activeCard);
+    activeCard = card;
+    activateCardVideo(card);
+  });
+
+  grid.addEventListener("pointerout", (ev) => {
+    const card = ev.target.closest?.(".t10-card, .vessel-card, [data-vessel-card]");
+    if (!card || !grid.contains(card)) return;
+    const related = ev.relatedTarget;
+    if (related && card.contains(related)) return;
+    deactivateCardVideo(card);
+    if (activeCard === card) activeCard = null;
+  });
+
+  grid.addEventListener(
+    "pointermove",
+    (ev) => {
+      const card = ev.target.closest?.(".t10-card, .vessel-card, [data-vessel-card]");
+      if (!card || !grid.contains(card)) return;
+      if (ev.target.closest?.(".t10-seg, .t10-foot-btn, button")) return;
+      tiltAndScrub(card, ev.clientX, ev.clientY);
+    },
+    { passive: true }
+  );
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && activeCard) {
+      deactivateCardVideo(activeCard);
+      activeCard = null;
+    }
+  });
+}
+
+/** Registry table REAL VIDEO -> scroll to card + activate hover preview (IMO-keyed). */
+function bindRegistryCardLinker(wrap, grid) {
+  const regWrap = wrap?.querySelector?.(".t10-registry-wrap");
+  if (!regWrap || !grid || regWrap.dataset.cardLinker === "1") return;
+  regWrap.dataset.cardLinker = "1";
+
+  regWrap.addEventListener("click", (ev) => {
+    const btn = ev.target.closest?.("[data-open-video], .t10-reg-open");
+    if (!btn || !regWrap.contains(btn)) return;
+    const imo = btn.getAttribute("data-open-video") || btn.getAttribute("data-vessel-id");
+    if (!imo) return;
+    const card =
+      grid.querySelector(`.t10-card[data-imo="${imo}"]`) ||
+      grid.querySelector(`.vessel-card[data-imo="${imo}"]`);
+    if (!card) return;
+    // Preview on card first; modal still available via card segment button
+    ev.preventDefault();
+    ev.stopPropagation();
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.add("t10-card--flash");
+    setTimeout(() => card.classList.remove("t10-card--flash"), 900);
+    if (typeof grid.__t10ActivateCardVideo === "function") {
+      grid.__t10ActivateCardVideo(card);
+    }
+  });
 }
 
 function registryTableHtml() {
@@ -873,7 +1137,7 @@ function applyInspectorTab(modal, mode) {
 function ensureModal() {
   if (modalEl && document.body.contains(modalEl)) {
     const firstTab = modalEl.querySelector(".t10-insp-tab");
-    if (firstTab && firstTab.getAttribute("data-tab") === "video") {
+    if (firstTab && (firstTab.getAttribute("data-tab") === "glb" || firstTab.getAttribute("data-tab") === "video")) {
       return modalEl;
     }
     try {
@@ -895,7 +1159,7 @@ function ensureModal() {
       <!-- ── NASA Mission Control Header ── -->
       <div class="t10-insp-head">
         <div class="t10-insp-header-top">
-          <div class="t10-insp-hud-label">ORACLE-1001 · Q-FLEX · REAL VIDEO + PHOTOGRAMMETRIC INSPECTOR</div>
+          <div class="t10-insp-hud-label">ORACLE-1001 · Q-FLEX · 3D DIGITAL TWIN + REAL VIDEO + INSPECTOR</div>
           <div class="t10-insp-utc" id="t10-insp-utc">UTC —</div>
         </div>
         <div class="t10-insp-title-row">
@@ -911,18 +1175,18 @@ function ensureModal() {
       </div>
 
       <div class="t10-insp-tabs" role="tablist" data-tabs-bound="0">
-        <button type="button" class="t10-insp-tab t10-insp-tab--video active" data-tab="video" role="tab"
-          title="Q-Flex REAL VIDEO flight loop (MP4)">
-          <span class="tab-icon">▶</span> REAL VIDEO
-        </button>
-        <button type="button" class="t10-insp-tab" data-tab="glb" role="tab" title="Photo-composite digital twin on simplified hull (not verified structural CAD)">
+        <button type="button" class="t10-insp-tab active" data-tab="glb" role="tab" title="Photo-composite digital twin on simplified hull (not verified structural CAD)">
           <span class="tab-icon">◈</span> DIGITAL TWIN
-        </button>
-        <button type="button" class="t10-insp-tab" data-tab="all" role="tab" title="Primary measurement view">
-          <span class="tab-icon">⬡</span> Ortho Triplet
         </button>
         <button type="button" class="t10-insp-tab" data-tab="voxel" role="tab" title="Equal-metric occupancy cubes from 3-view silhouette carve (not a continuous surface)">
           <span class="tab-icon">▦</span> VOXEL GRID
+        </button>
+        <button type="button" class="t10-insp-tab t10-insp-tab--video" data-tab="video" role="tab"
+          title="Q-Flex REAL VIDEO flight loop (MP4)">
+          <span class="tab-icon">▶</span> REAL VIDEO
+        </button>
+        <button type="button" class="t10-insp-tab" data-tab="all" role="tab" title="Primary measurement view">
+          <span class="tab-icon">⬡</span> ORTHO TRIPLET
         </button>
         <button type="button" class="t10-insp-tab" data-tab="side" role="tab">
           <span class="tab-icon">◧</span> LATERAL
@@ -987,9 +1251,23 @@ function openRefs(vessel, opts = {}) {
   const modal = ensureModal();
   // Hard reset BEFORE writing new vessel — prevents telemetry bleed across opens
   resetInspectorDom(modal);
-  const videoReadyHint = isLumaVideoReady(vessel);
+
+  // Lazy-unmount: pause and deactivate any playing card hover videos in the grid
+  document.querySelectorAll(".t10-card.is-video-active, .t10-media.is-hover-playing").forEach((el) => {
+    el.classList.remove("is-video-active", "is-hover-playing");
+  });
+  document.querySelectorAll(".t10-hover-video").forEach((vid) => {
+    try {
+      vid.pause();
+    } catch (_) {}
+  });
+
+  const glbOk = isGlbReady(vessel);
+  const voxelOk = isVoxelCubesReady(vessel);
+  const videoOk = isLumaVideoReady(vessel);
+  const defaultTab = glbOk ? "glb" : (voxelOk ? "voxel" : (videoOk ? "video" : "all"));
   const initialTab = String(
-    opts?.tab || opts?.initialTab || (videoReadyHint ? "video" : "all")
+    opts?.tab || opts?.initialTab || defaultTab
   ).toLowerCase();
 
   const rank = Number(vessel.rank);
@@ -1145,7 +1423,6 @@ function openRefs(vessel, opts = {}) {
   modal._openGen = (modal._openGen || 0) + 1;
 
   activeInspectorVessel = vessel;
-  const glbOk = isGlbReady(vessel);
   modal.dataset.glbReady = glbOk ? "1" : "0";
   const glbTab = modal.querySelector('.t10-insp-tab[data-tab="glb"]');
   if (glbTab) {
@@ -1160,7 +1437,6 @@ function openRefs(vessel, opts = {}) {
     }
   }
 
-  const voxelOk = isVoxelCubesReady(vessel);
   modal.dataset.voxelReady = voxelOk ? "1" : "0";
   const voxelTab = modal.querySelector('.t10-insp-tab[data-tab="voxel"]');
   if (voxelTab) {
@@ -1176,7 +1452,6 @@ function openRefs(vessel, opts = {}) {
     }
   }
 
-  const videoOk = isLumaVideoReady(vessel);
   modal.dataset.videoReady = videoOk ? "1" : "0";
   const videoTab = modal.querySelector('.t10-insp-tab[data-tab="video"]');
   if (videoTab) {
@@ -1196,19 +1471,19 @@ function openRefs(vessel, opts = {}) {
     }
   }
 
-  // Default: REAL VIDEO when ready. Explicit deep-links still win.
+  // Open requested or default tab (Never-Black hierarchy: 3D GLB -> Voxel -> Video -> Ortho)
   if (initialTab === "glb") {
-    applyInspectorTab(modal, "glb");
+    applyInspectorTab(modal, glbOk ? "glb" : (voxelOk ? "voxel" : (videoOk ? "video" : "all")));
   } else if (initialTab === "voxel") {
-    applyInspectorTab(modal, "voxel");
+    applyInspectorTab(modal, voxelOk ? "voxel" : (glbOk ? "glb" : (videoOk ? "video" : "all")));
   } else if (initialTab === "overhead") {
     applyInspectorTab(modal, "overhead");
+  } else if (initialTab === "video") {
+    applyInspectorTab(modal, videoOk ? "video" : "all");
   } else if (initialTab === "all" || initialTab === "side" || initialTab === "bow") {
-    applyInspectorTab(modal, initialTab === "all" ? "all" : initialTab);
-  } else if (videoOk) {
-    applyInspectorTab(modal, "video");
+    applyInspectorTab(modal, initialTab);
   } else {
-    applyInspectorTab(modal, "all");
+    applyInspectorTab(modal, defaultTab);
   }
 }
 
@@ -1342,6 +1617,8 @@ export function renderTop10Sheet() {
   // Hydrate all 10 cards BEFORE any modal interaction
   grid.innerHTML = TOP10_VESSELS.slice(0, 10).map(cardHtml).join("");
   lockGridVisibility(grid);
+  bindParallaxHoverVideo(grid);
+  bindRegistryCardLinker(wrap, grid);
   // Event delegation via data-vessel-id / data-refs / data-open-glb / data-open-video
   if (!grid.dataset.refsDelegated) {
     grid.dataset.refsDelegated = "1";
@@ -1378,7 +1655,8 @@ export function renderTop10Sheet() {
       if (viewport && grid.contains(viewport)) {
         ev.preventDefault();
         const imo = viewport.getAttribute("data-open-inspector") || viewport.closest("[data-imo]")?.getAttribute("data-imo");
-        openVideo(imo);
+        const vessel = TOP10_VESSELS.find((x) => String(x.imo) === String(imo));
+        if (vessel) openRefs(vessel);
         return;
       }
       const btn = ev.target.closest?.("[data-refs], [data-vessel-id].t10-ref-btn, .t10-ref-btn");
@@ -1387,17 +1665,19 @@ export function renderTop10Sheet() {
       ev.stopPropagation();
       const imo = btn.getAttribute("data-refs") || btn.getAttribute("data-vessel-id");
       const vessel = TOP10_VESSELS.find((x) => String(x.imo) === String(imo));
-      // Vessel open defaults to REAL VIDEO when available
-      if (vessel) openRefs(vessel, { tab: isLumaVideoReady(vessel) ? "video" : "all" });
+      if (vessel) openRefs(vessel, { tab: "all" });
     });
   }
 
   const regWrap = wrap.querySelector(".t10-registry-wrap");
   if (regWrap && !regWrap.dataset.bound) {
     regWrap.dataset.bound = "1";
+    // Registry REAL VIDEO: handled by bindRegistryCardLinker (scroll+preview).
+    // Double-click / Alt+click still opens full inspector modal.
     regWrap.addEventListener("click", (ev) => {
       const btn = ev.target.closest?.("[data-open-video]");
       if (!btn) return;
+      if (!(ev.altKey || ev.detail >= 2)) return;
       ev.preventDefault();
       const imo = btn.getAttribute("data-open-video");
       const vessel = TOP10_VESSELS.find((x) => String(x.imo) === String(imo));
@@ -1437,9 +1717,16 @@ export function bootTop10({ force = false } = {}) {
 }
 
 export function pauseTop10() {
+  if (modalEl && !modalEl.hidden) {
+    closeRefs();
+  }
+  disposeModalGlb();
   getSharedTop10Renderer(false)?.dispose?.();
   document.getElementById("t10-shared-webgl")?.remove?.();
   viewers.forEach((v) => v?.pause?.());
+  document.querySelectorAll(".t10-hover-video, .t10-video-stage video").forEach((vid) => {
+    try { vid.pause(); } catch (_) {}
+  });
 }
 
 window.__TOP10__ = {
@@ -1460,7 +1747,7 @@ window.__TOP10__ = {
     for (let i = 0; i < cycles; i++) {
       const v = list[i % list.length];
       try {
-        openRefs(v);
+        openRefs(v, { tab: "all" });
         const shown = modalEl?.dataset?.vesselId;
         if (String(shown) !== String(v.imo)) {
           errors.push(`cycle ${i}: expected IMO ${v.imo} got ${shown}`);
@@ -1523,3 +1810,18 @@ window.__TOP10__ = {
 };
 
 export default { bootTop10, pauseTop10, TOP10_VESSELS };
+
+// Auto-boot if page loaded directly on top10 sheet
+if (typeof document !== "undefined") {
+  const checkAndBoot = () => {
+    const sheet = document.documentElement.dataset.sheet || (new URLSearchParams(window.location.search)).get("sheet");
+    if (sheet === "top10" || window.location.hash.includes("top10") || document.getElementById("sheet-top10")?.classList.contains("active")) {
+      bootTop10();
+    }
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", checkAndBoot);
+  } else {
+    checkAndBoot();
+  }
+}

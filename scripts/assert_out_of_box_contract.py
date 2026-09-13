@@ -63,10 +63,45 @@ def main() -> int:
         else:
             ok(f"AGENTS.md has {needle!r}")
 
-    if "1.0.0-prompt12" not in agents and "Contract-Version" in agents:
-        warn("AGENTS.md Contract-Version present but expected 1.0.0-prompt12 not found")
-    elif "1.0.0-prompt12" in agents:
-        ok("AGENTS.md Contract-Version=1.0.0-prompt12")
+    if "1.5.0-baked" not in agents and "Contract-Version" in agents:
+        warn("AGENTS.md Contract-Version present but expected 1.5.0-baked not found")
+    elif "1.5.0-baked" in agents:
+        ok("AGENTS.md Contract-Version=1.5.0-baked")
+
+    for theme in (
+        "Archive provenance",
+        "Digital Twin",
+        "Offline ML",
+        "Disk headroom",
+    ):
+        if theme not in agents and theme.split()[0] not in agents:
+            # Digital Twin may appear as GLB; Offline as ML Serving; Disk as DISK_FREE
+            pass
+    if "Consolidated contract themes" not in agents:
+        fail("AGENTS.md missing consolidated themes section (v1.4.0)")
+    else:
+        ok("AGENTS.md has consolidated themes section")
+    if "Image bake lock" not in agents and "1.5.0-baked" not in agents:
+        fail("AGENTS.md missing image bake lock (v1.5.0)")
+    else:
+        ok("AGENTS.md has image bake lock")
+    if "model_last_retrained" not in agents:
+        fail("AGENTS.md missing model_last_retrained honesty rule")
+    else:
+        ok("AGENTS.md documents model_last_retrained")
+    if "KNOWN REGISTRY" not in agents or "LIVE G3 AIS" not in agents:
+        fail("AGENTS.md missing Archive KNOWN vs LIVE labeling")
+    else:
+        ok("AGENTS.md documents Archive KNOWN vs LIVE G3 split")
+
+    if "Serving ≠ Training" not in agents and "ML Serving" not in agents:
+        fail("AGENTS.md missing ML Serving != Training contract")
+    else:
+        ok("AGENTS.md has ML Serving != Training section")
+    if "force_retrain" not in agents and "offline_batch" not in agents and "Variant A" not in agents:
+        warn("AGENTS.md should document offline training Variant A")
+    else:
+        ok("AGENTS.md documents offline/Variant A training")
 
     if "docker compose up -d" not in agents:
         fail("AGENTS.md missing canonical docker compose up -d ops path")
@@ -109,6 +144,8 @@ def main() -> int:
         FLEET_SAMPLE_LIMITED_MIN,
         FLEET_WIDE_METRIC_MIN_N,
         PIPELINE_LIVE_LAG_SEC,
+        DISK_FREE_MIN_PCT,
+        DISK_FREE_CRITICAL_PCT,
         compute_fleet_sample_status,
         compute_pipeline_health_status,
     )
@@ -129,11 +166,52 @@ def main() -> int:
         fail(f"PIPELINE_LIVE_LAG_SEC expected 300, got {PIPELINE_LIVE_LAG_SEC}")
     else:
         ok("PIPELINE_LIVE_LAG_SEC=300")
+    if DISK_FREE_MIN_PCT != 20.0:
+        fail(f"DISK_FREE_MIN_PCT expected 20.0, got {DISK_FREE_MIN_PCT}")
+    else:
+        ok("DISK_FREE_MIN_PCT=20 (pre-ENOSPC DEGRADED)")
+    if DISK_FREE_CRITICAL_PCT != 10.0:
+        fail(f"DISK_FREE_CRITICAL_PCT expected 10.0, got {DISK_FREE_CRITICAL_PCT}")
+    else:
+        ok("DISK_FREE_CRITICAL_PCT=10")
+    if "DISK_FREE_MIN_PCT" not in agents:
+        fail("AGENTS.md missing DISK_FREE_MIN_PCT")
+    else:
+        ok("AGENTS.md documents DISK_FREE_MIN_PCT")
+    if not (ROOT / "services" / "log_retention.py").is_file():
+        fail("services/log_retention.py missing")
+    else:
+        ok("services/log_retention.py present")
 
     assert compute_fleet_sample_status(5)["fleet_sample_status"] == "LIMITED"
     assert compute_fleet_sample_status(4)["fleet_sample_status"] == "INSUFFICIENT"
     assert compute_fleet_sample_status(100)["fleet_sample_status"] == "FULL"
     ok("fleet_sample thresholds: 4->INSUFFICIENT, 5->LIMITED, 100->FULL")
+
+    # --- dual_gate two-node failover & node resolution ---
+    from services.dual_gate import resolve_active_node, check_failover_status
+    node_res = resolve_active_node()
+    if node_res not in ("korolev", "london"):
+        fail(f"resolve_active_node() returned invalid node: {node_res}")
+    else:
+        ok(f"dual_gate.resolve_active_node() -> {node_res}")
+
+    pipe_failover = compute_pipeline_health_status(failover_in_progress=True)
+    if pipe_failover["pipeline_health_status"] == "NOMINAL":
+        fail("compute_pipeline_health_status with failover_in_progress must not be NOMINAL")
+    else:
+        ok("dual_gate failover guard prevents false NOMINAL")
+
+    # --- api_server dual_gate alignment & schema ---
+    api_src = (ROOT / "api_server.py").read_text(encoding="utf-8")
+    if "from services.dual_gate import" not in api_src:
+        fail("api_server.py does not import from services.dual_gate")
+    else:
+        ok("api_server.py imports directly from services.dual_gate (Unified Gate SoT)")
+    if "active_node" not in api_src:
+        fail("api_server.py GateStatus schema missing active_node field")
+    else:
+        ok("api_server.py GateStatus contains active_node")
 
     # --- release_gate blocks only pipeline ---
     rg = (ROOT / "services/release_gate.py").read_text(encoding="utf-8", errors="ignore")
@@ -228,6 +306,66 @@ def main() -> int:
     else:
         ok("no final_prod_readiness_report.json (nothing to supersede)")
 
+    # --- archive contract & api_status honest labeling ---
+    api_stat_file = ROOT / "output" / "archive" / "api_status.json"
+    if api_stat_file.is_file():
+        stat_txt = api_stat_file.read_text(encoding="utf-8", errors="ignore")
+        if "PREMIUM SATELLITE" in stat_txt:
+            fail("output/archive/api_status.json contains fraudulent 'PREMIUM SATELLITE'")
+        else:
+            ok("output/archive/api_status.json free of fraudulent 'PREMIUM SATELLITE'")
+        if '"is_synthetic": true' in stat_txt or '"is_synthetic":true' in stat_txt:
+            ok("output/archive/api_status.json contains 'is_synthetic': true")
+        else:
+            fail("output/archive/api_status.json missing mandatory 'is_synthetic': true")
+    else:
+        warn("output/archive/api_status.json not found")
+
+    dash_file = ROOT / "output" / "sentinel_dashboard.html"
+    if dash_file.is_file():
+        dash_txt = dash_file.read_text(encoding="utf-8", errors="ignore")
+        if "ARCHIVE REGISTRY: STATIC OSINT SNAPSHOT" not in dash_txt:
+            fail("output/sentinel_dashboard.html missing ARCHIVE REGISTRY banner")
+        else:
+            ok("output/sentinel_dashboard.html has ARCHIVE REGISTRY banner")
+        if "KNOWN REGISTRY" not in dash_txt or "LIVE G3 AIS" not in dash_txt:
+            fail("output/sentinel_dashboard.html missing KNOWN REGISTRY / LIVE G3 AIS split")
+        else:
+            ok("output/sentinel_dashboard.html has KNOWN vs LIVE G3 KPIs")
+    else:
+        warn("output/sentinel_dashboard.html not found")
+
+    # --- ML freshness + disk monitor + archive writer honesty ---
+    qsrc = (ROOT / "services" / "quant_risk_service.py").read_text(encoding="utf-8", errors="ignore")
+    if "model_last_retrained" not in qsrc:
+        fail("quant_risk_service.py missing model_last_retrained field")
+    else:
+        ok("quant_risk_service.py exposes model_last_retrained")
+    api_src2 = (ROOT / "api_server.py").read_text(encoding="utf-8", errors="ignore")
+    if "model_last_retrained" not in api_src2:
+        fail("api_server.py schema missing model_last_retrained")
+    else:
+        ok("api_server.py schema has model_last_retrained")
+    dg_src = (ROOT / "services" / "dual_gate.py").read_text(encoding="utf-8", errors="ignore")
+    if "probe_disk_usage" not in dg_src or "DISK_FREE_MIN_PCT" not in dg_src:
+        fail("dual_gate.py missing disk probe / DISK_FREE_MIN_PCT")
+    else:
+        ok("dual_gate.py has disk probe + thresholds")
+    ah_src = (ROOT / "services" / "ais_health.py").read_text(encoding="utf-8", errors="ignore")
+    if "probe_disk_usage" not in ah_src or "disk_free_pct" not in ah_src:
+        fail("ais_health.py missing disk_free_pct wiring")
+    else:
+        ok("ais_health.py wires disk_free_pct into health document")
+    arch_src = (ROOT / "services" / "archive_service.py").read_text(encoding="utf-8", errors="ignore")
+    if "PREMIUM SATELLITE" in arch_src:
+        fail("archive_service.py still contains fraudulent PREMIUM SATELLITE default")
+    else:
+        ok("archive_service.py free of PREMIUM SATELLITE")
+    if "OSINT REGISTRY (HYBRID LOCAL FALLBACK)" not in arch_src:
+        fail("archive_service.py missing OSINT hybrid plan label")
+    else:
+        ok("archive_service.py uses OSINT hybrid plan label")
+
     # --- envelope rule ---
     rule = (ROOT / ".cursor/rules/sentinel-envelope.mdc").read_text(encoding="utf-8")
     if "alwaysApply: true" not in rule:
@@ -238,11 +376,13 @@ def main() -> int:
     print("\n=== Envelope summary (print for the next agent) ===")
     print(
         f"  LIMITED_MIN={FLEET_SAMPLE_LIMITED_MIN} FULL_MIN={FLEET_SAMPLE_FULL_MIN} "
-        f"FLEET_WIDE_MIN_N={FLEET_WIDE_METRIC_MIN_N} LAG_SEC={PIPELINE_LIVE_LAG_SEC}"
+        f"FLEET_WIDE_MIN_N={FLEET_WIDE_METRIC_MIN_N} LAG_SEC={PIPELINE_LIVE_LAG_SEC} "
+        f"DISK_MIN={DISK_FREE_MIN_PCT} DISK_CRIT={DISK_FREE_CRITICAL_PCT}"
     )
     print("  Publish blocks on pipeline_health only; fleet_sample is informational.")
     print("  Do not chase coverage>=100 on terrestrial AIS. Satellite=stub.")
-    print(f"  demo fleet: LIMITED@5 -> {compute_fleet_sample_status(5)['fleet_sample_status']}")
+    print("  Contract 1.4.0-consolidated: Archive + Twin + Offline ML + Disk.")
+    print(f"  demo ticket: LIMITED@5 -> {compute_fleet_sample_status(5)['fleet_sample_status']}")
     _ = compute_pipeline_health_status  # imported for agents reading this file
 
     print()

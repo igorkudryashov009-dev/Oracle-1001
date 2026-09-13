@@ -310,6 +310,74 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self._json_response(500, {"ok": False, "error": str(exc)})
         return True
 
+    def _serve_quant_risk(self) -> bool:
+        """Serve /api/v1/quant/risk (and /output/api/v1/quant/risk).
+
+        Reverse-proxies to internal api_server on port 8766 (if available).
+        Falls back to in-process deterministic quant computation.
+        Guarantees 200 OK and eliminates 404 on the canonical edge port 8765.
+        """
+        parsed = urlparse(self.path)
+        path = unquote(parsed.path or "").rstrip("/")
+        if path not in (
+            "/api/v1/quant/risk",
+            "/output/api/v1/quant/risk",
+        ):
+            return False
+
+        from urllib.parse import parse_qs
+        qs = parse_qs(parsed.query or "")
+        horizon = 7
+        try:
+            if "horizon" in qs:
+                horizon = int(qs["horizon"][0])
+        except (ValueError, TypeError, IndexError):
+            horizon = 7
+
+        # 1. Attempt reverse proxy to internal api_server (port 8766)
+        internal_port = int(os.environ.get("INTERNAL_API_PORT", "8766"))
+        internal_url = f"http://127.0.0.1:{internal_port}{self.path}"
+        try:
+            import urllib.request
+            req = urllib.request.Request(internal_url, headers={"Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=1.5) as resp:
+                raw = resp.read()
+                self.send_response(resp.status)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(raw)))
+                self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+                self.end_headers()
+                if self.command != "HEAD":
+                    self.wfile.write(raw)
+                return True
+        except Exception:
+            pass
+
+        # 2. Resilient in-process deterministic fallback
+        try:
+            from services.quant_risk_service import compute_quant_risk_payload
+            payload = compute_quant_risk_payload(horizon=horizon)
+            raw = json.dumps(payload, indent=2, ensure_ascii=False).encode("utf-8")
+        except Exception as exc:  # noqa: BLE001
+            raw = json.dumps(
+                {
+                    "error": str(exc),
+                    "is_synthetic": True,
+                    "synthetic_components": ["returns_sharpe_cvar"],
+                    "production_actionable": False,
+                },
+                indent=2,
+            ).encode("utf-8")
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(raw)))
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(raw)
+        return True
+
     def _normalize_api_path(self) -> str:
         parsed = urlparse(self.path)
         path = unquote(parsed.path or "").rstrip("/") or "/"
@@ -394,6 +462,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             return
         if self._serve_live_health():
             return
+        if self._serve_quant_risk():
+            return
         if self._serve_key_status():
             return
         if self._dev_serve_or_sync():
@@ -427,6 +497,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         if self._serve_desktop_7000():
             return
         if self._serve_live_health():
+            return
+        if self._serve_quant_risk():
             return
         if self._serve_key_status():
             return

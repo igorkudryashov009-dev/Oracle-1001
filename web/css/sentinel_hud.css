@@ -231,13 +231,28 @@ body.t10-modal-open #t10-shared-webgl {
   transition: transform 0.28s var(--t10-ease),
               box-shadow 0.28s var(--t10-ease),
               border-color 0.2s ease;
+  perspective: 900px;
 }
 .t10-card:hover {
-  transform: translateY(-3px);
   border-color: rgba(255, 255, 255, 0.14);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 22px 48px rgba(0, 0, 0, 0.42);
+}
+.t10-card.is-video-active {
+  z-index: 4;
+  border-color: rgba(125, 211, 252, 0.35);
+}
+.t10-card.t10-card--flash {
+  box-shadow:
+    inset 0 0 0 1px rgba(125, 211, 252, 0.55),
+    0 0 0 3px rgba(56, 189, 248, 0.25),
+    0 22px 48px rgba(0, 0, 0, 0.42);
+}
+@media (prefers-reduced-motion: reduce) {
+  .t10-card {
+    transform: none !important;
+  }
 }
 
 .t10-media {
@@ -249,16 +264,57 @@ body.t10-modal-open #t10-shared-webgl {
   overflow: hidden;
   border-radius: 12px 12px 0 0;
   cursor: pointer;
+  perspective: 800px;
+  transform-style: preserve-3d;
+}
+.t10-parallax-inner {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform-style: preserve-3d;
+  transform: rotateX(0deg) rotateY(0deg);
+  transition: transform 0.12s ease-out;
+  will-change: transform;
 }
 .t10-media img,
-.t10-media .t10-photo-fallback {
+.t10-media .t10-photo-fallback,
+.t10-media .t10-hover-video {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
   display: block !important;
+}
+.t10-media .t10-photo-fallback {
   z-index: 1;
+  opacity: 1;
+  transition: opacity 0.25s ease-in-out;
+}
+.t10-media .t10-hover-video {
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-in-out;
+  background: #0b1220;
+}
+.t10-media.is-hover-playing .t10-photo-fallback {
+  opacity: 0;
+}
+.t10-media.is-hover-playing .t10-hover-video {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .t10-parallax-inner {
+    transition: none !important;
+    transform: none !important;
+  }
+  .t10-media.is-hover-playing .t10-hover-video {
+    opacity: 0 !important;
+  }
+  .t10-media.is-hover-playing .t10-photo-fallback {
+    opacity: 1 !important;
+  }
 }
 .t10-media-fade {
   position: absolute;

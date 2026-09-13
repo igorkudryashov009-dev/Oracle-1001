@@ -1,16 +1,33 @@
 # AGENTS.md — Oracle-1001 / Sentinel (read before any change)
 
-**Contract-Version:** `1.0.0-prompt12` · **Last-Revised:** `2026-09-10` · Persistent ingest ops  
+**Contract-Version:** `1.5.0-baked` · **Last-Revised:** `2026-09-13` · Full image bake · Archive · Twin · Offline ML · Disk  
 Any edit to this file is a **versioned event** — bump Contract-Version and add a CHANGELOG.md entry in the same change.
 
 This file is the **binding operational contract** for humans and AI agents opening
 the repo for the first time. If anything else (old README sections, stale JSON
 reports under `output/`, chat history) conflicts with this file — **this file wins**.
 
+## Consolidated contract themes (v1.4.0 → v1.5.0-baked)
+
+This revision consolidates four operational locks that must stay consistent with Dual Gate:
+
+1. **Archive provenance** — OSINT static registry ≠ live G3 AIS; never `PREMIUM SATELLITE` without real commercial satellite feed; archive never feeds `fleet_sample_status`.
+2. **Digital Twin (GLB/Voxel)** — assets sync into `output/assets/3d_models/`; Inspector Never-Black hierarchy; lazy-unmount 3D on sheet/tab change (no WebGL 0/1/0 regression). Deploy must **never** `--exclude=*.glb`.
+3. **Offline ML** — Node A/B serve `.cbm` inference only; weekly offline retrain (Variant A); `model_last_retrained` mandatory on `/api/v1/quant/risk`.
+4. **Disk headroom** — `disk_free_pct` in `health.json`; `<20%` → DEGRADED; `<10%` → CRITICAL; host log/corrupt_backup retention via `services/log_retention.py`.
+
+### Image bake lock (v1.5.0-baked) — closes container-only hotfix risk
+
+**As of 2026-09-13**, all hotfixes from prompts 1–5 (quant integrity / strategy gating, GLB·voxel sync, disk health + retention, archive provenance labeling, unified `dual_gate`, offline-ML freshness) are **baked into the Docker image** via full `Deploy-TwoNode` rebuild (`docker compose build --no-cache` + `down` + `up --force-recreate`) on Node A.
+
+- **No outstanding container-only (`docker cp`) state remains on Node A** after a successful bake + recreate proof (`BAKE_OK` in `deploy_korolev_sentinel.sh`).
+- **Node B (London)** is the lean AIS relay (venv/systemd under `/opt/oracle1001/ais_ingest`), not a second HUD image — the **same services SoT** is synced there on every TwoNode deploy so failover ingest does not resurrect stale gate/archive writers.
+- Agents must **not** treat `docker cp` + `restart` as production delivery. Permanent path = git commit → Sync-Tree → image bake → force-recreate.
 ## What this system is
 
 - Dual-plane OSINT + quant HUD over a **terrestrial** AIS free-tier feed (AISstream).
 - Production-ready as: **pipeline healthy · fleet sample LIMITED · quant caveated**.
+- Distributed across a two-node physical topology (Korolev Primary analytical core + London Hot-standby edge relay).
 - **Not** a source of statistically valid fleet-wide trading signals at current N.
 
 ## What this system is NOT
@@ -21,21 +38,101 @@ reports under `output/`, chat history) conflicts with this file — **this file 
 - Not authorized to invent satellite AIS credentials/endpoints.
 - Not authorized to treat high `model_cv_accuracy_pct` as live fleet confidence.
 
-## Dual Deploy Gate (do not collapse these)
+## Dual Deploy Gate (Single Source of Truth)
 
 | Field | Values | Blocks `--prod-rebuild` / `--prod-gate`? |
 |---|---|---|
 | `pipeline_health_status` | NOMINAL / DEGRADED / CRITICAL | **YES** — only NOMINAL publishes |
 | `fleet_sample_status` | FULL (≥100) / LIMITED (≥5) / INSUFFICIENT (&lt;5) | **NO** — informational + UI banner |
 
-Source of truth: `services/dual_gate.py`, `services/release_gate.py`.
+**Absolute Source of Truth:** `services/dual_gate.py` (and `services/release_gate.py` for CI/publish).  
+Every consumer (`api_server.py`, `services/ais_health.py`, `services/quant_risk_service.py`) **must**
+import and invoke functions from `services/dual_gate.py`. Parallel or duplicated threshold logic
+(e.g. ad-hoc `lag < 300` or `coverage >= 100`) is strictly prohibited.
 
 Thresholds (empirical, do not invent new ones without a new soak):
 
 - `FLEET_SAMPLE_FULL_MIN = 100`
 - `FLEET_SAMPLE_LIMITED_MIN = 5`  ← Prompt-7 observed peak
 - `FLEET_WIDE_METRIC_MIN_N = 30`  ← LSSI/DAR/DFS production eligibility
+- `PIPELINE_LIVE_LAG_SEC = 300.0` ← Max acceptable live telemetry age
+- `DISK_FREE_MIN_PCT = 20.0` ← below → `pipeline_health_status=DEGRADED` (pre-ENOSPC)
+- `DISK_FREE_CRITICAL_PCT = 10.0` ← below → `CRITICAL`
 - Canonical HTTP port: **8765** only (8478 = CRITICAL drift)
+- Internal Micro-API port: **8766** (`api_server.py`, loopback `127.0.0.1:8766` only, never exposed to public edge)
+- Edge Topology: `sentinel-web` on **8765** is the sole public gateway. `/api/v1/quant/*` is reverse-proxied to internal 8766 with in-process fallback; zero port competition.
+
+## Two-Node Physical Topology & Failover Contract
+
+1. **Node A — Korolev Primary Analytical Core (`45.8.230.214`):**
+ - Hosts public HUD & Edge gateway on `:8765` (`sentinel-web`).
+ - Hosts internal quant micro-API on `:8766` (`api_server.py`).
+ - Runs analytical **inference** (load `.cbm` + HMM params), hedging ledger — **not** CatBoost/HMM batch retrain.
+ - When `SENTINEL_AIS_MODE != "off"`, acts as primary terrestrial AIS ingest.
+2. **Node B — London Hot-Standby Edge Relay (`185.39.19.75`):**
+   - Low-latency edge connection to AISstream London PoP.
+   - Runs identical G3 ingest profile: `single_persistent`, `mmsi_per_subscription: 200`, `rotation_interval_seconds: 180`.
+   - Continuous unidirectional SQLite snapshot replication via `sync_ais_db_to_korolev.sh` to Korolev `/opt/oracle1001/ais_data/sentinel_ais.db`.
+3. **Active Node Designation:**
+   - Both `health.json` and `/api/v1/quant/risk` return `active_node: "korolev" | "london"`.
+4. **Failover Cutover Guard (Zero-False-Nominal Window):**
+   - When ingest cutover to London is triggered (`switch_korolev_analytics_mode.sh`), a timestamp marker `/opt/oracle1001/logs/failover_cutover.ts` is created.
+   - `services/dual_gate.py` (`check_failover_status`) verifies whether the first post-cutover replication has landed (`/opt/oracle1001/logs/last_london_sync.ts` > cutover).
+   - While cutover is awaiting the first London sync, `pipeline_health_status` is forced to **`DEGRADED`** with reason `failover_cutover_awaiting_first_edge_sync`. It CANNOT report `NOMINAL` on stale Korolev data.
+
+## Quant Risk Endpoint & Synthetic Data Contract
+
+Endpoint `/api/v1/quant/risk` (and `/output/api/v1/quant/risk`) provides quantitative risk metrics governed by strict anti-hallucination rules:
+
+- **Mandatory `is_synthetic: bool`:** True if ANY metric or component in the payload relies on synthetic, unbacked, or statistically insufficient data.
+- **Mandatory `synthetic_components: list[str]`:** Explicitly enumerates non-production components (e.g. `["returns_sharpe_cvar"]` when ledger marks \(N < 30\)).
+- **Dual-Gate Consumer Enforcement:** `production_actionable` is **strictly False** unless ALL of the following are satisfied:
+  1. `pipeline_health_status == "NOMINAL"`
+  2. `fleet_sample_status == "FULL"`
+  3. `is_synthetic == False`
+- **P0 Strategy Gating Invariant:** Whenever `production_actionable == False`, `recommended_strategy_id` and `recommended_strategy_name` are **strictly None**. Instead, payload includes `blocked_reason: str` detailing the exact gate rejection (e.g. `insufficient_sample_N=...` or `synthetic_returns_data`). Web and API consumers cannot read an active strategy while execution is unbacked.
+- **UI Warning Overlay:** Web client (`uaip_quant_visualizer.js`) MUST render a blocking high-contrast overlay `SYNTHETIC DEMO DATA · NOT WIRED TO LIVE MODEL` across all forecast / Sharpe charts whenever `is_synthetic === true`.
+- **Model freshness (honest caveat):** `/api/v1/quant/risk` MUST expose `model_last_retrained` (UTC ISO) from offline artifact meta / `.cbm` mtime. Never hide stale CV accuracy behind silent live retrain.
+- **Database Schema Invariant:** The SQLite table is strictly named **`ais_positions`** (columns `received_at`, `timestamp_utc`, `mmsi`). Never query legacy `positions`.
+
+## ML Serving ≠ Training (Prompt 15)
+
+**Principle:** Node A (Korolev) and Node B (London) are **serving / inference** nodes. They load shipped CatBoost `.cbm` files and use persisted HMM regime artifacts for forward inference. They do **not** run CatBoost purged-CV / full retrain on the live edge (disk+CPU constrained: ingest + HUD + quant API).
+
+| Role | Where | Cadence | Artifacts |
+|---|---|---|---|
+| **Serving** | Node A / Node B | Every TTF rollup (~6h) | Load `output/models/*.cbm`; write forecast JSON only |
+| **Training (Variant A — default)** | Architect local/dev machine | **Weekly** (not every git push) | Produce `*.cbm` + `ttf_catboost_meta.json` (`trained_at`) → sync via deploy / rsync / commit of artifacts |
+| **Training (Variant B — optional)** | Separate cheap cloud worker (budget decision) | Cron weekly/daily | Same artifact contract; worker never serves public `:8765` |
+
+Hard rules:
+
+1. Production rollup / `run_ensemble` defaults to **inference load**. `force_retrain=True` is offline/dev/worker only.
+2. Do **not** chase “live retrain on Korolev” to fix CV drift — deliver a new artifact instead.
+3. `model_cv_accuracy_pct` remains offline purged-CV; never collapse into `live_inference_confidence`.
+4. Variant B (GPU/cloud trainer) is an **optional budget decision** — agents must not provision it unilaterally.
+
+## Archive Fleet Registry & VesselFinder Contract (Third Data Source)
+
+The system maintains a reference fleet archive distinct from the live terrestrial AIS ingest:
+
+1. **Known Fleet Definition (OSINT Static Registry):**
+   - File: `output/fleet_database.csv` (1,253 known gas carrier vessels) and `data/archive/vessel_telemetry_history.sqlite`.
+   - Purpose: Master reference catalog for matching MMSI/IMO, vessel names, deadweight, and design particulars.
+2. **VesselFinder Status (Commercial REST Inactive):**
+   - Web personal cabinet ("My Fleet 500") is licensed for web scraping/export via London relay (`config/vesselfinder_cookies.json`, gitignored).
+   - Commercial credit REST API (`api.vesselfinder.com/listmanager`) is **INACTIVE** (userkey unvalidated; status code 200 `Invalid Userkey!`).
+   - The archive service operates strictly in **`HYBRID LOCAL FALLBACK`** mode.
+   - **Labeling Invariant:** It is strictly forbidden to label the archive as "PREMIUM SATELLITE" in `api_status.json` or HUD while commercial satellite feeds remain unconfigured.
+3. **Strict Decoupling from Dual Deploy Gate:**
+   - The 1,253 reference vessels and 500 rotation slots **NEVER** count towards `top500_live_coverage`.
+   - `fleet_sample_status` (FULL / LIMITED / INSUFFICIENT) is calculated **EXCLUSIVELY** from live positions received via the G3 terrestrial connection within the rolling 540s window.
+   - Archive operations (`archive_service.py`) must never inject synthetic `now()` timestamps into `ais_positions.received_at`.
+4. **UI Clear Separation:**
+   - The Archive sheet must explicitly display:
+     - `KNOWN REGISTRY: 1,253 known vessels (OSINT snapshot)`
+     - `LIVE G3 AIS: N=... live AIS-tracked (terrestrial G3 ceiling)`
+     - Prominent banner: `ARCHIVE REGISTRY: STATIC OSINT SNAPSHOT · NOT A LIVE THIRD-PARTY FEED`.
 
 ## Hard DO NOT (agent anti-patterns)
 
@@ -59,6 +156,8 @@ Thresholds (empirical, do not invent new ones without a new soak):
 7. **Do not** confuse `история1/raw_positions.db` (legacy `collector.py`) with
    `история1/sentinel_ais.db` (Sentinel production replica).
 8. **Do not** commit `.env` or real API keys.
+9. **Do not** run CatBoost / heavy HMM batch retrain on Node A or Node B.
+   Training is offline (Variant A) or a dedicated worker (Variant B). Serving loads `.cbm` only.
 
 ## Hard DO (safe first actions)
 

@@ -1,5 +1,81 @@
 # Changelog
 
+## v1.5.0-baked — Full Deploy-TwoNode image bake (2026-09-13)
+
+Closes P0 “ssh-memory”: prompts 1–5 hotfixes are no longer `docker cp` + restart only.
+
+- **Bake path:** `deploy_korolev_sentinel.sh` → `build --no-cache` + `compose down` + `up --force-recreate`; in-container `BAKE_OK` asserts disk gate, archive honesty, `log_retention`, quant service.
+- **Deploy-TwoNode.ps1:** packs `api_server.py`, `output/assets` (no `*.glb` exclude), `output/models`, `output/archive/api_status.json`; syncs London stage → `install_london_ais_relay.sh` (same services SoT on B).
+- **Contract:** AGENTS.md → `1.5.0-baked` — permanent-in-image vs temporary-in-container lock.
+
+## v1.4.0-consolidated — Archive · Digital Twin · Offline ML · Disk Gate (2026-09-13)
+
+Single Contract-Version bump covering the four post–Prompt-14 operational locks (no per-prompt version spam):
+
+1. **Archive provenance:** VesselFinder commercial REST inactive; HUD/API must label OSINT hybrid fallback (`is_synthetic: true`); KNOWN REGISTRY vs LIVE G3 AIS split; Dual Gate fleet sample from live AIS only.
+2. **Digital Twin restore:** `.glb`/voxel sync into `output/assets/3d_models/`; deploy no longer excludes GLB; lazy-unmount + Never-Black inspector; Node A serves live GLB (e.g. IMO 9388833).
+3. **Offline ML:** Node A/B inference-only; `force_retrain` offline/weekly (Variant A); `/api/v1/quant/risk` exposes `model_last_retrained`.
+4. **Disk gate:** cleanup freed ~3.5G on Korolev; `DISK_FREE_MIN_PCT=20` / `CRITICAL=10`; `log_retention` for jsonl + corrupt_backup.
+
+Supersedes interim labels `1.2.0-prompt14` … `1.3.1-prompt15b` as the binding version.
+
+## Prompt 15b — Disk headroom gate + retention (v1.3.1-prompt15b)
+
+- **Inventory (Node A):** primary reclaim was `corrupt_backup` (~1.1G duplicate salvage dumps) + stale `analytical_engine/история1` 543M copy; live WAL is small (~3MB). Docker json-file 20m×5 already on; host jsonl/backups had no retention.
+- **Retention:** `services/log_retention.py` — jsonl ≤90d / 50MiB; corrupt_backup keep newest 1 (≤200MiB). Hooked into health snapshot + sentinel-core rollup.
+- **Gate:** `DISK_FREE_MIN_PCT=20` → DEGRADED; `DISK_FREE_CRITICAL_PCT=10` → CRITICAL. `health.json` exposes `disk_free_pct` / `disk`.
+- AGENTS.md Contract-Version bumped to `1.3.1-prompt15b`.
+
+## Prompt 15 — ML Serving ≠ Training (v1.3.0-prompt15)
+
+- **Architecture lock:** Node A/B are inference-only for CatBoost. Heavy retrain is offline (Variant A, weekly on architect/dev machine) or optional dedicated cloud worker (Variant B — budget decision, not auto-provisioned).
+- **Code:** `run_ensemble` / TTF rollup default to `load_catboost_for_inference`; `force_retrain=True` is the only full-train path. Meta writes `trained_at` / `model_last_retrained`.
+- **Honesty:** `/api/v1/quant/risk` exposes `model_last_retrained` (CBM mtime / meta). `model_cv_accuracy_pct` remains offline purged-CV (h14 dirAcc 75%).
+- AGENTS.md Contract-Version bumped to `1.3.0-prompt15`.
+
+## Digital Twin restore — deploy sync + lazy-unmount (Node A)
+
+- **Root cause (not GPU):** `.glb` were already in Docker volume `sentinel_output_artifacts`; `vessel_*_voxels.json` were on host `web/assets/3d_models/` but never copied into `/output/`. `Deploy-TwoNode.ps1` excluded `*.glb`; `web_assets_sync` previously synced only JS/CSS.
+- **Sync fix:** `services/web_assets_sync.py` now copies `.glb` / `.json` / `.gltf` from `web/assets/3d_models/` → `output/assets/3d_models/`. `Deploy-TwoNode.ps1` drops `--exclude=*.glb` and includes `output/assets`.
+- **UI restore:** Inspector default hierarchy = Digital Twin GLB → Voxel → Video → Ortho (Never-Black per vessel). Lazy-unmount: pause card hover videos when modal opens; dispose GLB/voxel on tab switch / sheet leave. Cache-bust `?v=glb-twin-v6`. CSS: hide `#sheet-balance` when `data-sheet=top10` (balance bleed fixed).
+- **Verify:** Node A `45.8.230.214:8765` — BU SAMRA / MEKAINES render live GLB; screenshot `logs/node_a_glb_restored_9388833.png`.
+
+## Prompt 14 — Archive Registry & VesselFinder Audit Contract (v1.2.0-prompt14)
+
+- **VesselFinder Integration Audit & Honest Categorization:**
+  - Audited `services/archive_service.py`, `scripts/vesselfinder_ingest.py`, and `services/key_manager.py`.
+  - Confirmed VesselFinder web personal cabinet exists ("My Fleet 500"), but commercial REST API (`api.vesselfinder.com/listmanager`) is inactive due to unvalidated userkey (HTTP 200 `Invalid Userkey!`).
+  - Prohibited fraudulent `"api_plan": "PREMIUM SATELLITE"` string; downgraded plan to `"OSINT REGISTRY (HYBRID LOCAL FALLBACK)"`.
+  - Added mandatory `is_synthetic: true`, `registry_source: "OSINT static snapshot (fleet_database.csv)"`, and descriptive disclaimer to `output/archive/api_status.json`.
+- **Strict Decoupling of Known Fleet Registry and Live Fleet (Dual Gate):**
+  - Clarified distinction: "1,253 known vessels" is an OSINT reference catalog; "N=... live AIS-tracked" is live G3 terrestrial coverage.
+  - Hard invariant: reference fleet registry and 500 rotation slots NEVER contribute to `top500_live_coverage` or affect `fleet_sample_status` (FULL / LIMITED / INSUFFICIENT).
+  - Fixed timestamp injection in `services/archive_service.py` to preserve original historical timestamps in `ais_positions.received_at`.
+- **Archive HUD Interface Overhaul:**
+  - Added high-contrast notice banner on Archive sheet: `ARCHIVE REGISTRY: STATIC OSINT SNAPSHOT · NOT A LIVE THIRD-PARTY FEED`.
+  - Split KPI metrics into distinct labels: `KNOWN REGISTRY` (1,253 vessels) vs `LIVE G3 AIS` (N=... live, fetched from `/output/api/v1/health`).
+- AGENTS.md Contract-Version bumped to `1.2.0-prompt14`.
+
+## Prompt 13 — Two-Node Topology, Unified Dual Gate SoT & Quant Risk Contract (v1.1.0-prompt13)
+
+- **Two-Node Physical Topology:**
+  - Node A (Korolev, `45.8.230.214`): Analytical core + Public Edge Gateway on `:8765`.
+  - Node B (London, `185.39.19.75`): Hot-standby edge relay with continuous unidirectional SQLite replication (`sync_ais_db_to_korolev.sh`).
+  - Active node designation: added `active_node: "korolev" | "london"` in `GateStatus`, `health.json`, and `QuantRiskMetrics`.
+  - Failover Cutover Guard: `check_failover_status` forces `pipeline_health_status = DEGRADED` (`failover_cutover_awaiting_first_edge_sync`) until post-cutover London sync arrives, eliminating false `NOMINAL` windows on stale data.
+- **Unified Dual Deploy Gate Source of Truth:**
+  - Refactored `api_server.py`, `services/ais_health.py`, and `services/quant_risk_service.py` to directly invoke `services/dual_gate.py`.
+  - Prohibited parallel or duplicated threshold calculations (`lag < 300` / `coverage >= 100`).
+- **Network Port Topology & Reverse Proxy:**
+  - Public Edge `:8765` (`sentinel-web` / `serve_dashboard.py`) reverse-proxies `/api/v1/quant/*` to internal loopback `:8766` (`api_server.py`) with in-process fallback.
+- **Quant Risk Anti-Hallucination & Synthetic Data Contract:**
+  - Enforced mandatory `is_synthetic: bool` and `synthetic_components: list[str]`.
+  - When paper ledger has \(N < 30\) marks, `is_synthetic = True`, `production_actionable = False`.
+  - Frontend visualizer (`uaip_quant_visualizer.js`) renders blocking warning overlay `SYNTHETIC DEMO DATA · NOT WIRED TO LIVE MODEL`.
+  - Canonical table name invariant enforced: `ais_positions` (never legacy `positions`).
+  - **P0 Strategy Recommendation Gate:** `recommended_strategy_id` and `recommended_strategy_name` are set to `None` whenever `production_actionable == False`. Added `blocked_reason` to explain exact gating reason. UI explicitly renders `NO ACTIONABLE STRATEGY — {blocked_reason}`.
+- AGENTS.md Contract-Version bumped to `1.1.0-prompt13`.
+
 ## Digital Twin — triplanar projection bounds (v3.4.1)
 
 - GATE REJECT on Prompt-2 screenshot: beige-white formless mass vs maroon ortho truth.

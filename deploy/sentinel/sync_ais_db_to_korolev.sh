@@ -16,9 +16,11 @@ SRC_CANDIDATES=(
 REMOTE_HOST="${KOROLEV_HOST:-45.8.230.214}"
 REMOTE_USER="${KOROLEV_USER:-root}"
 # Canonical analytical layout (Cyrillic) + ASCII root alias on Korolev
-REMOTE_DIR="${KOROLEV_AIS_DIR:-/opt/oracle1001/analytical_engine/история1}"
+REMOTE_DIR="${KOROLEV_AIS_DIR:-/opt/oracle1001/ais_data}"
 REMOTE_FILE="sentinel_ais.db"
 REMOTE_ASCII_ALIAS="/opt/oracle1001/sentinel_ais.db"
+# Also refresh legacy analytical_engine path if present (non-fatal)
+REMOTE_LEGACY_DIR="/opt/oracle1001/analytical_engine/история1"
 BW_LIMIT_KB="${SYNC_BW_LIMIT_KB:-2048}"
 LOG_DIR="/opt/oracle1001/logs"
 LOCK_FILE="/var/lock/oracle1001_ais_db_sync.lock"
@@ -107,12 +109,17 @@ rsync -az --partial --inplace \
 # ── atomic rename + dual ASCII aliases ───────────────────────────────────────
 ssh ${SSH_OPTS} "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<EOF
 set -euo pipefail
+mkdir -p '${REMOTE_DIR}' /opt/oracle1001/analytical_engine '${REMOTE_LEGACY_DIR}'
 mv -f '${REMOTE_STAGE}' '${REMOTE_FINAL}'
 rm -f '${REMOTE_STAGE}-wal' '${REMOTE_STAGE}-shm' 2>/dev/null || true
-mkdir -p /opt/oracle1001/analytical_engine
 ln -sfn '${REMOTE_FINAL}' /opt/oracle1001/analytical_engine/sentinel_ais.db
 ln -sfn '${REMOTE_FINAL}' '${REMOTE_ASCII_ALIAS}'
+# Best-effort legacy mirror (hardlink if same FS, else copy)
+ln -f '${REMOTE_FINAL}' '${REMOTE_LEGACY_DIR}/${REMOTE_FILE}' 2>/dev/null \
+  || cp -a '${REMOTE_FINAL}' '${REMOTE_LEGACY_DIR}/${REMOTE_FILE}'
 date -u +"%Y-%m-%dT%H:%M:%SZ" > '${REMOTE_DIR}/.last_sync_utc'
+mkdir -p /opt/oracle1001/logs
+date -u +"%Y-%m-%dT%H:%M:%SZ" > /opt/oracle1001/logs/last_london_sync.ts
 stat -c '%Y %s' '${REMOTE_FINAL}' > '${REMOTE_DIR}/.last_sync_meta'
 ls -lh '${REMOTE_FINAL}'
 EOF

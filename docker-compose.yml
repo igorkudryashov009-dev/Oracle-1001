@@ -48,8 +48,8 @@ x-sentinel-base: &sentinel-base
     - ./output/fleet_database_full.csv:/app/output/fleet_database_full.csv:ro
     # Orthographic assets (host bind — optional; empty dir OK)
     - ./assets/7000:/app/assets/7000:ro
-    # Q-Flex REAL VIDEO source dir (Windows host SoT)
-    - C:/111/1001/1-10:/app/assets/1-10:ro
+    # Q-Flex REAL VIDEO source dir (host path; create empty dir on VPS if unused)
+    - ./assets/1-10:/app/assets/1-10:ro
   restart: unless-stopped
   # Persistent ingest ≠ one-shot: bound log growth (json-file rotation)
   logging:

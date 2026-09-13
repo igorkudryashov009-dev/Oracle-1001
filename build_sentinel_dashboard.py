@@ -141,23 +141,27 @@ html[data-sheet="ttf"] #sheet-ais{display:none !important}
 html[data-sheet="ttf"] #tab-ttf-forecast{display:block !important}
 html[data-sheet="ttf"] #sheet-top10{display:none !important}
 html[data-sheet="ttf"] #sheet-route{display:none !important}
+html[data-sheet="ttf"] #sheet-balance{display:none !important}
 html[data-sheet="ttf"] #sheet-archive{display:none !important}
 html[data-sheet="ttf"] #kpiRow{display:none !important}
 html[data-sheet="ais"] #tab-ttf-forecast{display:none !important}
 html[data-sheet="ais"] #sheet-top10{display:none !important}
 html[data-sheet="ais"] #sheet-route{display:none !important}
+html[data-sheet="ais"] #sheet-balance{display:none !important}
 html[data-sheet="ais"] #sheet-archive{display:none !important}
 html[data-sheet="ais"] #sheet-ais{display:block !important}
 html[data-sheet="top10"] #sheet-ais{display:none !important}
 html[data-sheet="top10"] #tab-ttf-forecast{display:none !important}
 html[data-sheet="top10"] #sheet-top10{display:block !important}
 html[data-sheet="top10"] #sheet-route{display:none !important}
+html[data-sheet="top10"] #sheet-balance{display:none !important}
 html[data-sheet="top10"] #sheet-archive{display:none !important}
 html[data-sheet="top10"] #kpiRow{display:none !important}
 html[data-sheet="route"] #sheet-ais{display:none !important}
 html[data-sheet="route"] #tab-ttf-forecast{display:none !important}
 html[data-sheet="route"] #sheet-top10{display:none !important}
 html[data-sheet="route"] #sheet-route{display:block !important}
+html[data-sheet="route"] #sheet-balance{display:none !important}
 html[data-sheet="route"] #sheet-archive{display:none !important}
 html[data-sheet="route"] #kpiRow{display:none !important}
 html[data-sheet="balance"] #sheet-ais{display:none !important}
@@ -177,6 +181,10 @@ html[data-sheet="archive"] #kpiRow{display:none !important}
 /* ══ ARCHIVE SHEET — Apple Data Grid × NASA Control ══ */
 #sheet-archive{display:none}
 .arch-wrap{padding:0 12px 32px;width:100% !important;max-width:100% !important;margin:0 auto;box-sizing:border-box}
+.arch-demo-banner{margin:0 0 14px;padding:12px 16px;border-radius:12px;border:1px solid rgba(245,158,11,.45);background:rgba(245,158,11,.08);backdrop-filter:blur(8px)}
+.arch-demo-banner-title{font-family:JetBrains Mono,SF Mono,ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:.04em;color:#fcd34d;display:flex;align-items:center;gap:8px}
+.arch-demo-banner-body{margin-top:6px;font-family:Inter,system-ui,sans-serif;font-size:12px;color:#94a3b8;line-height:1.4}
+.arch-demo-banner-body b{color:#f8fafc;font-family:JetBrains Mono,monospace}
 .arch-api-status{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(15,23,42,.75);backdrop-filter:blur(12px)}
 @media(max-width:1100px){.arch-api-status{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .arch-api-cell .lbl{font-family:JetBrains Mono,SF Mono,ui-monospace,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(148,163,184,.95);margin-bottom:6px}
@@ -836,12 +844,22 @@ body.t10-modal-open{overflow:hidden}
 <!-- ═══════════════════ ARCHIVE SHEET ═══════════════════ -->
 <div id="sheet-archive" class="sheet">
   <div class="arch-wrap">
-    <p class="t10-intro">Immutable UTC daily freeze of the full OSINT fleet registry (~1,253) with VesselFinder Premium fleet rotation (500 slots) and AIS overlay from <code>sentinel_ais.db</code>.</p>
+    <div class="arch-demo-banner" id="arch-demo-banner">
+      <div class="arch-demo-banner-title">
+        <span class="icon">ℹ</span>
+        <span>ARCHIVE REGISTRY: STATIC OSINT SNAPSHOT · NOT A LIVE THIRD-PARTY FEED</span>
+      </div>
+      <div class="arch-demo-banner-body">
+        <span class="lbl">Known fleet registry:</span> <b id="arch-known-fleet-desc">1,253 known vessels</b> (OSINT registry snapshot, updated 2026-09-12) &nbsp;|&nbsp;
+        <span class="lbl">Live AIS tracked:</span> <b id="arch-live-g3-desc">N=— live AIS-tracked</b> (terrestrial G3 ceiling, Dual Gate).
+      </div>
+    </div>
+    <p class="t10-intro">Immutable UTC daily freeze of the full known OSINT fleet registry (~1,253 vessels). Live tracking is provided exclusively by terrestrial G3 AISstream feed (Dual Deploy Gate). Commercial VesselFinder REST is inactive (hybrid local fallback).</p>
     <div class="arch-api-status is-hybrid" id="arch-api-status" aria-label="Vessel Tracking API status">
       <div class="arch-api-cell"><div class="lbl">API</div><div class="val" id="arch-api-plan">HYBRID LOCAL FALLBACK</div></div>
-      <div class="arch-api-cell"><div class="lbl">KEY</div><div class="val" id="arch-api-key">—</div></div>
-      <div class="arch-api-cell"><div class="lbl">STATUS</div><div class="val" id="arch-api-live"><span class="dot arch-dot-hybrid" aria-hidden="true"></span><span id="arch-api-status-text">NOMINAL</span></div></div>
-      <div class="arch-api-cell"><div class="lbl">SLOTS / FLEET</div><div class="val" id="arch-api-slots">500/500 · 1,253</div></div>
+      <div class="arch-api-cell"><div class="lbl">KNOWN REGISTRY</div><div class="val" id="arch-known-fleet-kpi">1,253 vessels</div></div>
+      <div class="arch-api-cell"><div class="lbl">LIVE G3 AIS</div><div class="val" id="arch-live-g3-kpi">N=— live</div></div>
+      <div class="arch-api-cell"><div class="lbl">SLOT ROTATION</div><div class="val" id="arch-api-slots">500/500 (ROTATING)</div></div>
     </div>
     <div class="arch-balance-strip" id="arch-balance-strip" aria-label="Daily oil and gas transit balance">
       <div class="arch-bal-card arch-bal-oil">
@@ -942,10 +960,19 @@ window.__ROUTE_PAYLOAD__   = (window.__SENTINEL_PAYLOAD__ && window.__SENTINEL_P
 window.__BALANCE_PAYLOAD__ = (window.__SENTINEL_PAYLOAD__ && window.__SENTINEL_PAYLOAD__.balance)         || null;
 window.__QUANT_PIPELINE__  = (window.__SENTINEL_PAYLOAD__ && window.__SENTINEL_PAYLOAD__.quant_pipeline)  || null;
 window.__ALERTS_PAYLOAD__  = (window.__SENTINEL_PAYLOAD__ && window.__SENTINEL_PAYLOAD__.alerts)          || null;
+/* Basemap: OSM by default (no Mapbox key / no "API KEY REQUIRED"). Override via .env TILE_SERVER at rebuild. */
+window.__SENTINEL_MAP__ = window.__SENTINEL_MAP__ || {
+  tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  maxZoom: 12,
+  subdomains: "abc",
+  attribution: "&copy; OpenStreetMap"
+};
+
 /* P0 DOM Truth Contract: vessel cards MUST be constructed before any async hydration.
    TOP10 card DOM is built synchronously from TOP10_VESSELS manifest (imported as ES module).
    AIS sheet KPI skeletons render on DOMContentLoaded — no DB latency blocking. */
 </script>
+<script src="js/map_tiles.js"></script>
 <script src="js/sentinel_engine.js"></script>
 <script src="js/hud_state.js"></script>
 <script src="js/balance_engine.js"></script>
@@ -957,7 +984,7 @@ window.__ALERTS_PAYLOAD__  = (window.__SENTINEL_PAYLOAD__ && window.__SENTINEL_P
   }
 }
 </script>
-<script type="module" src="js/top10_sheet.js?v=qflex-apple-nasa-v4"></script>
+<script type="module" src="js/top10_sheet.js?v=glb-twin-v6"></script>
 <script type="module" src="js/route_sheet.js"></script>
 <script type="module" src="js/archive_sheet.js?v=archive-balance-168h-v1"></script>
 </body>
