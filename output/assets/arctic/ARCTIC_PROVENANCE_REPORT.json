@@ -1,0 +1,80 @@
+{
+  "report": "ARCTIC sheet provenance + particulars",
+  "generated_at": "2026-09-15T09:15:00Z",
+  "step1_video_provenance": {
+    "verdict": "AI-GENERATED (same trust as Q-Flex LUMA REAL VIDEO track)",
+    "rationale": [
+      "Filename suffix '-flight' matches Q-Flex / LUMA naming pattern",
+      "ffprobe format tag encoder=Lavf58.76.100 (FFmpeg remux) — not a camera maker",
+      "No creation_time, GPS, Make/Model, or drone telemetry tags",
+      "Identical container fingerprint on both files: isom/iso2/avc1/mp41, H.264 Constrained Baseline 1344x768 @ 24fps, ~5.18s, AAC 32kHz",
+      "No positive evidence of real camera/drone capture — default remains AI-GENERATED"
+    ],
+    "files": [
+      {
+        "path": "C:\\111\\1001\\Artic\\chris-de-margerie-ice-free-arctic-flight.mp4",
+        "size_bytes": 12580342,
+        "duration_s": 5.184,
+        "video": "h264 1344x768 24fps",
+        "encoder": "Lavf58.76.100",
+        "camera_tags": "none"
+      },
+      {
+        "path": "C:\\111\\1001\\Artic\\georgiy-ushakov-ice-free-arctic1-flight.mp4",
+        "size_bytes": 14984579,
+        "duration_s": 5.184,
+        "video": "h264 1344x768 24fps",
+        "encoder": "Lavf58.76.100",
+        "camera_tags": "none"
+      }
+    ],
+    "ui_badge": "AI-GENERATED VIDEO RECONSTRUCTION (LUMA.ai) · SPECULATIVE DETAIL · GEOMETRY AND MOTION NOT OSINT-VERIFIED"
+  },
+  "step2_particulars": {
+    "9737187_CHRISTOPHE_DE_MARGERIE": {
+      "imo": "9737187",
+      "loa_m": 299.0,
+      "beam_m": 50.0,
+      "draft_m_summer": 13.025,
+      "draft_status": "confirmed (INTERTANKO Q88 via aukevisser.nl)",
+      "design_draft_m": 11.7,
+      "dwt_tons": 96779,
+      "sources": [
+        "https://www.aukevisser.nl/supertankers/gas-1/id1112.htm",
+        "https://www.ship-technology.com/projects/christophe-de-margerie-class-icebreaking-lng-carriers/",
+        "ABB 9AKK107045A7586"
+      ]
+    },
+    "9750749_GEORGIY_USHAKOV": {
+      "imo": "9750749",
+      "loa_m": 299.0,
+      "beam_m": 50.0,
+      "draft_m_summer": null,
+      "draft_status": "не подтверждено (VesselFinder Draught blank; no hull-specific Q88 found)",
+      "design_draft_m_class": 11.7,
+      "dwt_tons": 96796,
+      "sources": [
+        "https://www.vesselfinder.com/vessels/details/9750749",
+        "https://fleetphoto.ru/vessel/98086/",
+        "https://war-sanctions.gur.gov.ua/en/transport/ships/1457"
+      ]
+    }
+  },
+  "step3_compressed_sizes": {
+    "assets/arctic/videos/vessel_9737187_source.mp4": 12580342,
+    "assets/arctic/videos/vessel_9737187.mp4": 890459,
+    "output/assets/arctic/videos/vessel_9737187.mp4": 890459,
+    "assets/arctic/videos/vessel_9750749_source.mp4": 14984579,
+    "assets/arctic/videos/vessel_9750749.mp4": 1136848,
+    "output/assets/arctic/videos/vessel_9750749.mp4": 1136848
+  },
+  "step4_frames": {
+    "top_view": "UNREACHABLE — neither flight path reaches nadir/overhead",
+    "extracted": [
+      {"imo": "9737187", "key": "side_oblique", "t_sec": 3.5, "note": "NOT true side ortho"},
+      {"imo": "9737187", "key": "bow_oblique", "t_sec": 0.5, "note": "NOT head-on"},
+      {"imo": "9750749", "key": "side_oblique", "t_sec": 4.0, "note": "NOT true side ortho"},
+      {"imo": "9750749", "key": "bow_oblique", "t_sec": 0.0, "note": "NOT head-on"}
+    ]
+  }
+}

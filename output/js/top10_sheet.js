@@ -71,17 +71,40 @@ function mountLumaVideo(modal, vessel) {
   vid.loop = true;
   vid.autoplay = true;
   vid.controls = true;
+  // metadata: first request is cheap; avoids competing with card hover preload=auto storms.
   vid.preload = "metadata";
   vid.setAttribute(
     "aria-label",
     `REAL VIDEO flight IMO ${vessel.imo}`
   );
   vid.className = "t10-luma-video t10-real-video";
-  vid.src = clip.url;
+  // Kick network immediately (append before optional GLB teardown on the caller side).
   stage.dataset.videoSrc = clip.url;
   stage.dataset.videoKind = clip.kind || "real_video";
+  stage.hidden = false;
+  stage.style.display = "";
   stage.appendChild(hud);
   stage.appendChild(vid);
+  vid.src = clip.url;
+  try {
+    vid.load();
+  } catch (_) {
+    /* ignore */
+  }
+  const t0 =
+    typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
+  const mark = (ev) => {
+    const dt =
+      (typeof performance !== "undefined" && performance.now ? performance.now() : Date.now()) - t0;
+    try {
+      console.info(`[REAL VIDEO] ${ev} IMO ${vessel.imo} +${Math.round(dt)}ms url=${clip.url}`);
+    } catch (_) {
+      /* ignore */
+    }
+  };
+  vid.addEventListener("loadstart", () => mark("loadstart"), { once: true });
+  vid.addEventListener("loadedmetadata", () => mark("loadedmetadata"), { once: true });
+  vid.addEventListener("canplay", () => mark("canplay"), { once: true });
   const play = vid.play();
   if (play && typeof play.catch === "function") play.catch(() => {});
   return true;
@@ -161,7 +184,7 @@ function cardHtml(v) {
     : ' disabled aria-disabled="true" title="REAL VIDEO unavailable"';
   const ais = Number(v.ais_integrity_pct || 0).toFixed(1);
   const hoverVideo = videoOk
-    ? `<video class="t10-hover-video" muted loop playsinline preload="auto"
+    ? `<video class="t10-hover-video" muted loop playsinline preload="metadata"
         poster="${photo}" data-src="${videoUrl}" data-imo="${imo}"
         aria-label="Hover preview REAL VIDEO IMO ${imo}"></video>`
     : "";
@@ -276,7 +299,8 @@ function bindParallaxHoverVideo(grid) {
       card.getAttribute("data-video-src") ||
       "";
     if (src && vid.getAttribute("src") !== src) {
-      vid.preload = "auto";
+      // metadata only on cards — full auto preload of 10×~2MB saturates the pipe before Inspector.
+      vid.preload = "metadata";
       vid.setAttribute("muted", "");
       vid.setAttribute("playsinline", "");
       vid.setAttribute("loop", "");
@@ -1096,7 +1120,7 @@ function applyInspectorTab(modal, mode) {
     if (!isLumaVideoReady(activeInspectorVessel)) {
       return;
     }
-    disposeModalGlb();
+    // Start MP4 fetch FIRST — GLB dispose is main-thread heavy and delayed Network start.
     if (grid) grid.hidden = true;
     if (stage) {
       stage.style.display = "none";
@@ -1107,6 +1131,8 @@ function applyInspectorTab(modal, mode) {
     });
     mountLumaVideo(modal, activeInspectorVessel);
     modal.dataset.viewerMode = "video:real";
+    // Tear down WebGL after video element has src (non-blocking for Network timing).
+    queueMicrotask(() => disposeModalGlb());
     return;
   }
 

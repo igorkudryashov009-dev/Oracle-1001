@@ -20,11 +20,47 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 TTF_INTERVAL_SEC = int(os.environ.get("TTF_ROLLUP_INTERVAL_SEC", "21600"))  # 6h
+# Q-Flex VesselFinder draft poll — default 24h (budget: ~300/mo for 10 ships, reserve ~200).
+QFLEX_VF_INTERVAL_SEC = int(os.environ.get("QFLEX_VF_POLL_INTERVAL_SEC", "86400"))
 STOP = threading.Event()
 
 
 def _log(msg: str) -> None:
     print(f"[sentinel-core] {msg}", flush=True)
+
+
+def _run_qflex_vf_poll() -> None:
+    """Budget-aware VesselFinder draft refresh for Q-Flex top10 (never page-view driven)."""
+    enabled = (os.environ.get("QFLEX_VF_POLL_ENABLED") or "1").strip().lower()
+    if enabled in {"0", "false", "no", "off"}:
+        _log("Q-Flex VF poll disabled (QFLEX_VF_POLL_ENABLED=0)")
+        return
+    _log(f"Q-Flex VF poll start (interval={QFLEX_VF_INTERVAL_SEC}s)")
+    try:
+        proc = subprocess.run(
+            [sys.executable, "-m", "services.qflex_vf_poller"],
+            cwd=str(ROOT),
+            check=False,
+            capture_output=True,
+            text=True,
+            errors="replace",
+        )
+        if proc.stdout:
+            _log(f"Q-Flex VF poll {proc.stdout.strip().splitlines()[-1][:240]}")
+        if proc.returncode != 0:
+            err = (proc.stderr or proc.stdout or "").strip().splitlines()
+            _log(f"Q-Flex VF poll warn exit={proc.returncode} {err[-1][:200] if err else ''}")
+    except Exception as exc:  # noqa: BLE001
+        _log(f"Q-Flex VF poll skipped: {exc}")
+
+
+def _qflex_vf_loop() -> None:
+    # Initial delay so AIS/health settle; first poll still respects per-IMO cache interval.
+    settle = int(os.environ.get("QFLEX_VF_POLL_INITIAL_DELAY_SEC", "180"))
+    if settle > 0 and not STOP.wait(settle):
+        _run_qflex_vf_poll()
+    while not STOP.wait(QFLEX_VF_INTERVAL_SEC):
+        _run_qflex_vf_poll()
 
 
 def _run_ttf_rollup() -> int:
@@ -119,6 +155,9 @@ def main() -> int:
 
     rollup = threading.Thread(target=_rollup_loop, name="ttf-rollup", daemon=True)
     rollup.start()
+    vf_poll = threading.Thread(target=_qflex_vf_loop, name="qflex-vf-poll", daemon=True)
+    vf_poll.start()
+    _log(f"QFLEX_VF_POLL_INTERVAL_SEC={QFLEX_VF_INTERVAL_SEC}")
 
     if ais_mode in {"off", "0", "false", "no", "analytics", "replica"}:
         _log("AIS connector disabled — waiting for edge DB replica (London relay)")

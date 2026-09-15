@@ -38,4 +38,13 @@ Thumbs.db
 
 # Local runtime noise (keep intentional outputs tracked when added)
 *.tmp
+output/tile_cache/
+data/archive/maptiles_budget.json
+data/archive/vesselfinder_budget.json
 *.bak
+
+# ARCTIC: keep serve videos/frames; drop local probe + huge LUMA source masters
+output/assets/arctic/_probe/
+output/assets/arctic/screenshots/
+assets/arctic/videos/*_source.mp4
+nasa-mission-control/

@@ -1,0 +1,45 @@
+{
+  "top_view": "UNREACHABLE \u2014 flight path never reaches nadir/overhead on either video",
+  "frames": [
+    {
+      "imo": "9737187",
+      "key": "side_oblique",
+      "t_sec": 3.5,
+      "note": "Best lateral-ish frame (elevated port three-quarter \u2014 NOT true side ortho)",
+      "path": "output/assets/arctic/frames/vessel_9737187_side_oblique.jpg",
+      "bytes": 157548
+    },
+    {
+      "imo": "9737187",
+      "key": "bow_oblique",
+      "t_sec": 0.5,
+      "note": "Best bow-ish frame (elevated forward three-quarter \u2014 NOT head-on)",
+      "path": "output/assets/arctic/frames/vessel_9737187_bow_oblique.jpg",
+      "bytes": 177349
+    },
+    {
+      "imo": "9750749",
+      "key": "side_oblique",
+      "t_sec": 4.0,
+      "note": "Best lateral-ish frame (elevated port three-quarter \u2014 NOT true side ortho)",
+      "path": "output/assets/arctic/frames/vessel_9750749_side_oblique.jpg",
+      "bytes": 205014
+    },
+    {
+      "imo": "9750749",
+      "key": "bow_oblique",
+      "t_sec": 0.0,
+      "note": "Best bow-ish frame (elevated forward three-quarter \u2014 NOT head-on)",
+      "path": "output/assets/arctic/frames/vessel_9750749_bow_oblique.jpg",
+      "bytes": 257250
+    }
+  ],
+  "file_sizes": {
+    "assets\\arctic\\videos\\vessel_9737187.mp4": 890459,
+    "assets\\arctic\\videos\\vessel_9737187_source.mp4": 12580342,
+    "assets\\arctic\\videos\\vessel_9750749.mp4": 1136848,
+    "assets\\arctic\\videos\\vessel_9750749_source.mp4": 14984579,
+    "output\\assets\\arctic\\videos\\vessel_9737187.mp4": 890459,
+    "output\\assets\\arctic\\videos\\vessel_9750749.mp4": 1136848
+  }
+}

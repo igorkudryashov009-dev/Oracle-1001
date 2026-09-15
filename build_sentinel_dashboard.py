@@ -39,6 +39,13 @@ CSS_OUT = ROOT / "output" / "css"
 WEB_JS = WEB_DIR / "js"
 WEB_CSS = WEB_DIR / "css"
 
+# Cache-bust for HUD JS (route/map modules). Bump when basemap / route logic changes.
+ASSET_V = os.environ.get("SENTINEL_ASSET_V", "basemap-proxy-v1")
+# Default: same-origin tile proxy (server holds MAPTILES_PROVIDER_KEY; Esri fallback inside proxy).
+DEFAULT_TILE_URL = "/api/tiles/mapbox/{z}/{x}/{y}.png"
+DEFAULT_TILE_SUBDOMAINS = ""
+DEFAULT_TILE_ATTR = "Tiles via Sentinel proxy · Esri fallback"
+
 DB_CANDIDATES = [
     ROOT / "история1" / "sentinel_ais.db",
     ROOT / "sentinel_ais.db",
@@ -109,6 +116,8 @@ _HTML = r"""<!DOCTYPE html>
       document.documentElement.setAttribute("data-sheet", "balance");
     } else if (sheet === "archive" || h === "archive" || h === "sheet-archive") {
       document.documentElement.setAttribute("data-sheet", "archive");
+    } else if (sheet === "arctic" || h === "arctic" || h === "sheet-arctic") {
+      document.documentElement.setAttribute("data-sheet", "arctic");
     } else {
       document.documentElement.setAttribute("data-sheet", "ais");
     }
@@ -140,12 +149,14 @@ _HTML = r"""<!DOCTYPE html>
 html[data-sheet="ttf"] #sheet-ais{display:none !important}
 html[data-sheet="ttf"] #tab-ttf-forecast{display:block !important}
 html[data-sheet="ttf"] #sheet-top10{display:none !important}
+html[data-sheet="ttf"] #sheet-arctic{display:none !important}
 html[data-sheet="ttf"] #sheet-route{display:none !important}
 html[data-sheet="ttf"] #sheet-balance{display:none !important}
 html[data-sheet="ttf"] #sheet-archive{display:none !important}
 html[data-sheet="ttf"] #kpiRow{display:none !important}
 html[data-sheet="ais"] #tab-ttf-forecast{display:none !important}
 html[data-sheet="ais"] #sheet-top10{display:none !important}
+html[data-sheet="ais"] #sheet-arctic{display:none !important}
 html[data-sheet="ais"] #sheet-route{display:none !important}
 html[data-sheet="ais"] #sheet-balance{display:none !important}
 html[data-sheet="ais"] #sheet-archive{display:none !important}
@@ -153,13 +164,42 @@ html[data-sheet="ais"] #sheet-ais{display:block !important}
 html[data-sheet="top10"] #sheet-ais{display:none !important}
 html[data-sheet="top10"] #tab-ttf-forecast{display:none !important}
 html[data-sheet="top10"] #sheet-top10{display:block !important}
+html[data-sheet="top10"] #sheet-arctic{display:none !important}
 html[data-sheet="top10"] #sheet-route{display:none !important}
 html[data-sheet="top10"] #sheet-balance{display:none !important}
 html[data-sheet="top10"] #sheet-archive{display:none !important}
 html[data-sheet="top10"] #kpiRow{display:none !important}
+html[data-sheet="arctic"] #sheet-ais{display:none !important}
+html[data-sheet="arctic"] #tab-ttf-forecast{display:none !important}
+html[data-sheet="arctic"] #sheet-top10{display:none !important}
+html[data-sheet="arctic"] #sheet-arctic{display:block !important}
+html[data-sheet="arctic"] #sheet-route{display:none !important}
+html[data-sheet="arctic"] #sheet-balance{display:none !important}
+html[data-sheet="arctic"] #sheet-archive{display:none !important}
+html[data-sheet="arctic"] #kpiRow{display:none !important}
+html[data-sheet="arctic"] #sheet-arctic #arctic-grid-container,
+html[data-sheet="arctic"] #sheet-arctic .t10-grid{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:24px;width:100%}
+html[data-sheet="arctic"] #sheet-arctic,.ark-wrap{max-width:1600px;margin-left:auto;margin-right:auto}
+@media(max-width:1100px){html[data-sheet="arctic"] #sheet-arctic #arctic-grid-container{grid-template-columns:1fr !important}}
+.ark-intro{margin:0 20px 16px;padding:12px 14px;border-radius:12px;border:1px solid rgba(245,158,11,.4);background:rgba(245,158,11,.08);color:#fde68a;font-size:12px;line-height:1.45}
+.ark-unconfirmed{color:#fbbf24;font-size:0.85em;letter-spacing:.02em}
+.ark-derived-banner{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.ark-badge{padding:10px 12px;border-radius:10px;border:1px solid rgba(248,113,113,.45);background:rgba(127,29,29,.35);color:#fecaca;font-family:JetBrains Mono,ui-monospace,monospace;font-size:11px;letter-spacing:.03em}
+.ark-badge--warn{border-color:rgba(251,191,36,.5);background:rgba(120,53,15,.35);color:#fde68a}
+.ark-derived-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:1100px){.ark-derived-grid{grid-template-columns:1fr}}
+.ark-derived-cell{margin:0;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;background:rgba(15,23,42,.7)}
+.ark-derived-cell img{display:block;width:100%;height:auto;min-height:180px;object-fit:cover;background:#0b1220}
+.ark-derived-cell figcaption{padding:8px 10px;font-size:11px;font-family:JetBrains Mono,monospace;color:#93c5fd}
+.ark-note{padding:0 10px 10px;font-size:11px;color:#94a3b8}
+.ark-derived-cell--missing{display:flex;flex-direction:column;min-height:220px}
+.ark-missing{flex:1;display:flex;align-items:center;justify-content:center;padding:18px;text-align:center;color:#fca5a5;font-family:JetBrains Mono,monospace;font-size:12px;line-height:1.4;background:rgba(127,29,29,.25)}
+.ark-video-stage{display:flex;flex-direction:column;gap:10px}
+.ark-video-stage[hidden],.ark-derived-stage[hidden]{display:none !important}
 html[data-sheet="route"] #sheet-ais{display:none !important}
 html[data-sheet="route"] #tab-ttf-forecast{display:none !important}
 html[data-sheet="route"] #sheet-top10{display:none !important}
+html[data-sheet="route"] #sheet-arctic{display:none !important}
 html[data-sheet="route"] #sheet-route{display:block !important}
 html[data-sheet="route"] #sheet-balance{display:none !important}
 html[data-sheet="route"] #sheet-archive{display:none !important}
@@ -167,6 +207,7 @@ html[data-sheet="route"] #kpiRow{display:none !important}
 html[data-sheet="balance"] #sheet-ais{display:none !important}
 html[data-sheet="balance"] #tab-ttf-forecast{display:none !important}
 html[data-sheet="balance"] #sheet-top10{display:none !important}
+html[data-sheet="balance"] #sheet-arctic{display:none !important}
 html[data-sheet="balance"] #sheet-route{display:none !important}
 html[data-sheet="balance"] #sheet-archive{display:none !important}
 html[data-sheet="balance"] #sheet-balance{display:block !important}
@@ -174,6 +215,7 @@ html[data-sheet="balance"] #kpiRow{display:none !important}
 html[data-sheet="archive"] #sheet-ais{display:none !important}
 html[data-sheet="archive"] #tab-ttf-forecast{display:none !important}
 html[data-sheet="archive"] #sheet-top10{display:none !important}
+html[data-sheet="archive"] #sheet-arctic{display:none !important}
 html[data-sheet="archive"] #sheet-route{display:none !important}
 html[data-sheet="archive"] #sheet-balance{display:none !important}
 html[data-sheet="archive"] #sheet-archive{display:block !important}
@@ -532,6 +574,7 @@ body.t10-modal-open{overflow:hidden}
   <button type="button" class="sheet-tab active" data-sheet="ais" role="tab" aria-selected="true">AIS · 18 CHARTS</button>
   <button type="button" class="sheet-tab" data-sheet="ttf" role="tab" aria-selected="false">ПРОГНОЗ TTF / MARKET FORECAST</button>
   <button type="button" class="sheet-tab" data-sheet="qflex" role="tab" aria-selected="false">Q-Flex</button>
+  <button type="button" class="sheet-tab" data-sheet="arctic" role="tab" aria-selected="false">ARCTIC</button>
   <button type="button" class="sheet-tab" data-sheet="route" role="tab" aria-selected="false">МАРШРУТ</button>
   <button type="button" class="sheet-tab" data-sheet="balance" role="tab" aria-selected="false">БАЛАНС / TOP-500 BALANCE</button>
   <button type="button" class="sheet-tab" data-sheet="archive" role="tab" aria-selected="false">ARCHIVE · DAILY SNAPSHOTS</button>
@@ -548,6 +591,7 @@ body.t10-modal-open{overflow:hidden}
   var ais     = document.getElementById("sheet-ais");
   var ttf     = document.getElementById("tab-ttf-forecast");
   var top10   = document.getElementById("sheet-top10");
+  var arctic  = document.getElementById("sheet-arctic");
   var route   = document.getElementById("sheet-route");
   var balance = document.getElementById("sheet-balance");
   var archive = document.getElementById("sheet-archive");
@@ -555,13 +599,15 @@ body.t10-modal-open{overflow:hidden}
   if (ais)     { ais.classList.toggle("active", sheet === "ais");         ais.style.display     = sheet === "ais"     ? "block" : "none"; }
   if (ttf)     { ttf.classList.toggle("active", sheet === "ttf");         ttf.style.display     = sheet === "ttf"     ? "block" : "none"; }
   if (top10)   { top10.classList.toggle("active", sheet === "top10");     top10.style.display   = sheet === "top10"   ? "block" : "none"; }
+  if (arctic)  { arctic.classList.toggle("active", sheet === "arctic");   arctic.style.display  = sheet === "arctic"  ? "block" : "none"; }
   if (route)   { route.classList.toggle("active", sheet === "route");     route.style.display   = sheet === "route"   ? "block" : "none"; }
   if (balance) { balance.classList.toggle("active", sheet === "balance"); balance.style.display = sheet === "balance" ? "block" : "none"; }
   if (archive) { archive.classList.toggle("active", sheet === "archive"); archive.style.display = sheet === "archive" ? "block" : "none"; }
-  if (kpi && (sheet === "ttf" || sheet === "top10" || sheet === "route" || sheet === "balance" || sheet === "archive")) kpi.style.display = "none";
+  if (kpi && (sheet === "ttf" || sheet === "top10" || sheet === "arctic" || sheet === "route" || sheet === "balance" || sheet === "archive")) kpi.style.display = "none";
   var ht = document.getElementById("heroTitle");
   if (sheet === "ttf"     && ht) ht.textContent = "ПРОГНОЗ TTF · MARKET FORECAST ENSEMBLE";
   if (sheet === "top10"   && ht) ht.textContent = "Q-FLEX DIGITAL TWIN & VIDEO FLEET · REAL VIDEO";
+  if (sheet === "arctic"  && ht) ht.textContent = "ARCTIC · Arc7 YAMALMAX · AI-GENERATED FLIGHT VIDEO";
   if (sheet === "route"   && ht) ht.textContent = "МАРШРУТ · ROUTE ANALYTICS · SPATIOTEMPORAL";
   if (sheet === "balance" && ht) ht.textContent = "БАЛАНС · TOP-500 FLEET BALANCE · 6 QUANT METRICS";
   if (sheet === "archive" && ht) ht.textContent = "ARCHIVE · VESSEL DAILY SNAPSHOTS · 1253 FLEET";
@@ -659,6 +705,13 @@ body.t10-modal-open{overflow:hidden}
       Q-Flex Digital Twin & Video Fleet — REAL VIDEO flight loops (default inspector tab) · DIGITAL TWIN GLB · orthographic OSINT.
     </p>
     <div class="t10-grid" id="top10-grid-container" data-legacy-id="t10Grid" aria-live="polite"></div>
+  </div>
+</div>
+
+<div id="sheet-arctic" class="sheet">
+  <div class="ark-wrap t10-wrap">
+    <p class="ark-intro t10-intro"></p>
+    <div class="t10-grid" id="arctic-grid-container" aria-live="polite"></div>
   </div>
 </div>
 
@@ -960,22 +1013,23 @@ window.__ROUTE_PAYLOAD__   = (window.__SENTINEL_PAYLOAD__ && window.__SENTINEL_P
 window.__BALANCE_PAYLOAD__ = (window.__SENTINEL_PAYLOAD__ && window.__SENTINEL_PAYLOAD__.balance)         || null;
 window.__QUANT_PIPELINE__  = (window.__SENTINEL_PAYLOAD__ && window.__SENTINEL_PAYLOAD__.quant_pipeline)  || null;
 window.__ALERTS_PAYLOAD__  = (window.__SENTINEL_PAYLOAD__ && window.__SENTINEL_PAYLOAD__.alerts)          || null;
-/* Basemap: OSM by default (no Mapbox key / no "API KEY REQUIRED"). Override via .env TILE_SERVER at rebuild. */
+/* Basemap: CARTO Dark by default (no Mapbox key / no "API KEY REQUIRED").
+   Override at rebuild: TILE_SERVER / TILE_SUBDOMAINS / TILE_ATTR. */
 window.__SENTINEL_MAP__ = window.__SENTINEL_MAP__ || {
-  tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  tileUrl: "__TILE_URL__",
   maxZoom: 12,
-  subdomains: "abc",
-  attribution: "&copy; OpenStreetMap"
+  subdomains: "__TILE_SUBDOMAINS__",
+  attribution: "__TILE_ATTR__"
 };
 
 /* P0 DOM Truth Contract: vessel cards MUST be constructed before any async hydration.
    TOP10 card DOM is built synchronously from TOP10_VESSELS manifest (imported as ES module).
    AIS sheet KPI skeletons render on DOMContentLoaded — no DB latency blocking. */
 </script>
-<script src="js/map_tiles.js"></script>
-<script src="js/sentinel_engine.js"></script>
-<script src="js/hud_state.js"></script>
-<script src="js/balance_engine.js"></script>
+<script src="js/map_tiles.js?v=__ASSET_V__"></script>
+<script src="js/sentinel_engine.js?v=__ASSET_V__"></script>
+<script src="js/hud_state.js?v=__ASSET_V__"></script>
+<script src="js/balance_engine.js?v=__ASSET_V__"></script>
 <script type="importmap">
 {
   "imports": {
@@ -985,7 +1039,8 @@ window.__SENTINEL_MAP__ = window.__SENTINEL_MAP__ || {
 }
 </script>
 <script type="module" src="js/top10_sheet.js?v=glb-twin-v6"></script>
-<script type="module" src="js/route_sheet.js"></script>
+<script type="module" src="js/arctic_sheet.js?v=arctic-arc7-v1"></script>
+<script type="module" src="js/route_sheet.js?v=__ASSET_V__"></script>
 <script type="module" src="js/archive_sheet.js?v=archive-balance-168h-v1"></script>
 </body>
 </html>
@@ -1184,6 +1239,15 @@ def write_sentinel_dashboard(path: Path | None = None) -> dict:
     payload = sanitize_structure(payload)
 
     html = _HTML.replace("__PAYLOAD__", json.dumps(payload, ensure_ascii=False))
+    tile_url = os.environ.get("TILE_SERVER") or DEFAULT_TILE_URL
+    tile_sub = os.environ.get("TILE_SUBDOMAINS") or DEFAULT_TILE_SUBDOMAINS
+    tile_attr = os.environ.get("TILE_ATTR") or DEFAULT_TILE_ATTR
+    html = (
+        html.replace("__TILE_URL__", tile_url)
+        .replace("__TILE_SUBDOMAINS__", tile_sub)
+        .replace("__TILE_ATTR__", tile_attr)
+        .replace("__ASSET_V__", ASSET_V)
+    )
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
 

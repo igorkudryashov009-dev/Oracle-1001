@@ -1,6 +1,6 @@
 {
   "path": "./output/sentinel_dashboard.html",
-  "bytes": 1006787,
+  "bytes": 1009776,
   "live_vessel_count": 29,
   "source_mode": "live_ais+STALE",
   "operational_status": "DEGRADED_STALE_REPLICA",
@@ -8,15 +8,15 @@
     "stale": true,
     "live_ok": false,
     "db_path": "./история1/sentinel_ais.db",
-    "mtime_epoch": 1789165333.9430585,
-    "age_sec": 1412.5,
-    "lag_minutes": 23.5,
+    "mtime_epoch": 1789464054.629775,
+    "age_sec": 309385.2,
+    "lag_minutes": 5156.4,
     "status": "STALE",
     "ais_truth": "stale",
     "signal_source": "ais_positions.received_at",
-    "latest_ts": "2026-09-11T21:58:43Z",
+    "latest_ts": "2026-09-11T22:23:28Z",
     "integrity_ok": true,
-    "banner": "[STALE AIS REPLICA DETECTED - DATA LAG > 23.5 MINS]",
+    "banner": "[STALE AIS REPLICA DETECTED - DATA LAG > 5156.4 MINS]",
     "live_ok_lag_sec": 300
   },
   "truth_contract": {

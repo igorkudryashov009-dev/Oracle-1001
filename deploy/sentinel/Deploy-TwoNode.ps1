@@ -36,19 +36,24 @@ function Sync-Tree([string]$HostName, [string]$Dest = $RemoteRoot) {
     throw "tar not found - install Windows tar or use Git Bash"
   }
   # NOTE: do NOT exclude *.glb - Digital Twin assets must ship (contract 1.4+)
+  # NOTE: do NOT blanket-exclude *.mp4 - ARCTIC serve videos live under assets/arctic
+  #       and output/assets/arctic (same class of bug as historical *.glb exclude).
+  # Heavy Q-Flex / ortho source trees stay excluded; *_source.mp4 are provenance-only.
   & tar -czf $pack `
     --exclude=venv --exclude=.git --exclude=logs --exclude=__pycache__ `
     --exclude=output/_qa_fidelity_v31 --exclude=output/.publish_snapshot `
     --exclude=assets/7000/videos --exclude=assets/1-10 `
-    --exclude=*.mp4 --exclude=node_modules `
+    --exclude=*_source.mp4 --exclude=output/assets/arctic/_probe `
+    --exclude=output/assets/arctic/screenshots --exclude=node_modules `
+    --exclude=nasa-mission-control `
     docker-compose.yml docker-compose.prod.yml Dockerfile .dockerignore `
     docker services scripts web config.yaml requirements.txt `
     run_release.py build_sentinel_dashboard.py api_server.py `
     AGENTS.md CHANGELOG.md data deploy/sentinel `
     output/fleet_database.csv output/fleet_oil_tankers.csv output/fleet_database_full.csv `
     output/sentinel_dashboard.html output/js output/css output/assets `
-    output/archive/api_status.json output/models `
-    assets/7000 2>$null
+    output/archive/api_status.json output/models output/qflex_fleet_cargo.json `
+    assets/7000 assets/arctic 2>$null
   if (-not (Test-Path $pack)) { throw "pack failed" }
   & scp -o BatchMode=yes $pack "root@${HostName}:/tmp/sentinel_deploy.tgz"
   if ($LASTEXITCODE -ne 0) { throw "scp failed" }
@@ -109,6 +114,27 @@ try {
 } catch {
   Write-Warning "External health not reachable yet: $_"
 }
+
+Write-Host ""
+Write-Host "=== Deploy manifest verification (git tree vs Node A sha256) ==="
+$py = $null
+if (Test-Path (Join-Path $Root "venv\Scripts\python.exe")) {
+  $py = Join-Path $Root "venv\Scripts\python.exe"
+} elseif (Get-Command python -ErrorAction SilentlyContinue) {
+  $py = "python"
+}
+if (-not $py) {
+  throw "Deploy manifest verify requires Python (venv\Scripts\python.exe or python on PATH)"
+}
+$env:SENTINEL_NODE_A = $NodeA
+$env:SENTINEL_VERIFY_BASE_URL = "http://${NodeA}:8765"
+$env:SENTINEL_VERIFY_LIVE = "1"
+$env:SENTINEL_VERIFY_STRICT = "1"
+& $py (Join-Path $Root "scripts\verify_deploy_manifest.py") --base-url "http://${NodeA}:8765" --strict
+if ($LASTEXITCODE -ne 0) {
+  throw "Deploy manifest FAIL — Node A is serving stale HUD assets vs this working tree (exit=$LASTEXITCODE)"
+}
+Write-Host "Deploy manifest PASS — Node A bytes match working tree"
 
 Write-Host "Done. HUD: http://${NodeA}:8765/output/sentinel_dashboard.html?sheet=top10"
 Write-Host "Bake contract: hotfixes must survive compose down + up --force-recreate"

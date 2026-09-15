@@ -4,6 +4,7 @@
 Serves the repository root so /output/sentinel_dashboard.html is reachable.
 Virtual mount: /assets/7000/* -> ASSETS_7000_DIR env var (Docker-portable).
 Virtual mount: /assets/1-10/* and /assets/video/* -> ASSETS_1_10_DIR (Q-Flex REAL VIDEO).
+Virtual mount: /assets/arctic/* -> ASSETS_ARCTIC_DIR (Arc7 flight video + video-derived frames).
 
 Modes:
   default  — serve output/ (+ assets virtual mounts)
@@ -19,6 +20,11 @@ Asset resolution order for /assets/1-10 (and /assets/video alias):
   1. ASSETS_1_10_DIR env var
   2. C:\\111\\1001\\1-10 (Windows host SoT)
   3. ./assets/1-10 relative to repo root
+
+Asset resolution order for /assets/arctic:
+  1. ASSETS_ARCTIC_DIR env var
+  2. ./assets/arctic relative to repo root
+  3. ./output/assets/arctic relative to repo root
 """
 
 from __future__ import annotations
@@ -83,6 +89,27 @@ def _resolve_qflex_1_10_dir() -> Path:
 
 
 QFLEX_1_10 = _resolve_qflex_1_10_dir()
+
+
+def _resolve_arctic_dir() -> Path:
+    env_path = os.environ.get("ASSETS_ARCTIC_DIR", "").strip()
+    in_docker = bool(Path("/.dockerenv").exists() or os.environ.get("APP_HOME"))
+    if env_path:
+        if in_docker and (env_path[1:3] in (":\\", ":/") or env_path.startswith("\\\\")):
+            env_path = ""
+        else:
+            return Path(env_path)
+    if in_docker:
+        docker_path = Path("/app/assets/arctic")
+        if docker_path.is_dir():
+            return docker_path
+    repo = ROOT / "assets" / "arctic"
+    if repo.is_dir():
+        return repo
+    return ROOT / "output" / "assets" / "arctic"
+
+
+ARCTIC_ASSETS = _resolve_arctic_dir()
 DEFAULT_HOST = os.environ.get("DASHBOARD_HOST", "0.0.0.0").strip() or "0.0.0.0"
 try:
     from services.utils.canonical_port import assert_canonical_dashboard_port, resolve_dashboard_port
@@ -96,6 +123,7 @@ except Exception:
     DEFAULT_PORT = 8765
 ASSETS_7000_PREFIX = "/assets/7000/"
 ASSETS_1_10_PREFIXES = ("/assets/1-10/", "/assets/video/")
+ASSETS_ARCTIC_PREFIX = "/assets/arctic/"
 
 
 def _sheet_url(port: int, sheet: str) -> str:
@@ -224,6 +252,31 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self.send_error(403, "Forbidden")
             return True
         self._send_file(target)
+        return True
+
+    def _serve_arctic_assets(self) -> bool:
+        """Serve Arc7 ARCTIC flight videos + video-derived frames."""
+        parsed = urlparse(self.path)
+        path = unquote(parsed.path or "")
+        if not path.startswith(ASSETS_ARCTIC_PREFIX):
+            return False
+        rel = path[len(ASSETS_ARCTIC_PREFIX) :].lstrip("/").replace("\\", "/")
+        if not rel or ".." in rel.split("/"):
+            self.send_error(400, "Invalid arctic asset path")
+            return True
+        bases = [ARCTIC_ASSETS, ROOT / "assets" / "arctic", ROOT / "output" / "assets" / "arctic"]
+        for base in bases:
+            if not base.exists():
+                continue
+            target = (base / rel).resolve()
+            try:
+                target.relative_to(base.resolve())
+            except ValueError:
+                continue
+            if target.is_file():
+                self._send_file(target)
+                return True
+        self.send_error(404, f"Arctic asset missing: {rel}")
         return True
 
     def _dev_serve_or_sync(self) -> bool:
@@ -455,8 +508,78 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self._send_json({"ok": False, "error": str(exc)[:400]}, status=500)
         return True
 
+        return True
+
+    def _serve_map_tiles(self) -> bool:
+        """Paid tile proxy — key stays server-side; Esri fallback (Never-Black maps)."""
+        parsed = urlparse(self.path)
+        path = unquote(parsed.path or "")
+        try:
+            from services.maptiles_proxy import (
+                fetch_tile,
+                origin_allowed,
+                parse_tile_path,
+                public_status,
+                rate_limit_ok,
+            )
+        except Exception as exc:  # noqa: BLE001
+            if path.startswith("/api/tiles/"):
+                self._json_response(
+                    500,
+                    {"ok": False, "error": "maptiles_proxy_unavailable", "detail": str(exc)[:120]},
+                )
+                return True
+            return False
+
+        if path in (
+            "/api/v1/maptiles/status",
+            "/api/v1/maptiles/status/",
+            "/output/api/v1/maptiles/status",
+        ):
+            self._json_response(200, {"ok": True, **public_status()})
+            return True
+
+        spec = parse_tile_path(path)
+        if not spec:
+            return False
+
+        client_ip = (self.client_address[0] if self.client_address else "") or ""
+        origin = self.headers.get("Origin") or ""
+        referer = self.headers.get("Referer") or ""
+        if not origin_allowed(origin=origin, referer=referer, client_ip=client_ip):
+            self._json_response(403, {"ok": False, "error": "origin_forbidden"})
+            return True
+        if not rate_limit_ok(client_ip):
+            self._json_response(429, {"ok": False, "error": "rate_limited"})
+            return True
+
+        result = fetch_tile(
+            spec["provider"], spec["z"], spec["x"], spec["y"], prefer_ext=spec["ext"]
+        )
+        if result.status != 200 or not result.body:
+            self._json_response(
+                int(result.status or 502),
+                {"ok": False, "error": result.error_code or "tile_unavailable"},
+            )
+            return True
+
+        self.send_response(200)
+        self.send_header("Content-Type", result.content_type)
+        self.send_header("Content-Length", str(len(result.body)))
+        self.send_header("Cache-Control", "public, max-age=86400")
+        self.send_header("X-Sentinel-Tile-Source", result.source)
+        self.send_header("X-Sentinel-Tile-Cache", "HIT" if result.cache_hit else "MISS")
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(result.body)
+        return True
+
     def do_GET(self):  # noqa: N802
+        if self._serve_map_tiles():
+            return
         if self._serve_qflex_1_10():
+            return
+        if self._serve_arctic_assets():
             return
         if self._serve_desktop_7000():
             return
@@ -492,7 +615,11 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 self.send_error(500, str(exc))
 
     def do_HEAD(self):  # noqa: N802
+        if self._serve_map_tiles():
+            return
         if self._serve_qflex_1_10():
+            return
+        if self._serve_arctic_assets():
             return
         if self._serve_desktop_7000():
             return

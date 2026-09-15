@@ -25,6 +25,7 @@
       const hash = String(window.location.hash || "").replace(/^#/, "").toLowerCase().trim();
       if (sheet === "ttf"     || hash === "ttf"     || hash === "tab-ttf-forecast") return "ttf";
       if (sheet === "top10" || sheet === "qflex" || sheet === "q-flex" || hash === "top10" || hash === "qflex" || hash === "q-flex" || hash === "sheet-top10") return "top10";
+      if (sheet === "arctic" || hash === "arctic" || hash === "sheet-arctic") return "arctic";
       if (sheet === "route"   || hash === "route"   || hash === "sheet-route")     return "route";
       if (sheet === "balance" || hash === "balance" || hash === "sheet-balance")   return "balance";
       if (sheet === "archive" || hash === "archive" || hash === "sheet-archive")   return "archive";
@@ -69,13 +70,61 @@
     });
   }
 
+  const HEALTH_URL = "/output/api/v1/health";
+  const HEALTH_POLL_MS = 30000;
+  let _healthPollTimer = null;
+
+  function applyLiveHealth(h) {
+    if (!h || typeof h !== "object") return;
+    // Live Dual-Gate truth overrides bake-time __SENTINEL_PAYLOAD__ snapshot.
+    // HTML embeds replica_freshness at build; health.json is rewritten continuously.
+    if (h.replica && typeof h.replica === "object") {
+      P.replica_freshness = h.replica;
+    }
+    if (h.pipeline_health_status) P.pipeline_health_status = h.pipeline_health_status;
+    if (h.operational_status) P.operational_status = h.operational_status;
+    if (h.fleet_sample_status) P.fleet_sample_status = h.fleet_sample_status;
+    if (h.top500_live_coverage != null) P.top500_live_coverage = h.top500_live_coverage;
+    if (h.sample_size_caveat != null) P.sample_size_caveat = h.sample_size_caveat;
+    if (h.source_mode) P.source_mode = h.source_mode;
+    const ph = h.pipeline_health || {};
+    if (ph.ais_lag_sec != null && P.replica_freshness) {
+      // Keep lag_minutes consistent with ais_lag_sec (/60 once — never double-convert).
+      const age = Number(ph.ais_lag_sec);
+      if (Number.isFinite(age)) {
+        P.replica_freshness.age_sec = Math.round(age * 10) / 10;
+        P.replica_freshness.lag_minutes = Math.round((age / 60) * 10) / 10;
+      }
+    }
+  }
+
+  async function syncLiveHealth() {
+    try {
+      const url = `${HEALTH_URL}?nocache=${Date.now()}`;
+      const h = await fetch(url, { cache: "no-store" }).then((r) => {
+        if (!r.ok) throw new Error(`health HTTP ${r.status}`);
+        return r.json();
+      });
+      applyLiveHealth(h);
+      renderKPI();
+    } catch (_) {
+      /* keep last-known payload; do not invent freshness */
+    }
+  }
+
+  function startHealthPoll() {
+    if (_healthPollTimer) return;
+    syncLiveHealth();
+    _healthPollTimer = setInterval(syncLiveHealth, HEALTH_POLL_MS);
+  }
+
   function renderKPI() {
     const box = document.getElementById("kpiRow");
     if (!box) return;
     const fs = P.fleet_summary || {};
     const tiers = P.tier_live_counts || {};
     const fr = P.replica_freshness || {};
-    const ops = P.operational_status || "NOMINAL";
+    const ops = P.operational_status || P.pipeline_health_status || "NOMINAL";
     box.innerHTML = `
       <div class="kpi"><div class="k">Registry Targets</div><div class="v">${fmt(fs.vessel_count)}</div><div class="s">Alpha–Delta strategic list</div></div>
       <div class="kpi"><div class="k">Live Positions</div><div class="v">${fmt(P.live_vessel_count)}</div><div class="s">mode: ${P.source_mode || "—"}</div></div>
@@ -95,26 +144,33 @@
 
     const banner = document.getElementById("staleBanner");
     const opsEl = document.getElementById("opsStatus");
-    if (banner && fr.stale && fr.banner) {
-      banner.textContent = fr.banner;
-      banner.classList.add("on");
+    if (banner) {
+      if (fr.stale && fr.banner) {
+        banner.textContent = fr.banner;
+        banner.classList.add("on");
+      } else {
+        banner.textContent = "";
+        banner.classList.remove("on");
+      }
     }
     if (opsEl) {
       const pipe = P.pipeline_health_status || (fr.stale ? "DEGRADED" : "NOMINAL");
+      const lagMin = fr.lag_minutes;
       opsEl.textContent = fr.stale
-        ? `OPS DEGRADED · LAG ${fr.lag_minutes}m`
+        ? `OPS DEGRADED · LAG ${lagMin != null ? lagMin : "—"}m`
         : `OPS ${pipe} · PIPELINE`;
-      opsEl.classList.add(fr.stale ? "stale" : "fresh");
+      opsEl.classList.toggle("stale", !!fr.stale);
+      opsEl.classList.toggle("fresh", !fr.stale);
     }
 
     // Persistent fleet-sample banner (all sheets) — never requires a click
     const fsBanner = document.getElementById("fleetSampleBanner");
     if (fsBanner) {
-      const fs = String(P.fleet_sample_status || "").toUpperCase();
+      const fsStatus = String(P.fleet_sample_status || "").toUpperCase();
       const n = P.top500_live_coverage != null ? P.top500_live_coverage : "—";
-      if (fs && fs !== "FULL") {
+      if (fsStatus && fsStatus !== "FULL") {
         fsBanner.innerHTML =
-          `<strong>Fleet sample: ${fs}</strong> (N=${n} of 500, terrestrial AIS coverage) — ` +
+          `<strong>Fleet sample: ${fsStatus}</strong> (N=${n} of 500, terrestrial AIS coverage) — ` +
           `quant signals reduced confidence` +
           (P.sample_size_caveat ? ` · ${P.sample_size_caveat}` : "");
         fsBanner.classList.add("on");
@@ -132,11 +188,10 @@
     if (window.__SENTINEL_MAP_TILES__ && window.__SENTINEL_MAP_TILES__.addBasemap) {
       window.__SENTINEL_MAP_TILES__.addBasemap(map, { maxZoom: 10 });
     } else {
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 10,
-        subdomains: "abc",
-        attribution: "&copy; OpenStreetMap",
-      }).addTo(map);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        { maxZoom: 10, attribution: "Tiles &copy; Esri", crossOrigin: true }
+      ).addTo(map);
     }
     (points || []).forEach((p) => {
       const color = p.color || COLORS[p.tier] || "#10b981";
@@ -298,6 +353,7 @@
     let sheet = "ais";
     if (name === "ttf") sheet = "ttf";
     else if (name === "top10" || name === "qflex" || name === "q-flex") sheet = "top10";
+    else if (name === "arctic") sheet = "arctic";
     else if (name === "route") sheet = "route";
     else if (name === "balance") sheet = "balance";
     else if (name === "archive") sheet = "archive";
@@ -316,6 +372,7 @@
     const ais = document.getElementById("sheet-ais");
     const ttf = document.getElementById("tab-ttf-forecast");
     const top10 = document.getElementById("sheet-top10");
+    const arctic = document.getElementById("sheet-arctic");
     const route = document.getElementById("sheet-route");
     const balance = document.getElementById("sheet-balance");
     const archive = document.getElementById("sheet-archive");
@@ -332,6 +389,10 @@
     if (top10) {
       top10.classList.toggle("active", sheet === "top10");
       top10.style.display = sheet === "top10" ? "block" : "none";
+    }
+    if (arctic) {
+      arctic.classList.toggle("active", sheet === "arctic");
+      arctic.style.display = sheet === "arctic" ? "block" : "none";
     }
     if (route) {
       route.classList.toggle("active", sheet === "route");
@@ -352,6 +413,9 @@
 
     if (window.__TOP10__ && typeof window.__TOP10__.pause === "function" && sheet !== "top10") {
       try { window.__TOP10__.pause(); } catch (_) { /* ignore */ }
+    }
+    if (window.__ARCTIC__ && typeof window.__ARCTIC__.pause === "function" && sheet !== "arctic") {
+      try { window.__ARCTIC__.pause(); } catch (_) { /* ignore */ }
     }
 
     try {
@@ -388,6 +452,23 @@
         const boot = () => {
           if (window.__TOP10__ && typeof window.__TOP10__.boot === "function") {
             window.__TOP10__.boot({ force: !!force });
+          } else {
+            setTimeout(boot, 40);
+          }
+        };
+        boot();
+      });
+    } else if (sheet === "arctic") {
+      if (title) title.textContent = "ARCTIC · Arc7 YAMALMAX · AI-GENERATED FLIGHT VIDEO";
+      if (sub) {
+        sub.textContent =
+          "Christophe de Margerie · Georgiy Ushakov · LUMA-trust REAL VIDEO · VIDEO-DERIVED VIEWS (not Ortho Triplet)";
+      }
+      afterLayout(() => {
+        document.dispatchEvent(new CustomEvent("sentinelSheetChange", { detail: { sheet: "arctic" } }));
+        const boot = () => {
+          if (window.__ARCTIC__ && typeof window.__ARCTIC__.boot === "function") {
+            window.__ARCTIC__.boot({ force: !!force });
           } else {
             setTimeout(boot, 40);
           }
@@ -448,6 +529,7 @@
   function switchTab(tabId) {
     if (tabId === "tab-ttf-forecast" || tabId === "ttf")   return switchSheet("ttf",     { force: true });
     if (tabId === "sheet-top10" || tabId === "top10" || tabId === "qflex" || tabId === "q-flex") return switchSheet("top10", { force: true });
+    if (tabId === "sheet-arctic" || tabId === "arctic") return switchSheet("arctic", { force: true });
     if (tabId === "sheet-route"      || tabId === "route") return switchSheet("route",   { force: true });
     if (tabId === "sheet-balance"    || tabId === "balance") return switchSheet("balance", { force: true });
     if (tabId === "sheet-archive"    || tabId === "archive") return switchSheet("archive", { force: true });
@@ -884,6 +966,7 @@
 
   function boot() {
     renderKPI();
+    startHealthPoll();
     wireTabs();
     makeMap("map01", P.c01_heatmap || []);
     makeMap("map04", (P.c04_alpha_tracks || []).map((t) => ({
@@ -1002,6 +1085,14 @@
     boot();
   }
 
-  window.__SENTINEL__ = { payload: P, charts, switchSheet, switchTab, parseSheetFromUrl, forceChartRelayout };
+  window.__SENTINEL__ = {
+    payload: P,
+    charts,
+    switchSheet,
+    switchTab,
+    parseSheetFromUrl,
+    forceChartRelayout,
+    syncLiveHealth,
+  };
   window.switchTab = switchTab;
 })();

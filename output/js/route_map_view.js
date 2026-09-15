@@ -29,11 +29,11 @@ export function createRouteMap(containerId) {
   if (window.__SENTINEL_MAP_TILES__ && window.__SENTINEL_MAP_TILES__.addBasemap) {
     window.__SENTINEL_MAP_TILES__.addBasemap(map, { maxZoom: 12 });
   } else {
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 12,
-      subdomains: "abc",
-      attribution: "&copy; OpenStreetMap",
-    }).addTo(map);
+    // Fallback must never be Mapbox/CARTO-key tiles ("API KEY REQUIRED").
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 12, attribution: "Tiles &copy; Esri", crossOrigin: true }
+    ).addTo(map);
   }
 
   // Subtle gold grid overlay via pane tint

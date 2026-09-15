@@ -16,9 +16,12 @@ cd "${APP}"
 touch .env
 grep -vE '^(MAPBOX_KEY|TILE_SERVER)=' .env > .env.tmp || true
 mv .env.tmp .env
-echo 'MAPBOX_KEY=public' >> .env
-echo 'TILE_SERVER=https://a.tile.openstreetmap.org/{z}/{x}/{y}.png' >> .env
-grep -E 'MAPBOX|TILE' .env || true
+echo 'MAPBOX_KEY=' >> .env
+echo 'TILE_SERVER=https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}' >> .env
+echo 'TILE_SUBDOMAINS=' >> .env
+echo 'TILE_ATTR=Tiles &copy; Esri' >> .env
+echo 'SENTINEL_ASSET_V=basemap-v3' >> .env
+grep -E 'MAPBOX|TILE|ASSET_V' .env || true
 
 # Restart web service (canonical name: sentinel-web)
 if [[ -f docker-compose.prod.yml ]]; then

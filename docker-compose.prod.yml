@@ -34,6 +34,7 @@ services:
       - ./output/fleet_database_full.csv:/app/output/fleet_database_full.csv:ro
       - ./assets/7000:/app/assets/7000:ro
       - ./assets/1-10:/app/assets/1-10:ro
+      - ./assets/arctic:/app/assets/arctic:ro
 
   sentinel-web:
     mem_limit: 384m
@@ -57,3 +58,4 @@ services:
       - ./output/fleet_database_full.csv:/app/output/fleet_database_full.csv:ro
       - ./assets/7000:/app/assets/7000:ro
       - ./assets/1-10:/app/assets/1-10:ro
+      - ./assets/arctic:/app/assets/arctic:ro

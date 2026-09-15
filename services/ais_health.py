@@ -489,6 +489,28 @@ def build_health_document(
     except Exception:  # noqa: BLE001
         pass
 
+    # VesselFinder Premium credit budget (visible — not log-only).
+    try:
+        from services.vesselfinder_budget import get_budget_status
+
+        vf_budget = get_budget_status()
+        doc["vesselfinder_budget"] = vf_budget
+        doc["vesselfinder_budget_remaining"] = vf_budget.get("remaining")
+    except Exception:  # noqa: BLE001
+        pass
+
+    # Paid map-tile budget (cache hits / Esri fallback do not increment used).
+    try:
+        from services.maptiles_proxy import public_status as maptiles_public_status
+
+        mt = maptiles_public_status()
+        doc["maptiles"] = mt
+        doc["maptiles_budget"] = mt.get("budget")
+        doc["maptiles_budget_remaining"] = (mt.get("budget") or {}).get("remaining")
+        doc["maptiles_key_configured"] = bool(mt.get("key_configured"))
+    except Exception:  # noqa: BLE001
+        pass
+
     return doc
 
 

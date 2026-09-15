@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.6.0-arctic-tiles-vf — ARCTIC sheet · tile proxy · VesselFinder client (2026-09-16)
+
+Ships the architect-local honest-fallback delta to Node A/B **without** waiting on paid keys.
+
+- **ARCTIC:** Arc7 sheet (`web/js/arctic_sheet.js` + manifest + `assets/arctic` videos/frames). LUMA-generated flight video = same trust tier as Q-Flex REAL VIDEO; `VIDEO-DERIVED VIEWS` ≠ Ortho Triplet / not measurement; `TOP VIEW UNAVAILABLE` when nadir absent.
+- **Maptiles:** same-origin `/api/tiles/` proxy (`services/maptiles_proxy.py` + budget); provider key server-side only; Esri World Imagery Never-Black fallback when `MAPTILES_PROVIDER_KEY` absent/fails.
+- **VesselFinder:** client + budget + Q-Flex poller wired; cargo/fleet value stays `notional_full_capacity_fallback` until a validated API key exists.
+- **Deploy hardening:** stop blanket `--exclude=*.mp4`; pack `assets/arctic`; seed named `output_artifacts` volume from host Sync-Tree after bake (`SEEDED_OUTPUT_VOLUME`); `verify_deploy_manifest.py` covers arctic JS/assets.
+- **Contract:** AGENTS.md → `1.6.0-arctic-tiles-vf`. Missing maptiles/VF keys are an accepted prod state, not a deploy blocker.
+
 ## v1.5.0-baked — Full Deploy-TwoNode image bake (2026-09-13)
 
 Closes P0 “ssh-memory”: prompts 1–5 hotfixes are no longer `docker cp` + restart only.

@@ -24,10 +24,13 @@ if pgrep -f '/opt/sentinel/receiver.py' >/dev/null 2>&1; then
   pkill -f '/opt/sentinel/receiver.py' || true
 fi
 
-mkdir -p data/archive output/archive output/models output/assets/3d_models assets/7000 logs
+mkdir -p data/archive output/archive output/models output/assets/3d_models assets/7000 assets/arctic logs
 if [[ ! -f output/fleet_database.csv ]]; then
   echo "ERROR: output/fleet_database.csv missing — sync from workstation first" >&2
   exit 1
+fi
+if [[ ! -d assets/arctic/videos ]]; then
+  echo "WARN: assets/arctic/videos missing — ARCTIC sheet will 404 flight videos" >&2
 fi
 if [[ ! -f output/fleet_oil_tankers.csv ]]; then
   echo 'imo,mmsi,vessel_name,vessel_type,dwt_tons,draft_m,flag,vessel_category' > output/fleet_oil_tankers.csv
@@ -74,8 +77,41 @@ PY
   sleep 5
 done
 
+# Named volume output_artifacts hides image-baked /app/output. Seed HUD artifacts
+# from the host Sync-Tree (same discipline as never losing *.glb / arctic *.mp4).
+echo "==> seed output_artifacts volume from host Sync-Tree"
+VOL_OUT="$(docker volume inspect sentinel_output_artifacts -f '{{.Mountpoint}}' 2>/dev/null || true)"
+if [[ -n "${VOL_OUT}" && -d "${VOL_OUT}" ]]; then
+  mkdir -p "${VOL_OUT}/js" "${VOL_OUT}/css" "${VOL_OUT}/assets" "${VOL_OUT}/archive" "${VOL_OUT}/api/v1"
+  if [[ -d output/js ]]; then
+    rsync -a --delete output/js/ "${VOL_OUT}/js/"
+  fi
+  if [[ -d output/css ]]; then
+    rsync -a output/css/ "${VOL_OUT}/css/"
+  fi
+  if [[ -f output/sentinel_dashboard.html ]]; then
+    cp -a output/sentinel_dashboard.html "${VOL_OUT}/sentinel_dashboard.html"
+  fi
+  if [[ -d output/assets ]]; then
+    rsync -a --exclude='_probe' --exclude='screenshots' output/assets/ "${VOL_OUT}/assets/"
+  fi
+  if [[ -f output/qflex_fleet_cargo.json ]]; then
+    cp -a output/qflex_fleet_cargo.json "${VOL_OUT}/qflex_fleet_cargo.json"
+  fi
+  if [[ -f output/archive/api_status.json ]]; then
+    mkdir -p "${VOL_OUT}/archive"
+    cp -a output/archive/api_status.json "${VOL_OUT}/archive/api_status.json"
+  fi
+  chown -R 10001:10001 "${VOL_OUT}/js" "${VOL_OUT}/css" "${VOL_OUT}/assets" \
+    "${VOL_OUT}/sentinel_dashboard.html" 2>/dev/null || chmod -R a+rX "${VOL_OUT}/js" "${VOL_OUT}/assets" || true
+  echo "SEEDED_OUTPUT_VOLUME ok js=$(ls "${VOL_OUT}/js" | wc -l) arctic_vid=$(ls assets/arctic/videos 2>/dev/null | wc -l)"
+else
+  echo "WARN: sentinel_output_artifacts mountpoint not found — HUD may serve stale volume bytes" >&2
+fi
+
 docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
 docker exec sentinel-web python - <<'PY'
+from pathlib import Path
 from services.dual_gate import DISK_FREE_MIN_PCT, probe_disk_usage
 from services import log_retention, quant_risk_service
 src = open("/app/services/archive_service.py", encoding="utf-8", errors="ignore").read()
@@ -83,7 +119,17 @@ assert DISK_FREE_MIN_PCT == 20.0
 assert "PREMIUM SATELLITE" not in src
 assert hasattr(quant_risk_service, "compute_quant_risk_payload")
 assert hasattr(log_retention, "run_retention")
-print("BAKE_OK disk_min=", DISK_FREE_MIN_PCT, "disk=", probe_disk_usage().get("disk_free_pct"))
+assert Path("/app/services/maptiles_proxy.py").is_file()
+assert Path("/app/services/vesselfinder_client.py").is_file()
+assert Path("/app/output/js/arctic_sheet.js").is_file(), "arctic_sheet.js missing in output volume"
+arctic_vid = Path("/app/assets/arctic/videos")
+assert arctic_vid.is_dir(), "assets/arctic bind-mount missing"
+print(
+    "BAKE_OK disk_min=", DISK_FREE_MIN_PCT,
+    "disk=", probe_disk_usage().get("disk_free_pct"),
+    "arctic_js=1",
+    "arctic_mp4=", sum(1 for _ in arctic_vid.glob("*.mp4")),
+)
 PY
 
 free -h

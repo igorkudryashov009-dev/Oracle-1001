@@ -1,28 +1,33 @@
 # AGENTS.md — Oracle-1001 / Sentinel (read before any change)
 
-**Contract-Version:** `1.5.0-baked` · **Last-Revised:** `2026-09-13` · Full image bake · Archive · Twin · Offline ML · Disk  
+**Contract-Version:** `1.6.0-arctic-tiles-vf` · **Last-Revised:** `2026-09-16` · ARCTIC · Tile proxy · VesselFinder client · Full image bake  
 Any edit to this file is a **versioned event** — bump Contract-Version and add a CHANGELOG.md entry in the same change.
 
 This file is the **binding operational contract** for humans and AI agents opening
 the repo for the first time. If anything else (old README sections, stale JSON
 reports under `output/`, chat history) conflicts with this file — **this file wins**.
 
-## Consolidated contract themes (v1.4.0 → v1.5.0-baked)
+## Consolidated contract themes (v1.4.0 → v1.5.0-baked → v1.6.0-arctic-tiles-vf)
 
-This revision consolidates four operational locks that must stay consistent with Dual Gate:
+This revision consolidates operational locks that must stay consistent with Dual Gate:
 
 1. **Archive provenance** — OSINT static registry ≠ live G3 AIS; never `PREMIUM SATELLITE` without real commercial satellite feed; archive never feeds `fleet_sample_status`.
 2. **Digital Twin (GLB/Voxel)** — assets sync into `output/assets/3d_models/`; Inspector Never-Black hierarchy; lazy-unmount 3D on sheet/tab change (no WebGL 0/1/0 regression). Deploy must **never** `--exclude=*.glb`.
 3. **Offline ML** — Node A/B serve `.cbm` inference only; weekly offline retrain (Variant A); `model_last_retrained` mandatory on `/api/v1/quant/risk`.
 4. **Disk headroom** — `disk_free_pct` in `health.json`; `<20%` → DEGRADED; `<10%` → CRITICAL; host log/corrupt_backup retention via `services/log_retention.py`.
+5. **ARCTIC sheet (v1.6.0)** — Arc7 Yamalmax flight videos are **LUMA-generated** at the **same trust tier** as Q-Flex REAL VIDEO / LUMA track. Recognizable vessel identity does **not** raise trust. `VIDEO-DERIVED VIEWS` are frames extracted from that AI flight — **not** an Ortho Triplet and **not** a measurement source. Missing nadir → honest `TOP VIEW UNAVAILABLE`.
+6. **Map tile proxy (v1.6.0)** — HUD tiles are same-origin `GET /api/tiles/{provider}/{z}/{x}/{y}.png`. Paid provider keys stay **server-side only** (`MAPTILES_PROVIDER_KEY`). Absent/invalid key or upstream failure → **Esri World Imagery Never-Black fallback** (no client-visible `API KEY REQUIRED` dead-end).
+7. **VesselFinder commercial client (v1.6.0)** — `services/vesselfinder_client.py` + budget + Q-Flex poller are **wired and honest**. Until a **validated** `VESSELFINDER_API_KEY` exists, Q-Flex cargo / fleet value remains `notional_full_capacity_fallback` (never silently pretend live draft). Key presence alone ≠ live cargo.
 
-### Image bake lock (v1.5.0-baked) — closes container-only hotfix risk
+### Image bake lock (v1.5.0-baked+) — closes container-only hotfix risk
 
-**As of 2026-09-13**, all hotfixes from prompts 1–5 (quant integrity / strategy gating, GLB·voxel sync, disk health + retention, archive provenance labeling, unified `dual_gate`, offline-ML freshness) are **baked into the Docker image** via full `Deploy-TwoNode` rebuild (`docker compose build --no-cache` + `down` + `up --force-recreate`) on Node A.
+**As of 2026-09-13** (extended 2026-09-16 for ARCTIC/tiles/VF), hotfixes are **baked into the Docker image** via full `Deploy-TwoNode` rebuild (`docker compose build --no-cache` + `down` + `up --force-recreate`) on Node A, with the **same services SoT** synced to Node B.
 
 - **No outstanding container-only (`docker cp`) state remains on Node A** after a successful bake + recreate proof (`BAKE_OK` in `deploy_korolev_sentinel.sh`).
+- **Named volume `output_artifacts`** overlays `/app/output` — after bake, host Sync-Tree HUD bytes (`output/js`, dashboard HTML, `output/assets` incl. arctic) **must** be seeded into that volume (`SEEDED_OUTPUT_VOLUME` in `deploy_korolev_sentinel.sh`). Do not assume image layers alone refresh the HUD volume.
+- **ARCTIC videos:** Deploy must **never** blanket `--exclude=*.mp4`. Pack/serve `assets/arctic/` (bind-mounted) and seed `output/assets/arctic/`; `*_source.mp4` may stay out of the pack as provenance-only.
 - **Node B (London)** is the lean AIS relay (venv/systemd under `/opt/oracle1001/ais_ingest`), not a second HUD image — the **same services SoT** is synced there on every TwoNode deploy so failover ingest does not resurrect stale gate/archive writers.
-- Agents must **not** treat `docker cp` + `restart` as production delivery. Permanent path = git commit → Sync-Tree → image bake → force-recreate.
+- Agents must **not** treat `docker cp` + `restart` as production delivery for code. Permanent path = git commit → Sync-Tree → image bake → force-recreate → output-volume seed.
 ## What this system is
 
 - Dual-plane OSINT + quant HUD over a **terrestrial** AIS free-tier feed (AISstream).
@@ -119,11 +124,13 @@ The system maintains a reference fleet archive distinct from the live terrestria
 1. **Known Fleet Definition (OSINT Static Registry):**
    - File: `output/fleet_database.csv` (1,253 known gas carrier vessels) and `data/archive/vessel_telemetry_history.sqlite`.
    - Purpose: Master reference catalog for matching MMSI/IMO, vessel names, deadweight, and design particulars.
-2. **VesselFinder Status (Commercial REST Inactive):**
+2. **VesselFinder Status (Commercial REST — client ready, key not production-valid):**
    - Web personal cabinet ("My Fleet 500") is licensed for web scraping/export via London relay (`config/vesselfinder_cookies.json`, gitignored).
-   - Commercial credit REST API (`api.vesselfinder.com/listmanager`) is **INACTIVE** (userkey unvalidated; status code 200 `Invalid Userkey!`).
+   - Code path: `services/vesselfinder_client.py`, `services/vesselfinder_budget.py`, `services/qflex_vf_poller.py` — monthly credit envelope + honest errors (`Invalid Userkey`).
+   - Until the Architect supplies a **validated** `VESSELFINDER_API_KEY`, commercial REST remains **non-production**: Q-Flex cargo stays `data_source: notional_full_capacity_fallback`. A key string in `.env` that still returns `Invalid Userkey!` is **not** an activation.
    - The archive service operates strictly in **`HYBRID LOCAL FALLBACK`** mode.
    - **Labeling Invariant:** It is strictly forbidden to label the archive as "PREMIUM SATELLITE" in `api_status.json` or HUD while commercial satellite feeds remain unconfigured.
+   - **Maptiles keys are independent:** missing `MAPTILES_PROVIDER_KEY` does **not** block deploy — Esri fallback is the accepted Never-Black path.
 3. **Strict Decoupling from Dual Deploy Gate:**
    - The 1,253 reference vessels and 500 rotation slots **NEVER** count towards `top500_live_coverage`.
    - `fleet_sample_status` (FULL / LIMITED / INSUFFICIENT) is calculated **EXCLUSIVELY** from live positions received via the G3 terrestrial connection within the rolling 540s window.

@@ -63,10 +63,12 @@ def main() -> int:
         else:
             ok(f"AGENTS.md has {needle!r}")
 
-    if "1.5.0-baked" not in agents and "Contract-Version" in agents:
-        warn("AGENTS.md Contract-Version present but expected 1.5.0-baked not found")
+    if "1.6.0-arctic-tiles-vf" in agents:
+        ok("AGENTS.md Contract-Version=1.6.0-arctic-tiles-vf")
     elif "1.5.0-baked" in agents:
-        ok("AGENTS.md Contract-Version=1.5.0-baked")
+        warn("AGENTS.md still on 1.5.0-baked — expected bump to 1.6.0-arctic-tiles-vf")
+    elif "Contract-Version" in agents:
+        warn("AGENTS.md Contract-Version present but expected 1.6.0-arctic-tiles-vf not found")
 
     for theme in (
         "Archive provenance",
@@ -81,10 +83,21 @@ def main() -> int:
         fail("AGENTS.md missing consolidated themes section (v1.4.0)")
     else:
         ok("AGENTS.md has consolidated themes section")
-    if "Image bake lock" not in agents and "1.5.0-baked" not in agents:
-        fail("AGENTS.md missing image bake lock (v1.5.0)")
+    if "Image bake lock" not in agents and "1.5.0-baked" not in agents and "1.6.0-arctic-tiles-vf" not in agents:
+        fail("AGENTS.md missing image bake lock (v1.5.0+)")
     else:
         ok("AGENTS.md has image bake lock")
+    for needle in (
+        "ARCTIC sheet",
+        "VIDEO-DERIVED VIEWS",
+        "/api/tiles/",
+        "Esri",
+        "notional_full_capacity_fallback",
+    ):
+        if needle not in agents:
+            fail(f"AGENTS.md missing v1.6.0 contract token: {needle}")
+        else:
+            ok(f"AGENTS.md has v1.6.0 token {needle!r}")
     if "model_last_retrained" not in agents:
         fail("AGENTS.md missing model_last_retrained honesty rule")
     else:
@@ -365,6 +378,78 @@ def main() -> int:
         fail("archive_service.py missing OSINT hybrid plan label")
     else:
         ok("archive_service.py uses OSINT hybrid plan label")
+
+    # --- Deploy manifest: web↔output sync + live Node A sha256 (stale-JS lock) ---
+    print("\n--- Deploy manifest (Node A / local sync) ---")
+    try:
+        from scripts.verify_deploy_manifest import DEFAULT_BASE, run as run_deploy_manifest
+    except ImportError:
+        # Allow `python scripts/assert_out_of_box_contract.py` without package install.
+        import importlib.util
+
+        _vm = ROOT / "scripts" / "verify_deploy_manifest.py"
+        if not _vm.is_file():
+            fail("scripts/verify_deploy_manifest.py missing")
+            run_deploy_manifest = None  # type: ignore[assignment]
+            DEFAULT_BASE = "http://45.8.230.214:8765"
+        else:
+            _spec = importlib.util.spec_from_file_location("verify_deploy_manifest", _vm)
+            assert _spec and _spec.loader
+            _mod = importlib.util.module_from_spec(_spec)
+            _spec.loader.exec_module(_mod)
+            run_deploy_manifest = _mod.run
+            DEFAULT_BASE = _mod.DEFAULT_BASE
+
+    if run_deploy_manifest is not None:
+        force_live = os.environ.get("SENTINEL_VERIFY_LIVE", "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+        }
+        skip_live = os.environ.get("SENTINEL_VERIFY_SKIP_LIVE", "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+        }
+        base = os.environ.get("SENTINEL_VERIFY_BASE_URL", DEFAULT_BASE)
+        dm_rc, dm_rows = run_deploy_manifest(
+            base_url=str(base),
+            live=not skip_live,
+            local_sync=True,
+            strict=force_live,
+            unreachable_is_fail=force_live,
+        )
+        live_mismatch = [
+            r
+            for r in dm_rows
+            if r.status == "MISMATCH" and not str(r.name).startswith("sync:")
+        ]
+        sync_mismatch = [
+            r
+            for r in dm_rows
+            if r.status in {"MISMATCH", "MISSING_LOCAL"} and str(r.name).startswith("sync:")
+        ]
+        if sync_mismatch:
+            for r in sync_mismatch:
+                fail(f"deploy manifest local sync: {r.name} — {r.detail or r.status}")
+        else:
+            ok("deploy manifest: web/ <-> output/js sync OK")
+        if live_mismatch:
+            for r in live_mismatch:
+                fail(
+                    f"deploy manifest STALE on Node A: {r.name} "
+                    f"(local={r.local_sha and r.local_sha[:12]}... "
+                    f"remote={r.remote_sha and r.remote_sha[:12]}...) "
+                    f"{r.detail or ''}"
+                )
+        elif skip_live:
+            warn("deploy manifest live check skipped (SENTINEL_VERIFY_SKIP_LIVE=1)")
+        elif dm_rc != 0 and force_live:
+            fail("deploy manifest live check failed under SENTINEL_VERIFY_LIVE=1")
+        elif any(r.status == "FETCH_ERROR" for r in dm_rows):
+            warn("deploy manifest: Node A unreachable — live sha256 not verified")
+        else:
+            ok(f"deploy manifest: Node A matches working tree ({base})")
 
     # --- envelope rule ---
     rule = (ROOT / ".cursor/rules/sentinel-envelope.mdc").read_text(encoding="utf-8")

@@ -12,7 +12,7 @@ fi
 cd "${ROOT}"
 
 # Paths that can drift the out-of-box contract (Prompt 10/11).
-WATCH_REGEX='^(services/aisstream_connector\.py|services/dual_gate\.py|services/ais_health\.py|services/release_gate\.py|services/satellite_ais_adapter\.py|build_sentinel_dashboard\.py|README\.md|AGENTS\.md|CHANGELOG\.md|config\.yaml|scripts/assert_out_of_box_contract\.py|\.cursor/rules/sentinel-envelope\.mdc)$'
+WATCH_REGEX='^(services/aisstream_connector\.py|services/dual_gate\.py|services/ais_health\.py|services/release_gate\.py|services/satellite_ais_adapter\.py|build_sentinel_dashboard\.py|README\.md|AGENTS\.md|CHANGELOG\.md|config\.yaml|scripts/assert_out_of_box_contract\.py|scripts/verify_deploy_manifest\.py|\.cursor/rules/sentinel-envelope\.mdc)$'
 
 STAGED="$(git diff --cached --name-only --diff-filter=ACMR || true)"
 if [[ -z "${STAGED}" ]]; then

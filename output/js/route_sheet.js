@@ -1,9 +1,9 @@
 /**
  * ROUTE sheet orchestration — controls, map, KPI strip, 9-panel grid
  */
-import { getRoutePayload, resolveSlice, listVessels, listGroups, exportSliceCsv } from "./route_analytics_engine.js";
-import { createRouteMap } from "./route_map_view.js";
-import { renderRouteInfographics, destroyRouteInfographics } from "./route_infographics.js";
+import { getRoutePayload, resolveSlice, listVessels, listGroups, exportSliceCsv } from "./route_analytics_engine.js?v=basemap-v3";
+import { createRouteMap } from "./route_map_view.js?v=basemap-v3";
+import { renderRouteInfographics, destroyRouteInfographics } from "./route_infographics.js?v=basemap-v3";
 
 let mapApi = null;
 let state = { horizon: "7d", selection: "ALL", heat: true, sts: true };
