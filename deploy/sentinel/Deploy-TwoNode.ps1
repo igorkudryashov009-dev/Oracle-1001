@@ -132,9 +132,9 @@ $env:SENTINEL_VERIFY_LIVE = "1"
 $env:SENTINEL_VERIFY_STRICT = "1"
 & $py (Join-Path $Root "scripts\verify_deploy_manifest.py") --base-url "http://${NodeA}:8765" --strict
 if ($LASTEXITCODE -ne 0) {
-  throw "Deploy manifest FAIL — Node A is serving stale HUD assets vs this working tree (exit=$LASTEXITCODE)"
+  throw "Deploy manifest FAIL - Node A is serving stale HUD assets vs this working tree (exit=$LASTEXITCODE)"
 }
-Write-Host "Deploy manifest PASS — Node A bytes match working tree"
+Write-Host "Deploy manifest PASS - Node A bytes match working tree"
 
 Write-Host "Done. HUD: http://${NodeA}:8765/output/sentinel_dashboard.html?sheet=top10"
 Write-Host "Bake contract: hotfixes must survive compose down + up --force-recreate"
