@@ -132,5 +132,15 @@ print(
 )
 PY
 
+# Re-seed after BAKE_OK — core/web may rewrite top10_vessels_manifest.js during first boot.
+echo "==> re-seed output_artifacts after first-boot writers settle"
+sleep 5
+if [[ -n "${VOL_OUT}" && -d "${VOL_OUT}" && -d output/js ]]; then
+  rsync -a output/js/ "${VOL_OUT}/js/"
+  [[ -f output/sentinel_dashboard.html ]] && cp -a output/sentinel_dashboard.html "${VOL_OUT}/sentinel_dashboard.html"
+  chown -R 10001:10001 "${VOL_OUT}/js" 2>/dev/null || true
+  echo "RESEED_OUTPUT_VOLUME ok"
+fi
+
 free -h
 echo "==> deploy_korolev_sentinel done (baked)"
