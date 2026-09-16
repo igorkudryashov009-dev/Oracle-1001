@@ -1,13 +1,13 @@
 # AGENTS.md — Oracle-1001 / Sentinel (read before any change)
 
-**Contract-Version:** `1.6.2-particulars-provenance` · **Last-Revised:** `2026-09-16` · Particulars provenance · LIJMILIYA DWT fix · ARCTIC frames · Dual Gate quant SoT  
+**Contract-Version:** `1.6.3-image-bake-proof` · **Last-Revised:** `2026-09-16` · Image bake proof · Particulars · ARCTIC · Dual Gate quant SoT  
 Any edit to this file is a **versioned event** — bump Contract-Version and add a CHANGELOG.md entry in the same change.
 
 This file is the **binding operational contract** for humans and AI agents opening
 the repo for the first time. If anything else (old README sections, stale JSON
 reports under `output/`, chat history) conflicts with this file — **this file wins**.
 
-## Consolidated contract themes (v1.4.0 → … → v1.6.2-particulars-provenance)
+## Consolidated contract themes (v1.4.0 → … → v1.6.3-image-bake-proof)
 
 This revision consolidates operational locks that must stay consistent with Dual Gate:
 

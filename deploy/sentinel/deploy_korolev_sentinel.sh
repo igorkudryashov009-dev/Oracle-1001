@@ -118,16 +118,26 @@ src = open("/app/services/archive_service.py", encoding="utf-8", errors="ignore"
 assert DISK_FREE_MIN_PCT == 20.0
 assert "PREMIUM SATELLITE" not in src
 assert hasattr(quant_risk_service, "compute_quant_risk_payload")
+assert hasattr(quant_risk_service, "_resolve_live_dual_gate"), "P0 quant SoT missing — stale docker-cp risk"
+assert "health_json = out_dir" not in Path("/app/services/quant_risk_service.py").read_text(encoding="utf-8", errors="ignore")
+from services.top10_vessels import TOP10_VESSELS
+lij = next(v for v in TOP10_VESSELS if str(v.get("imo")) == "9388819")
+assert int(lij["dwt_tons"]) == 155159, lij
 assert hasattr(log_retention, "run_retention")
 assert Path("/app/services/maptiles_proxy.py").is_file()
 assert Path("/app/services/vesselfinder_client.py").is_file()
 assert Path("/app/output/js/arctic_sheet.js").is_file(), "arctic_sheet.js missing in output volume"
+assert Path("/app/output/js/top10_vessels_manifest.js").is_file()
+man = Path("/app/output/js/top10_vessels_manifest.js").read_text(encoding="utf-8", errors="ignore")
+assert "155159" in man, "top10_vessels_manifest.js missing LIJMILIYA DWT 155159 in volume"
 arctic_vid = Path("/app/assets/arctic/videos")
 assert arctic_vid.is_dir(), "assets/arctic bind-mount missing"
 print(
     "BAKE_OK disk_min=", DISK_FREE_MIN_PCT,
     "disk=", probe_disk_usage().get("disk_free_pct"),
     "arctic_js=1",
+    "quant_live_sot=1",
+    "lijmiliya_dwt=155159",
     "arctic_mp4=", sum(1 for _ in arctic_vid.glob("*.mp4")),
 )
 PY

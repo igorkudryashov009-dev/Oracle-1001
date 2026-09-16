@@ -42,38 +42,53 @@ function Invoke-SSH([string]$HostName, [string]$RemoteCmd) {
   if ($code -ne 0) { throw "SSH failed ($HostName) exit=$code" }
 }
 
-function Sync-Tree([string]$HostName, [string]$Dest = $RemoteRoot) {
-  Write-Host "==> pack/scp sync -> root@${HostName}:${Dest}"
+function Sync-Tree([string]$HostName, [string]$Dest = $RemoteRoot, [switch]$LeanServicesOnly) {
+  Write-Host "==> pack/scp sync -> root@${HostName}:${Dest} lean=$LeanServicesOnly"
   Invoke-SSH $HostName "mkdir -p $Dest"
-  $pack = Join-Path $env:TEMP "sentinel_deploy.tgz"
+  $pack = Join-Path $env:TEMP $(if ($LeanServicesOnly) { "sentinel_london_sot.tgz" } else { "sentinel_deploy.tgz" })
   Write-Host "    packing $pack ..."
   if (-not (Get-Command tar -ErrorAction SilentlyContinue)) {
     throw "tar not found - install Windows tar or use Git Bash"
   }
-  # NOTE: do NOT exclude *.glb - Digital Twin assets must ship (contract 1.4+)
-  # NOTE: do NOT blanket-exclude *.mp4 - ARCTIC serve videos live under assets/arctic
-  #       and output/assets/arctic (same class of bug as historical *.glb exclude).
-  # Heavy Q-Flex / ortho source trees stay excluded; *_source.mp4 are provenance-only.
-  & tar -czf $pack `
-    --exclude=venv --exclude=.git --exclude=logs --exclude=__pycache__ `
-    --exclude=output/_qa_fidelity_v31 --exclude=output/.publish_snapshot `
-    --exclude=assets/7000/videos --exclude=assets/1-10 `
-    --exclude=*_source.mp4 --exclude=output/assets/arctic/_probe `
-    --exclude=output/assets/arctic/screenshots --exclude=node_modules `
-    --exclude=nasa-mission-control `
-    docker-compose.yml docker-compose.prod.yml Dockerfile .dockerignore `
-    docker services scripts web config.yaml requirements.txt `
-    run_release.py build_sentinel_dashboard.py api_server.py `
-    AGENTS.md CHANGELOG.md data deploy/sentinel `
-    output/fleet_database.csv output/fleet_oil_tankers.csv output/fleet_database_full.csv `
-    output/sentinel_dashboard.html output/js output/css output/assets `
-    output/archive/api_status.json output/models output/qflex_fleet_cargo.json `
-    assets/7000 assets/arctic 2>$null
+  if ($LeanServicesOnly) {
+    # London AIS relay: identical services SoT only (no HUD GLB/mp4 volume).
+    & tar -czf $pack `
+      --exclude=__pycache__ --exclude=*.pyc `
+      services scripts api_server.py config.yaml requirements.txt `
+      AGENTS.md CHANGELOG.md deploy/sentinel 2>$null
+  } else {
+    # NOTE: do NOT exclude *.glb - Digital Twin assets must ship (contract 1.4+)
+    # NOTE: do NOT blanket-exclude *.mp4 - ARCTIC serve videos live under assets/arctic
+    # Heavy Q-Flex / ortho source trees stay excluded; *_source.mp4 are provenance-only.
+    & tar -czf $pack `
+      --exclude=venv --exclude=.git --exclude=logs --exclude=__pycache__ `
+      --exclude=output/_qa_fidelity_v31 --exclude=output/.publish_snapshot `
+      --exclude=assets/7000/videos --exclude=assets/1-10 `
+      --exclude=*_source.mp4 --exclude=output/assets/arctic/_probe `
+      --exclude=output/assets/arctic/screenshots --exclude=node_modules `
+      --exclude=nasa-mission-control `
+      docker-compose.yml docker-compose.prod.yml Dockerfile .dockerignore `
+      docker services scripts web config.yaml requirements.txt `
+      run_release.py build_sentinel_dashboard.py api_server.py `
+      AGENTS.md CHANGELOG.md data deploy/sentinel `
+      output/fleet_database.csv output/fleet_oil_tankers.csv output/fleet_database_full.csv `
+      output/sentinel_dashboard.html output/js output/css output/assets `
+      output/archive/api_status.json output/models output/qflex_fleet_cargo.json `
+      assets/7000 assets/arctic 2>$null
+  }
   if (-not (Test-Path $pack)) { throw "pack failed" }
-  & scp -o BatchMode=yes $pack "root@${HostName}:/tmp/sentinel_deploy.tgz"
-  if ($LASTEXITCODE -ne 0) { throw "scp failed" }
-  Invoke-SSH $HostName "mkdir -p $Dest; tar -xzf /tmp/sentinel_deploy.tgz -C $Dest; rm -f /tmp/sentinel_deploy.tgz"
-  if (Test-Path .env) {
+  $prev = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  try {
+    & scp -o BatchMode=yes -o ConnectTimeout=60 $pack "root@${HostName}:/tmp/$(Split-Path $pack -Leaf)" 2>&1 | ForEach-Object { Write-Host $_ }
+    $scpCode = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $prev
+  }
+  if ($scpCode -ne 0) { throw "scp failed exit=$scpCode" }
+  $remoteTar = "/tmp/$(Split-Path $pack -Leaf)"
+  Invoke-SSH $HostName "mkdir -p $Dest; tar -xzf $remoteTar -C $Dest; rm -f $remoteTar"
+  if ((Test-Path .env) -and -not $LeanServicesOnly) {
     & scp -o BatchMode=yes .env "root@${HostName}:${Dest}/.env"
   }
 }
@@ -109,12 +124,12 @@ if (-not $SkipLondon) {
   Write-Host "--- Node B (London lean relay) sync same services SoT ---"
   try {
     Invoke-SSH $NodeB "echo $b64 | base64 -d > /tmp/provision_vps.sh; sed -i 's/\r`$//' /tmp/provision_vps.sh; bash /tmp/provision_vps.sh --role london"
-    Sync-Tree $NodeB "/tmp/sentinel_london_stage"
+    Sync-Tree $NodeB "/tmp/sentinel_london_stage" -LeanServicesOnly
     $londonPath = Join-Path $PSScriptRoot "install_london_ais_relay.sh"
     $londonBytes = [IO.File]::ReadAllBytes($londonPath)
     $b64l = [Convert]::ToBase64String($londonBytes)
     Invoke-SSH $NodeB "echo $b64l | base64 -d > /tmp/install_london_ais_relay.sh; sed -i 's/\r`$//' /tmp/install_london_ais_relay.sh; STAGE_DIR=/tmp/sentinel_london_stage bash /tmp/install_london_ais_relay.sh"
-    Invoke-SSH $NodeB "grep -q DISK_FREE_MIN_PCT /opt/oracle1001/ais_ingest/services/dual_gate.py; grep -q 'OSINT REGISTRY' /opt/oracle1001/ais_ingest/services/archive_service.py; grep PREMIUM /opt/oracle1001/ais_ingest/services/archive_service.py >/dev/null; if [ `$? -eq 0 ]; then echo NODE_B_HAS_PREMIUM_BAD; exit 1; fi; echo NODE_B_SOT_OK"
+    Invoke-SSH $NodeB "grep -q DISK_FREE_MIN_PCT /opt/oracle1001/ais_ingest/services/dual_gate.py; grep -q _resolve_live_dual_gate /opt/oracle1001/ais_ingest/services/quant_risk_service.py; grep -q 155159 /opt/oracle1001/ais_ingest/services/top10_vessels.py; grep PREMIUM /opt/oracle1001/ais_ingest/services/archive_service.py >/dev/null; if [ `$? -eq 0 ]; then echo NODE_B_HAS_PREMIUM_BAD; exit 1; fi; echo NODE_B_SOT_OK"
   } catch {
     Write-Warning "Node B sync/install failed: $_"
   }

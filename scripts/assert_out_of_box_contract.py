@@ -63,16 +63,18 @@ def main() -> int:
         else:
             ok(f"AGENTS.md has {needle!r}")
 
-    if "1.6.2-particulars-provenance" in agents:
-        ok("AGENTS.md Contract-Version=1.6.2-particulars-provenance")
+    if "1.6.3-image-bake-proof" in agents:
+        ok("AGENTS.md Contract-Version=1.6.3-image-bake-proof")
+    elif "1.6.2-particulars-provenance" in agents:
+        warn("AGENTS.md still on 1.6.2-particulars-provenance — expected bump to 1.6.3-image-bake-proof")
     elif "1.6.1-arctic-user-frames" in agents:
-        warn("AGENTS.md still on 1.6.1-arctic-user-frames — expected bump to 1.6.2-particulars-provenance")
+        warn("AGENTS.md still on 1.6.1-arctic-user-frames — expected bump to 1.6.3-image-bake-proof")
     elif "1.6.0-arctic-tiles-vf" in agents:
-        warn("AGENTS.md still on 1.6.0-arctic-tiles-vf — expected bump to 1.6.2-particulars-provenance")
+        warn("AGENTS.md still on 1.6.0-arctic-tiles-vf — expected bump to 1.6.3-image-bake-proof")
     elif "1.5.0-baked" in agents:
-        warn("AGENTS.md still on 1.5.0-baked — expected bump to 1.6.2-particulars-provenance")
+        warn("AGENTS.md still on 1.5.0-baked — expected bump to 1.6.3-image-bake-proof")
     elif "Contract-Version" in agents:
-        warn("AGENTS.md Contract-Version present but expected 1.6.2-particulars-provenance not found")
+        warn("AGENTS.md Contract-Version present but expected 1.6.3-image-bake-proof not found")
 
     for theme in (
         "Archive provenance",
@@ -87,7 +89,7 @@ def main() -> int:
         fail("AGENTS.md missing consolidated themes section (v1.4.0)")
     else:
         ok("AGENTS.md has consolidated themes section")
-    if "Image bake lock" not in agents and "1.5.0-baked" not in agents and "1.6.0-arctic-tiles-vf" not in agents and "1.6.1-arctic-user-frames" not in agents and "1.6.2-particulars-provenance" not in agents:
+    if "Image bake lock" not in agents and "1.5.0-baked" not in agents and "1.6.0-arctic-tiles-vf" not in agents and "1.6.1-arctic-user-frames" not in agents and "1.6.2-particulars-provenance" not in agents and "1.6.3-image-bake-proof" not in agents:
         fail("AGENTS.md missing image bake lock (v1.5.0+)")
     else:
         ok("AGENTS.md has image bake lock")

@@ -1,6 +1,16 @@
 # Changelog
 
+## v1.6.3-image-bake-proof — P0 quant/health SoT + top10 manifest permanent bake (2026-09-16)
+
+Closes the docker-cp class of risk for the Dual-Gate split and known HUD drift:
+
+- **P0 quant/health dual-source-of-truth split — resolved** (code in `4b31381`): `quant_risk_service._resolve_live_dual_gate()` uses live `build_health_document()`; stale disk `health.json` is no longer the gate source. This bake puts that layer into the Korolev image and proves survival via `down` + `up --force-recreate` (not a live-container `docker cp`).
+- **top10_vessels_manifest.js sync restored** (content in `f4c039e`): LIJMILIYA DWT `155159` + provenance shipped via Sync-Tree → image/volume seed; Node A served bytes must MATCH working tree.
+- **London SoT:** lean services pack (no HUD GLB/mp4) so Node B receives identical `services/quant_risk_service.py` / `top10_vessels.py` without hung full-tree scp.
+- **Contract:** AGENTS.md → `1.6.3-image-bake-proof`.
+
 ## v1.6.2-particulars-provenance — LIJMILIYA DWT + Particulars contract (2026-09-16)
+
 
 - **LIJMILIYA (IMO 9388819):** DWT `130000` → `155159` after Architect VesselFinder page-dump manual verification. Prior value was Q-Max class placeholder (not cargo m³ confusion). LOA/Beam/current draft 9.2 m matched dump; design draught `13.70` m recorded separately.
 - **Particulars provenance:** AGENTS.md section documents catalog SoT, manual_verification workflow, and VF API as future auto-check path.
