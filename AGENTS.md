@@ -1,13 +1,13 @@
 # AGENTS.md — Oracle-1001 / Sentinel (read before any change)
 
-**Contract-Version:** `1.6.1-arctic-user-frames` · **Last-Revised:** `2026-09-16` · ARCTIC user frames · Dual Gate quant SoT · Tile proxy · VesselFinder  
+**Contract-Version:** `1.6.2-particulars-provenance` · **Last-Revised:** `2026-09-16` · Particulars provenance · LIJMILIYA DWT fix · ARCTIC frames · Dual Gate quant SoT  
 Any edit to this file is a **versioned event** — bump Contract-Version and add a CHANGELOG.md entry in the same change.
 
 This file is the **binding operational contract** for humans and AI agents opening
 the repo for the first time. If anything else (old README sections, stale JSON
 reports under `output/`, chat history) conflicts with this file — **this file wins**.
 
-## Consolidated contract themes (v1.4.0 → v1.5.0-baked → v1.6.0-arctic-tiles-vf → v1.6.1-arctic-user-frames)
+## Consolidated contract themes (v1.4.0 → … → v1.6.2-particulars-provenance)
 
 This revision consolidates operational locks that must stay consistent with Dual Gate:
 
@@ -19,6 +19,27 @@ This revision consolidates operational locks that must stay consistent with Dual
 6. **Map tile proxy (v1.6.0)** — HUD tiles are same-origin `GET /api/tiles/{provider}/{z}/{x}/{y}.png`. Paid provider keys stay **server-side only** (`MAPTILES_PROVIDER_KEY`). Absent/invalid key or upstream failure → **Esri World Imagery Never-Black fallback** (no client-visible `API KEY REQUIRED` dead-end).
 7. **VesselFinder commercial client (v1.6.0)** — `services/vesselfinder_client.py` + budget + Q-Flex poller are **wired and honest**. Until a **validated** `VESSELFINDER_API_KEY` exists, Q-Flex cargo / fleet value remains `notional_full_capacity_fallback` (never silently pretend live draft). Key presence alone ≠ live cargo.
 8. **Quant Dual-Gate SoT (v1.6.1)** — `/api/v1/quant/risk` must resolve `pipeline_health_status` via the **same live** `build_health_document()` path as `/api/v1/health`. Never prefer a stale on-disk `health.json` snapshot for gate fields.
+9. **Particulars provenance (v1.6.2)** — see dedicated section below; round class placeholders (e.g. DWT `130000`) are not registry truth.
+
+### Particulars provenance (LOA / Beam / DWT / Draft)
+
+**Canonical Q-Flex catalog SoT:** `services/top10_vessels.py` → regenerated `web/js/top10_vessels_manifest.js` / `output/js/top10_vessels_manifest.js` via `write_js_manifest()`.  
+**ARCTIC catalog SoT:** `web/js/arctic_vessels_manifest.js` (hand-maintained with `particulars_sources`).
+
+| Field | Typical origin today | Notes |
+|---|---|---|
+| LOA / Beam | Class sheet + fleet CSV / public registries | Usually stable across sources |
+| DWT | Mixed: some hull-specific, some **round Q-Max≈130 000 placeholders** | Placeholder ≠ cargo capacity (m³). Do not treat `130000` as verified DWT |
+| Draft on Q-Flex cards | Often **current/AIS draught** | Distinct from **design/summer** draught (e.g. LIJMILIYA 9.2 m current vs 13.70 m design) |
+
+**Manual corrections (this class of fix):** when the Architect supplies a VesselFinder (or Q88) page dump proving a mismatch, update the catalog SoT with:
+- corrected numeric value;
+- `particulars_provenance` (or ARCTIC `particulars_sources`) entry with `method: "manual_verification"`, source label, and `verified_at` UTC date;
+- never label the correction as `live API` while `VESSELFINDER_API_KEY` remains invalid.
+
+**Automatic cross-check path (future):** validated VesselFinder commercial REST (`services/vesselfinder_client.py` + `qflex_vf_poller.py`) is the only intended automated particulars refresh. Until then, fleet value / cargo stay `notional_full_capacity_fallback` on catalog DWT.
+
+**Anti-pattern:** do not silently overwrite catalog DWT from `output/fleet_database.csv` archive scrapes without review — CSV can carry heuristic/ballast-era figures (e.g. LIJMILIYA CSV `66050` vs registry `155159`).
 
 ### Image bake lock (v1.5.0-baked+) — closes container-only hotfix risk
 

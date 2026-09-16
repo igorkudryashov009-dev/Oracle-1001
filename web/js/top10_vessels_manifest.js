@@ -1226,11 +1226,44 @@ export const TOP10_VESSELS = [
     "loa_m": 345.0,
     "beam_m": 55.03,
     "draft_m": 9.2,
-    "dwt_tons": 130000,
+    "draft_kind": "current_observed",
+    "design_draft_m": 13.7,
+    "dwt_tons": 155159,
     "ais_integrity_pct": 96.2,
     "destination_risk": "LOW",
     "status": "ACTIVE OSINT TRACK",
     "flag": "Marshall Islands",
+    "particulars_provenance": {
+      "dwt_tons": {
+        "value": 155159,
+        "method": "manual_verification",
+        "source": "VesselFinder registry page dump (LIJMILIYA / IMO 9388819)",
+        "verified_at": "2026-09-16",
+        "replaces": 130000,
+        "replaces_note": "Prior 130000 was Q-Max class placeholder, not registry DWT"
+      },
+      "loa_m": {
+        "value": 345.0,
+        "method": "cross_check",
+        "source": "VesselFinder dump matches catalog"
+      },
+      "beam_m": {
+        "value": 55.03,
+        "method": "cross_check",
+        "source": "VesselFinder dump matches catalog (55.0 m rounded)"
+      },
+      "draft_m": {
+        "value": 9.2,
+        "method": "cross_check",
+        "source": "VesselFinder current draught (not design 13.70 m)"
+      },
+      "design_draft_m": {
+        "value": 13.7,
+        "method": "manual_verification",
+        "source": "VesselFinder registry dump design draught",
+        "verified_at": "2026-09-16"
+      }
+    },
     "refs": {
       "side": {
         "label": "Side Profile",

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-14T22:42:38Z",
+  "generated_at": "2026-09-16T10:38:49Z",
   "poll_interval_hours": 24.0,
   "stale_after_hours": 36.0,
   "ballast_frac": 0.55,
@@ -23,12 +23,24 @@
     "vessel_count": 10,
     "live_draft_count": 0,
     "notional_fallback_count": 10,
-    "current_cargo_estimate_tonnes_total": 1355801.0,
+    "current_cargo_estimate_tonnes_total": 1380960.0,
     "current_cargo_from_live_draft_tonnes": 0,
-    "current_cargo_from_notional_tonnes": 1355801.0,
+    "current_cargo_from_notional_tonnes": 1380960.0,
     "ttf_spot": 78.525,
-    "fleet_value_eur_proxy": 106464273.53,
-    "fleet_value_note": "fleet_value_eur_proxy uses sum(cargo_tonnes)×TTF_spot as a coarse notional proxy only — not a market mark-to-model of LNG cargo."
+    "fleet_value_eur_proxy": 108439884.0,
+    "fleet_value_note": "fleet_value_eur_proxy uses sum(cargo_tonnes)×TTF_spot as a coarse notional proxy only — not a market mark-to-model of LNG cargo.",
+    "previous_cargo_estimate_tonnes_total": 1355801.0,
+    "previous_fleet_value_eur_proxy": 106464273.53,
+    "delta_cargo_tonnes": 25159.0,
+    "delta_fleet_value_eur_proxy": 1975610.47,
+    "lijmiliya_dwt_correction": {
+      "imo": "9388819",
+      "from": 130000,
+      "to": 155159,
+      "method": "manual_verification",
+      "source": "VesselFinder registry page dump",
+      "verified_at": "2026-09-16"
+    }
   },
   "vessels": [
     {
@@ -189,11 +201,11 @@
       "stale": true,
       "current_draft_m": null,
       "max_draft_m": null,
-      "dwt": 130000.0,
+      "dwt": 155159.0,
       "nav_status": null,
       "destination": null,
       "laden_fraction_estimate": 1.0,
-      "current_cargo_estimate_tonnes": 130000.0,
+      "current_cargo_estimate_tonnes": 155159.0,
       "data_source": "notional_full_capacity_fallback",
       "design_draft_m": 9.2,
       "ballast_draft_m": null,

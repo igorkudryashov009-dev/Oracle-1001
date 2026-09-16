@@ -63,14 +63,16 @@ def main() -> int:
         else:
             ok(f"AGENTS.md has {needle!r}")
 
-    if "1.6.1-arctic-user-frames" in agents:
-        ok("AGENTS.md Contract-Version=1.6.1-arctic-user-frames")
+    if "1.6.2-particulars-provenance" in agents:
+        ok("AGENTS.md Contract-Version=1.6.2-particulars-provenance")
+    elif "1.6.1-arctic-user-frames" in agents:
+        warn("AGENTS.md still on 1.6.1-arctic-user-frames — expected bump to 1.6.2-particulars-provenance")
     elif "1.6.0-arctic-tiles-vf" in agents:
-        warn("AGENTS.md still on 1.6.0-arctic-tiles-vf — expected bump to 1.6.1-arctic-user-frames")
+        warn("AGENTS.md still on 1.6.0-arctic-tiles-vf — expected bump to 1.6.2-particulars-provenance")
     elif "1.5.0-baked" in agents:
-        warn("AGENTS.md still on 1.5.0-baked — expected bump to 1.6.1-arctic-user-frames")
+        warn("AGENTS.md still on 1.5.0-baked — expected bump to 1.6.2-particulars-provenance")
     elif "Contract-Version" in agents:
-        warn("AGENTS.md Contract-Version present but expected 1.6.1-arctic-user-frames not found")
+        warn("AGENTS.md Contract-Version present but expected 1.6.2-particulars-provenance not found")
 
     for theme in (
         "Archive provenance",
@@ -85,10 +87,14 @@ def main() -> int:
         fail("AGENTS.md missing consolidated themes section (v1.4.0)")
     else:
         ok("AGENTS.md has consolidated themes section")
-    if "Image bake lock" not in agents and "1.5.0-baked" not in agents and "1.6.0-arctic-tiles-vf" not in agents and "1.6.1-arctic-user-frames" not in agents:
+    if "Image bake lock" not in agents and "1.5.0-baked" not in agents and "1.6.0-arctic-tiles-vf" not in agents and "1.6.1-arctic-user-frames" not in agents and "1.6.2-particulars-provenance" not in agents:
         fail("AGENTS.md missing image bake lock (v1.5.0+)")
     else:
         ok("AGENTS.md has image bake lock")
+    if "Particulars provenance" not in agents or "manual_verification" not in agents:
+        fail("AGENTS.md missing Particulars provenance / manual_verification section")
+    else:
+        ok("AGENTS.md documents Particulars provenance")
     for needle in (
         "ARCTIC sheet",
         "VIDEO-DERIVED VIEWS",

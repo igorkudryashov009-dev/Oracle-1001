@@ -96,6 +96,12 @@ FLIGHT_VIDEO_ASSET_DIR = ROOT / "assets" / "7000" / "videos"
 FLIGHT_VIDEO_OUT_DIR = ROOT / "output" / "assets" / "videos"
 
 # Fleet identity — Q-Max / Membrane class · LOA≈345 m · Beam≈53.8 m
+# DWT notes:
+#   Round 130000 on several hulls = historical class-level placeholder (≈Q-Max
+#   nominal DWT), NOT cargo capacity (Q-Max cargo ≈266e3 m³). Replace with
+#   registry DWT when manually verified (see particulars_provenance).
+# Draft on cards is typically current/AIS draught, not design summer draft —
+# do not conflate the two (e.g. LIJMILIYA current 9.2 m vs design 13.70 m).
 TOP10_VESSELS: list[dict[str, Any]] = [
     {
         "rank": 1,
@@ -203,11 +209,36 @@ TOP10_VESSELS: list[dict[str, Any]] = [
         "loa_m": 345.0,
         "beam_m": 55.03,
         "draft_m": 9.2,
-        "dwt_tons": 130000,
+        "draft_kind": "current_observed",
+        "design_draft_m": 13.70,
+        "dwt_tons": 155159,
         "ais_integrity_pct": 96.2,
         "destination_risk": "LOW",
         "status": "ACTIVE OSINT TRACK",
         "flag": "Marshall Islands",
+        "particulars_provenance": {
+            "dwt_tons": {
+                "value": 155159,
+                "method": "manual_verification",
+                "source": "VesselFinder registry page dump (LIJMILIYA / IMO 9388819)",
+                "verified_at": "2026-09-16",
+                "replaces": 130000,
+                "replaces_note": "Prior 130000 was Q-Max class placeholder, not registry DWT",
+            },
+            "loa_m": {"value": 345.0, "method": "cross_check", "source": "VesselFinder dump matches catalog"},
+            "beam_m": {"value": 55.03, "method": "cross_check", "source": "VesselFinder dump matches catalog (55.0 m rounded)"},
+            "draft_m": {
+                "value": 9.2,
+                "method": "cross_check",
+                "source": "VesselFinder current draught (not design 13.70 m)",
+            },
+            "design_draft_m": {
+                "value": 13.70,
+                "method": "manual_verification",
+                "source": "VesselFinder registry dump design draught",
+                "verified_at": "2026-09-16",
+            },
+        },
     },
     {
         "rank": 9,

@@ -1,0 +1,180 @@
+{
+  "title": "Particulars cross-verification status",
+  "lijmiliya_root_cause": "Prior DWT=130000 was a round Q-Max class placeholder shared with UMM SLAL / AL GHUWAIRIYA — not cargo-capacity tonnes and not a mistyped 155159.",
+  "fleet_value": {
+    "previous_cargo_tonnes": 1355801.0,
+    "new_cargo_tonnes": 1380960.0,
+    "delta_cargo_tonnes": 25159.0,
+    "previous_fleet_value_eur_proxy": 106464273.53,
+    "new_fleet_value_eur_proxy": 108439884.0,
+    "delta_fleet_value_eur_proxy": 1975610.47,
+    "ttf_spot": 78.525,
+    "data_source": "notional_full_capacity_fallback"
+  },
+  "vessels": [
+    {
+      "sheet": "qflex",
+      "imo": "9388833",
+      "name": "BU SAMRA",
+      "catalog_dwt": 159750,
+      "catalog_loa": 345.28,
+      "catalog_beam": 53.83,
+      "catalog_draft": 9.4,
+      "csv_dwt": 159750.0,
+      "cross_verify_status": "not_yet_cross_verified",
+      "note": "",
+      "round_placeholder_suspect": false
+    },
+    {
+      "sheet": "qflex",
+      "imo": "9397303",
+      "name": "MEKAINES",
+      "catalog_dwt": 136740,
+      "catalog_loa": 345.0,
+      "catalog_beam": 53.8,
+      "catalog_draft": 9.4,
+      "csv_dwt": 136740.0,
+      "cross_verify_status": "not_yet_cross_verified",
+      "note": "",
+      "round_placeholder_suspect": false
+    },
+    {
+      "sheet": "qflex",
+      "imo": "9397315",
+      "name": "AL MAFYAR",
+      "catalog_dwt": 130441,
+      "catalog_loa": 345.28,
+      "catalog_beam": 53.8,
+      "catalog_draft": 9.4,
+      "csv_dwt": 130441.0,
+      "cross_verify_status": "not_yet_cross_verified",
+      "note": "",
+      "round_placeholder_suspect": false
+    },
+    {
+      "sheet": "qflex",
+      "imo": "9397327",
+      "name": "AL KHARAITIYAT",
+      "catalog_dwt": 172050,
+      "catalog_loa": 315.16,
+      "catalog_beam": 50.0,
+      "catalog_draft": 12.4,
+      "csv_dwt": 172050.0,
+      "cross_verify_status": "not_yet_cross_verified",
+      "note": "",
+      "round_placeholder_suspect": false
+    },
+    {
+      "sheet": "qflex",
+      "imo": "9337755",
+      "name": "MOZAH",
+      "catalog_dwt": 130102,
+      "catalog_loa": 345.33,
+      "catalog_beam": 53.8,
+      "catalog_draft": 9.5,
+      "csv_dwt": 130102.0,
+      "cross_verify_status": "not_yet_cross_verified",
+      "note": "",
+      "round_placeholder_suspect": false
+    },
+    {
+      "sheet": "qflex",
+      "imo": "9372731",
+      "name": "UMM SLAL",
+      "catalog_dwt": 130000,
+      "catalog_loa": 345.0,
+      "catalog_beam": 53.83,
+      "catalog_draft": 9.4,
+      "csv_dwt": 42050.0,
+      "cross_verify_status": "not_yet_cross_verified",
+      "note": "fleet_database.csv dwt=42050.0 differs from catalog 130000 — CSV not used as override",
+      "round_placeholder_suspect": true
+    },
+    {
+      "sheet": "qflex",
+      "imo": "9372743",
+      "name": "AL GHUWAIRIYA",
+      "catalog_dwt": 130000,
+      "catalog_loa": 345.0,
+      "catalog_beam": 53.8,
+      "catalog_draft": 9.4,
+      "csv_dwt": null,
+      "cross_verify_status": "not_yet_cross_verified",
+      "note": "",
+      "round_placeholder_suspect": true
+    },
+    {
+      "sheet": "qflex",
+      "imo": "9388819",
+      "name": "LIJMILIYA",
+      "catalog_dwt": 155159,
+      "catalog_loa": 345.0,
+      "catalog_beam": 55.03,
+      "catalog_draft": 9.2,
+      "csv_dwt": 66050.0,
+      "cross_verify_status": "manual_verification_VF_dump_2026-09-16",
+      "note": "fleet_database.csv dwt=66050.0 differs from catalog 155159 — CSV not used as override",
+      "round_placeholder_suspect": false
+    },
+    {
+      "sheet": "qflex",
+      "imo": "9388821",
+      "name": "AL SAMRIYA",
+      "catalog_dwt": 167300,
+      "catalog_loa": 345.0,
+      "catalog_beam": 55.03,
+      "catalog_draft": 9.4,
+      "csv_dwt": 167300.0,
+      "cross_verify_status": "not_yet_cross_verified",
+      "note": "",
+      "round_placeholder_suspect": false
+    },
+    {
+      "sheet": "qflex",
+      "imo": "9397298",
+      "name": "AL MAYEDA",
+      "catalog_dwt": 69418,
+      "catalog_loa": 345.28,
+      "catalog_beam": 53.8,
+      "catalog_draft": 9.3,
+      "csv_dwt": 56900.0,
+      "cross_verify_status": "not_yet_cross_verified",
+      "note": "fleet_database.csv dwt=56900.0 differs from catalog 69418 — CSV not used as override",
+      "round_placeholder_suspect": false
+    },
+    {
+      "sheet": "arctic",
+      "imo": "9737187",
+      "name": "CHRISTOPHE DE MARGERIE",
+      "catalog_dwt": 96779,
+      "catalog_loa": 299.0,
+      "catalog_beam": 50.0,
+      "catalog_draft": 13.025,
+      "csv_dwt": null,
+      "cross_verify_status": "sourced_in_manifest_Q88_public — not re-verified with fresh VF page dump this session",
+      "note": "",
+      "round_placeholder_suspect": false
+    },
+    {
+      "sheet": "arctic",
+      "imo": "9750749",
+      "name": "GEORGIY USHAKOV",
+      "catalog_dwt": 96796,
+      "catalog_loa": 299.0,
+      "catalog_beam": 50.0,
+      "catalog_draft": null,
+      "csv_dwt": 96796.0,
+      "cross_verify_status": "sourced_in_manifest_VF_GUR_etc — not re-verified with fresh VF page dump this session",
+      "note": "",
+      "round_placeholder_suspect": false
+    }
+  ],
+  "summary": {
+    "manual_verified": 1,
+    "not_yet_cross_verified_or_prior_source_only": 11,
+    "round_130k_placeholder_remaining": [
+      "9372731 UMM SLAL",
+      "9372743 AL GHUWAIRIYA"
+    ]
+  }
+}

@@ -1,6 +1,13 @@
 # Changelog
 
+## v1.6.2-particulars-provenance — LIJMILIYA DWT + Particulars contract (2026-09-16)
+
+- **LIJMILIYA (IMO 9388819):** DWT `130000` → `155159` after Architect VesselFinder page-dump manual verification. Prior value was Q-Max class placeholder (not cargo m³ confusion). LOA/Beam/current draft 9.2 m matched dump; design draught `13.70` m recorded separately.
+- **Particulars provenance:** AGENTS.md section documents catalog SoT, manual_verification workflow, and VF API as future auto-check path.
+- **Fleet notional value:** rebuild `output/qflex_fleet_cargo.json` from updated catalog DWT (still `notional_full_capacity_fallback`).
+
 ## v1.6.1-arctic-user-frames — User ARCTIC stills · Quant Dual-Gate SoT (2026-09-16)
+
 
 - **ARCTIC frames:** Architect-provided stills from `C:\111\1001\Artic` **replace** prior agent ffmpeg extracts as primary VIDEO-DERIVED sources (agent frames archived under `assets/arctic/frames/_agent_ffmpeg_extracted/`). Badge unchanged: extracted from AI flight · not independent photographs. Ushakov inventory fact: `-2-1.png`, `-2-2.jpg`, `-2-3.jpg` (symmetric 3+3 with Margerie). Overhead stills (`*-1-3` / `*-2-3`) enable VIDEO-DERIVED TOP when present; still not Ortho / not measurement.
 - **Quant SoT:** `quant_risk_service` resolves gate via live `build_health_document()` — closes health=NOMINAL vs quant=CRITICAL split from stale disk `health.json`.
