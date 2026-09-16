@@ -23,8 +23,23 @@ $Root = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $Root
 
 function Invoke-SSH([string]$HostName, [string]$RemoteCmd) {
-  & ssh -o BatchMode=yes -o ConnectTimeout=25 "root@$HostName" $RemoteCmd
-  if ($LASTEXITCODE -ne 0) { throw "SSH failed ($HostName) exit=$LASTEXITCODE" }
+  # Native ssh writes progress to stderr; with $ErrorActionPreference=Stop that
+  # becomes a terminating NativeCommandError even when exit code is 0.
+  $prev = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  try {
+    & ssh -o BatchMode=yes -o ConnectTimeout=25 "root@$HostName" $RemoteCmd 2>&1 | ForEach-Object {
+      if ($_ -is [System.Management.Automation.ErrorRecord]) {
+        Write-Host $_.Exception.Message
+      } else {
+        Write-Host $_
+      }
+    }
+    $code = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $prev
+  }
+  if ($code -ne 0) { throw "SSH failed ($HostName) exit=$code" }
 }
 
 function Sync-Tree([string]$HostName, [string]$Dest = $RemoteRoot) {
