@@ -63,12 +63,14 @@ def main() -> int:
         else:
             ok(f"AGENTS.md has {needle!r}")
 
-    if "1.6.0-arctic-tiles-vf" in agents:
-        ok("AGENTS.md Contract-Version=1.6.0-arctic-tiles-vf")
+    if "1.6.1-arctic-user-frames" in agents:
+        ok("AGENTS.md Contract-Version=1.6.1-arctic-user-frames")
+    elif "1.6.0-arctic-tiles-vf" in agents:
+        warn("AGENTS.md still on 1.6.0-arctic-tiles-vf — expected bump to 1.6.1-arctic-user-frames")
     elif "1.5.0-baked" in agents:
-        warn("AGENTS.md still on 1.5.0-baked — expected bump to 1.6.0-arctic-tiles-vf")
+        warn("AGENTS.md still on 1.5.0-baked — expected bump to 1.6.1-arctic-user-frames")
     elif "Contract-Version" in agents:
-        warn("AGENTS.md Contract-Version present but expected 1.6.0-arctic-tiles-vf not found")
+        warn("AGENTS.md Contract-Version present but expected 1.6.1-arctic-user-frames not found")
 
     for theme in (
         "Archive provenance",
@@ -83,7 +85,7 @@ def main() -> int:
         fail("AGENTS.md missing consolidated themes section (v1.4.0)")
     else:
         ok("AGENTS.md has consolidated themes section")
-    if "Image bake lock" not in agents and "1.5.0-baked" not in agents and "1.6.0-arctic-tiles-vf" not in agents:
+    if "Image bake lock" not in agents and "1.5.0-baked" not in agents and "1.6.0-arctic-tiles-vf" not in agents and "1.6.1-arctic-user-frames" not in agents:
         fail("AGENTS.md missing image bake lock (v1.5.0+)")
     else:
         ok("AGENTS.md has image bake lock")
@@ -354,6 +356,20 @@ def main() -> int:
         fail("quant_risk_service.py missing model_last_retrained field")
     else:
         ok("quant_risk_service.py exposes model_last_retrained")
+    if "build_health_document" not in qsrc or "_resolve_live_dual_gate" not in qsrc:
+        fail(
+            "quant_risk_service.py must resolve Dual Gate via live build_health_document "
+            "(same SoT as /api/v1/health)"
+        )
+    else:
+        ok("quant_risk_service.py Dual Gate SoT = live build_health_document")
+    if "health_json = out_dir" in qsrc or 'api" / "v1" / "health.json"' in qsrc:
+        fail(
+            "quant_risk_service.py must not prefer stale disk health.json for pipeline_health "
+            "(splits SoT from live /api/v1/health)"
+        )
+    else:
+        ok("quant_risk_service.py does not prefer stale disk health.json for Dual Gate")
     api_src2 = (ROOT / "api_server.py").read_text(encoding="utf-8", errors="ignore")
     if "model_last_retrained" not in api_src2:
         fail("api_server.py schema missing model_last_retrained")

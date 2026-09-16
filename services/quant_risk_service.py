@@ -57,6 +57,29 @@ def resolve_output_dir() -> Path:
     return ROOT / "output"
 
 
+def _resolve_live_dual_gate() -> Dict[str, Any]:
+    """
+    Dual-Gate SoT shared with GET /api/v1/health.
+
+    Must call services.ais_health.build_health_document() — the same builder the
+    edge health handlers use. Never prefer on-disk output/api/v1/health.json:
+    that snapshot is only rewritten by write_health_files() (rollup/release) and
+    can stay CRITICAL for hours while live HTTP health is already NOMINAL.
+    """
+    from services.ais_health import build_health_document
+
+    doc = build_health_document()
+    replica = doc.get("replica") if isinstance(doc.get("replica"), dict) else {}
+    pipe = doc.get("pipeline_health") if isinstance(doc.get("pipeline_health"), dict) else {}
+    return {
+        "pipeline_health_status": str(doc.get("pipeline_health_status") or "CRITICAL"),
+        "fleet_sample_status": str(doc.get("fleet_sample_status") or "INSUFFICIENT"),
+        "top500_live_coverage": int(doc.get("top500_live_coverage") or 0),
+        "ais_lag_sec": float(replica.get("age_sec") or pipe.get("ais_lag_sec") or 0.0),
+        "active_node": str(doc.get("active_node") or resolve_active_node(freshness=replica)),
+    }
+
+
 def compute_quant_risk_payload(
     horizon: int = 7,
     db_path: Optional[Path | str] = None,
@@ -69,6 +92,7 @@ def compute_quant_risk_payload(
       2. If paper ledger sample N < 30 -> is_synthetic = True
       3. synthetic_components = ["returns_sharpe_cvar"]
       4. production_actionable = False unless pipeline == NOMINAL and fleet == FULL and not is_synthetic
+      5. pipeline_health_status comes from live Dual Gate (build_health_document), not stale health.json
     """
     out_dir = resolve_output_dir()
     db = resolve_db_path(db_path)
@@ -76,59 +100,68 @@ def compute_quant_risk_payload(
     forecast_json = out_dir / "ttf_ensemble_forecast.json"
     markov_json = out_dir / "ttf_markov_regimes.json"
     ledger_json = out_dir / "ttf_paper_ledger.json"
-    health_json = out_dir / "api" / "v1" / "health.json"
 
-    # 1. Dual-Gate Health Status
-    pipeline_health = "CRITICAL"
-    fleet_sample = "INSUFFICIENT"
-    coverage = 0
-    ais_lag = 999999.0
-    active_node = "korolev"
+    # 1. Dual-Gate Health Status — same live SoT as /api/v1/health (never disk snapshot)
+    try:
+        gate = _resolve_live_dual_gate()
+        pipeline_health = gate["pipeline_health_status"]
+        fleet_sample = gate["fleet_sample_status"]
+        coverage = int(gate["top500_live_coverage"])
+        ais_lag = float(gate["ais_lag_sec"])
+        active_node = str(gate["active_node"])
+    except Exception:
+        # Last-resort DB path: still live dual_gate, never stale health.json
+        pipeline_health = "CRITICAL"
+        fleet_sample = "INSUFFICIENT"
+        coverage = 0
+        ais_lag = 999999.0
+        active_node = "korolev"
+        if db.exists():
+            try:
+                conn = sqlite3.connect(str(db), timeout=5.0)
+                now_ts = datetime.now(timezone.utc).timestamp()
+                cur = conn.cursor()
+                cur.execute("SELECT max(received_at) FROM ais_positions")
+                row = cur.fetchone()
+                if row and row[0]:
+                    try:
+                        dt = datetime.fromisoformat(str(row[0]).replace("Z", "+00:00"))
+                        ais_lag = max(0.0, now_ts - dt.timestamp())
+                    except Exception:
+                        pass
+                cutoff = now_ts - 540.0
+                cur.execute(
+                    "SELECT count(DISTINCT mmsi) FROM ais_positions WHERE received_at >= ?",
+                    (
+                        datetime.fromisoformat(
+                            datetime.fromtimestamp(cutoff, tz=timezone.utc).isoformat()
+                        ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    ),
+                )
+                cov_row = cur.fetchone()
+                if cov_row:
+                    coverage = int(cov_row[0] or 0)
+                conn.close()
 
-    if health_json.exists():
-        try:
-            h_data = json.loads(health_json.read_text(encoding="utf-8"))
-            pipeline_health = str(h_data.get("pipeline_health_status") or pipeline_health)
-            fleet_sample = str(h_data.get("fleet_sample_status") or fleet_sample)
-            coverage = int(h_data.get("top500_live_coverage") or 0)
-            ais_lag = float((h_data.get("replica") or {}).get("age_sec") or (h_data.get("pipeline_health") or {}).get("ais_lag_sec") or 0.0)
-            active_node = str(h_data.get("active_node") or resolve_active_node(freshness=h_data.get("replica")))
-        except Exception:
-            pass
-    elif db.exists():
-        try:
-            conn = sqlite3.connect(str(db), timeout=5.0)
-            now_ts = datetime.now(timezone.utc).timestamp()
-            # Canonical table check: ais_positions (NOT positions!)
-            cur = conn.cursor()
-            cur.execute("SELECT max(received_at) FROM ais_positions")
-            row = cur.fetchone()
-            if row and row[0]:
-                try:
-                    dt = datetime.fromisoformat(str(row[0]).replace("Z", "+00:00"))
-                    ais_lag = max(0.0, now_ts - dt.timestamp())
-                except Exception:
-                    pass
-            cutoff = now_ts - 540.0
-            cur.execute("SELECT count(DISTINCT mmsi) FROM ais_positions WHERE received_at >= ?", (datetime.fromisoformat(datetime.fromtimestamp(cutoff, tz=timezone.utc).isoformat()).strftime("%Y-%m-%dT%H:%M:%SZ"),))
-            cov_row = cur.fetchone()
-            if cov_row:
-                coverage = int(cov_row[0] or 0)
-            conn.close()
-
-            freshness = {"age_sec": ais_lag, "live_ok": ais_lag < 300.0, "integrity_ok": True}
-            active_node = resolve_active_node(freshness=freshness)
-            is_failover, _ = check_failover_status(active_node, freshness=freshness, root=ROOT)
-            pipe = compute_pipeline_health_status(
-                freshness=freshness,
-                active_node=active_node,
-                failover_in_progress=is_failover,
-            )
-            sample = compute_fleet_sample_status(coverage)
-            pipeline_health = pipe["pipeline_health_status"]
-            fleet_sample = sample["fleet_sample_status"]
-        except Exception:
-            pass
+                freshness = {
+                    "age_sec": ais_lag,
+                    "live_ok": ais_lag < 300.0,
+                    "integrity_ok": True,
+                }
+                active_node = resolve_active_node(freshness=freshness)
+                is_failover, _ = check_failover_status(
+                    active_node, freshness=freshness, root=ROOT
+                )
+                pipe = compute_pipeline_health_status(
+                    freshness=freshness,
+                    active_node=active_node,
+                    failover_in_progress=is_failover,
+                )
+                sample = compute_fleet_sample_status(coverage)
+                pipeline_health = pipe["pipeline_health_status"]
+                fleet_sample = sample["fleet_sample_status"]
+            except Exception:
+                pass
 
     # 2. Horizon Selection (7, 14, 30)
     horizon_key = "30" if horizon >= 22 else ("14" if horizon >= 11 else "7")

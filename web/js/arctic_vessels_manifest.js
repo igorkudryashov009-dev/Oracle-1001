@@ -20,6 +20,10 @@ export const ARCTIC_VIDEO_DERIVED_BADGE =
 export const ARCTIC_TOP_VIEW_NOTE =
   "TOP VIEW UNAVAILABLE · FLIGHT PATH NEVER REACHES NADIR / OVERHEAD ON SOURCE VIDEO";
 
+/** When a user-curated / extracted overhead still exists — still VIDEO-DERIVED, never Ortho. */
+export const ARCTIC_TOP_VIEW_DERIVED_NOTE =
+  "VIDEO-DERIVED OVERHEAD · AI FLIGHT STILL · NOT ORTHO / NOT A MEASUREMENT SOURCE";
+
 export const ARCTIC_VESSELS = [
   {
     rank: 1,
@@ -71,21 +75,29 @@ export const ARCTIC_VESSELS = [
     },
     video_derived: {
       badge: ARCTIC_VIDEO_DERIVED_BADGE,
-      top_available: false,
-      top_note: ARCTIC_TOP_VIEW_NOTE,
+      selection: "user_curated_replace_agent_ffmpeg",
+      top_available: true,
+      top_note: ARCTIC_TOP_VIEW_DERIVED_NOTE,
       side: {
-        label: "SIDE-OBLIQUE (best available)",
+        label: "SIDE-OBLIQUE (user-curated)",
         url: "/assets/arctic/frames/vessel_9737187_side_oblique.jpg",
         fallback_url: "assets/arctic/frames/vessel_9737187_side_oblique.jpg",
-        t_sec: 3.5,
-        note: "Elevated port three-quarter — NOT true side ortho",
+        user_source: "chris-de-margerie-ice-free-arctic-flight-1-1.jpg",
+        note: "Elevated starboard three-quarter — NOT true side ortho",
       },
       bow: {
-        label: "BOW-OBLIQUE (best available)",
+        label: "BOW (user-curated)",
         url: "/assets/arctic/frames/vessel_9737187_bow_oblique.jpg",
         fallback_url: "assets/arctic/frames/vessel_9737187_bow_oblique.jpg",
-        t_sec: 0.5,
-        note: "Elevated forward three-quarter — NOT head-on",
+        user_source: "chris-de-margerie-ice-free-arctic-flight-1-2.jpg",
+        note: "Near head-on bow — still from AI flight, not photograph",
+      },
+      top: {
+        label: "TOP / OVERHEAD (user-curated)",
+        url: "/assets/arctic/frames/vessel_9737187_top_overhead.jpg",
+        fallback_url: "assets/arctic/frames/vessel_9737187_top_overhead.jpg",
+        user_source: "chris-de-margerie-ice-free-arctic-flight-1-3.jpg",
+        note: ARCTIC_TOP_VIEW_DERIVED_NOTE,
       },
     },
     refs: {
@@ -149,21 +161,29 @@ export const ARCTIC_VESSELS = [
     },
     video_derived: {
       badge: ARCTIC_VIDEO_DERIVED_BADGE,
-      top_available: false,
-      top_note: ARCTIC_TOP_VIEW_NOTE,
+      selection: "user_curated_replace_agent_ffmpeg",
+      top_available: true,
+      top_note: ARCTIC_TOP_VIEW_DERIVED_NOTE,
       side: {
-        label: "SIDE-OBLIQUE (best available)",
+        label: "SIDE-OBLIQUE (user-curated)",
         url: "/assets/arctic/frames/vessel_9750749_side_oblique.jpg",
         fallback_url: "assets/arctic/frames/vessel_9750749_side_oblique.jpg",
-        t_sec: 4.0,
+        user_source: "georgiy-ushakov-ice-free-arctic1-flight-2-1.png",
         note: "Elevated port three-quarter — NOT true side ortho",
       },
       bow: {
-        label: "BOW-OBLIQUE (best available)",
+        label: "BOW (user-curated)",
         url: "/assets/arctic/frames/vessel_9750749_bow_oblique.jpg",
         fallback_url: "assets/arctic/frames/vessel_9750749_bow_oblique.jpg",
-        t_sec: 0.0,
-        note: "Elevated forward three-quarter — NOT head-on",
+        user_source: "georgiy-ushakov-ice-free-arctic1-flight-2-2.jpg",
+        note: "Near head-on bow — still from AI flight, not photograph",
+      },
+      top: {
+        label: "TOP / OVERHEAD (user-curated)",
+        url: "/assets/arctic/frames/vessel_9750749_top_overhead.jpg",
+        fallback_url: "assets/arctic/frames/vessel_9750749_top_overhead.jpg",
+        user_source: "georgiy-ushakov-ice-free-arctic1-flight-2-3.jpg",
+        note: ARCTIC_TOP_VIEW_DERIVED_NOTE,
       },
     },
     refs: {

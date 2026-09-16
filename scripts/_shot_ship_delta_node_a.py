@@ -71,7 +71,12 @@ def main() -> int:
         body = page.inner_text("body")
         REPORT["checks"]["arctic_cards"] = cards
         REPORT["checks"]["arctic_has_luma"] = ("AI-GENERATED" in body) or ("LUMA" in body)
-        REPORT["checks"]["arctic_has_top_unavailable"] = "TOP VIEW UNAVAILABLE" in body or "TOP UNAVAILABLE" in body
+        REPORT["checks"]["arctic_has_video_derived"] = "VIDEO-DERIVED" in body or "EXTRACTED FROM AI-GENERATED" in body
+        REPORT["checks"]["arctic_top_policy"] = (
+            ("TOP VIEW UNAVAILABLE" in body)
+            or ("TOP / OVERHEAD" in body)
+            or ("VIDEO-DERIVED OVERHEAD" in body)
+        )
         page.screenshot(path=str(OUT / "01_arctic_sheet.png"), full_page=False)
         derived = page.locator('[data-open-derived]')
         if derived.count() > 0:

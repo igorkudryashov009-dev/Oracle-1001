@@ -1,13 +1,13 @@
 # AGENTS.md — Oracle-1001 / Sentinel (read before any change)
 
-**Contract-Version:** `1.6.0-arctic-tiles-vf` · **Last-Revised:** `2026-09-16` · ARCTIC · Tile proxy · VesselFinder client · Full image bake  
+**Contract-Version:** `1.6.1-arctic-user-frames` · **Last-Revised:** `2026-09-16` · ARCTIC user frames · Dual Gate quant SoT · Tile proxy · VesselFinder  
 Any edit to this file is a **versioned event** — bump Contract-Version and add a CHANGELOG.md entry in the same change.
 
 This file is the **binding operational contract** for humans and AI agents opening
 the repo for the first time. If anything else (old README sections, stale JSON
 reports under `output/`, chat history) conflicts with this file — **this file wins**.
 
-## Consolidated contract themes (v1.4.0 → v1.5.0-baked → v1.6.0-arctic-tiles-vf)
+## Consolidated contract themes (v1.4.0 → v1.5.0-baked → v1.6.0-arctic-tiles-vf → v1.6.1-arctic-user-frames)
 
 This revision consolidates operational locks that must stay consistent with Dual Gate:
 
@@ -15,9 +15,10 @@ This revision consolidates operational locks that must stay consistent with Dual
 2. **Digital Twin (GLB/Voxel)** — assets sync into `output/assets/3d_models/`; Inspector Never-Black hierarchy; lazy-unmount 3D on sheet/tab change (no WebGL 0/1/0 regression). Deploy must **never** `--exclude=*.glb`.
 3. **Offline ML** — Node A/B serve `.cbm` inference only; weekly offline retrain (Variant A); `model_last_retrained` mandatory on `/api/v1/quant/risk`.
 4. **Disk headroom** — `disk_free_pct` in `health.json`; `<20%` → DEGRADED; `<10%` → CRITICAL; host log/corrupt_backup retention via `services/log_retention.py`.
-5. **ARCTIC sheet (v1.6.0)** — Arc7 Yamalmax flight videos are **LUMA-generated** at the **same trust tier** as Q-Flex REAL VIDEO / LUMA track. Recognizable vessel identity does **not** raise trust. `VIDEO-DERIVED VIEWS` are frames extracted from that AI flight — **not** an Ortho Triplet and **not** a measurement source. Missing nadir → honest `TOP VIEW UNAVAILABLE`.
+5. **ARCTIC sheet (v1.6.0+)** — Arc7 Yamalmax flight videos are **LUMA-generated** at the **same trust tier** as Q-Flex REAL VIDEO / LUMA track. Recognizable vessel identity does **not** raise trust. `VIDEO-DERIVED VIEWS` are frames from that AI flight (agent ffmpeg **or** user-curated stills) — **not** an Ortho Triplet and **not** a measurement source. Missing nadir → honest `TOP VIEW UNAVAILABLE`; when a user-curated overhead still exists → show it under the same VIDEO-DERIVED badge (`NOT ORTHO / NOT MEASUREMENT`).
 6. **Map tile proxy (v1.6.0)** — HUD tiles are same-origin `GET /api/tiles/{provider}/{z}/{x}/{y}.png`. Paid provider keys stay **server-side only** (`MAPTILES_PROVIDER_KEY`). Absent/invalid key or upstream failure → **Esri World Imagery Never-Black fallback** (no client-visible `API KEY REQUIRED` dead-end).
 7. **VesselFinder commercial client (v1.6.0)** — `services/vesselfinder_client.py` + budget + Q-Flex poller are **wired and honest**. Until a **validated** `VESSELFINDER_API_KEY` exists, Q-Flex cargo / fleet value remains `notional_full_capacity_fallback` (never silently pretend live draft). Key presence alone ≠ live cargo.
+8. **Quant Dual-Gate SoT (v1.6.1)** — `/api/v1/quant/risk` must resolve `pipeline_health_status` via the **same live** `build_health_document()` path as `/api/v1/health`. Never prefer a stale on-disk `health.json` snapshot for gate fields.
 
 ### Image bake lock (v1.5.0-baked+) — closes container-only hotfix risk
 

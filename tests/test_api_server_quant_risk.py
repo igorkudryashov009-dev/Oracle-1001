@@ -142,3 +142,60 @@ def test_health_gate_status_contract(client):
     assert data["active_node"] in {"korolev", "london"}
     assert data["canonical_port"] == 8765
 
+
+def test_quant_gate_ignores_stale_disk_health_json(monkeypatch, tmp_path):
+    """
+    Root-cause regression: quant must share live Dual Gate with health, not prefer
+    a stale on-disk health.json snapshot (which can stay CRITICAL while live is NOMINAL).
+    """
+    from services import quant_risk_service as qrs
+
+    out = tmp_path / "output"
+    health_dir = out / "api" / "v1"
+    health_dir.mkdir(parents=True)
+    (health_dir / "health.json").write_text(
+        json.dumps(
+            {
+                "pipeline_health_status": "CRITICAL",
+                "fleet_sample_status": "INSUFFICIENT",
+                "top500_live_coverage": 0,
+                "replica": {"age_sec": 999999.0},
+                "active_node": "korolev",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    live_doc = {
+        "pipeline_health_status": "NOMINAL",
+        "fleet_sample_status": "LIMITED",
+        "top500_live_coverage": 5,
+        "replica": {"age_sec": 12.0, "live_ok": True},
+        "pipeline_health": {"ais_lag_sec": 12.0, "pipeline_health_status": "NOMINAL"},
+        "active_node": "korolev",
+    }
+
+    monkeypatch.setattr(qrs, "resolve_output_dir", lambda: out)
+    monkeypatch.setattr(
+        "services.ais_health.build_health_document",
+        lambda **kwargs: live_doc,
+    )
+
+    payload = qrs.compute_quant_risk_payload(horizon=7)
+    assert payload["pipeline_health_status"] == "NOMINAL"
+    assert payload["fleet_sample_status"] == "LIMITED"
+    assert payload["blocked_reason"] != "pipeline_status_critical"
+    assert "insufficient_sample" in str(payload["blocked_reason"])
+
+
+def test_quant_pipeline_matches_build_health_document():
+    """Same request-cycle SoT: quant gate fields == live health builder."""
+    from services.ais_health import build_health_document
+    from services.quant_risk_service import compute_quant_risk_payload
+
+    doc = build_health_document()
+    payload = compute_quant_risk_payload(horizon=7)
+    assert payload["pipeline_health_status"] == doc["pipeline_health_status"]
+    assert payload["fleet_sample_status"] == doc["fleet_sample_status"]
+    assert int(payload.get("horizon_days") or 7) == 7
+

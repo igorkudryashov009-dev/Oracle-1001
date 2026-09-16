@@ -10,6 +10,7 @@ import {
   ARCTIC_LUMA_VIDEO_BADGE,
   ARCTIC_VIDEO_DERIVED_BADGE,
   ARCTIC_TOP_VIEW_NOTE,
+  ARCTIC_TOP_VIEW_DERIVED_NOTE,
 } from "./arctic_vessels_manifest.js";
 
 let booted = false;
@@ -215,15 +216,30 @@ function openInspector(vessel, { tab = "derived" } = {}) {
   for (const key of ["side", "bow"]) {
     const ref = vd[key];
     if (!ref?.url) continue;
+    const capExtra =
+      ref.t_sec != null && ref.t_sec !== ""
+        ? ` · t=${ref.t_sec}s`
+        : ref.user_source
+          ? " · user-curated"
+          : "";
     cells.push(`
       <figure class="ark-derived-cell">
-        <figcaption>${ref.label || key.toUpperCase()} · t=${ref.t_sec ?? "?"}s</figcaption>
+        <figcaption>${ref.label || key.toUpperCase()}${capExtra}</figcaption>
         <img src="${ref.url}" alt="${ref.label || key}" loading="eager"
           onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${ref.fallback_url || ref.url}'}"/>
         <div class="ark-note">${ref.note || ""}</div>
       </figure>`);
   }
-  if (!vd.top_available) {
+  if (vd.top_available && vd.top?.url) {
+    const ref = vd.top;
+    cells.push(`
+      <figure class="ark-derived-cell">
+        <figcaption>${ref.label || "TOP / OVERHEAD"} · user-curated</figcaption>
+        <img src="${ref.url}" alt="${ref.label || "top"}" loading="eager"
+          onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${ref.fallback_url || ref.url}'}"/>
+        <div class="ark-note">${ref.note || ARCTIC_TOP_VIEW_DERIVED_NOTE || ""}</div>
+      </figure>`);
+  } else {
     cells.push(`
       <figure class="ark-derived-cell ark-derived-cell--missing">
         <figcaption>TOP / OVERHEAD</figcaption>
