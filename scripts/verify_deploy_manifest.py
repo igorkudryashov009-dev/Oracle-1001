@@ -483,10 +483,11 @@ def check_live(
                 )
                 continue
             asset = (
-                remote_idx.get(entry.name)
-                or remote_idx.get(local_rel)
-                or remote_idx.get(Path(local_rel).name)
+                remote_idx.get(local_rel)
+                or remote_idx.get(entry.name)
+                or remote_idx.get(f"local:{local_rel}")
             )
+            # Never resolve service_py by bare basename — many __init__.py collide.
             if asset is None:
                 rows.append(
                     Row(

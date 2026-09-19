@@ -98,6 +98,9 @@ if [[ -n "${VOL_OUT}" && -d "${VOL_OUT}" ]]; then
   if [[ -f output/deploy_manifest.json ]]; then
     cp -a output/deploy_manifest.json "${VOL_OUT}/deploy_manifest.json"
   fi
+  if [[ -f output/oracle_sheet.js ]]; then
+    cp -a output/oracle_sheet.js "${VOL_OUT}/oracle_sheet.js"
+  fi
   if [[ -f output/qflex_fleet_cargo.json ]]; then
     cp -a output/qflex_fleet_cargo.json "${VOL_OUT}/qflex_fleet_cargo.json"
   fi
