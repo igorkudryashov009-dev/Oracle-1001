@@ -1,0 +1,1511 @@
+{
+  "manifest_version": "2.0.0-autodiscover",
+  "discovery": "auto-glob",
+  "generated_at": "2026-09-19T18:30:01Z",
+  "contract_version": "1.7.0-autodiscover-oracle-sot",
+  "node_a": {
+    "host": "45.8.230.214",
+    "base_url": "http://45.8.230.214:8765",
+    "port": 8765
+  },
+  "oracle_hud": {
+    "oracle_engine.js": true,
+    "oracle_sheet.js": true,
+    "oracle_event_bus.js": true,
+    "oracle_engine.py": true,
+    "vessel_card_metrics.js": true,
+    "sentinel_hud.css": true,
+    "sheet": "oracle",
+    "tab_label": "Oracle Engine",
+    "thresholds_source": "health.thresholds ← services.dual_gate.export_dual_gate_thresholds"
+  },
+  "legacy_required_basenames": [
+    "archive_sheet.js",
+    "arctic_sheet.js",
+    "arctic_vessels_manifest.js",
+    "balance_engine.js",
+    "dual_gate.py",
+    "hud_state.js",
+    "map_tiles.js",
+    "oracle_engine.js",
+    "oracle_engine.py",
+    "oracle_event_bus.js",
+    "oracle_sheet.js",
+    "quant_risk_service.py",
+    "route_analytics_engine.js",
+    "route_infographics.js",
+    "route_map_view.js",
+    "route_sheet.js",
+    "sentinel_engine.js",
+    "sentinel_hud.css",
+    "sentinel_premium.css",
+    "top10_3d_viewer.js",
+    "top10_sheet.js",
+    "top10_vessels_manifest.js",
+    "uaip_quant_visualizer.js",
+    "vessel_3d_reconstruction.js",
+    "vessel_9737187.mp4",
+    "vessel_9750749.mp4",
+    "vessel_card_metrics.js"
+  ],
+  "legacy_coverage_ok": true,
+  "legacy_missing": [],
+  "assets": [
+    {
+      "name": "archive_sheet.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/archive_sheet.js",
+      "local_paths": [
+        "output/js/archive_sheet.js",
+        "web/js/archive_sheet.js"
+      ],
+      "resolved_path": "output/js/archive_sheet.js",
+      "sha256": "d2edca1c068cb3a7829353bd30653e8fbe63b3cbb754ae4ac30225fda1a61ea9",
+      "bytes": 13809,
+      "critical": false
+    },
+    {
+      "name": "arctic_sheet.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/arctic_sheet.js",
+      "local_paths": [
+        "output/js/arctic_sheet.js",
+        "web/js/arctic_sheet.js"
+      ],
+      "resolved_path": "output/js/arctic_sheet.js",
+      "sha256": "72fb7ccf34f2150f2462af35f0e831a035be6da4574153cc7cc19876f3e50252",
+      "bytes": 15900,
+      "critical": true
+    },
+    {
+      "name": "arctic_vessels_manifest.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/arctic_vessels_manifest.js",
+      "local_paths": [
+        "output/js/arctic_vessels_manifest.js",
+        "web/js/arctic_vessels_manifest.js"
+      ],
+      "resolved_path": "output/js/arctic_vessels_manifest.js",
+      "sha256": "f47cd078d60cdfc9c98ff0c75beef8ba78c05aaf4cccafe6737783924b455620",
+      "bytes": 8267,
+      "critical": false
+    },
+    {
+      "name": "balance_engine.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/balance_engine.js",
+      "local_paths": [
+        "output/js/balance_engine.js",
+        "web/js/balance_engine.js"
+      ],
+      "resolved_path": "output/js/balance_engine.js",
+      "sha256": "c0d0ed663fc4a924ecb2bf56398687d535e44222b9ec7efa7f9f99f832f2d81d",
+      "bytes": 36444,
+      "critical": false
+    },
+    {
+      "name": "hud_state.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/hud_state.js",
+      "local_paths": [
+        "output/js/hud_state.js",
+        "web/js/hud_state.js"
+      ],
+      "resolved_path": "output/js/hud_state.js",
+      "sha256": "bbfc249a400a40b3a80e3ede0adb4d2a0d0377f1021ad68e17b130add86f767f",
+      "bytes": 4879,
+      "critical": false
+    },
+    {
+      "name": "map_tiles.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/map_tiles.js",
+      "local_paths": [
+        "output/js/map_tiles.js",
+        "web/js/map_tiles.js"
+      ],
+      "resolved_path": "output/js/map_tiles.js",
+      "sha256": "58fc3cbb8f54de492c34ae2fd80b96ebeadabb6ff0c0f2fb99df24764d911056",
+      "bytes": 2654,
+      "critical": false
+    },
+    {
+      "name": "oracle_engine.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/oracle_engine.js",
+      "local_paths": [
+        "output/js/oracle_engine.js",
+        "web/js/oracle_engine.js"
+      ],
+      "resolved_path": "output/js/oracle_engine.js",
+      "sha256": "3409c5203cc02a20e2eac05108f186a8a0ae273a70aa5e474b60319f9bcef013",
+      "bytes": 33355,
+      "critical": true
+    },
+    {
+      "name": "oracle_event_bus.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/oracle_event_bus.js",
+      "local_paths": [
+        "output/js/oracle_event_bus.js",
+        "web/js/oracle_event_bus.js"
+      ],
+      "resolved_path": "output/js/oracle_event_bus.js",
+      "sha256": "40bf362c9fa5f7e2a4270335ff0379ffaaa937345b460b1c9f586078e5d0fd1c",
+      "bytes": 4912,
+      "critical": true
+    },
+    {
+      "name": "oracle_sheet.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/oracle_sheet.js",
+      "local_paths": [
+        "output/js/oracle_sheet.js",
+        "web/js/oracle_sheet.js"
+      ],
+      "resolved_path": "output/js/oracle_sheet.js",
+      "sha256": "e500a937c6ff003bb9704581b7ca2bbfd111e4b5b372636d7555ea7922ea125d",
+      "bytes": 22417,
+      "critical": true
+    },
+    {
+      "name": "route_analytics_engine.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/route_analytics_engine.js",
+      "local_paths": [
+        "output/js/route_analytics_engine.js",
+        "web/js/route_analytics_engine.js"
+      ],
+      "resolved_path": "output/js/route_analytics_engine.js",
+      "sha256": "ecbae5d9372ad632a5c2bb4d391add05ed05f86168c03b11f7be3d72659b8847",
+      "bytes": 6690,
+      "critical": false
+    },
+    {
+      "name": "route_infographics.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/route_infographics.js",
+      "local_paths": [
+        "output/js/route_infographics.js",
+        "web/js/route_infographics.js"
+      ],
+      "resolved_path": "output/js/route_infographics.js",
+      "sha256": "5882d3fdb409c9288cdc25f61b6b10a05cf383b456c4b01ff4c98c487350e9c1",
+      "bytes": 7003,
+      "critical": false
+    },
+    {
+      "name": "route_map_view.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/route_map_view.js",
+      "local_paths": [
+        "output/js/route_map_view.js",
+        "web/js/route_map_view.js"
+      ],
+      "resolved_path": "output/js/route_map_view.js",
+      "sha256": "45a02a0e135e4d8dd27b4500dedaf17def9a78c4153abd84915bc067a419d44b",
+      "bytes": 5632,
+      "critical": false
+    },
+    {
+      "name": "route_sheet.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/route_sheet.js",
+      "local_paths": [
+        "output/js/route_sheet.js",
+        "web/js/route_sheet.js"
+      ],
+      "resolved_path": "output/js/route_sheet.js",
+      "sha256": "136b83b0ebcd11d121e9df495c3c6d4f53090980a5c9be0e9e43cb141c402dd1",
+      "bytes": 6135,
+      "critical": false
+    },
+    {
+      "name": "top10_3d_viewer.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/top10_3d_viewer.js",
+      "local_paths": [
+        "output/js/top10_3d_viewer.js",
+        "web/js/top10_3d_viewer.js"
+      ],
+      "resolved_path": "output/js/top10_3d_viewer.js",
+      "sha256": "6d0cd16a95c9d10326f3c1d7fd728c86af011ea9b69d0eef76f244aab875c8d1",
+      "bytes": 61751,
+      "critical": false
+    },
+    {
+      "name": "top10_sheet.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/top10_sheet.js",
+      "local_paths": [
+        "output/js/top10_sheet.js",
+        "web/js/top10_sheet.js"
+      ],
+      "resolved_path": "output/js/top10_sheet.js",
+      "sha256": "040ca242a9270a0ce407d26640622c4179a2e11b063d7f7840c14b855aee4d0b",
+      "bytes": 70311,
+      "critical": true
+    },
+    {
+      "name": "top10_vessels_manifest.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/top10_vessels_manifest.js",
+      "local_paths": [
+        "output/js/top10_vessels_manifest.js",
+        "web/js/top10_vessels_manifest.js"
+      ],
+      "resolved_path": "output/js/top10_vessels_manifest.js",
+      "sha256": "fa73ed9823ad16059adcc11de4ca5c711d65c7ace8c7b4d1795b2ecce1a71e8c",
+      "bytes": 47957,
+      "critical": true
+    },
+    {
+      "name": "uaip_quant_visualizer.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/uaip_quant_visualizer.js",
+      "local_paths": [
+        "output/js/uaip_quant_visualizer.js",
+        "web/js/uaip_quant_visualizer.js"
+      ],
+      "resolved_path": "output/js/uaip_quant_visualizer.js",
+      "sha256": "be758eea11d943c8f6d38072165e5b0c9b9b5f1fe9b6af7c3a19db19f136d432",
+      "bytes": 11085,
+      "critical": false
+    },
+    {
+      "name": "vessel_3d_reconstruction.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/vessel_3d_reconstruction.js",
+      "local_paths": [
+        "output/js/vessel_3d_reconstruction.js",
+        "web/js/vessel_3d_reconstruction.js"
+      ],
+      "resolved_path": "output/js/vessel_3d_reconstruction.js",
+      "sha256": "50e6a2782b719f753e412d58fcb3098aac313792a2ee9b4f57a84c7e775e65b9",
+      "bytes": 24680,
+      "critical": false
+    },
+    {
+      "name": "vessel_3d_viewer.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/vessel_3d_viewer.js",
+      "local_paths": [
+        "output/js/vessel_3d_viewer.js",
+        "web/js/vessel_3d_viewer.js"
+      ],
+      "resolved_path": "output/js/vessel_3d_viewer.js",
+      "sha256": "cf149fff7d047a817f8b89d3caf1fdf1888035a1355ddc22bf72b99d50e6fd58",
+      "bytes": 26722,
+      "critical": false
+    },
+    {
+      "name": "vessel_card_metrics.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/vessel_card_metrics.js",
+      "local_paths": [
+        "output/js/vessel_card_metrics.js",
+        "web/js/vessel_card_metrics.js"
+      ],
+      "resolved_path": "output/js/vessel_card_metrics.js",
+      "sha256": "e87dc3ba445fce5431be3b6805569f779728c167d72b32ce3bf61afef544ba7e",
+      "bytes": 4780,
+      "critical": true
+    },
+    {
+      "name": "oracle_sheet.js.root",
+      "kind": "hud_js_root",
+      "url_path": "/output/oracle_sheet.js",
+      "local_paths": [
+        "output/oracle_sheet.js",
+        "web/oracle_sheet.js"
+      ],
+      "resolved_path": "output/oracle_sheet.js",
+      "sha256": "02313457f33f9c94c457f134633097400e3e57aaf32ab2a0a70a0718b41e3581",
+      "bytes": 168,
+      "critical": true
+    },
+    {
+      "name": "sentinel_engine.js",
+      "kind": "hud_js_root",
+      "url_path": "/output/js/sentinel_engine.js",
+      "local_paths": [
+        "output/js/sentinel_engine.js",
+        "web/sentinel_engine.js"
+      ],
+      "resolved_path": "output/js/sentinel_engine.js",
+      "sha256": "c3fadb1a43eead42cf9bedc4759303cf5186d7d199fb59af80d99ba2d04bf9b6",
+      "bytes": 47771,
+      "critical": true
+    },
+    {
+      "name": "top200_engine.js",
+      "kind": "hud_js_root",
+      "url_path": "/output/js/top200_engine.js",
+      "local_paths": [
+        "output/js/top200_engine.js",
+        "web/top200_engine.js"
+      ],
+      "resolved_path": "output/js/top200_engine.js",
+      "sha256": "f19a0cd924fe91b429a7479043bcc243cd025201e60fff1bf559cd27f7f0dc74",
+      "bytes": 83962,
+      "critical": false
+    },
+    {
+      "name": "top500_engine.js",
+      "kind": "hud_js_root",
+      "url_path": "/output/js/top500_engine.js",
+      "local_paths": [
+        "output/js/top500_engine.js",
+        "web/top500_engine.js"
+      ],
+      "resolved_path": "output/js/top500_engine.js",
+      "sha256": "d6ede6b1328a3feac943764bf0dfb44b6c1453f3949023d37bab662fddb3a52b",
+      "bytes": 86973,
+      "critical": false
+    },
+    {
+      "name": "vessel_lv_3d.js",
+      "kind": "hud_js_root",
+      "url_path": "/output/js/vessel_lv_3d.js",
+      "local_paths": [
+        "output/js/vessel_lv_3d.js",
+        "web/vessel_lv_3d.js"
+      ],
+      "resolved_path": "output/js/vessel_lv_3d.js",
+      "sha256": "3b30d10f6053545d515d0dbefd0af2bb8dad40999599911b91295a46d6ce74b2",
+      "bytes": 25021,
+      "critical": false
+    },
+    {
+      "name": "sentinel_hud.css",
+      "kind": "hud_css",
+      "url_path": "/output/js/sentinel_hud.css",
+      "local_paths": [
+        "output/js/sentinel_hud.css",
+        "output/css/sentinel_hud.css",
+        "web/css/sentinel_hud.css"
+      ],
+      "resolved_path": "output/js/sentinel_hud.css",
+      "sha256": "b695d2ce544a20cd2842a332ce58d02fb34141a186b6855f9c7b8d9d83f5b941",
+      "bytes": 64532,
+      "critical": true
+    },
+    {
+      "name": "sentinel_premium.css",
+      "kind": "hud_css_root",
+      "url_path": "/output/js/sentinel_premium.css",
+      "local_paths": [
+        "output/js/sentinel_premium.css",
+        "output/css/sentinel_premium.css",
+        "web/sentinel_premium.css"
+      ],
+      "resolved_path": "output/js/sentinel_premium.css",
+      "sha256": "3b9cd39660725591322c7d1adbfd1bcaaf4c6e5b45fb6246bf6be636eae3f628",
+      "bytes": 3395,
+      "critical": false
+    },
+    {
+      "name": "top200_premium.css",
+      "kind": "hud_css_root",
+      "url_path": "/output/js/top200_premium.css",
+      "local_paths": [
+        "output/js/top200_premium.css",
+        "output/css/top200_premium.css",
+        "web/top200_premium.css"
+      ],
+      "resolved_path": "output/js/top200_premium.css",
+      "sha256": "ebe31cc8b38b38b5715e3f7dd0e578a59ebd8a417699976307bc3ac04764edd6",
+      "bytes": 11569,
+      "critical": false
+    },
+    {
+      "name": "top500_premium.css",
+      "kind": "hud_css_root",
+      "url_path": "/output/js/top500_premium.css",
+      "local_paths": [
+        "output/js/top500_premium.css",
+        "output/css/top500_premium.css",
+        "web/top500_premium.css"
+      ],
+      "resolved_path": "output/js/top500_premium.css",
+      "sha256": "6e1049376937bd73356e17eb8240e88308e3e4ddd46acbdb51a1be013adb203e",
+      "bytes": 12175,
+      "critical": false
+    },
+    {
+      "name": "__init__.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/__init__.py"
+      ],
+      "resolved_path": "services/__init__.py",
+      "sha256": "8ac4aa2d6e506b42c133224cee10f5818373d3bcdc5794c9fb8b7c8b914744f6",
+      "bytes": 710,
+      "critical": false
+    },
+    {
+      "name": "ais_daily_aggregates.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ais_daily_aggregates.py"
+      ],
+      "resolved_path": "services/ais_daily_aggregates.py",
+      "sha256": "cf6bf4201cdcaaf4b515ca197bd05241ed392adda69fa61189a7120091b29ab4",
+      "bytes": 17886,
+      "critical": false
+    },
+    {
+      "name": "ais_health.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ais_health.py"
+      ],
+      "resolved_path": "services/ais_health.py",
+      "sha256": "38db302fdb95c7296776270c1f23b0d5b1d011c9aba95000de751be781d6ac3e",
+      "bytes": 19660,
+      "critical": true
+    },
+    {
+      "name": "ais_source_adapter.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ais_source_adapter.py"
+      ],
+      "resolved_path": "services/ais_source_adapter.py",
+      "sha256": "ac8e172eac536a19ced32a677e548441b72059fb3da5f1252df21d3e8a1f37e6",
+      "bytes": 3408,
+      "critical": false
+    },
+    {
+      "name": "aisstream_connector.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/aisstream_connector.py"
+      ],
+      "resolved_path": "services/aisstream_connector.py",
+      "sha256": "5ae0df0f40c2978720362e70f6957d60d3b069620cffdc4eed1842e6b814b62a",
+      "bytes": 62245,
+      "critical": false
+    },
+    {
+      "name": "alerts_engine.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/alerts_engine.py"
+      ],
+      "resolved_path": "services/alerts_engine.py",
+      "sha256": "c7f4329e29e0ed6cdcecd8ce30efe1b39f4f5ab147864cd61c5597c22287843c",
+      "bytes": 9491,
+      "critical": false
+    },
+    {
+      "name": "analytics.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/analytics.py"
+      ],
+      "resolved_path": "services/analytics.py",
+      "sha256": "c51c217cfa60352c4efaed307db4ed91ca0a8f8c8133ed3d12ccfcbc8015f1ce",
+      "bytes": 13797,
+      "critical": false
+    },
+    {
+      "name": "archive_schema.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/archive_schema.py"
+      ],
+      "resolved_path": "services/archive_schema.py",
+      "sha256": "04142c5d102e24748f004e11a918ec3b86f4a3be8255bfc5915e3b9267d3032a",
+      "bytes": 1427,
+      "critical": false
+    },
+    {
+      "name": "archive_service.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/archive_service.py"
+      ],
+      "resolved_path": "services/archive_service.py",
+      "sha256": "c29341d76e334b859eb8779f499127848a595d038fadc29b377391d43bfbcefc",
+      "bytes": 42150,
+      "critical": false
+    },
+    {
+      "name": "archive_snapshot_worker.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/archive_snapshot_worker.py"
+      ],
+      "resolved_path": "services/archive_snapshot_worker.py",
+      "sha256": "c68d70e0699fba6c577746c2f546e86449886640bd5f62fb2f009d1c939618e6",
+      "bytes": 12114,
+      "critical": false
+    },
+    {
+      "name": "balance_analytics.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/balance_analytics.py"
+      ],
+      "resolved_path": "services/balance_analytics.py",
+      "sha256": "fe9192438bad60fc661587cb746373ecd0c5377e074844b56fbb3a3a8df66a15",
+      "bytes": 24926,
+      "critical": false
+    },
+    {
+      "name": "balance_engine.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/balance_engine.py"
+      ],
+      "resolved_path": "services/balance_engine.py",
+      "sha256": "a8d1d6f6fac552e81f0c014bdb9ddaa29e2f08b85c5f7a6c68029b71be9d3dce",
+      "bytes": 13823,
+      "critical": false
+    },
+    {
+      "name": "chokepoints.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/chokepoints.py"
+      ],
+      "resolved_path": "services/chokepoints.py",
+      "sha256": "3b06ccd4f2582c159b5452d062aa8174eb2011b0112b432c106611ea47e7e082",
+      "bytes": 1661,
+      "critical": false
+    },
+    {
+      "name": "dual_gate.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/dual_gate.py"
+      ],
+      "resolved_path": "services/dual_gate.py",
+      "sha256": "af1f19e31b32d4d002695afb5300fab0eb78fd63b54883c7ef351d037e2f1c5f",
+      "bytes": 15365,
+      "critical": true
+    },
+    {
+      "name": "fleet_registry.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/fleet_registry.py"
+      ],
+      "resolved_path": "services/fleet_registry.py",
+      "sha256": "f542cd0b895360b55388fe7e656b2db297adc588df2b9669aab6a81845947c57",
+      "bytes": 6329,
+      "critical": false
+    },
+    {
+      "name": "fleet_tiers.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/fleet_tiers.py"
+      ],
+      "resolved_path": "services/fleet_tiers.py",
+      "sha256": "062a29832fea0eedbf0660f0731e111147df985a8d9385c49b6f14676c337788",
+      "bytes": 10294,
+      "critical": false
+    },
+    {
+      "name": "generative_3d_adapter.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/generative_3d_adapter.py"
+      ],
+      "resolved_path": "services/generative_3d_adapter.py",
+      "sha256": "bb2c2c7c9094e670323e3fee2b6ef24cb6ff2d98a9381874da6348ff3956797d",
+      "bytes": 17393,
+      "critical": false
+    },
+    {
+      "name": "key_manager.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/key_manager.py"
+      ],
+      "resolved_path": "services/key_manager.py",
+      "sha256": "e6e79036a5d821e5197cc207f171ec749215568b9362c0e19bdeb17e001e8c68",
+      "bytes": 16364,
+      "critical": false
+    },
+    {
+      "name": "log_retention.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/log_retention.py"
+      ],
+      "resolved_path": "services/log_retention.py",
+      "sha256": "e43a9e308933872ed7011d2daef49c6039cec3eec80db5bf4b8f7ed7c9444125",
+      "bytes": 7890,
+      "critical": false
+    },
+    {
+      "name": "maptiles_budget.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/maptiles_budget.py"
+      ],
+      "resolved_path": "services/maptiles_budget.py",
+      "sha256": "788a7c3a7db15ffe2eef54fc07a3dd91ce5e9649c6de8a3776fcb62df529bd8f",
+      "bytes": 5702,
+      "critical": false
+    },
+    {
+      "name": "maptiles_proxy.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/maptiles_proxy.py"
+      ],
+      "resolved_path": "services/maptiles_proxy.py",
+      "sha256": "24b64c31efb7491887d3d1ea52abebfc963c069437af95b4b400481be4b160c9",
+      "bytes": 18396,
+      "critical": false
+    },
+    {
+      "name": "migrate_legacy_to_sentinel.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/migrate_legacy_to_sentinel.py"
+      ],
+      "resolved_path": "services/migrate_legacy_to_sentinel.py",
+      "sha256": "ecb68ba0ddac273d56e0c7ceb7b064a498433dde2f505951869aa90381ce05fe",
+      "bytes": 9687,
+      "critical": false
+    },
+    {
+      "name": "oracle_engine.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/oracle_engine.py"
+      ],
+      "resolved_path": "services/oracle_engine.py",
+      "sha256": "b6d08628f41819e232a69d6e9516ae469161a1d7e649cc3e3af150ab201718ce",
+      "bytes": 23585,
+      "critical": true
+    },
+    {
+      "name": "qflex_vf_poller.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/qflex_vf_poller.py"
+      ],
+      "resolved_path": "services/qflex_vf_poller.py",
+      "sha256": "1759f3b1ba750050c7381f5783a265b872910fe848ac1601f30d29f33d6c9cb8",
+      "bytes": 18717,
+      "critical": false
+    },
+    {
+      "name": "quant_risk_service.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/quant_risk_service.py"
+      ],
+      "resolved_path": "services/quant_risk_service.py",
+      "sha256": "271bf84a18944dfb96dcbe36e00d21107fab4ebccdf34590c8ab68c98acd6f0d",
+      "bytes": 14558,
+      "critical": true
+    },
+    {
+      "name": "release_gate.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/release_gate.py"
+      ],
+      "resolved_path": "services/release_gate.py",
+      "sha256": "560ab2f667f79d1f21f13e8ce3f62815b6fae28839d4b8adf3a50f577768c0a4",
+      "bytes": 8553,
+      "critical": false
+    },
+    {
+      "name": "route_analytics.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/route_analytics.py"
+      ],
+      "resolved_path": "services/route_analytics.py",
+      "sha256": "6a5e5346f95ad7faf137255210712a5677c5fafe6647888b9b46496782413931",
+      "bytes": 32464,
+      "critical": false
+    },
+    {
+      "name": "satellite_ais_adapter.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/satellite_ais_adapter.py"
+      ],
+      "resolved_path": "services/satellite_ais_adapter.py",
+      "sha256": "6d0f8429f80a77b8dd321dbea2d81fceccedda829f534ea26cb717fc131b55bb",
+      "bytes": 2524,
+      "critical": false
+    },
+    {
+      "name": "sentinel_analytics.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/sentinel_analytics.py"
+      ],
+      "resolved_path": "services/sentinel_analytics.py",
+      "sha256": "0268333211b9845a8dd3149260aab7943d5e03c0b945887178d526e4617648ca",
+      "bytes": 24404,
+      "critical": false
+    },
+    {
+      "name": "sqlite_retention.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/sqlite_retention.py"
+      ],
+      "resolved_path": "services/sqlite_retention.py",
+      "sha256": "a3486dbd10a2a2b914d41a56cee08b57b00199404cd31fd2d21f6183c26b6bbe",
+      "bytes": 14851,
+      "critical": false
+    },
+    {
+      "name": "storage.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/storage.py"
+      ],
+      "resolved_path": "services/storage.py",
+      "sha256": "dea38e315846c744f2f26645b52e3df8e0636f132333bf916ff5f821b843c00f",
+      "bytes": 15946,
+      "critical": false
+    },
+    {
+      "name": "top10_3d_mesh.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/top10_3d_mesh.py"
+      ],
+      "resolved_path": "services/top10_3d_mesh.py",
+      "sha256": "42dcdb4fc6ed8d65335338e8f240a9e92b8dddf18e8ef6db0909ccfe3421a4d5",
+      "bytes": 61170,
+      "critical": false
+    },
+    {
+      "name": "top10_vessels.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/top10_vessels.py"
+      ],
+      "resolved_path": "services/top10_vessels.py",
+      "sha256": "336a47e90562e63cef53a33e5cea58825d88f10126fe4cf804e6edaeeaf02d85",
+      "bytes": 20727,
+      "critical": false
+    },
+    {
+      "name": "top10_voxel_cubes.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/top10_voxel_cubes.py"
+      ],
+      "resolved_path": "services/top10_voxel_cubes.py",
+      "sha256": "e55d6a6d1be27efed3b6701746d84a68b49fb729c6c40d6887833a2e265531be",
+      "bytes": 28711,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast____init__.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/__init__.py"
+      ],
+      "resolved_path": "services/ttf_forecast/__init__.py",
+      "sha256": "13c13180400fba8c2712db2aed7cd919e5b29bb412479681884be80ab9a8fc16",
+      "bytes": 268,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__catboost_model.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/catboost_model.py"
+      ],
+      "resolved_path": "services/ttf_forecast/catboost_model.py",
+      "sha256": "edd11227a1a4316bb925df10e95834ee938142cbfdd6d8b6677a4514bf71d88e",
+      "bytes": 20808,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__causality_wave.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/causality_wave.py"
+      ],
+      "resolved_path": "services/ttf_forecast/causality_wave.py",
+      "sha256": "2080656820d5710ec33389d19b7041290c4460c2f66d98326bb4eab1947caf0d",
+      "bytes": 12640,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__dashboard_payload.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/dashboard_payload.py"
+      ],
+      "resolved_path": "services/ttf_forecast/dashboard_payload.py",
+      "sha256": "a6c336a83fbc4556a16283102465a7b70445b436b76354e36f09b025709f20db",
+      "bytes": 14182,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__ensemble_aggregator.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/ensemble_aggregator.py"
+      ],
+      "resolved_path": "services/ttf_forecast/ensemble_aggregator.py",
+      "sha256": "2ed000a48705972d6472833f45f462f0052cdc682ffe0d66a0b0516e8238101a",
+      "bytes": 17907,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__feature_engineering.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/feature_engineering.py"
+      ],
+      "resolved_path": "services/ttf_forecast/feature_engineering.py",
+      "sha256": "6150016546df57193069fe5ba3a578cea507a6725982a13b8c1e20ad244ba3f9",
+      "bytes": 12796,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__granger_causality.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/granger_causality.py"
+      ],
+      "resolved_path": "services/ttf_forecast/granger_causality.py",
+      "sha256": "21b09a3630b67881b9d3e43a8701b31a606b4be7712e4e02dbcd130cb53d2f6f",
+      "bytes": 6065,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__hedging_engine.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/hedging_engine.py"
+      ],
+      "resolved_path": "services/ttf_forecast/hedging_engine.py",
+      "sha256": "e112ebe8ca9300cb47d0f77b178ea8dbd02101d70ee0e87eec871ee4dea662d0",
+      "bytes": 17577,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__ingest_ttf.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/ingest_ttf.py"
+      ],
+      "resolved_path": "services/ttf_forecast/ingest_ttf.py",
+      "sha256": "7c0958650a631dad75a9dd0fb8e0a2bdd42d5d141769b8d8f30cb5aab8a65da0",
+      "bytes": 17333,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__integrity.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/integrity.py"
+      ],
+      "resolved_path": "services/ttf_forecast/integrity.py",
+      "sha256": "29ac899ee483a29b36a85a2f9fcf1fb700fec082490f370186ae9ee7f061732c",
+      "bytes": 18596,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__logging_utils.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/logging_utils.py"
+      ],
+      "resolved_path": "services/ttf_forecast/logging_utils.py",
+      "sha256": "1cf84e882c03b6892330d3c49fdadd41a3ded35c6e17e8b127bb804df15921df",
+      "bytes": 1377,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__markov_engine.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/markov_engine.py"
+      ],
+      "resolved_path": "services/ttf_forecast/markov_engine.py",
+      "sha256": "dbdc397f90d18e6bb69b4dffc16181405441f9d8a699d28ef091b4bd460f04fd",
+      "bytes": 8984,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__paper_ledger.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/paper_ledger.py"
+      ],
+      "resolved_path": "services/ttf_forecast/paper_ledger.py",
+      "sha256": "3d9006c7e9c39a69052fc2b0171996ebea28f091aebfd9da28959374cdd55c50",
+      "bytes": 13169,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__quant_pipeline.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/quant_pipeline.py"
+      ],
+      "resolved_path": "services/ttf_forecast/quant_pipeline.py",
+      "sha256": "289f2016622a4bb7abe88dd8dd6c7f60ad0f971f1310f5c880fc3b84f8c380d9",
+      "bytes": 40352,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__run_quant_engines.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/run_quant_engines.py"
+      ],
+      "resolved_path": "services/ttf_forecast/run_quant_engines.py",
+      "sha256": "29dd7a3b4b166fe0440606b6b69b459f8b467bca14d5d56c74d83eae67699e7f",
+      "bytes": 2112,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__run_ttf_pipeline.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/run_ttf_pipeline.py"
+      ],
+      "resolved_path": "services/ttf_forecast/run_ttf_pipeline.py",
+      "sha256": "d3ef3116309ae4c924a2580c3cf5fec147c0ffed261433e9aaeef66044607d71",
+      "bytes": 9868,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__schema.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/schema.py"
+      ],
+      "resolved_path": "services/ttf_forecast/schema.py",
+      "sha256": "6fcd730fde57324d1a29fe0cca0a1a234f9783cb1675969ce24ccff5a27f7ee5",
+      "bytes": 2908,
+      "critical": false
+    },
+    {
+      "name": "services__ttf_forecast__spectral_engine.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ttf_forecast/spectral_engine.py"
+      ],
+      "resolved_path": "services/ttf_forecast/spectral_engine.py",
+      "sha256": "da312b4202f6debcf2bb3ff5cb02ee0357ab32a845a1b7d2cb5bfe88f42af944",
+      "bytes": 8230,
+      "critical": false
+    },
+    {
+      "name": "services__utils____init__.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/utils/__init__.py"
+      ],
+      "resolved_path": "services/utils/__init__.py",
+      "sha256": "2104b379d0128478e4aac985f6e18b3a8584eee88273d98ebcf44f6689f2ae02",
+      "bytes": 31,
+      "critical": false
+    },
+    {
+      "name": "services__utils__canonical_port.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/utils/canonical_port.py"
+      ],
+      "resolved_path": "services/utils/canonical_port.py",
+      "sha256": "2d6441c8f49db8e315c6a1deac0de53544a2a04d6d8e1dd1648788ab44d4c5cc",
+      "bytes": 1300,
+      "critical": false
+    },
+    {
+      "name": "services__utils__path_sanitizer.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/utils/path_sanitizer.py"
+      ],
+      "resolved_path": "services/utils/path_sanitizer.py",
+      "sha256": "f502b9745fb0abf1ad7ff694199f3f70ccc8222eea5509badfa7ad17fce5852b",
+      "bytes": 5328,
+      "critical": false
+    },
+    {
+      "name": "vesselfinder_budget.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/vesselfinder_budget.py"
+      ],
+      "resolved_path": "services/vesselfinder_budget.py",
+      "sha256": "3ecb23584d337158b125cfaed2e58db09b7d2b3d6ea6619cc748cfaa934f6024",
+      "bytes": 7782,
+      "critical": false
+    },
+    {
+      "name": "vesselfinder_client.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/vesselfinder_client.py"
+      ],
+      "resolved_path": "services/vesselfinder_client.py",
+      "sha256": "06bc7ec43449e2306f9b69e93ea53722270be3521ccaf6954de514c52a6e6dbc",
+      "bytes": 8052,
+      "critical": false
+    },
+    {
+      "name": "web_assets_sync.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/web_assets_sync.py"
+      ],
+      "resolved_path": "services/web_assets_sync.py",
+      "sha256": "95a42e175b39f18789236b541ac9e08b3b0c5f63f541e0917c18895cfcc4b481",
+      "bytes": 8781,
+      "critical": false
+    },
+    {
+      "name": "arctic_video_9737187",
+      "kind": "arctic_video",
+      "url_path": "/assets/arctic/videos/vessel_9737187.mp4",
+      "local_paths": [
+        "assets/arctic/videos/vessel_9737187.mp4",
+        "output/assets/arctic/videos/vessel_9737187.mp4"
+      ],
+      "resolved_path": "assets/arctic/videos/vessel_9737187.mp4",
+      "sha256": "2da07e958dd73ba5924046cc5ce3df163a0470151aad60a1b63dc4e933bef20d",
+      "bytes": 890459,
+      "critical": false
+    },
+    {
+      "name": "arctic_video_9750749",
+      "kind": "arctic_video",
+      "url_path": "/assets/arctic/videos/vessel_9750749.mp4",
+      "local_paths": [
+        "assets/arctic/videos/vessel_9750749.mp4",
+        "output/assets/arctic/videos/vessel_9750749.mp4"
+      ],
+      "resolved_path": "assets/arctic/videos/vessel_9750749.mp4",
+      "sha256": "372183369bdd13e2b8de90604a926aa8ecf19c94ff524489df9dace325de2887",
+      "bytes": 1136848,
+      "critical": false
+    },
+    {
+      "name": "vessel_9337755.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9337755.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9337755.glb",
+        "web/assets/3d_models/vessel_9337755.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9337755.glb",
+      "sha256": "293c8f2caa520933f4fc220a3a8cb71a244bfb3f50f5e384efaa8dcdea00072a",
+      "bytes": 1712868,
+      "critical": false
+    },
+    {
+      "name": "vessel_9372731.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9372731.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9372731.glb",
+        "web/assets/3d_models/vessel_9372731.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9372731.glb",
+      "sha256": "3819c78df72b3abc20c3985d938909371ac621c8a7d11c19359f937b44ba0abc",
+      "bytes": 1711320,
+      "critical": false
+    },
+    {
+      "name": "vessel_9372743.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9372743.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9372743.glb",
+        "web/assets/3d_models/vessel_9372743.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9372743.glb",
+      "sha256": "28806c94b3d792071dea3413bd9f3e351a3d49793723a5e13eb0d8af364b524e",
+      "bytes": 1797664,
+      "critical": false
+    },
+    {
+      "name": "vessel_9388819.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9388819.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9388819.glb",
+        "web/assets/3d_models/vessel_9388819.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9388819.glb",
+      "sha256": "81f63668ab30b8bed02caed5772a144f942368f3a95b0e89fc2acdbe53092016",
+      "bytes": 2033480,
+      "critical": false
+    },
+    {
+      "name": "vessel_9388821.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9388821.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9388821.glb",
+        "web/assets/3d_models/vessel_9388821.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9388821.glb",
+      "sha256": "40a950db1f67194eff6ffe5fffc3b8a5a6cbd82fd892d4244f3e2cdabbd60b65",
+      "bytes": 1881536,
+      "critical": false
+    },
+    {
+      "name": "vessel_9388833.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9388833.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9388833.glb",
+        "web/assets/3d_models/vessel_9388833.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9388833.glb",
+      "sha256": "8fc5e65a22261c2c1ba93252d81ccef386a3a1d1abcd93d65681975f28dd2c63",
+      "bytes": 1913280,
+      "critical": false
+    },
+    {
+      "name": "vessel_9397298.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9397298.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9397298.glb",
+        "web/assets/3d_models/vessel_9397298.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9397298.glb",
+      "sha256": "e5e0c28d43235d895cd222561f589e312a655053f1c46fa75344738632230c16",
+      "bytes": 1836876,
+      "critical": false
+    },
+    {
+      "name": "vessel_9397303.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9397303.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9397303.glb",
+        "web/assets/3d_models/vessel_9397303.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9397303.glb",
+      "sha256": "1c692849d18cf7731541e1a10c2e21041d3aa7029d169b0f2bbb1bdc916fadfb",
+      "bytes": 1800768,
+      "critical": false
+    },
+    {
+      "name": "vessel_9397315.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9397315.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9397315.glb",
+        "web/assets/3d_models/vessel_9397315.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9397315.glb",
+      "sha256": "f6b3a382e6ba14f1fa7ed09d89d7dc50d9addbec887ea1f14bc76c3983909623",
+      "bytes": 1832224,
+      "critical": false
+    },
+    {
+      "name": "vessel_9397327.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_9397327.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_9397327.glb",
+        "web/assets/3d_models/vessel_9397327.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_9397327.glb",
+      "sha256": "14dbd699ea7398bbc11aa4965d2f3a86a156e768c12b70118b931a43087c448c",
+      "bytes": 1933240,
+      "critical": false
+    },
+    {
+      "name": "vessel_976929.glb",
+      "kind": "glb",
+      "url_path": "/output/assets/3d_models/vessel_976929.glb",
+      "local_paths": [
+        "output/assets/3d_models/vessel_976929.glb",
+        "web/assets/3d_models/vessel_976929.glb"
+      ],
+      "resolved_path": "output/assets/3d_models/vessel_976929.glb",
+      "sha256": "8709098771fa144e48c9c3329a0cd48f7f540acc8cd0089ad87ee9c1cf2823f8",
+      "bytes": 1813436,
+      "critical": false
+    }
+  ],
+  "web_output_pairs": [
+    {
+      "web": "web/js/archive_sheet.js",
+      "output": "output/js/archive_sheet.js",
+      "web_sha256": "d2edca1c068cb3a7829353bd30653e8fbe63b3cbb754ae4ac30225fda1a61ea9",
+      "output_sha256": "d2edca1c068cb3a7829353bd30653e8fbe63b3cbb754ae4ac30225fda1a61ea9",
+      "match": true
+    },
+    {
+      "web": "web/js/arctic_sheet.js",
+      "output": "output/js/arctic_sheet.js",
+      "web_sha256": "72fb7ccf34f2150f2462af35f0e831a035be6da4574153cc7cc19876f3e50252",
+      "output_sha256": "72fb7ccf34f2150f2462af35f0e831a035be6da4574153cc7cc19876f3e50252",
+      "match": true
+    },
+    {
+      "web": "web/js/arctic_vessels_manifest.js",
+      "output": "output/js/arctic_vessels_manifest.js",
+      "web_sha256": "f47cd078d60cdfc9c98ff0c75beef8ba78c05aaf4cccafe6737783924b455620",
+      "output_sha256": "f47cd078d60cdfc9c98ff0c75beef8ba78c05aaf4cccafe6737783924b455620",
+      "match": true
+    },
+    {
+      "web": "web/js/balance_engine.js",
+      "output": "output/js/balance_engine.js",
+      "web_sha256": "c0d0ed663fc4a924ecb2bf56398687d535e44222b9ec7efa7f9f99f832f2d81d",
+      "output_sha256": "c0d0ed663fc4a924ecb2bf56398687d535e44222b9ec7efa7f9f99f832f2d81d",
+      "match": true
+    },
+    {
+      "web": "web/js/hud_state.js",
+      "output": "output/js/hud_state.js",
+      "web_sha256": "bbfc249a400a40b3a80e3ede0adb4d2a0d0377f1021ad68e17b130add86f767f",
+      "output_sha256": "bbfc249a400a40b3a80e3ede0adb4d2a0d0377f1021ad68e17b130add86f767f",
+      "match": true
+    },
+    {
+      "web": "web/js/map_tiles.js",
+      "output": "output/js/map_tiles.js",
+      "web_sha256": "58fc3cbb8f54de492c34ae2fd80b96ebeadabb6ff0c0f2fb99df24764d911056",
+      "output_sha256": "58fc3cbb8f54de492c34ae2fd80b96ebeadabb6ff0c0f2fb99df24764d911056",
+      "match": true
+    },
+    {
+      "web": "web/js/oracle_engine.js",
+      "output": "output/js/oracle_engine.js",
+      "web_sha256": "3409c5203cc02a20e2eac05108f186a8a0ae273a70aa5e474b60319f9bcef013",
+      "output_sha256": "3409c5203cc02a20e2eac05108f186a8a0ae273a70aa5e474b60319f9bcef013",
+      "match": true
+    },
+    {
+      "web": "web/js/oracle_event_bus.js",
+      "output": "output/js/oracle_event_bus.js",
+      "web_sha256": "40bf362c9fa5f7e2a4270335ff0379ffaaa937345b460b1c9f586078e5d0fd1c",
+      "output_sha256": "40bf362c9fa5f7e2a4270335ff0379ffaaa937345b460b1c9f586078e5d0fd1c",
+      "match": true
+    },
+    {
+      "web": "web/js/oracle_sheet.js",
+      "output": "output/js/oracle_sheet.js",
+      "web_sha256": "e500a937c6ff003bb9704581b7ca2bbfd111e4b5b372636d7555ea7922ea125d",
+      "output_sha256": "e500a937c6ff003bb9704581b7ca2bbfd111e4b5b372636d7555ea7922ea125d",
+      "match": true
+    },
+    {
+      "web": "web/js/route_analytics_engine.js",
+      "output": "output/js/route_analytics_engine.js",
+      "web_sha256": "ecbae5d9372ad632a5c2bb4d391add05ed05f86168c03b11f7be3d72659b8847",
+      "output_sha256": "ecbae5d9372ad632a5c2bb4d391add05ed05f86168c03b11f7be3d72659b8847",
+      "match": true
+    },
+    {
+      "web": "web/js/route_infographics.js",
+      "output": "output/js/route_infographics.js",
+      "web_sha256": "5882d3fdb409c9288cdc25f61b6b10a05cf383b456c4b01ff4c98c487350e9c1",
+      "output_sha256": "5882d3fdb409c9288cdc25f61b6b10a05cf383b456c4b01ff4c98c487350e9c1",
+      "match": true
+    },
+    {
+      "web": "web/js/route_map_view.js",
+      "output": "output/js/route_map_view.js",
+      "web_sha256": "45a02a0e135e4d8dd27b4500dedaf17def9a78c4153abd84915bc067a419d44b",
+      "output_sha256": "45a02a0e135e4d8dd27b4500dedaf17def9a78c4153abd84915bc067a419d44b",
+      "match": true
+    },
+    {
+      "web": "web/js/route_sheet.js",
+      "output": "output/js/route_sheet.js",
+      "web_sha256": "136b83b0ebcd11d121e9df495c3c6d4f53090980a5c9be0e9e43cb141c402dd1",
+      "output_sha256": "136b83b0ebcd11d121e9df495c3c6d4f53090980a5c9be0e9e43cb141c402dd1",
+      "match": true
+    },
+    {
+      "web": "web/js/top10_3d_viewer.js",
+      "output": "output/js/top10_3d_viewer.js",
+      "web_sha256": "6d0cd16a95c9d10326f3c1d7fd728c86af011ea9b69d0eef76f244aab875c8d1",
+      "output_sha256": "6d0cd16a95c9d10326f3c1d7fd728c86af011ea9b69d0eef76f244aab875c8d1",
+      "match": true
+    },
+    {
+      "web": "web/js/top10_sheet.js",
+      "output": "output/js/top10_sheet.js",
+      "web_sha256": "040ca242a9270a0ce407d26640622c4179a2e11b063d7f7840c14b855aee4d0b",
+      "output_sha256": "040ca242a9270a0ce407d26640622c4179a2e11b063d7f7840c14b855aee4d0b",
+      "match": true
+    },
+    {
+      "web": "web/js/top10_vessels_manifest.js",
+      "output": "output/js/top10_vessels_manifest.js",
+      "web_sha256": "fa73ed9823ad16059adcc11de4ca5c711d65c7ace8c7b4d1795b2ecce1a71e8c",
+      "output_sha256": "fa73ed9823ad16059adcc11de4ca5c711d65c7ace8c7b4d1795b2ecce1a71e8c",
+      "match": true
+    },
+    {
+      "web": "web/js/uaip_quant_visualizer.js",
+      "output": "output/js/uaip_quant_visualizer.js",
+      "web_sha256": "be758eea11d943c8f6d38072165e5b0c9b9b5f1fe9b6af7c3a19db19f136d432",
+      "output_sha256": "be758eea11d943c8f6d38072165e5b0c9b9b5f1fe9b6af7c3a19db19f136d432",
+      "match": true
+    },
+    {
+      "web": "web/js/vessel_3d_reconstruction.js",
+      "output": "output/js/vessel_3d_reconstruction.js",
+      "web_sha256": "50e6a2782b719f753e412d58fcb3098aac313792a2ee9b4f57a84c7e775e65b9",
+      "output_sha256": "50e6a2782b719f753e412d58fcb3098aac313792a2ee9b4f57a84c7e775e65b9",
+      "match": true
+    },
+    {
+      "web": "web/js/vessel_3d_viewer.js",
+      "output": "output/js/vessel_3d_viewer.js",
+      "web_sha256": "cf149fff7d047a817f8b89d3caf1fdf1888035a1355ddc22bf72b99d50e6fd58",
+      "output_sha256": "cf149fff7d047a817f8b89d3caf1fdf1888035a1355ddc22bf72b99d50e6fd58",
+      "match": true
+    },
+    {
+      "web": "web/js/vessel_card_metrics.js",
+      "output": "output/js/vessel_card_metrics.js",
+      "web_sha256": "e87dc3ba445fce5431be3b6805569f779728c167d72b32ce3bf61afef544ba7e",
+      "output_sha256": "e87dc3ba445fce5431be3b6805569f779728c167d72b32ce3bf61afef544ba7e",
+      "match": true
+    },
+    {
+      "web": "web/oracle_sheet.js",
+      "output": "output/oracle_sheet.js",
+      "web_sha256": "02313457f33f9c94c457f134633097400e3e57aaf32ab2a0a70a0718b41e3581",
+      "output_sha256": "02313457f33f9c94c457f134633097400e3e57aaf32ab2a0a70a0718b41e3581",
+      "match": true
+    },
+    {
+      "web": "web/sentinel_engine.js",
+      "output": "output/js/sentinel_engine.js",
+      "web_sha256": "c3fadb1a43eead42cf9bedc4759303cf5186d7d199fb59af80d99ba2d04bf9b6",
+      "output_sha256": "c3fadb1a43eead42cf9bedc4759303cf5186d7d199fb59af80d99ba2d04bf9b6",
+      "match": true
+    },
+    {
+      "web": "web/top200_engine.js",
+      "output": "output/js/top200_engine.js",
+      "web_sha256": "f19a0cd924fe91b429a7479043bcc243cd025201e60fff1bf559cd27f7f0dc74",
+      "output_sha256": "f19a0cd924fe91b429a7479043bcc243cd025201e60fff1bf559cd27f7f0dc74",
+      "match": true
+    },
+    {
+      "web": "web/top500_engine.js",
+      "output": "output/js/top500_engine.js",
+      "web_sha256": "d6ede6b1328a3feac943764bf0dfb44b6c1453f3949023d37bab662fddb3a52b",
+      "output_sha256": "d6ede6b1328a3feac943764bf0dfb44b6c1453f3949023d37bab662fddb3a52b",
+      "match": true
+    },
+    {
+      "web": "web/vessel_lv_3d.js",
+      "output": "output/js/vessel_lv_3d.js",
+      "web_sha256": "3b30d10f6053545d515d0dbefd0af2bb8dad40999599911b91295a46d6ce74b2",
+      "output_sha256": "3b30d10f6053545d515d0dbefd0af2bb8dad40999599911b91295a46d6ce74b2",
+      "match": true
+    },
+    {
+      "web": "web/css/sentinel_hud.css",
+      "output": "output/js/sentinel_hud.css",
+      "web_sha256": "b695d2ce544a20cd2842a332ce58d02fb34141a186b6855f9c7b8d9d83f5b941",
+      "output_sha256": "b695d2ce544a20cd2842a332ce58d02fb34141a186b6855f9c7b8d9d83f5b941",
+      "match": true
+    },
+    {
+      "web": "web/sentinel_premium.css",
+      "output": "output/js/sentinel_premium.css",
+      "web_sha256": "3b9cd39660725591322c7d1adbfd1bcaaf4c6e5b45fb6246bf6be636eae3f628",
+      "output_sha256": "3b9cd39660725591322c7d1adbfd1bcaaf4c6e5b45fb6246bf6be636eae3f628",
+      "match": true
+    },
+    {
+      "web": "web/top200_premium.css",
+      "output": "output/js/top200_premium.css",
+      "web_sha256": "ebe31cc8b38b38b5715e3f7dd0e578a59ebd8a417699976307bc3ac04764edd6",
+      "output_sha256": "ebe31cc8b38b38b5715e3f7dd0e578a59ebd8a417699976307bc3ac04764edd6",
+      "match": true
+    },
+    {
+      "web": "web/top500_premium.css",
+      "output": "output/js/top500_premium.css",
+      "web_sha256": "6e1049376937bd73356e17eb8240e88308e3e4ddd46acbdb51a1be013adb203e",
+      "output_sha256": "6e1049376937bd73356e17eb8240e88308e3e4ddd46acbdb51a1be013adb203e",
+      "match": true
+    }
+  ],
+  "verify": {
+    "command": "python scripts/verify_deploy_manifest.py --live --strict",
+    "list_command": "python scripts/verify_deploy_manifest.py --list-discovered",
+    "sync_command": "node scripts/sync_web_output.js"
+  }
+}

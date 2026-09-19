@@ -336,6 +336,8 @@ def compute_quant_risk_payload(
         "quantiles_source": quant_source,
         "model_cv_accuracy_pct": cv_acc,
         "model_last_retrained": model_last_retrained,
+        "model_last_retrained_utc": model_last_retrained,
+        "model_provenance": "offline_batch",
         "live_inference_confidence": live_conf,
         "active_regime": active_regime,
         "regime_probabilities": regime_probs,

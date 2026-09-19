@@ -1,25 +1,28 @@
 # AGENTS.md — Oracle-1001 / Sentinel (read before any change)
 
-**Contract-Version:** `1.6.3-image-bake-proof` · **Last-Revised:** `2026-09-16` · Image bake proof · Particulars · ARCTIC · Dual Gate quant SoT  
+**Contract-Version:** `1.7.0-autodiscover-oracle-sot` · **Last-Revised:** `2026-09-20` · Auto-discovery deploy manifest · Oracle Dual Gate thresholds SoT  
 Any edit to this file is a **versioned event** — bump Contract-Version and add a CHANGELOG.md entry in the same change.
 
 This file is the **binding operational contract** for humans and AI agents opening
 the repo for the first time. If anything else (old README sections, stale JSON
 reports under `output/`, chat history) conflicts with this file — **this file wins**.
 
-## Consolidated contract themes (v1.4.0 → … → v1.6.3-image-bake-proof)
+## Consolidated contract themes (v1.4.0 → … → v1.7.0-autodiscover-oracle-sot)
 
 This revision consolidates operational locks that must stay consistent with Dual Gate:
 
-1. **Archive provenance** — OSINT static registry ≠ live G3 AIS; never `PREMIUM SATELLITE` without real commercial satellite feed; archive never feeds `fleet_sample_status`.
-2. **Digital Twin (GLB/Voxel)** — assets sync into `output/assets/3d_models/`; Inspector Never-Black hierarchy; lazy-unmount 3D on sheet/tab change (no WebGL 0/1/0 regression). Deploy must **never** `--exclude=*.glb`.
-3. **Offline ML** — Node A/B serve `.cbm` inference only; weekly offline retrain (Variant A); `model_last_retrained` mandatory on `/api/v1/quant/risk`.
-4. **Disk headroom** — `disk_free_pct` in `health.json`; `<20%` → DEGRADED; `<10%` → CRITICAL; host log/corrupt_backup retention via `services/log_retention.py`.
+0. **Deploy auto-discovery (v1.7.0)** — `scripts/verify_deploy_manifest.py` discovers HUD/runtime assets via globs (`web/js/**`, `web/**/*.css`, `services/**/*.py`, arctic `*.mp4`, GLB). New features under those trees are verified **without** hand-editing a file list. Fourth "hotfix not in image" incident class is closed by discovery, not per-file patches.
+0b. **Oracle thresholds single SoT (v1.7.0)** — `health.thresholds` comes from `services.dual_gate.export_dual_gate_thresholds()`. Client Oracle must **not** hardcode `ORACLE_THRESHOLDS` numeric cutoffs (same class of bug as pre-1.6.1 quant SoT drift).
+1. **Archive provenance** — OSINT / VesselFinder hybrid **snapshot** ≠ live G3 AIS; never `PREMIUM SATELLITE` without real commercial satellite feed; archive never feeds `fleet_sample_status`. While VF REST returns `Invalid Userkey`, HUD labels **`ARCHIVE REGISTRY: SNAPSHOT / DEMO MODE`**.
+2. **Digital Twin (GLB/Voxel)** — assets sync into `output/assets/3d_models/` (canonical — **not** `assets/models/`); Inspector Never-Black hierarchy; lazy-unmount 3D/map/video on sheet leave (single heavy surface). Deploy must **never** `--exclude=*.glb`.
+3. **Offline ML** — Node A/B serve `.cbm` inference only; weekly offline retrain (Variant A); `/api/v1/quant/risk` exposes `model_last_retrained`, `model_last_retrained_utc`, and `model_provenance: "offline_batch"`.
+4. **Disk headroom** — `disk_free_pct` in `health.json`; `<20%` → DEGRADED; `<10%` → CRITICAL (do **not** retarget to 15% — AGENTS lock); host log/corrupt_backup retention via `services/log_retention.py`.
 5. **ARCTIC sheet (v1.6.0+)** — Arc7 Yamalmax flight videos are **LUMA-generated** at the **same trust tier** as Q-Flex REAL VIDEO / LUMA track. Recognizable vessel identity does **not** raise trust. `VIDEO-DERIVED VIEWS` are frames from that AI flight (agent ffmpeg **or** user-curated stills) — **not** an Ortho Triplet and **not** a measurement source. Missing nadir → honest `TOP VIEW UNAVAILABLE`; when a user-curated overhead still exists → show it under the same VIDEO-DERIVED badge (`NOT ORTHO / NOT MEASUREMENT`).
 6. **Map tile proxy (v1.6.0)** — HUD tiles are same-origin `GET /api/tiles/{provider}/{z}/{x}/{y}.png`. Paid provider keys stay **server-side only** (`MAPTILES_PROVIDER_KEY`). Absent/invalid key or upstream failure → **Esri World Imagery Never-Black fallback** (no client-visible `API KEY REQUIRED` dead-end).
 7. **VesselFinder commercial client (v1.6.0)** — `services/vesselfinder_client.py` + budget + Q-Flex poller are **wired and honest**. Until a **validated** `VESSELFINDER_API_KEY` exists, Q-Flex cargo / fleet value remains `notional_full_capacity_fallback` (never silently pretend live draft). Key presence alone ≠ live cargo.
 8. **Quant Dual-Gate SoT (v1.6.1)** — `/api/v1/quant/risk` must resolve `pipeline_health_status` via the **same live** `build_health_document()` path as `/api/v1/health`. Never prefer a stale on-disk `health.json` snapshot for gate fields.
 9. **Particulars provenance (v1.6.2)** — see dedicated section below; round class placeholders (e.g. DWT `130000`) are not registry truth.
+10. **OOB seal (v1.6.4)** — Archive SNAPSHOT/DEMO labeling + ML utc/provenance aliases + sheet-leave heavy-media pause + disk prune ops without Dual Gate threshold drift.
 
 ### Particulars provenance (LOA / Beam / DWT / Draft)
 
@@ -159,9 +162,9 @@ The system maintains a reference fleet archive distinct from the live terrestria
    - Archive operations (`archive_service.py`) must never inject synthetic `now()` timestamps into `ais_positions.received_at`.
 4. **UI Clear Separation:**
    - The Archive sheet must explicitly display:
-     - `KNOWN REGISTRY: 1,253 known vessels (OSINT snapshot)`
-     - `LIVE G3 AIS: N=... live AIS-tracked (terrestrial G3 ceiling)`
-     - Prominent banner: `ARCHIVE REGISTRY: STATIC OSINT SNAPSHOT · NOT A LIVE THIRD-PARTY FEED`.
+     - `KNOWN REGISTRY: 1,253 known vessels (OSINT / VesselFinder hybrid snapshot)`
+     - `LIVE G3 AIS: N=... live AIS-tracked (G3 Terrestrial Ceiling)`
+     - Prominent banner: `ARCHIVE REGISTRY: SNAPSHOT / DEMO MODE · NOT LIVE VESSELFINDER REST · NOT SATELLITE` (while commercial REST is inactive).
 
 ## Hard DO NOT (agent anti-patterns)
 

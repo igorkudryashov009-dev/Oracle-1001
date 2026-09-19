@@ -26,6 +26,7 @@
       if (sheet === "ttf"     || hash === "ttf"     || hash === "tab-ttf-forecast") return "ttf";
       if (sheet === "top10" || sheet === "qflex" || sheet === "q-flex" || hash === "top10" || hash === "qflex" || hash === "q-flex" || hash === "sheet-top10") return "top10";
       if (sheet === "arctic" || hash === "arctic" || hash === "sheet-arctic") return "arctic";
+      if (sheet === "oracle" || hash === "oracle" || hash === "sheet-oracle") return "oracle";
       if (sheet === "route"   || hash === "route"   || hash === "sheet-route")     return "route";
       if (sheet === "balance" || hash === "balance" || hash === "sheet-balance")   return "balance";
       if (sheet === "archive" || hash === "archive" || hash === "sheet-archive")   return "archive";
@@ -354,6 +355,7 @@
     if (name === "ttf") sheet = "ttf";
     else if (name === "top10" || name === "qflex" || name === "q-flex") sheet = "top10";
     else if (name === "arctic") sheet = "arctic";
+    else if (name === "oracle") sheet = "oracle";
     else if (name === "route") sheet = "route";
     else if (name === "balance") sheet = "balance";
     else if (name === "archive") sheet = "archive";
@@ -373,6 +375,7 @@
     const ttf = document.getElementById("tab-ttf-forecast");
     const top10 = document.getElementById("sheet-top10");
     const arctic = document.getElementById("sheet-arctic");
+    const oracle = document.getElementById("sheet-oracle");
     const route = document.getElementById("sheet-route");
     const balance = document.getElementById("sheet-balance");
     const archive = document.getElementById("sheet-archive");
@@ -394,6 +397,10 @@
       arctic.classList.toggle("active", sheet === "arctic");
       arctic.style.display = sheet === "arctic" ? "block" : "none";
     }
+    if (oracle) {
+      oracle.classList.toggle("active", sheet === "oracle");
+      oracle.style.display = sheet === "oracle" ? "block" : "none";
+    }
     if (route) {
       route.classList.toggle("active", sheet === "route");
       route.style.display = sheet === "route" ? "block" : "none";
@@ -411,11 +418,22 @@
     const title = document.getElementById("heroTitle");
     const sub = document.getElementById("heroSub");
 
+    // Lazy-unmount: only one heavy surface (3D / map / video) stays live.
     if (window.__TOP10__ && typeof window.__TOP10__.pause === "function" && sheet !== "top10") {
       try { window.__TOP10__.pause(); } catch (_) { /* ignore */ }
     }
     if (window.__ARCTIC__ && typeof window.__ARCTIC__.pause === "function" && sheet !== "arctic") {
       try { window.__ARCTIC__.pause(); } catch (_) { /* ignore */ }
+    }
+    if (window.__ORACLE_SHEET__ && sheet !== "oracle") {
+      try {
+        if (typeof window.__ORACLE_SHEET__.pause === "function") {
+          window.__ORACLE_SHEET__.pause();
+        }
+      } catch (_) { /* ignore */ }
+    }
+    if (window.__ROUTE__ && typeof window.__ROUTE__.pause === "function" && sheet !== "route") {
+      try { window.__ROUTE__.pause(); } catch (_) { /* ignore */ }
     }
 
     try {
@@ -449,6 +467,7 @@
         sub.textContent = "Q-Max / Membrane · orthographic triplets · WebGL ACESFilmic · ACTIVE OSINT TRACK";
       }
       afterLayout(() => {
+        document.dispatchEvent(new CustomEvent("sentinelSheetChange", { detail: { sheet: "top10" } }));
         const boot = () => {
           if (window.__TOP10__ && typeof window.__TOP10__.boot === "function") {
             window.__TOP10__.boot({ force: !!force });
@@ -469,6 +488,25 @@
         const boot = () => {
           if (window.__ARCTIC__ && typeof window.__ARCTIC__.boot === "function") {
             window.__ARCTIC__.boot({ force: !!force });
+          } else {
+            setTimeout(boot, 40);
+          }
+        };
+        boot();
+      });
+    } else if (sheet === "oracle") {
+      if (title) title.textContent = "ORACLE ENGINE · CONTROL & FORECAST";
+      if (sub) {
+        const O = (P && P.oracle_state) || {};
+        const cov = O.coverage != null ? O.coverage : (P && P.top500_live_coverage);
+        const st = O.status || (P && P.fleet_sample_status) || "INSUFFICIENT";
+        sub.textContent = `Predictor Dual Gate / G3 / Archive / ML · coverage=${cov ?? "—"} · sample ${st} · WARN_NOMINAL safe`;
+      }
+      afterLayout(() => {
+        document.dispatchEvent(new CustomEvent("sentinelSheetChange", { detail: { sheet: "oracle" } }));
+        const boot = () => {
+          if (window.__ORACLE_SHEET__ && typeof window.__ORACLE_SHEET__.boot === "function") {
+            window.__ORACLE_SHEET__.boot({ force: !!force });
           } else {
             setTimeout(boot, 40);
           }

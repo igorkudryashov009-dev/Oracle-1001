@@ -95,6 +95,9 @@ if [[ -n "${VOL_OUT}" && -d "${VOL_OUT}" ]]; then
   if [[ -d output/assets ]]; then
     rsync -a --exclude='_probe' --exclude='screenshots' output/assets/ "${VOL_OUT}/assets/"
   fi
+  if [[ -f output/deploy_manifest.json ]]; then
+    cp -a output/deploy_manifest.json "${VOL_OUT}/deploy_manifest.json"
+  fi
   if [[ -f output/qflex_fleet_cargo.json ]]; then
     cp -a output/qflex_fleet_cargo.json "${VOL_OUT}/qflex_fleet_cargo.json"
   fi
@@ -132,11 +135,23 @@ man = Path("/app/output/js/top10_vessels_manifest.js").read_text(encoding="utf-8
 assert "155159" in man, "top10_vessels_manifest.js missing LIJMILIYA DWT 155159 in volume"
 arctic_vid = Path("/app/assets/arctic/videos")
 assert arctic_vid.is_dir(), "assets/arctic bind-mount missing"
+assert Path("/app/services/oracle_engine.py").is_file(), "oracle_engine.py missing in image"
+assert Path("/app/output/js/oracle_sheet.js").is_file(), "oracle_sheet.js missing in output volume"
+assert Path("/app/output/js/oracle_engine.js").is_file(), "oracle_engine.js missing in output volume"
+assert Path("/app/output/js/vessel_card_metrics.js").is_file(), "vessel_card_metrics.js missing"
+oe = Path("/app/output/js/oracle_engine.js").read_text(encoding="utf-8", errors="ignore")
+assert "FLEET_SAMPLE_LIMITED_MIN: 5" not in oe and "FLEET_SAMPLE_LIMITED_MIN:5" not in oe, (
+    "oracle_engine.js still hardcodes LIMITED_MIN — Dual Gate SoT regression"
+)
+assert "oracle_applyThresholdsFromHealth" in oe
+from services.dual_gate import export_dual_gate_thresholds
+assert export_dual_gate_thresholds()["FLEET_SAMPLE_LIMITED_MIN"] == 5
 print(
     "BAKE_OK disk_min=", DISK_FREE_MIN_PCT,
     "disk=", probe_disk_usage().get("disk_free_pct"),
     "arctic_js=1",
     "quant_live_sot=1",
+    "oracle_sot=1",
     "lijmiliya_dwt=155159",
     "arctic_mp4=", sum(1 for _ in arctic_vid.glob("*.mp4")),
 )

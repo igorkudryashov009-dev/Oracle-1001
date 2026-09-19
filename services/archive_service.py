@@ -227,11 +227,11 @@ def write_api_status(
         ui_tone = "ok"
         api_plan = "COMMERCIAL REST API (LIVE)"
     else:
-        ui_api = "HYBRID LOCAL FALLBACK"
+        ui_api = "HYBRID LOCAL FALLBACK · SNAPSHOT / DEMO MODE"
         ui_key = f"DETECTED ({key_masked}) · REST PENDING" if key_masked else "—"
-        ui_status = "NOMINAL"
+        ui_status = "SNAPSHOT / DEMO"
         ui_tone = "hybrid"
-        api_plan = "OSINT REGISTRY (HYBRID LOCAL FALLBACK)"
+        api_plan = "OSINT REGISTRY (HYBRID LOCAL FALLBACK · SNAPSHOT / DEMO)"
     payload = {
         "generated_at": _utc_iso(),
         "api_plan": api_plan,
@@ -241,7 +241,8 @@ def write_api_status(
         "key_masked": key_masked,
         "key_source": state.get("key_source"),
         "is_synthetic": not commercial,
-        "registry_source": "OSINT static snapshot (fleet_database.csv)",
+        "demo_mode": not commercial,
+        "registry_source": "OSINT static snapshot (fleet_database.csv) · VesselFinder REST inactive (Invalid Userkey)",
         "live_ais_source": "terrestrial_g3_aisstream",
         "known_fleet_count": total if total > 0 else 1253,
         "ui_api": ui_api,
@@ -266,8 +267,10 @@ def write_api_status(
         "tier2_oil_count": state.get("tier2_oil_count"),
         "slot_interval_hours": slot_interval_hours(),
         "disclaimer": (
-            "Archive registry is an OSINT snapshot (~1,253 vessels) with 500-slot local rotation. "
-            "It does NOT provide live satellite coverage and does NOT affect Dual Gate fleet_sample_status."
+            "ARCHIVE REGISTRY: SNAPSHOT / DEMO MODE. "
+            "Known fleet ≈1,253 gas carriers (OSINT / VesselFinder hybrid snapshot) — NOT live VF REST. "
+            "LIVE G3 AIS N is terrestrial AISstream only and is the sole input to Dual Gate fleet_sample_status. "
+            "Archive never feeds fleet_sample_status and is NOT satellite coverage."
         ),
         "status": "OK"
         if commercial and state.get("last_success_at") and not state.get("last_error")

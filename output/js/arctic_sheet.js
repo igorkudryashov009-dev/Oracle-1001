@@ -12,6 +12,8 @@ import {
   ARCTIC_TOP_VIEW_NOTE,
   ARCTIC_TOP_VIEW_DERIVED_NOTE,
 } from "./arctic_vessels_manifest.js";
+import { renderSpeedTtfTelemRow } from "./vessel_card_metrics.js";
+import { oracle_publishFleetUpdate } from "./oracle_event_bus.js";
 
 let booted = false;
 let activeVessel = null;
@@ -102,6 +104,7 @@ function cardHtml(v) {
         <div class="val">${Math.round(Number(v.dwt_tons || 0) / 1000)}<span>kt</span></div>
       </div>
     </div>
+    ${renderSpeedTtfTelemRow(v)}
     <footer class="t10-card-foot">
       <button type="button" class="t10-foot-btn t10-ref-btn" data-open-derived="${imo}" data-vessel-id="${imo}">VIDEO-DERIVED VIEWS</button>
       <span class="t10-vid-badge" title="${clip?.badge || ARCTIC_LUMA_VIDEO_BADGE}"><span class="dot"></span>LUMA · ${mb} MB</span>
@@ -344,6 +347,13 @@ function boot(opts = {}) {
   if (booted && !force) return;
   render();
   booted = true;
+  try {
+    oracle_publishFleetUpdate("arctic", ARCTIC_VESSELS, {
+      brand: ARCTIC_FLEET_SHORT || ARCTIC_FLEET_BRAND || "ARCTIC",
+    });
+  } catch (_) {
+    /* advisory */
+  }
 }
 
 function pause() {
@@ -357,19 +367,47 @@ window.__ARCTIC__ = {
   boot,
   pause,
   close: closeInspector,
+  destroy: pause,
   vessels: ARCTIC_VESSELS,
   brand: ARCTIC_FLEET_SHORT,
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  const sheet = document.documentElement.getAttribute("data-sheet");
-  if (sheet === "arctic" || window.location.search.includes("sheet=arctic")) {
-    boot();
-  }
-});
+/** Single AbortController for sheet nav listeners (rebind replaces prior). */
+let arcticSheetAbort = null;
 
-document.addEventListener("sentinelSheetChange", (ev) => {
-  const sheet = ev?.detail?.sheet;
-  if (sheet === "arctic") boot({ force: true });
-  else pause();
-});
+function bindArcticSheetLifecycle() {
+  if (arcticSheetAbort) {
+    try {
+      arcticSheetAbort.abort();
+    } catch (_) {
+      /* ignore */
+    }
+  }
+  arcticSheetAbort = new AbortController();
+  const { signal } = arcticSheetAbort;
+
+  const maybeBoot = () => {
+    const sheet = document.documentElement.getAttribute("data-sheet");
+    if (sheet === "arctic" || window.location.search.includes("sheet=arctic")) {
+      boot();
+    }
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", maybeBoot, { signal });
+  } else {
+    maybeBoot();
+  }
+
+  document.addEventListener(
+    "sentinelSheetChange",
+    (ev) => {
+      const sheet = ev?.detail?.sheet;
+      if (sheet === "arctic") boot({ force: true });
+      else pause();
+    },
+    { signal },
+  );
+}
+
+bindArcticSheetLifecycle();

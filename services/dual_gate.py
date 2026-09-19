@@ -36,6 +36,34 @@ DISK_FREE_CRITICAL_PCT = 10.0  # below → CRITICAL (imminent ENOSPC)
 RECONNECT_STORM_MAX = 5
 RATE_LIMIT_STORM_MAX = 1
 
+# Informational G3 terrestrial plateau (AGENTS lock — not a Dual Gate cutoff).
+G3_COVERAGE_PLATEAU_MIN = 3
+G3_COVERAGE_PLATEAU_MAX = 5
+G3_UNIQUE_PER_HOUR_TYPICAL = 7
+
+
+def export_dual_gate_thresholds() -> dict[str, Any]:
+    """Single SoT blob for health.json / Oracle HUD — never hardcode in JS.
+
+    Consumers (oracle_engine.js, oracle_sheet.js) MUST read these from
+    ``health.thresholds`` on each poll. Duplicating numeric literals in the
+    client is the same class of bug as the pre-1.6.1 quant SoT drift.
+    """
+    return {
+        "source": "services.dual_gate",
+        "FLEET_SAMPLE_FULL_MIN": FLEET_SAMPLE_FULL_MIN,
+        "FLEET_SAMPLE_LIMITED_MIN": FLEET_SAMPLE_LIMITED_MIN,
+        "FLEET_WIDE_METRIC_MIN_N": FLEET_WIDE_METRIC_MIN_N,
+        "PIPELINE_LIVE_LAG_SEC": PIPELINE_LIVE_LAG_SEC,
+        "DISK_FREE_MIN_PCT": DISK_FREE_MIN_PCT,
+        "DISK_FREE_CRITICAL_PCT": DISK_FREE_CRITICAL_PCT,
+        "RECONNECT_STORM_MAX": RECONNECT_STORM_MAX,
+        "RATE_LIMIT_STORM_MAX": RATE_LIMIT_STORM_MAX,
+        "G3_COVERAGE_PLATEAU_MIN": G3_COVERAGE_PLATEAU_MIN,
+        "G3_COVERAGE_PLATEAU_MAX": G3_COVERAGE_PLATEAU_MAX,
+        "G3_UNIQUE_PER_HOUR_TYPICAL": G3_UNIQUE_PER_HOUR_TYPICAL,
+    }
+
 
 def resolve_active_node(
     *,

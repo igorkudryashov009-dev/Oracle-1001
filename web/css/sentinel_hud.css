@@ -447,12 +447,20 @@ body.t10-modal-open #t10-shared-webgl {
   gap: 10px;
   padding: 8px 18px 14px;
 }
+.t10-telem--ext {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-top: 0;
+}
 .t10-telem-cell {
   padding: 12px 12px 11px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(8, 12, 20, 0.45);
   min-width: 0;
+}
+.t10-telem-cell:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(12, 18, 28, 0.55);
 }
 .t10-telem-cell .lbl {
   font-family: var(--t10-mono);
@@ -531,7 +539,8 @@ body.t10-modal-open #t10-shared-webgl {
   }
 }
 @media (max-width: 720px) {
-  .t10-telem {
+  .t10-telem,
+  .t10-telem--ext {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .t10-name {
@@ -1851,4 +1860,426 @@ html[data-sheet="balance"] .bal-panels-grid {
   color: var(--t10-crimson) !important;
   border-color: rgba(255, 59, 48, 0.4) !important;
   background: rgba(255, 59, 48, 0.1) !important;
+}
+
+/* ══ ORACLE ENGINE CONTROL SHEET ══ */
+#sheet-oracle { display: none; }
+html[data-sheet="oracle"] #sheet-oracle { display: block !important; }
+.orc-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+  box-sizing: border-box;
+}
+.orc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.78));
+}
+.orc-kicker {
+  font-family: var(--t10-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.95);
+  margin-bottom: 8px;
+}
+.orc-title {
+  margin: 0 0 8px;
+  font-family: Inter, "SF Pro Display", system-ui, sans-serif;
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #f5f5f7;
+}
+.orc-sub {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(148, 163, 184, 0.95);
+  max-width: 62ch;
+}
+.orc-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 12, 20, 0.65);
+  font-family: var(--t10-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.orc-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 0 currentColor;
+  animation: orc-pulse 1.6s ease-out infinite;
+}
+@keyframes orc-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.55); opacity: 1; }
+  70% { box-shadow: 0 0 0 12px rgba(56, 189, 248, 0); opacity: 0.85; }
+  100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); opacity: 1; }
+}
+.orc-status--nominal { color: #32d74b; border-color: rgba(50, 215, 75, 0.35); }
+.orc-status--nominal .orc-pulse { background: #32d74b; }
+.orc-status--warn { color: #fbbf24; border-color: rgba(251, 191, 36, 0.4); }
+.orc-status--warn .orc-pulse { background: #fbbf24; }
+.orc-status--critical { color: #f87171; border-color: rgba(248, 113, 113, 0.45); }
+.orc-status--critical .orc-pulse { background: #f87171; }
+.orc-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (max-width: 1100px) {
+  .orc-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .orc-header { flex-direction: column; }
+}
+@media (max-width: 640px) {
+  .orc-metrics { grid-template-columns: 1fr; }
+}
+.orc-metric-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.72));
+  min-width: 0;
+}
+.orc-metric-lbl {
+  font-family: var(--t10-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.95);
+  margin-bottom: 10px;
+}
+.orc-metric-val {
+  font-family: Inter, "SF Pro Display", system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #f5f5f7;
+  line-height: 1.1;
+}
+.orc-metric-unit {
+  margin-left: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(148, 163, 184, 0.95);
+}
+.orc-metric-hint {
+  margin-top: 8px;
+  font-family: var(--t10-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-size: 11px;
+  color: #7dd3fc;
+  letter-spacing: 0.03em;
+}
+.orc-gauge-panel,
+.orc-forecast-panel {
+  margin-bottom: 16px;
+  padding: 16px 18px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.78);
+}
+.orc-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.orc-section-head h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: #f5f5f7;
+}
+.orc-chip {
+  font-family: var(--t10-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fde68a;
+  background: rgba(120, 53, 15, 0.28);
+}
+.orc-chip--muted {
+  border-color: rgba(148, 163, 184, 0.3);
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.5);
+}
+.orc-gauge-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-bottom: 10px;
+  font-family: var(--t10-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-size: 10px;
+  color: rgba(148, 163, 184, 0.9);
+  letter-spacing: 0.04em;
+}
+.orc-gauge-track {
+  position: relative;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.orc-gauge-fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #38bdf8, #22d3ee 55%, #fbbf24);
+  transition: width 0.45s ease;
+}
+.orc-gauge-mark {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.55);
+}
+.orc-gauge-mark--limited { background: #fbbf24; }
+.orc-gauge-mark--plateau { background: #38bdf8; }
+.orc-gauge-caption {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(148, 163, 184, 0.95);
+}
+.orc-gauge-caption strong { color: #f5f5f7; }
+.orc-forecast-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 160px;
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.45);
+}
+.orc-svg-label {
+  fill: rgba(148, 163, 184, 0.85);
+  font-size: 10px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.orc-forecast-note {
+  margin: 10px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(148, 163, 184, 0.9);
+}
+/* Skeleton loaders */
+.orc-skeleton-block { position: relative; overflow: hidden; }
+.sk-line {
+  height: 12px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  background-size: 200% 100%;
+  animation: orc-shimmer 1.4s ease-in-out infinite;
+  margin-bottom: 10px;
+}
+.sk-w40 { width: 40%; }
+.sk-w45 { width: 45%; }
+.sk-w50 { width: 50%; }
+.sk-w55 { width: 55%; }
+.sk-w60 { width: 60%; }
+.sk-w70 { width: 70%; }
+.sk-h28 { height: 28px; }
+.sk-h32 { height: 32px; }
+.sk-bar {
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+  background-size: 200% 100%;
+  animation: orc-shimmer 1.4s ease-in-out infinite;
+  margin: 12px 0;
+}
+.orc-forecast-sk {
+  height: 160px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+  background-size: 200% 100%;
+  animation: orc-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes orc-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ══ ORACLE ENGINE — Architect class contract (oracle-*) ══ */
+#sheet-oracle,
+#oracle-sheet-mount,
+.orc-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+html[data-sheet="oracle"] {
+  overflow-x: hidden;
+}
+html[data-sheet="oracle"] body {
+  overflow-x: hidden;
+}
+
+.oracle-card {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 255, 170, 0.2);
+  background: linear-gradient(
+    165deg,
+    rgba(10, 18, 28, 0.78),
+    rgba(5, 10, 18, 0.88)
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow:
+    0 0 0 1px rgba(0, 255, 170, 0.04) inset,
+    0 12px 32px rgba(0, 0, 0, 0.35),
+    0 0 24px rgba(0, 255, 170, 0.06);
+  color: var(--t10-frost);
+  font-family: var(--t10-sans);
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  transition:
+    border-color 0.28s var(--t10-ease),
+    box-shadow 0.28s var(--t10-ease),
+    transform 0.28s var(--t10-ease);
+}
+.oracle-card:hover {
+  border-color: rgba(0, 255, 170, 0.38);
+  box-shadow:
+    0 0 0 1px rgba(0, 255, 170, 0.08) inset,
+    0 14px 36px rgba(0, 0, 0, 0.4),
+    0 0 28px rgba(0, 240, 255, 0.1);
+}
+.oracle-card .orc-metric-lbl,
+.oracle-card .orc-kicker {
+  font-family: var(--t10-mono);
+  color: var(--t10-muted);
+}
+.oracle-card .orc-metric-val {
+  font-family: var(--t10-hud);
+  color: var(--t10-frost);
+}
+.oracle-card .orc-metric-hint {
+  color: var(--t10-cyan);
+}
+
+/* Korolev / INSUFFICIENT amber warning indicator */
+.oracle-status--insufficient,
+.orc-status-pill.oracle-status--insufficient {
+  color: var(--t10-amber);
+  border-color: rgba(255, 179, 0, 0.45);
+  background: rgba(255, 179, 0, 0.1);
+  box-shadow: 0 0 18px rgba(255, 179, 0, 0.18);
+}
+.oracle-status--insufficient .orc-pulse,
+.oracle-status--insufficient::before {
+  background: var(--t10-amber);
+  color: var(--t10-amber);
+}
+.oracle-status--insufficient .orc-pulse {
+  animation: oracle-amber-pulse 1.5s ease-out infinite;
+}
+@keyframes oracle-amber-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 179, 0, 0.55); opacity: 1; }
+  70% { box-shadow: 0 0 0 12px rgba(255, 179, 0, 0); opacity: 0.9; }
+  100% { box-shadow: 0 0 0 0 rgba(255, 179, 0, 0); opacity: 1; }
+}
+
+/* Animated coverage gauge bar */
+.oracle-gauge-bar {
+  position: relative;
+  display: block;
+  height: 100%;
+  min-height: 12px;
+  width: 0;
+  max-width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 240, 255, 0.85),
+    rgba(0, 255, 170, 0.9) 55%,
+    var(--t10-amber)
+  );
+  background-size: 200% 100%;
+  box-shadow: 0 0 12px rgba(0, 255, 170, 0.35);
+  transition: width 0.55s var(--t10-ease);
+  animation: oracle-gauge-flow 2.4s linear infinite;
+}
+.oracle-gauge-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: oracle-gauge-sheen 2.2s var(--t10-ease) infinite;
+  pointer-events: none;
+}
+@keyframes oracle-gauge-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes oracle-gauge-sheen {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Compose Architect classes onto existing orc layout */
+.orc-metric-card.oracle-card,
+.orc-header.oracle-card,
+.orc-gauge-panel.oracle-card,
+.orc-forecast-panel.oracle-card {
+  padding: 14px 16px;
+}
+.orc-gauge-fill.oracle-gauge-bar {
+  /* width set inline from JS; keep animation */
+  height: 100%;
+}
+
+@media (max-width: 1100px) {
+  .oracle-card { padding: 12px 14px; }
+  .orc-wrap {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+}
+@media (max-width: 640px) {
+  .oracle-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  .orc-status-pill.oracle-status--insufficient {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .orc-forecast-svg {
+    max-width: 100%;
+    height: auto;
+  }
 }

@@ -1,0 +1,43 @@
+{
+  "discovered_without_hardcode": [
+    "oracle_engine.js",
+    "oracle_event_bus.js",
+    "oracle_sheet.js",
+    "vessel_card_metrics.js",
+    "oracle_sheet.js.root",
+    "oracle_engine.py"
+  ],
+  "stale_or_missing_on_node_a": 4,
+  "rows": [
+    {
+      "name": "oracle_engine.js",
+      "status": "MISMATCH",
+      "detail": "Node A bytes != git working tree"
+    },
+    {
+      "name": "oracle_event_bus.js",
+      "status": "MATCH",
+      "detail": null
+    },
+    {
+      "name": "oracle_sheet.js",
+      "status": "MISMATCH",
+      "detail": "Node A bytes != git working tree"
+    },
+    {
+      "name": "vessel_card_metrics.js",
+      "status": "MATCH",
+      "detail": null
+    },
+    {
+      "name": "oracle_sheet.js.root",
+      "status": "FETCH_ERROR",
+      "detail": "HTTP Error 404: File not found"
+    },
+    {
+      "name": "oracle_engine.py",
+      "status": "MISMATCH",
+      "detail": "MISSING on Node A deploy_manifest (auto-discovered locally)"
+    }
+  ]
+}

@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.7.0-autodiscover-oracle-sot — Auto-discovery manifest · Oracle Dual Gate SoT (2026-09-20)
+
+Closes the recurring "new code exists locally, not in the Node A image" class of failure and the third Dual Gate threshold twin in JS:
+
+- **Deploy auto-discovery:** `verify_deploy_manifest.py` / `write_deploy_manifest.py` build the critical-asset list from globs (`web/js/**/*.js`, `web/**/*.css`, `services/**/*.py`, arctic videos, GLBs) with explicit excludes. Legacy required basenames stay as a regression lock. New Oracle files are detected automatically (no hand list).
+- **Oracle single SoT:** `dual_gate.export_dual_gate_thresholds()` → `health.thresholds`; `oracle_engine.js` / `oracle_sheet.js` apply via `oracle_applyThresholdsFromHealth` — no hardcoded `FLEET_SAMPLE_*` / disk cutoffs in the client.
+- **Bake proof:** `deploy_korolev_sentinel.sh` BAKE_OK asserts `oracle_engine.py` / Oracle JS / no hardcoded LIMITED_MIN in the image volume.
+- **Contract:** AGENTS.md → `1.7.0-autodiscover-oracle-sot`.
+
+## v1.6.4-oob-seal — Unified OOB provenance · ML utc · disk/3D seal (2026-09-16)
+
+Closes the five-step out-of-the-box stabilization pack without Dual Gate threshold drift:
+
+- **Archive / VF:** HUD + `api_status` label hybrid path as `SNAPSHOT / DEMO MODE`; KNOWN vs LIVE G3 split wording locked; `fleet_sample_status` remains G3-only.
+- **Disk:** keep `DISK_FREE_MIN_PCT=20` / CRITICAL `10` (reject ad-hoc 15%); ops prune + `log_retention` for WAL/logs on Node A.
+- **3D:** canonical GLB path `output/assets/3d_models/` (already in `web_assets_sync`); sheet-leave pause also covers Route; modal DIGITAL TWIN remains real GLB (card parallax is Never-Black photo layer, not a 3D substitute).
+- **ML:** `/api/v1/quant/risk` adds `model_last_retrained_utc` + `model_provenance: "offline_batch"` (inference-only on Node A/B).
+- **Contract:** AGENTS.md → `1.6.4-oob-seal`.
+
 ## v1.6.3-image-bake-proof — P0 quant/health SoT + top10 manifest permanent bake (2026-09-16)
 
 Closes the docker-cp class of risk for the Dual-Gate split and known HUD drift:

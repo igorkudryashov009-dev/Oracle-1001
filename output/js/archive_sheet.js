@@ -65,7 +65,7 @@ async function loadApiStatus() {
     if (el("arch-api-plan")) {
       el("arch-api-plan").textContent = isCommercial
         ? "COMMERCIAL REST API"
-        : "HYBRID LOCAL (OSINT SNAPSHOT)";
+        : "HYBRID LOCAL · SNAPSHOT / DEMO MODE";
     }
     if (el("arch-api-key")) {
       el("arch-api-key").textContent = String(
@@ -74,7 +74,9 @@ async function loadApiStatus() {
       );
     }
     if (el("arch-api-status-text")) {
-      el("arch-api-status-text").textContent = String(s.ui_status || s.status || "NOMINAL");
+      el("arch-api-status-text").textContent = String(
+        s.ui_status || (isCommercial ? s.status : "SNAPSHOT / DEMO") || "NOMINAL"
+      );
     }
 
     const t1 = Number(s.tier1_gas_count) || 1253;
@@ -82,17 +84,24 @@ async function loadApiStatus() {
     const knownTotal = t2 > 0 ? `${fmtInt(t1)}+${fmtInt(t2)}` : fmtInt(s.total_monitored || t1);
 
     if (el("arch-known-fleet-kpi")) {
-      el("arch-known-fleet-kpi").textContent = `${knownTotal} vessels`;
+      el("arch-known-fleet-kpi").textContent = `${fmtInt(t1)} known`;
     }
     if (el("arch-live-g3-kpi")) {
       el("arch-live-g3-kpi").textContent = `N=${liveCoverage} live`;
     }
     if (el("arch-known-fleet-desc")) {
-      const snapDate = s.last_sync_at ? s.last_sync_at.slice(0, 10) : "2026-09-12";
-      el("arch-known-fleet-desc").textContent = `${knownTotal} known vessels`;
+      el("arch-known-fleet-desc").textContent =
+        `${fmtInt(t1)} known vessels (OSINT / VesselFinder hybrid snapshot)`;
     }
     if (el("arch-live-g3-desc")) {
-      el("arch-live-g3-desc").textContent = `N=${liveCoverage} live AIS-tracked`;
+      el("arch-live-g3-desc").textContent =
+        `N=${liveCoverage} live AIS-tracked (G3 Terrestrial Ceiling)`;
+    }
+
+    const bannerTitle = document.querySelector("#arch-demo-banner .arch-demo-banner-title span:last-child");
+    if (bannerTitle && !isCommercial) {
+      bannerTitle.textContent =
+        "ARCHIVE REGISTRY: SNAPSHOT / DEMO MODE · NOT LIVE VESSELFINDER REST · NOT SATELLITE";
     }
 
     if (el("arch-api-slots")) {

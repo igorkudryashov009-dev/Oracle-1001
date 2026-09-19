@@ -511,6 +511,14 @@ def build_health_document(
     except Exception:  # noqa: BLE001
         pass
 
+    # OracleEngine advisory plane — always attach oracle_state for OOB / HUD.
+    try:
+        from services.oracle_engine import apply_oracle_state_to_health_doc
+
+        apply_oracle_state_to_health_doc(doc)
+    except Exception:  # noqa: BLE001
+        pass
+
     return doc
 
 
@@ -519,6 +527,16 @@ def write_health_files(doc: dict[str, Any] | None = None, root: Path | None = No
     health_dir = root / "output" / "api" / "v1"
     health_dir.mkdir(parents=True, exist_ok=True)
     payload = doc or build_health_document()
+    try:
+        from services.oracle_engine import apply_oracle_state_to_health_doc
+
+        if "oracle_state" not in payload or not isinstance(payload.get("oracle_state"), dict):
+            apply_oracle_state_to_health_doc(payload)
+        else:
+            # Refresh last_eval / confidence from current gate fields.
+            apply_oracle_state_to_health_doc(payload)
+    except Exception:
+        pass
     try:
         from services.utils.path_sanitizer import sanitize_structure
 

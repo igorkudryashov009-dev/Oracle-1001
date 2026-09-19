@@ -15,6 +15,8 @@ import {
   getSharedTop10Renderer,
 } from "./vessel_3d_reconstruction.js";
 import { mountTop10GlbViewer, isGlbReady, mountTop10VoxelCubeViewer, isVoxelCubesReady } from "./top10_3d_viewer.js?v=luma-v1";
+import { renderSpeedTtfTelemRow } from "./vessel_card_metrics.js";
+import { oracle_publishFleetUpdate } from "./oracle_event_bus.js";
 
 const LUMA_VIDEO_BADGE =
   "AI-GENERATED VIDEO RECONSTRUCTION (LUMA.ai) · SPECULATIVE DETAIL · GEOMETRY AND MOTION NOT OSINT-VERIFIED";
@@ -234,6 +236,7 @@ function cardHtml(v) {
         <div class="val">${Math.round(Number(v.dwt_tons || 0) / 1000)}<span>kt</span></div>
       </div>
     </div>
+    ${renderSpeedTtfTelemRow(v)}
     <footer class="t10-card-foot">
       <button type="button" class="t10-foot-btn t10-ref-btn" data-refs="${imo}" data-vessel-id="${imo}">ORTHO TRIPLET</button>
       ${formatVideoBadge(v)}
@@ -1719,6 +1722,14 @@ export function renderTop10Sheet() {
     "cards=",
     grid.querySelectorAll(".t10-card").length
   );
+  try {
+    oracle_publishFleetUpdate("top10", TOP10_VESSELS, {
+      brand: QFLEX_FLEET_SHORT || QFLEX_FLEET_BRAND || "Q-Flex",
+      cards: grid.querySelectorAll(".t10-card").length,
+    });
+  } catch (_) {
+    /* bus is advisory — never block Q-Flex render */
+  }
 }
 
 export function bootTop10({ force = false } = {}) {
@@ -1759,6 +1770,7 @@ window.__TOP10__ = {
   vessels: TOP10_VESSELS,
   boot: bootTop10,
   pause: pauseTop10,
+  destroy: pauseTop10,
   render: renderTop10Sheet,
   assertManifestUrls,
   openRefs,

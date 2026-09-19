@@ -118,6 +118,8 @@ _HTML = r"""<!DOCTYPE html>
       document.documentElement.setAttribute("data-sheet", "archive");
     } else if (sheet === "arctic" || h === "arctic" || h === "sheet-arctic") {
       document.documentElement.setAttribute("data-sheet", "arctic");
+    } else if (sheet === "oracle" || h === "oracle" || h === "sheet-oracle") {
+      document.documentElement.setAttribute("data-sheet", "oracle");
     } else {
       document.documentElement.setAttribute("data-sheet", "ais");
     }
@@ -153,6 +155,7 @@ html[data-sheet="ttf"] #sheet-arctic{display:none !important}
 html[data-sheet="ttf"] #sheet-route{display:none !important}
 html[data-sheet="ttf"] #sheet-balance{display:none !important}
 html[data-sheet="ttf"] #sheet-archive{display:none !important}
+html[data-sheet="ttf"] #sheet-oracle{display:none !important}
 html[data-sheet="ttf"] #kpiRow{display:none !important}
 html[data-sheet="ais"] #tab-ttf-forecast{display:none !important}
 html[data-sheet="ais"] #sheet-top10{display:none !important}
@@ -160,6 +163,7 @@ html[data-sheet="ais"] #sheet-arctic{display:none !important}
 html[data-sheet="ais"] #sheet-route{display:none !important}
 html[data-sheet="ais"] #sheet-balance{display:none !important}
 html[data-sheet="ais"] #sheet-archive{display:none !important}
+html[data-sheet="ais"] #sheet-oracle{display:none !important}
 html[data-sheet="ais"] #sheet-ais{display:block !important}
 html[data-sheet="top10"] #sheet-ais{display:none !important}
 html[data-sheet="top10"] #tab-ttf-forecast{display:none !important}
@@ -168,6 +172,7 @@ html[data-sheet="top10"] #sheet-arctic{display:none !important}
 html[data-sheet="top10"] #sheet-route{display:none !important}
 html[data-sheet="top10"] #sheet-balance{display:none !important}
 html[data-sheet="top10"] #sheet-archive{display:none !important}
+html[data-sheet="top10"] #sheet-oracle{display:none !important}
 html[data-sheet="top10"] #kpiRow{display:none !important}
 html[data-sheet="arctic"] #sheet-ais{display:none !important}
 html[data-sheet="arctic"] #tab-ttf-forecast{display:none !important}
@@ -176,6 +181,7 @@ html[data-sheet="arctic"] #sheet-arctic{display:block !important}
 html[data-sheet="arctic"] #sheet-route{display:none !important}
 html[data-sheet="arctic"] #sheet-balance{display:none !important}
 html[data-sheet="arctic"] #sheet-archive{display:none !important}
+html[data-sheet="arctic"] #sheet-oracle{display:none !important}
 html[data-sheet="arctic"] #kpiRow{display:none !important}
 html[data-sheet="arctic"] #sheet-arctic #arctic-grid-container,
 html[data-sheet="arctic"] #sheet-arctic .t10-grid{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:24px;width:100%}
@@ -203,6 +209,7 @@ html[data-sheet="route"] #sheet-arctic{display:none !important}
 html[data-sheet="route"] #sheet-route{display:block !important}
 html[data-sheet="route"] #sheet-balance{display:none !important}
 html[data-sheet="route"] #sheet-archive{display:none !important}
+html[data-sheet="route"] #sheet-oracle{display:none !important}
 html[data-sheet="route"] #kpiRow{display:none !important}
 html[data-sheet="balance"] #sheet-ais{display:none !important}
 html[data-sheet="balance"] #tab-ttf-forecast{display:none !important}
@@ -210,6 +217,7 @@ html[data-sheet="balance"] #sheet-top10{display:none !important}
 html[data-sheet="balance"] #sheet-arctic{display:none !important}
 html[data-sheet="balance"] #sheet-route{display:none !important}
 html[data-sheet="balance"] #sheet-archive{display:none !important}
+html[data-sheet="balance"] #sheet-oracle{display:none !important}
 html[data-sheet="balance"] #sheet-balance{display:block !important}
 html[data-sheet="balance"] #kpiRow{display:none !important}
 html[data-sheet="archive"] #sheet-ais{display:none !important}
@@ -218,8 +226,18 @@ html[data-sheet="archive"] #sheet-top10{display:none !important}
 html[data-sheet="archive"] #sheet-arctic{display:none !important}
 html[data-sheet="archive"] #sheet-route{display:none !important}
 html[data-sheet="archive"] #sheet-balance{display:none !important}
+html[data-sheet="archive"] #sheet-oracle{display:none !important}
 html[data-sheet="archive"] #sheet-archive{display:block !important}
 html[data-sheet="archive"] #kpiRow{display:none !important}
+html[data-sheet="oracle"] #sheet-ais{display:none !important}
+html[data-sheet="oracle"] #tab-ttf-forecast{display:none !important}
+html[data-sheet="oracle"] #sheet-top10{display:none !important}
+html[data-sheet="oracle"] #sheet-arctic{display:none !important}
+html[data-sheet="oracle"] #sheet-route{display:none !important}
+html[data-sheet="oracle"] #sheet-balance{display:none !important}
+html[data-sheet="oracle"] #sheet-archive{display:none !important}
+html[data-sheet="oracle"] #sheet-oracle{display:block !important}
+html[data-sheet="oracle"] #kpiRow{display:none !important}
 /* ══ ARCHIVE SHEET — Apple Data Grid × NASA Control ══ */
 #sheet-archive{display:none}
 .arch-wrap{padding:0 12px 32px;width:100% !important;max-width:100% !important;margin:0 auto;box-sizing:border-box}
@@ -578,6 +596,7 @@ body.t10-modal-open{overflow:hidden}
   <button type="button" class="sheet-tab" data-sheet="route" role="tab" aria-selected="false">МАРШРУТ</button>
   <button type="button" class="sheet-tab" data-sheet="balance" role="tab" aria-selected="false">БАЛАНС / TOP-500 BALANCE</button>
   <button type="button" class="sheet-tab" data-sheet="archive" role="tab" aria-selected="false">ARCHIVE · DAILY SNAPSHOTS</button>
+  <button type="button" class="sheet-tab" data-sheet="oracle" role="tab" aria-selected="false">Oracle Engine</button>
 </nav>
 <script>
 (function () {
@@ -595,6 +614,7 @@ body.t10-modal-open{overflow:hidden}
   var route   = document.getElementById("sheet-route");
   var balance = document.getElementById("sheet-balance");
   var archive = document.getElementById("sheet-archive");
+  var oracle  = document.getElementById("sheet-oracle");
   var kpi     = document.getElementById("kpiRow");
   if (ais)     { ais.classList.toggle("active", sheet === "ais");         ais.style.display     = sheet === "ais"     ? "block" : "none"; }
   if (ttf)     { ttf.classList.toggle("active", sheet === "ttf");         ttf.style.display     = sheet === "ttf"     ? "block" : "none"; }
@@ -603,7 +623,8 @@ body.t10-modal-open{overflow:hidden}
   if (route)   { route.classList.toggle("active", sheet === "route");     route.style.display   = sheet === "route"   ? "block" : "none"; }
   if (balance) { balance.classList.toggle("active", sheet === "balance"); balance.style.display = sheet === "balance" ? "block" : "none"; }
   if (archive) { archive.classList.toggle("active", sheet === "archive"); archive.style.display = sheet === "archive" ? "block" : "none"; }
-  if (kpi && (sheet === "ttf" || sheet === "top10" || sheet === "arctic" || sheet === "route" || sheet === "balance" || sheet === "archive")) kpi.style.display = "none";
+  if (oracle)  { oracle.classList.toggle("active", sheet === "oracle");   oracle.style.display  = sheet === "oracle"  ? "block" : "none"; }
+  if (kpi && (sheet === "ttf" || sheet === "top10" || sheet === "arctic" || sheet === "route" || sheet === "balance" || sheet === "archive" || sheet === "oracle")) kpi.style.display = "none";
   var ht = document.getElementById("heroTitle");
   if (sheet === "ttf"     && ht) ht.textContent = "ПРОГНОЗ TTF · MARKET FORECAST ENSEMBLE";
   if (sheet === "top10"   && ht) ht.textContent = "Q-FLEX DIGITAL TWIN & VIDEO FLEET · REAL VIDEO";
@@ -611,6 +632,7 @@ body.t10-modal-open{overflow:hidden}
   if (sheet === "route"   && ht) ht.textContent = "МАРШРУТ · ROUTE ANALYTICS · SPATIOTEMPORAL";
   if (sheet === "balance" && ht) ht.textContent = "БАЛАНС · TOP-500 FLEET BALANCE · 6 QUANT METRICS";
   if (sheet === "archive" && ht) ht.textContent = "ARCHIVE · VESSEL DAILY SNAPSHOTS · 1253 FLEET";
+  if (sheet === "oracle"  && ht) ht.textContent = "ORACLE ENGINE · CONTROL & FORECAST";
 })();
 </script>
 
@@ -713,6 +735,10 @@ body.t10-modal-open{overflow:hidden}
     <p class="ark-intro t10-intro"></p>
     <div class="t10-grid" id="arctic-grid-container" aria-live="polite"></div>
   </div>
+</div>
+
+<div id="sheet-oracle" class="sheet">
+  <div id="oracle-sheet-mount" aria-live="polite"></div>
 </div>
 
 <div id="sheet-route" class="sheet">
@@ -900,11 +926,11 @@ body.t10-modal-open{overflow:hidden}
     <div class="arch-demo-banner" id="arch-demo-banner">
       <div class="arch-demo-banner-title">
         <span class="icon">ℹ</span>
-        <span>ARCHIVE REGISTRY: STATIC OSINT SNAPSHOT · NOT A LIVE THIRD-PARTY FEED</span>
+        <span>ARCHIVE REGISTRY: SNAPSHOT / DEMO MODE · NOT LIVE VESSELFINDER REST · NOT SATELLITE</span>
       </div>
       <div class="arch-demo-banner-body">
-        <span class="lbl">Known fleet registry:</span> <b id="arch-known-fleet-desc">1,253 known vessels</b> (OSINT registry snapshot, updated 2026-09-12) &nbsp;|&nbsp;
-        <span class="lbl">Live AIS tracked:</span> <b id="arch-live-g3-desc">N=— live AIS-tracked</b> (terrestrial G3 ceiling, Dual Gate).
+        <span class="lbl">Known fleet registry:</span> <b id="arch-known-fleet-desc">1,253 known vessels (OSINT / VesselFinder hybrid snapshot)</b> &nbsp;|&nbsp;
+        <span class="lbl">Live AIS tracked:</span> <b id="arch-live-g3-desc">N=— live AIS-tracked (G3 Terrestrial Ceiling)</b>.
       </div>
     </div>
     <p class="t10-intro">Immutable UTC daily freeze of the full known OSINT fleet registry (~1,253 vessels). Live tracking is provided exclusively by terrestrial G3 AISstream feed (Dual Deploy Gate). Commercial VesselFinder REST is inactive (hybrid local fallback).</p>
@@ -1040,6 +1066,8 @@ window.__SENTINEL_MAP__ = window.__SENTINEL_MAP__ || {
 </script>
 <script type="module" src="js/top10_sheet.js?v=glb-twin-v6"></script>
 <script type="module" src="js/arctic_sheet.js?v=arctic-arc7-v1"></script>
+<script type="module" src="js/oracle_event_bus.js?v=oracle-bus-v1"></script>
+<script type="module" src="js/oracle_sheet.js?v=oracle-sheet-v1"></script>
 <script type="module" src="js/route_sheet.js?v=__ASSET_V__"></script>
 <script type="module" src="js/archive_sheet.js?v=archive-balance-168h-v1"></script>
 </body>

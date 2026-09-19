@@ -74,7 +74,14 @@ def _iter_source_assets(root: Path) -> list[tuple[Path, Path, str]]:
 
     # Root-level web/*.js and web/*.css (engine, premium themes, etc.)
     if web.is_dir():
+        web_js_names = {p.name for p in web_js.glob("*.js")} if web_js.is_dir() else set()
         for src in sorted(web.glob("*.js")):
+            # Prefer web/js/<name> as SoT for output/js/<name> (avoid clobber
+            # by thin re-exports like web/oracle_sheet.js).
+            if src.name in web_js_names:
+                if src.name == "oracle_sheet.js":
+                    pairs.append((src, root / "output" / "oracle_sheet.js", "js_root_mirror"))
+                continue
             pairs.append((src, out_js / src.name, "js"))
         for src in sorted(web.glob("*.css")):
             pairs.append((src, out_js / src.name, "css_dual"))

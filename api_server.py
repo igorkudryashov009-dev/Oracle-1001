@@ -70,6 +70,14 @@ class QuantRiskMetrics(BaseModel):
         None,
         description="UTC ISO timestamp of last offline CatBoost/HMM artifact retrain (honest freshness caveat)",
     )
+    model_last_retrained_utc: Optional[str] = Field(
+        None,
+        description="Alias of model_last_retrained (explicit UTC naming for consumers)",
+    )
+    model_provenance: str = Field(
+        "offline_batch",
+        description="Training locus: offline_batch (Node A/B serve inference only; never edge retrain)",
+    )
     live_inference_confidence: str = Field(..., description="Confidence level under G3 terrestrial ceiling")
 
     active_regime: str = Field(..., description="Most probable current regime from Gaussian HMM")
