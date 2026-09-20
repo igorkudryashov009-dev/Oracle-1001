@@ -153,3 +153,54 @@ def test_notify_payload_validation():
     )
     assert ok2 is True and reason2 == "ok"
     assert payload["to"][0]["email"] == "a@b.co"
+
+
+def test_market_nasdaq_codes_include_ttf_brent_gold():
+    from services.market_data_service import NASDAQ_CODES
+
+    assert "ttf_proxy" in NASDAQ_CODES
+    assert "brent" in NASDAQ_CODES
+    assert "gold" in NASDAQ_CODES
+
+
+def test_news_topic_filter():
+    from services.news_service import TOPIC_TERMS, _matches_topics
+
+    assert "LNG" in TOPIC_TERMS and "TTF" in TOPIC_TERMS
+    assert _matches_topics("Baltic LNG terminal expansion")
+    assert not _matches_topics("unrelated sports headline")
+
+
+def test_firms_proximity_uses_compressor_stations():
+    from services.compressor_stations import ALL_COMPRESSOR_STATIONS
+    from services.firms_service import _attach_proximity
+
+    assert len(ALL_COMPRESSOR_STATIONS) == 185
+    # Portovaya-ish point should resolve nearest CS within 50 nm
+    near = _attach_proximity(
+        [{"lat": 60.55, "lon": 28.55, "frp": 12.0}],
+        max_distance_nm=50.0,
+    )
+    assert near
+    assert "nearest_station" in near[0]
+    assert near[0]["distance_nm"] <= 50.0
+
+
+def test_ais_tracker_is_g3_cache_first_not_second_ws():
+    """G3 lock: ais_tracker must NOT open a second AISstream WebSocket."""
+    src = (ROOT_DIR / "services" / "ais_tracker.py").read_text(encoding="utf-8")
+    assert "must NOT open a" in src or "must NOT open" in src
+    assert "aisstream_connector" in src or "single_persistent" in src
+    # No live websocket client import in tracker
+    assert "websockets.connect" not in src
+    assert "aisstream.com" not in src.lower() or "stub" in src.lower()
+
+
+def test_hud_sentinel_engine_has_news_and_firms_layers():
+    hud = (ROOT_DIR / "web" / "sentinel_engine.js").read_text(encoding="utf-8")
+    assert "Термоточки FIRMS" in hud
+    assert "Новости" in hud
+    assert "/api/v1/gis/firms/anomalies" in hud
+    assert "/api/v1/news/latest" in hud
+    assert "sentinelNewsTicker" in hud
+    assert "startIntelPolls" in hud

@@ -20,10 +20,11 @@ CACHE_PATH = ROOT / "output" / "cache" / "market_summary.json"
 EXCHANGERATE_TMPL = "https://v6.exchangerate-api.com/v6/{key}/latest/USD"
 NASDAQ_DATASET_TMPL = "https://data.nasdaq.com/api/v3/datasets/{code}.json"
 
-# Best-effort public CHRIS codes (may 404 on free tier — then cache/empty).
+# Best-effort public CHRIS / LBMA codes (may 404 on free tier — then cache/empty).
 NASDAQ_CODES = {
     "ttf_proxy": "CHRIS/ICE_TFM1",
     "brent": "CHRIS/ICE_B1",
+    "gold": "LBMA/GOLD",
 }
 
 

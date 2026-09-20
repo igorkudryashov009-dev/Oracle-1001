@@ -1,8 +1,13 @@
 # ─── Oracle-1001 / Sentinel — Compose stack (DASHBOARD_PORT, default 8765) ────
-# Planes: sentinel-core (AIS + TTF) · sentinel-web (HTTP HUD)
+# Planes:
+#   sentinel-core          — AIS ingest + TTF (single_persistent G3 WS)
+#   sentinel-web           — HTTP HUD / Edge gateway  ≡ alias sentinel_api_edge
+#   sentinel-ais-buffer    — G3 DB → ais_live.json    ≡ alias sentinel_ais_worker
+#                            (profile: oob-buffer; NEVER opens a second WS)
 #
 # Quick start:
 #   docker compose up -d --build
+#   docker compose --profile oob-buffer up -d   # optional live JSON buffer
 #   open http://127.0.0.1:${DASHBOARD_PORT:-8765}/output/sentinel_dashboard.html?sheet=top10
 #   health: http://127.0.0.1:${DASHBOARD_PORT:-8765}/output/api/v1/health
 #
@@ -122,10 +127,12 @@ services:
     labels:
       oracle1001.plane: "sentinel-web"
       oracle1001.role: "Sentinel HUD HTTP (DASHBOARD_PORT)"
+      oracle1001.alias: "sentinel_api_edge"
 
   # ── Plane C: AIS live JSON buffer (G3-safe — NO second WebSocket) ──────────
   # Reads G3 SQLite → data/cache/ais_live.json. Do NOT set --ingest here while
   # sentinel-core owns the single_persistent AISstream connection.
+  # Alias: sentinel_ais_worker
   sentinel-ais-buffer:
     <<: *sentinel-base
     container_name: sentinel-ais-buffer
@@ -137,6 +144,7 @@ services:
     labels:
       oracle1001.plane: "sentinel-ais-buffer"
       oracle1001.role: "G3 DB → ais_live.json buffer (no multi-WS)"
+      oracle1001.alias: "sentinel_ais_worker"
 
 volumes:
   # Persistent SQLite state (sentinel_ais.db + WAL/SHM sidecars)

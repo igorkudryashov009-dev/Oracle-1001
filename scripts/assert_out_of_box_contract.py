@@ -188,6 +188,15 @@ def main() -> int:
         ok("AGENTS.md documents OOB zero-touch")
     else:
         warn("AGENTS.md should document OOB zero-touch (0d)")
+    boot = (ROOT / "scripts" / "bootstrap_oob.py").read_text(encoding="utf-8", errors="ignore")
+    if "data" in boot and "db" in boot and "mock_fallback_data.json" in boot:
+        ok("bootstrap_oob ensures data/db + mock_fallback_data.json")
+    else:
+        warn("bootstrap_oob should seed data/db + mock_fallback_data.json")
+    if "sentinel_api_edge" in compose and "sentinel_ais_worker" in compose:
+        ok("docker-compose documents sentinel_api_edge / sentinel_ais_worker aliases")
+    else:
+        warn("docker-compose should alias sentinel_api_edge / sentinel_ais_worker")
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8", errors="ignore")
     if "READ THIS FIRST" not in readme:

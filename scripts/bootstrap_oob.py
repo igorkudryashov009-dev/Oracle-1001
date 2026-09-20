@@ -29,6 +29,7 @@ REQUIRED_DIRS = (
     ROOT / "output" / "cache",
     ROOT / "data" / "cache",
     ROOT / "data" / "archive",
+    ROOT / "data" / "db",
 )
 
 MOCK_NEWS = {
@@ -86,6 +87,17 @@ MOCK_AIS_LIVE = {
     "vessels": [],
     "source": "oob_mock",
     "note": "Filled by services.ais_worker from G3 DB / connector — empty until first ingest.",
+}
+
+MOCK_FALLBACK_BUNDLE = {
+    "ok": True,
+    "contract_version": CONTRACT_VERSION,
+    "is_mock": True,
+    "purpose": "zero-network cold-start fallback for intel + AIS live cache",
+    "news": MOCK_NEWS,
+    "firms": MOCK_FIRMS,
+    "market": MOCK_MARKET,
+    "ais_live": MOCK_AIS_LIVE,
 }
 
 
@@ -153,6 +165,7 @@ def seed_mocks(*, force: bool = False) -> list[str]:
         (ROOT / "output" / "cache" / "firms_anomalies.json", MOCK_FIRMS),
         (ROOT / "output" / "cache" / "market_summary.json", MOCK_MARKET),
         (ROOT / "data" / "cache" / "ais_live.json", MOCK_AIS_LIVE),
+        (ROOT / "data" / "cache" / "mock_fallback_data.json", MOCK_FALLBACK_BUNDLE),
     )
     for path, payload in targets:
         if _seed_json(path, payload, force=force):
@@ -164,12 +177,18 @@ def run(*, strict: bool = False, force_mocks: bool = False) -> dict:
     created = ensure_dirs()
     env_rep = ensure_env(strict=strict)
     seeded = seed_mocks(force=force_mocks)
+    keys_ok = int(env_rep.get("configured") or 0)
+    keys_total = int(env_rep.get("total") or 7)
     out = {
         "ok": bool(env_rep.get("ok", True)) or not strict,
         "contract_version": CONTRACT_VERSION,
         "dirs_created": created,
         "env": env_rep,
+        "keys_configured": f"{keys_ok}/{keys_total}",
         "mocks_seeded": seeded,
+        "mock_fallback": str(
+            (ROOT / "data" / "cache" / "mock_fallback_data.json").relative_to(ROOT)
+        ).replace("\\", "/"),
         "ts": _now(),
     }
     return out

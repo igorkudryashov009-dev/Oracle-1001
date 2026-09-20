@@ -1,14 +1,17 @@
 """AIS live buffer worker — Contract 1.8.0-ops-gis-sot (G3-safe).
 
-HARD RULE (AGENTS.md): does **not** open a second AISstream WebSocket.
-Live ingest remains ``services.aisstream_connector`` / ``sentinel-core``
-(``single_persistent``). This worker:
+HARD RULE (AGENTS.md): does **not** open a second AISstream WebSocket to
+``wss://stream.aisstream.io/v0/stream``. Live ingest remains
+``services.aisstream_connector`` / ``sentinel-core`` (``single_persistent``).
+
+This worker:
 
   1) **buffer mode (default)** — reads recent positions from the G3 SQLite
      replica and writes ``data/cache/ais_live.json`` for OOB HUD cold-start.
+     Failures use exponential backoff **2s → 60s** (same envelope as connector).
   2) **ingest mode (``--ingest``)** — delegates to ``aisstream_connector.main()``
-     as the *sole* WS owner (for Windows host without Docker core). Exponential
-     backoff lives inside the connector.
+     as the *sole* WS owner (Windows host without Docker core). Exponential
+     backoff (1s→60s) lives inside the connector reconnect loop.
 
 Usage::
 
@@ -140,19 +143,29 @@ def write_live_cache(payload: dict[str, Any] | None = None) -> Path:
 
 
 def run_buffer_loop(*, interval_sec: float = DEFAULT_INTERVAL_SEC, once: bool = False) -> None:
+    """Write ais_live.json forever; exponential backoff 2s→60s on write/DB failures."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     LOG.info(
         "ais_worker buffer mode interval=%.1fs cache=%s (G3-safe, no extra WS)",
         interval_sec,
         CACHE_PATH,
     )
+    fail_backoff = 2.0
     while True:
-        path = write_live_cache()
-        snap = json.loads(path.read_text(encoding="utf-8"))
-        LOG.info("ais_live.json count=%s source=%s", snap.get("count"), snap.get("source"))
-        if once:
-            return
-        time.sleep(max(2.0, float(interval_sec)))
+        try:
+            path = write_live_cache()
+            snap = json.loads(path.read_text(encoding="utf-8"))
+            LOG.info("ais_live.json count=%s source=%s", snap.get("count"), snap.get("source"))
+            fail_backoff = 2.0
+            if once:
+                return
+            time.sleep(max(2.0, float(interval_sec)))
+        except Exception as exc:  # noqa: BLE001
+            LOG.warning("ais_worker buffer failure (backoff=%.0fs): %s", fail_backoff, exc)
+            if once:
+                raise
+            time.sleep(fail_backoff)
+            fail_backoff = min(fail_backoff * 2.0, 60.0)
 
 
 def run_ingest_delegate() -> int:
