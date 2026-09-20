@@ -139,6 +139,15 @@ assert "155159" in man, "top10_vessels_manifest.js missing LIJMILIYA DWT 155159 
 arctic_vid = Path("/app/assets/arctic/videos")
 assert arctic_vid.is_dir(), "assets/arctic bind-mount missing"
 assert Path("/app/services/oracle_engine.py").is_file(), "oracle_engine.py missing in image"
+assert Path("/app/services/news_service.py").is_file(), "news_service.py missing in image"
+assert Path("/app/services/firms_service.py").is_file(), "firms_service.py missing in image"
+assert Path("/app/services/market_data_service.py").is_file(), "market_data_service.py missing in image"
+assert Path("/app/services/notify_service.py").is_file(), "notify_service.py missing in image"
+assert Path("/app/services/healthcheck.py").is_file(), "healthcheck.py missing in image"
+assert Path("/app/services/config_keys.py").is_file(), "config_keys.py missing in image"
+assert Path("/app/services/cache_swr.py").is_file(), "cache_swr.py missing in image"
+serve = Path("/app/scripts/serve_dashboard.py").read_text(encoding="utf-8", errors="ignore")
+assert "_serve_intel_get_apis" in serve and "/api/v1/news/latest" in serve, "intel routes missing in serve_dashboard"
 assert Path("/app/output/js/oracle_sheet.js").is_file(), "oracle_sheet.js missing in output volume"
 assert Path("/app/output/js/oracle_engine.js").is_file(), "oracle_engine.js missing in output volume"
 assert Path("/app/output/js/vessel_card_metrics.js").is_file(), "vessel_card_metrics.js missing"
@@ -155,9 +164,36 @@ print(
     "arctic_js=1",
     "quant_live_sot=1",
     "oracle_sot=1",
+    "intel_adapters=1",
     "lijmiliya_dwt=155159",
     "arctic_mp4=", sum(1 for _ in arctic_vid.glob("*.mp4")),
 )
+PY
+
+# Intel route smoke (must be 200 after bake — closes Sections II–V 404 drift)
+echo "==> intel route smoke"
+for path in \
+  /output/api/v1/news/latest \
+  /output/api/v1/gis/firms/anomalies \
+  /output/api/v1/market/summary
+do
+  code="$(curl -sS -o /tmp/intel_smoke.json -w '%{http_code}' --max-time 20 "http://127.0.0.1:8765${path}" || echo 000)"
+  echo "  ${path} -> HTTP ${code}"
+  if [[ "${code}" != "200" ]]; then
+    echo "ERROR: intel route ${path} expected 200 got ${code}" >&2
+    head -c 400 /tmp/intel_smoke.json 2>/dev/null || true
+    exit 1
+  fi
+done
+echo "INTEL_ROUTES_OK"
+
+# OOB providers count inside container (masked — never print secrets)
+docker exec sentinel-web python - <<'PY'
+from services.config_keys import registry_status
+st = registry_status()
+print("OOB_PROVIDERS", st.get("configured"), "/", st.get("total"))
+if int(st.get("total") or 0) != 7:
+    raise SystemExit("expected 7 registry keys")
 PY
 
 # Re-seed after BAKE_OK — core/web may rewrite top10_vessels_manifest.js during first boot.

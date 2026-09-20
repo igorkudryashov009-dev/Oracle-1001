@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-09-20T11:17:05Z",
+  "generated_at": "2026-09-20T14:43:39Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -464,8 +464,8 @@
         "services/ais_health.py"
       ],
       "resolved_path": "services/ais_health.py",
-      "sha256": "38db302fdb95c7296776270c1f23b0d5b1d011c9aba95000de751be781d6ac3e",
-      "bytes": 19660,
+      "sha256": "4461c0236f4cd4ed0ffe43247d270a22376d7147d8c0f93a93d596c2c6dfb0f8",
+      "bytes": 19893,
       "critical": true
     },
     {
@@ -490,6 +490,18 @@
       "resolved_path": "services/ais_tracker.py",
       "sha256": "4f831926257ad83b49fafb75b999ea7115ac32e1d56f49c6b818fcdb1da85fc3",
       "bytes": 25745,
+      "critical": false
+    },
+    {
+      "name": "ais_worker.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ais_worker.py"
+      ],
+      "resolved_path": "services/ais_worker.py",
+      "sha256": "3c581bd30634e9bcd04962a38a297532541aa65f33018fb8e383ef74038d9886",
+      "bytes": 7505,
       "critical": false
     },
     {
@@ -589,6 +601,18 @@
       "critical": false
     },
     {
+      "name": "cache_swr.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/cache_swr.py"
+      ],
+      "resolved_path": "services/cache_swr.py",
+      "sha256": "913c83e54b1e1fc04b9cb6fffe6ba7ba14f0b0cebb8a262644d8b224fb397cb2",
+      "bytes": 4692,
+      "critical": false
+    },
+    {
       "name": "chokepoints.py",
       "kind": "service_py",
       "url_path": null,
@@ -644,8 +668,8 @@
         "services/firms_service.py"
       ],
       "resolved_path": "services/firms_service.py",
-      "sha256": "fac9bf361b585402e10b6d980dae0143a1507f04b343651a9e090e8ed8220e10",
-      "bytes": 7681,
+      "sha256": "ce01e096b5d662a5ffa107987c6cb6d5928e3d9e86b040bd40083cb99cb3531b",
+      "bytes": 8278,
       "critical": false
     },
     {
@@ -682,6 +706,18 @@
       "resolved_path": "services/generative_3d_adapter.py",
       "sha256": "bb2c2c7c9094e670323e3fee2b6ef24cb6ff2d98a9381874da6348ff3956797d",
       "bytes": 17393,
+      "critical": false
+    },
+    {
+      "name": "healthcheck.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/healthcheck.py"
+      ],
+      "resolved_path": "services/healthcheck.py",
+      "sha256": "adb5a72e0efce1d4df467d523a155bf028755ec50ddb7b8c93e4b3c0bf5bd223",
+      "bytes": 4890,
       "critical": false
     },
     {
@@ -740,8 +776,8 @@
         "services/market_data_service.py"
       ],
       "resolved_path": "services/market_data_service.py",
-      "sha256": "efc942826575d473842aec8a1bdf2ffd9905fc92a10b9ce79bc19a6138e12f6f",
-      "bytes": 5316,
+      "sha256": "3502b1e4e890a2db5e125b3cd3c507e2e577b3632ea7633c92f11580213aa701",
+      "bytes": 6387,
       "critical": false
     },
     {
@@ -764,8 +800,8 @@
         "services/news_service.py"
       ],
       "resolved_path": "services/news_service.py",
-      "sha256": "23a9e948c52878bb7a33fe94a53402bcd61b11d9f8814338de7095a7c49b74ea",
-      "bytes": 7671,
+      "sha256": "2ccb9c94c780c6bf602ffc38fe7d50c93da2b39e4af4193f59fe79567bec6392",
+      "bytes": 8595,
       "critical": false
     },
     {
