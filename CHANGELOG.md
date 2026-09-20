@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.8.0-ops-gis-sot] - 2026-09-20
+
+### Added
+- **Unified GIS SoT Registry (`compressor_stations.py`)**: Integrated single source of truth containing 185 gas compressor station nodes with validated WGS84 bounding boxes (`[lon_min, lat_min, lon_max, lat_max]`).
+- **Sub-Registry Compatibility Layers**: Re-exported `COMPRESSOR_STATIONS` (50 Core RU), `ADDITIONAL_COMPRESSOR_STATIONS` (50 Additional/UGS), `TURKMENISTAN_COMPRESSOR_STATIONS` (50 Turkmenistan/CAC), and `CHINA_COMPRESSOR_STATIONS` (35 China Import).
+- **Spatial Grid Index (`services/spatial_index.py`)**: Built a zero-dependency, pure-Python Uniform Grid Index providing $O(1)$ average-time point lookups and $O(\log N)$ spatial filtering without C-extensions (`rtree`/`shapely`).
+- **Automated GIS Integrity Test Suite (`tests/test_compressor_stations_integrity.py`)**: Added 9 comprehensive pytest scenarios covering spatial limits, count verification (185 nodes), bounding box span constraints, non-fatal overlap checks, and API/catalog alignment.
+- **API Domain Registry (`services/compressor_stations.py`)**: 185 frozen `CompressorStation` entries (bbox centroids); `GET /api/v1/gis/compressor-stations`; `POST /api/v1/route/analytics` appends `proximity_compressors` (≤50 nm).
+- **Tile proxy (`services/tile_proxy.py`)**: `GET /api/v1/gis/tiles/{provider}/{z}/{x}/{y}.png` (MapTiler / Mapbox / Esri / OSM); disk cache 30d; SQLite monthly hard-stops 90k/40k; missing key → Esri. Legacy `/api/tiles/` unchanged.
+- **AIS tracker (`services/ais_tracker.py`)**: `GET /api/v1/gis/ais/{status,positions,vessel/{imo}}`; local G3 cache → `data/ais_history.db` (6h TTL); `$30/mo` budget hard-stop scaffold; no invented satellite APIs; `X-AIS-Source` header.
+
+### Changed
+- **API Domain Service (`services/compressor_stations.py`)**: Updated REST endpoints and internal helper routines to ingest `ALL_COMPRESSOR_STATIONS` re-exports dynamically; `find_nearest_stations` / `stations_at_point` use the grid index for candidate prune.
+- **Contract Header Enforcement**: Added `X-Contract-Version: 1.8.0-ops-gis-sot` across all Edge (`:8765`) and Micro-API (`:8766`) responses.
+- **Route sheet payload**: `build_route_analytics_payload` attaches per-vessel proximity from last track point.
+- **Honesty**: `capacity_bcm_y` = corridor-class notional estimate (not live SCADA).
+- **Contract**: AGENTS.md → `1.8.0-ops-gis-sot`.
+
+### Verified
+- **OOB Pipeline Checks**: Executed `tests/test_compressor_stations_integrity.py` with **9/9 PASSED** (0.71s execution latency).
+- **Runtime Proof**: Validated Portovaya proximity search (`KS_10_Portovaya_NordStream1` at 0 nm offset).
+
 ## v1.7.0-autodiscover-oracle-sot — Auto-discovery manifest · Oracle Dual Gate SoT (2026-09-20)
 
 Closes the recurring "new code exists locally, not in the Node A image" class of failure and the third Dual Gate threshold twin in JS:
