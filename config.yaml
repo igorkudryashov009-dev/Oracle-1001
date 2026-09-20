@@ -55,6 +55,12 @@ sentinel:
   # websocket_url inherited from aisstream.websocket_url unless overridden
   # api_key_env: AISSTREAM_API_KEY
 
+# API credentials are NEVER stored in this file.
+# Unified registry (Contract 1.8.0-ops-gis-sot): services/config_keys.py
+# Canonical env names — set in gitignored .env only:
+#   NEWSAPI_KEY, GIE_API_KEY, AISSTREAM_API_KEY (alias AISSTREAM_KEY),
+#   FIRMS_MAP_KEY, EXCHANGERATE_KEY, NASDAQ_DATA_KEY, BREVO_API_KEY
+
 paths:
   history_dir: история1
   targets: targets.json

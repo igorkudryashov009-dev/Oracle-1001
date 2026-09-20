@@ -5,6 +5,8 @@
 ### Added
 - **Unified GIS SoT Registry (`compressor_stations.py`)**: Integrated single source of truth containing 185 gas compressor station nodes with validated WGS84 bounding boxes (`[lon_min, lat_min, lon_max, lat_max]`).
 - **Sub-Registry Compatibility Layers**: Re-exported `COMPRESSOR_STATIONS` (50 Core RU), `ADDITIONAL_COMPRESSOR_STATIONS` (50 Additional/UGS), `TURKMENISTAN_COMPRESSOR_STATIONS` (50 Turkmenistan/CAC), and `CHINA_COMPRESSOR_STATIONS` (35 China Import).
+- **Unified API registry (`services/config_keys.py`)**: env-only SoT for NEWSAPI / GIE / AISSTREAM / FIRMS / EXCHANGERATE / NASDAQ / BREVO — never hardcodes secrets; `registry_status()` returns masked public blob.
+- **Intel adapters (Sections II–V):** `news_service`, `firms_service`, `market_data_service`, `notify_service`; REST `GET /api/v1/news/latest`, `GET /api/v1/gis/firms/anomalies`, `GET /api/v1/market/summary`, `POST /api/v1/alerts/dispatch`; HUD news ticker + FIRMS layer in `web/sentinel_engine.js`; tests `tests/test_sections_ii_v_integrity.py`.
 - **Spatial Grid Index (`services/spatial_index.py`)**: Built a zero-dependency, pure-Python Uniform Grid Index providing $O(1)$ average-time point lookups and $O(\log N)$ spatial filtering without C-extensions (`rtree`/`shapely`).
 - **Automated GIS Integrity Test Suite (`tests/test_compressor_stations_integrity.py`)**: Added 9 comprehensive pytest scenarios covering spatial limits, count verification (185 nodes), bounding box span constraints, non-fatal overlap checks, and API/catalog alignment.
 - **API Domain Registry (`services/compressor_stations.py`)**: 185 frozen `CompressorStation` entries (bbox centroids); `GET /api/v1/gis/compressor-stations`; `POST /api/v1/route/analytics` appends `proximity_compressors` (≤50 nm).

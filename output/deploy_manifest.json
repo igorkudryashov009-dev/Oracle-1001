@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-09-19T19:53:25Z",
+  "generated_at": "2026-09-20T11:17:05Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -221,6 +221,19 @@
       "critical": false
     },
     {
+      "name": "sentinel_engine.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/sentinel_engine.js",
+      "local_paths": [
+        "output/js/sentinel_engine.js",
+        "web/js/sentinel_engine.js"
+      ],
+      "resolved_path": "output/js/sentinel_engine.js",
+      "sha256": "65cf1518b8c1cb3182792fc7fda99ea2afd4ea285c99488b84466d479912209f",
+      "bytes": 51751,
+      "critical": true
+    },
+    {
       "name": "top10_3d_viewer.js",
       "kind": "hud_js",
       "url_path": "/output/js/top10_3d_viewer.js",
@@ -322,19 +335,6 @@
       "resolved_path": "output/oracle_sheet.js",
       "sha256": "02313457f33f9c94c457f134633097400e3e57aaf32ab2a0a70a0718b41e3581",
       "bytes": 168,
-      "critical": true
-    },
-    {
-      "name": "sentinel_engine.js",
-      "kind": "hud_js_root",
-      "url_path": "/output/js/sentinel_engine.js",
-      "local_paths": [
-        "output/js/sentinel_engine.js",
-        "web/sentinel_engine.js"
-      ],
-      "resolved_path": "output/js/sentinel_engine.js",
-      "sha256": "c3fadb1a43eead42cf9bedc4759303cf5186d7d199fb59af80d99ba2d04bf9b6",
-      "bytes": 47771,
       "critical": true
     },
     {
@@ -481,6 +481,18 @@
       "critical": false
     },
     {
+      "name": "ais_tracker.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ais_tracker.py"
+      ],
+      "resolved_path": "services/ais_tracker.py",
+      "sha256": "4f831926257ad83b49fafb75b999ea7115ac32e1d56f49c6b818fcdb1da85fc3",
+      "bytes": 25745,
+      "critical": false
+    },
+    {
       "name": "aisstream_connector.py",
       "kind": "service_py",
       "url_path": null,
@@ -589,6 +601,30 @@
       "critical": false
     },
     {
+      "name": "compressor_stations.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/compressor_stations.py"
+      ],
+      "resolved_path": "services/compressor_stations.py",
+      "sha256": "d9fce0d535c13d144aa8c5d88910dab295a3b0257bd1c2e4a33ccfbc11845be7",
+      "bytes": 39446,
+      "critical": false
+    },
+    {
+      "name": "config_keys.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/config_keys.py"
+      ],
+      "resolved_path": "services/config_keys.py",
+      "sha256": "be5028bf67ae71dbb36f683474429e8c97a468895e60fc73bd27ec4df1efb7aa",
+      "bytes": 6632,
+      "critical": false
+    },
+    {
       "name": "dual_gate.py",
       "kind": "service_py",
       "url_path": null,
@@ -599,6 +635,18 @@
       "sha256": "af1f19e31b32d4d002695afb5300fab0eb78fd63b54883c7ef351d037e2f1c5f",
       "bytes": 15365,
       "critical": true
+    },
+    {
+      "name": "firms_service.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/firms_service.py"
+      ],
+      "resolved_path": "services/firms_service.py",
+      "sha256": "fac9bf361b585402e10b6d980dae0143a1507f04b343651a9e090e8ed8220e10",
+      "bytes": 7681,
+      "critical": false
     },
     {
       "name": "fleet_registry.py",
@@ -685,6 +733,18 @@
       "critical": false
     },
     {
+      "name": "market_data_service.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/market_data_service.py"
+      ],
+      "resolved_path": "services/market_data_service.py",
+      "sha256": "efc942826575d473842aec8a1bdf2ffd9905fc92a10b9ce79bc19a6138e12f6f",
+      "bytes": 5316,
+      "critical": false
+    },
+    {
       "name": "migrate_legacy_to_sentinel.py",
       "kind": "service_py",
       "url_path": null,
@@ -694,6 +754,30 @@
       "resolved_path": "services/migrate_legacy_to_sentinel.py",
       "sha256": "ecb68ba0ddac273d56e0c7ceb7b064a498433dde2f505951869aa90381ce05fe",
       "bytes": 9687,
+      "critical": false
+    },
+    {
+      "name": "news_service.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/news_service.py"
+      ],
+      "resolved_path": "services/news_service.py",
+      "sha256": "23a9e948c52878bb7a33fe94a53402bcd61b11d9f8814338de7095a7c49b74ea",
+      "bytes": 7671,
+      "critical": false
+    },
+    {
+      "name": "notify_service.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/notify_service.py"
+      ],
+      "resolved_path": "services/notify_service.py",
+      "sha256": "57e630f035db31bbc6322015f92ee98db4934f455eaf7e41b70314f118862872",
+      "bytes": 5918,
       "critical": false
     },
     {
@@ -752,8 +836,8 @@
         "services/route_analytics.py"
       ],
       "resolved_path": "services/route_analytics.py",
-      "sha256": "6a5e5346f95ad7faf137255210712a5677c5fafe6647888b9b46496782413931",
-      "bytes": 32464,
+      "sha256": "9d62c91c1cc88ac5097b8b626c659c482920b5ef9a613f40118c3bb351a1fac5",
+      "bytes": 33768,
       "critical": false
     },
     {
@@ -781,6 +865,18 @@
       "critical": false
     },
     {
+      "name": "spatial_index.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/spatial_index.py"
+      ],
+      "resolved_path": "services/spatial_index.py",
+      "sha256": "58b1583b2aa0bcfc4baba8136f9468cf5a675940108daeafdf102fadce45a417",
+      "bytes": 6910,
+      "critical": false
+    },
+    {
       "name": "sqlite_retention.py",
       "kind": "service_py",
       "url_path": null,
@@ -802,6 +898,18 @@
       "resolved_path": "services/storage.py",
       "sha256": "dea38e315846c744f2f26645b52e3df8e0636f132333bf916ff5f821b843c00f",
       "bytes": 15946,
+      "critical": false
+    },
+    {
+      "name": "tile_proxy.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/tile_proxy.py"
+      ],
+      "resolved_path": "services/tile_proxy.py",
+      "sha256": "2ba30e275bd54cb12b5c505a258f11c4d8acbd5fa4f97cafc0f3aab894e3d3bd",
+      "bytes": 16927,
       "critical": false
     },
     {
@@ -1391,6 +1499,13 @@
       "match": true
     },
     {
+      "web": "web/js/sentinel_engine.js",
+      "output": "output/js/sentinel_engine.js",
+      "web_sha256": "65cf1518b8c1cb3182792fc7fda99ea2afd4ea285c99488b84466d479912209f",
+      "output_sha256": "65cf1518b8c1cb3182792fc7fda99ea2afd4ea285c99488b84466d479912209f",
+      "match": true
+    },
+    {
       "web": "web/js/top10_3d_viewer.js",
       "output": "output/js/top10_3d_viewer.js",
       "web_sha256": "6d0cd16a95c9d10326f3c1d7fd728c86af011ea9b69d0eef76f244aab875c8d1",
@@ -1444,13 +1559,6 @@
       "output": "output/oracle_sheet.js",
       "web_sha256": "02313457f33f9c94c457f134633097400e3e57aaf32ab2a0a70a0718b41e3581",
       "output_sha256": "02313457f33f9c94c457f134633097400e3e57aaf32ab2a0a70a0718b41e3581",
-      "match": true
-    },
-    {
-      "web": "web/sentinel_engine.js",
-      "output": "output/js/sentinel_engine.js",
-      "web_sha256": "c3fadb1a43eead42cf9bedc4759303cf5186d7d199fb59af80d99ba2d04bf9b6",
-      "output_sha256": "c3fadb1a43eead42cf9bedc4759303cf5186d7d199fb59af80d99ba2d04bf9b6",
       "match": true
     },
     {

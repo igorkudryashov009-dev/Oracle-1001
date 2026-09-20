@@ -333,7 +333,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         host = (self.client_address[0] if self.client_address else "") or ""
         return host in {"127.0.0.1", "::1", "localhost"}
 
-    def _json_response(self, code: int, payload: dict) -> None:
+    def _json_response(self, code: int, payload: dict, *, contract_header: bool = False) -> None:
         raw = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -342,6 +342,13 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             "Cache-Control",
             "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
         )
+        if contract_header:
+            try:
+                from services.compressor_stations import CONTRACT_VERSION
+
+                self.send_header("X-Contract-Version", CONTRACT_VERSION)
+            except Exception:  # noqa: BLE001
+                self.send_header("X-Contract-Version", "1.8.0-ops-gis-sot")
         self.end_headers()
         if self.command != "HEAD":
             self.wfile.write(raw)
@@ -436,9 +443,162 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         path = unquote(parsed.path or "").rstrip("/") or "/"
         return path
 
-    def _send_json(self, data: dict, status: int = 200) -> None:
+    def _send_json(self, data: dict, status: int = 200, *, contract_header: bool = False) -> None:
         """Alias used by admin POST handlers."""
-        self._json_response(status, data)
+        self._json_response(status, data, contract_header=contract_header)
+
+    def _serve_gis_compressor_stations(self) -> bool:
+        path = self._normalize_api_path()
+        if path not in (
+            "/api/v1/gis/compressor-stations",
+            "/output/api/v1/gis/compressor-stations",
+        ):
+            return False
+        try:
+            from services.compressor_stations import build_gis_stations_payload
+
+            self._send_json(build_gis_stations_payload(), contract_header=True)
+        except Exception as exc:  # noqa: BLE001
+            self._send_json(
+                {"ok": False, "error": str(exc)[:400], "proximity_compressors": []},
+                status=500,
+                contract_header=True,
+            )
+        return True
+
+    def _serve_intel_get_apis(self) -> bool:
+        """News / FIRMS / Market GET routes (Contract 1.8.0 Sections II–III)."""
+        path = self._normalize_api_path()
+        aliases = {
+            "/api/v1/news/latest": "news",
+            "/output/api/v1/news/latest": "news",
+            "/api/v1/gis/firms/anomalies": "firms",
+            "/output/api/v1/gis/firms/anomalies": "firms",
+            "/api/v1/market/summary": "market",
+            "/output/api/v1/market/summary": "market",
+        }
+        kind = aliases.get(path)
+        if not kind:
+            return False
+        try:
+            from urllib.parse import parse_qs
+
+            qs = parse_qs(urlparse(self.path).query or "")
+            if kind == "news":
+                from services.news_service import fetch_latest_news
+
+                limit = int((qs.get("limit") or ["25"])[0])
+                self._send_json(fetch_latest_news(limit=limit), contract_header=True)
+            elif kind == "firms":
+                from services.firms_service import fetch_firms_anomalies
+
+                days = int((qs.get("days") or ["1"])[0])
+                buf = float((qs.get("max_distance_nm") or ["50"])[0])
+                self._send_json(
+                    fetch_firms_anomalies(days=days, max_distance_nm=buf),
+                    contract_header=True,
+                )
+            else:
+                from services.market_data_service import fetch_market_summary
+
+                self._send_json(fetch_market_summary(), contract_header=True)
+        except Exception as exc:  # noqa: BLE001
+            self._send_json(
+                {"ok": False, "error": str(exc)[:400]},
+                status=500,
+                contract_header=True,
+            )
+        return True
+
+    def _handle_alerts_dispatch_post(self) -> bool:
+        path = self._normalize_api_path()
+        if path not in ("/api/v1/alerts/dispatch", "/output/api/v1/alerts/dispatch"):
+            return False
+        try:
+            length = int(self.headers.get("Content-Length") or "0")
+        except ValueError:
+            length = 0
+        raw = self.rfile.read(length) if length > 0 else b"{}"
+        try:
+            body = json.loads(raw.decode("utf-8", errors="replace") or "{}")
+        except Exception:  # noqa: BLE001
+            body = {}
+        try:
+            from services.notify_service import dispatch_alert
+
+            self._send_json(dispatch_alert(body if isinstance(body, dict) else {}), contract_header=True)
+        except Exception as exc:  # noqa: BLE001
+            self._send_json(
+                {"ok": False, "error": str(exc)[:400], "delivered": False},
+                status=500,
+                contract_header=True,
+            )
+        return True
+
+    def _serve_gis_ais(self) -> bool:
+        """GIS AIS tracker — /api/v1/gis/ais/* (cache-first, Contract 1.8.0)."""
+        path = self._normalize_api_path()
+        if "/api/v1/gis/ais" not in path:
+            return False
+        # Strip /output prefix for parser
+        norm = path
+        if norm.startswith("/output"):
+            norm = norm[len("/output") :]
+        try:
+            from services.ais_tracker import handle_ais_request
+
+            status, body, headers = handle_ais_request(norm)
+        except Exception as exc:  # noqa: BLE001
+            self._json_response(
+                500,
+                {"ok": False, "error": str(exc)[:200], "contract_version": "1.8.0-ops-gis-sot"},
+                contract_header=True,
+            )
+            return True
+        raw = json.dumps(body, ensure_ascii=False).encode("utf-8")
+        self.send_response(int(status))
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(raw)))
+        self.send_header("Cache-Control", "no-store")
+        for hk, hv in headers.items():
+            self.send_header(hk, hv)
+        if "X-Contract-Version" not in headers:
+            self.send_header("X-Contract-Version", "1.8.0-ops-gis-sot")
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(raw)
+        return True
+
+    def _handle_route_analytics_post(self) -> bool:
+        path = self._normalize_api_path()
+        if path not in (
+            "/api/v1/route/analytics",
+            "/output/api/v1/route/analytics",
+        ):
+            return False
+        length = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(length) if length > 0 else b"{}"
+        try:
+            body = json.loads(raw.decode("utf-8", errors="replace") or "{}")
+        except Exception:  # noqa: BLE001
+            body = {}
+        if not isinstance(body, dict):
+            body = {}
+        try:
+            from services.compressor_stations import analyze_route_payload
+
+            self._send_json(analyze_route_payload(body), contract_header=True)
+        except Exception as exc:  # noqa: BLE001
+            self._send_json(
+                {
+                    "contract_version": "1.8.0-ops-gis-sot",
+                    "proximity_compressors": [],
+                    "error": str(exc)[:400],
+                },
+                status=500,
+                contract_header=True,
+            )
+        return True
 
     def _handle_update_key(self) -> bool:
         """Admin live key injection — localhost only (optional admin token)."""
@@ -508,6 +668,66 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self._send_json({"ok": False, "error": str(exc)[:400]}, status=500)
         return True
 
+    def _serve_gis_tiles(self) -> bool:
+        """Contract 1.8.0 GIS tile proxy — MapTiler/Mapbox/Esri/OSM + disk cache + hard-stop."""
+        parsed = urlparse(self.path)
+        path = unquote(parsed.path or "")
+        try:
+            from services.tile_proxy import (
+                CONTRACT_VERSION,
+                fetch_gis_tile,
+                parse_gis_tile_path,
+                public_status,
+            )
+        except Exception as exc:  # noqa: BLE001
+            if "/api/v1/gis/tiles/" in path:
+                self._json_response(
+                    500,
+                    {"ok": False, "error": "tile_proxy_unavailable", "detail": str(exc)[:120]},
+                    contract_header=True,
+                )
+                return True
+            return False
+
+        if path in (
+            "/api/v1/gis/tiles/status",
+            "/api/v1/gis/tiles/status/",
+            "/output/api/v1/gis/tiles/status",
+        ):
+            self._json_response(200, {"ok": True, **public_status()}, contract_header=True)
+            return True
+
+        # Also accept /output prefix
+        norm = path
+        if norm.startswith("/output/api/v1/gis/tiles/"):
+            norm = norm[len("/output") :]
+        spec = parse_gis_tile_path(norm)
+        if not spec:
+            return False
+
+        result = fetch_gis_tile(
+            provider=spec["provider"], z=spec["z"], x=spec["x"], y=spec["y"]
+        )
+        if result.status != 200 or not result.body:
+            self._json_response(
+                int(result.status or 502),
+                {
+                    "ok": False,
+                    "error": result.error_code or "tile_unavailable",
+                    "contract_version": CONTRACT_VERSION,
+                },
+                contract_header=True,
+            )
+            return True
+
+        self.send_response(200)
+        self.send_header("Content-Type", result.content_type)
+        self.send_header("Content-Length", str(len(result.body)))
+        for hk, hv in result.headers().items():
+            self.send_header(hk, hv)
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(result.body)
         return True
 
     def _serve_map_tiles(self) -> bool:
@@ -575,6 +795,12 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         return True
 
     def do_GET(self):  # noqa: N802
+        if self._serve_gis_tiles():
+            return
+        if self._serve_gis_ais():
+            return
+        if self._serve_intel_get_apis():
+            return
         if self._serve_map_tiles():
             return
         if self._serve_qflex_1_10():
@@ -586,6 +812,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         if self._serve_live_health():
             return
         if self._serve_quant_risk():
+            return
+        if self._serve_gis_compressor_stations():
             return
         if self._serve_key_status():
             return
@@ -605,6 +833,10 @@ class DashboardHandler(SimpleHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802
         """Always handle POST — never fall through to BaseHTTPRequestHandler 501."""
         try:
+            if self._handle_alerts_dispatch_post():
+                return
+            if self._handle_route_analytics_post():
+                return
             if self._handle_update_key():
                 return
             self._send_json({"ok": False, "error": "Endpoint Not Found"}, status=404)
@@ -615,6 +847,12 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 self.send_error(500, str(exc))
 
     def do_HEAD(self):  # noqa: N802
+        if self._serve_gis_tiles():
+            return
+        if self._serve_gis_ais():
+            return
+        if self._serve_intel_get_apis():
+            return
         if self._serve_map_tiles():
             return
         if self._serve_qflex_1_10():
@@ -626,6 +864,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         if self._serve_live_health():
             return
         if self._serve_quant_risk():
+            return
+        if self._serve_gis_compressor_stations():
             return
         if self._serve_key_status():
             return

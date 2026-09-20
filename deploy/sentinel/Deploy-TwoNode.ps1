@@ -69,7 +69,7 @@ function Sync-Tree([string]$HostName, [string]$Dest = $RemoteRoot, [switch]$Lean
       --exclude=nasa-mission-control `
       docker-compose.yml docker-compose.prod.yml Dockerfile .dockerignore `
       docker services scripts web config.yaml requirements.txt `
-      run_release.py build_sentinel_dashboard.py api_server.py `
+      run_release.py build_sentinel_dashboard.py api_server.py compressor_stations.py `
       AGENTS.md CHANGELOG.md data deploy/sentinel `
       output/fleet_database.csv output/fleet_oil_tankers.csv output/fleet_database_full.csv `
       output/sentinel_dashboard.html output/js output/css output/assets `

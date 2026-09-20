@@ -194,6 +194,7 @@
         { maxZoom: 10, attribution: "Tiles &copy; Esri", crossOrigin: true }
       ).addTo(map);
     }
+    const vesselLayer = L.layerGroup();
     (points || []).forEach((p) => {
       const color = p.color || COLORS[p.tier] || "#10b981";
       const r = opts && opts.alphaOnly ? 5 : (p.tier === "ALPHA" ? 5 : 3);
@@ -203,9 +204,102 @@
         fillColor: color,
         fillOpacity: 0.75,
         weight: 1,
-      }).bindTooltip(`${p.name || p.imo || ""} · ${p.tier || ""} · SOG ${p.sog ?? "—"}`, { direction: "top" }).addTo(map);
+      }).bindTooltip(`${p.name || p.imo || ""} · ${p.tier || ""} · SOG ${p.sog ?? "—"}`, { direction: "top" }).addTo(vesselLayer);
     });
+    vesselLayer.addTo(map);
+    const firmsLayer = L.layerGroup();
+    const newsLayer = L.layerGroup(); // reserved for future geo-tagged news pins
+    const overlays = {
+      "Суда (AIS)": vesselLayer,
+      "Термоточки FIRMS": firmsLayer,
+      "Новости": newsLayer,
+    };
+    L.control.layers(null, overlays, { collapsed: true, position: "topright" }).addTo(map);
+    map.__sentinelLayers = { vesselLayer, firmsLayer, newsLayer };
+    // Lazy-load FIRMS anomalies onto the thermal layer
+    fetch(`/api/v1/gis/firms/anomalies?days=1&max_distance_nm=50&nocache=${Date.now()}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((geo) => {
+        if (!geo || !Array.isArray(geo.features)) return;
+        geo.features.forEach((f) => {
+          const coords = (f.geometry && f.geometry.coordinates) || [];
+          const lon = coords[0];
+          const lat = coords[1];
+          if (lat == null || lon == null) return;
+          const props = f.properties || {};
+          const tip = [
+            "FIRMS thermal",
+            props.nearest_station ? `CS ${props.nearest_station}` : null,
+            props.distance_nm != null ? `${props.distance_nm} nm` : null,
+            props.frp != null ? `FRP ${props.frp}` : null,
+          ].filter(Boolean).join(" · ");
+          L.circleMarker([lat, lon], {
+            radius: 4,
+            color: "#ff6b35",
+            fillColor: "#ff4500",
+            fillOpacity: 0.85,
+            weight: 1,
+          }).bindTooltip(tip, { direction: "top" }).addTo(firmsLayer);
+        });
+      })
+      .catch(() => { /* keep map usable offline */ });
     return map;
+  }
+
+  function ensureNewsTicker() {
+    let el = document.getElementById("sentinelNewsTicker");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "sentinelNewsTicker";
+      el.setAttribute("role", "marquee");
+      el.style.cssText = [
+        "position:fixed", "left:0", "right:0", "bottom:0", "z-index:1200",
+        "height:28px", "overflow:hidden", "display:flex", "align-items:center",
+        "background:rgba(6,12,20,.92)", "border-top:1px solid rgba(120,180,220,.25)",
+        "color:#9ec9ff", "font:12px/1.2 Manrope,system-ui,sans-serif",
+        "padding:0 12px", "gap:16px",
+      ].join(";");
+      const label = document.createElement("strong");
+      label.textContent = "NEWS";
+      label.style.color = "#f59e0b";
+      const track = document.createElement("div");
+      track.id = "sentinelNewsTickerTrack";
+      track.style.cssText = "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;";
+      track.textContent = "Загрузка ленты…";
+      el.appendChild(label);
+      el.appendChild(track);
+      document.body.appendChild(el);
+      document.body.style.paddingBottom = "28px";
+    }
+    return el;
+  }
+
+  async function syncNewsTicker() {
+    ensureNewsTicker();
+    const track = document.getElementById("sentinelNewsTickerTrack");
+    if (!track) return;
+    try {
+      const data = await fetch(`/api/v1/news/latest?limit=12&nocache=${Date.now()}`, { cache: "no-store" })
+        .then((r) => {
+          if (!r.ok) throw new Error(`news HTTP ${r.status}`);
+          return r.json();
+        });
+      const items = Array.isArray(data.items) ? data.items : [];
+      if (!items.length) {
+        track.textContent = data.note || "Нет новостей (cache/keys) · topics LNG · Nord Stream · TTF";
+        return;
+      }
+      track.textContent = items
+        .map((it) => `${it.source || "news"}: ${it.title || ""}`)
+        .join("   ···   ");
+    } catch (_) {
+      track.textContent = "News feed offline — retrying…";
+    }
+  }
+
+  function startIntelPolls() {
+    syncNewsTicker();
+    setInterval(syncNewsTicker, 120000);
   }
 
   function barChart(canvasId, labels, datasets, stacked) {
@@ -1005,6 +1099,7 @@
   function boot() {
     renderKPI();
     startHealthPoll();
+    startIntelPolls();
     wireTabs();
     makeMap("map01", P.c01_heatmap || []);
     makeMap("map04", (P.c04_alpha_tracks || []).map((t) => ({
@@ -1131,6 +1226,8 @@
     parseSheetFromUrl,
     forceChartRelayout,
     syncLiveHealth,
+    syncNewsTicker,
+    startIntelPolls,
   };
   window.switchTab = switchTab;
 })();

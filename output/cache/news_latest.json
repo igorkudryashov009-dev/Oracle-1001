@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "contract_version": "1.8.0-ops-gis-sot",
+  "fetched_at": "2026-09-20T11:07:34Z",
+  "topics": [
+    "LNG",
+    "Nord Stream",
+    "Gas Pipeline",
+    "Baltic",
+    "TTF"
+  ],
+  "sources_ok": [
+    "newsapi",
+    "gie"
+  ],
+  "count": 2,
+  "items": [
+    {
+      "source": "newsapi",
+      "title": "In 2025, California buried a gas pipeline 20 feet below Alameda Creek and removed its final 8-foot barrier; that same week, Chinook salmon reached this part of the watershed for the first time since the 1950s",
+      "description": "A decades-long barrier blocking fish migration in Alameda Creek was removed in 2025. This action reopened over twenty miles of upstream habitat for migratory fish. Chinook salmon were documented in the newly accessible area shortly after the construction. Thi…",
+      "url": "https://timesofindia.indiatimes.com/science/nature/in-2025-california-buried-a-gas-pipeline-20-feet-below-alameda-creek-and-removed-its-final-8-foot-barrier-that-same-week-chinook-salmon-reached-this-part-of-the-watershed-for-the-first-time-since-the-1950s/articleshow/134350679.cms",
+      "published_at": "2026-09-19T08:41:19Z",
+      "provider": "The Times of India"
+    },
+    {
+      "source": "gie_agsi",
+      "title": "GIE AGSI+ · GIE AGSI+ EU storage",
+      "description": "GIE AGSI+ update gasDay=2026-09-18 · full=None% · injection=None · withdrawal=None",
+      "url": "https://agsi.gie.eu/",
+      "published_at": "2026-09-18",
+      "provider": "GIE",
+      "raw_metrics": {
+        "full": null,
+        "injection": null,
+        "withdrawal": null,
+        "gasDayStart": "2026-09-18"
+      }
+    }
+  ],
+  "is_cached": false,
+  "errors": []
+}

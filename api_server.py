@@ -20,17 +20,38 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from services.quant_risk_service import compute_quant_risk_payload, resolve_db_path
 from services.ais_health import build_health_document
 from services.dual_gate import resolve_active_node, compute_pipeline_health_status, compute_fleet_sample_status
+from services.compressor_stations import (
+    CONTRACT_VERSION as GIS_CONTRACT_VERSION,
+    analyze_route_payload,
+    build_gis_stations_payload,
+)
+from services.tile_proxy import router as gis_tiles_router
+from services.ais_tracker import ais_router as gis_ais_router
+from services.news_service import fetch_latest_news
+from services.firms_service import fetch_firms_anomalies
+from services.market_data_service import fetch_market_summary
+from services.notify_service import dispatch_alert
+
 
 ROOT = Path(__file__).resolve().parent
 CANONICAL_EDGE_PORT = 8765
 INTERNAL_API_PORT = int(os.environ.get("API_SERVER_PORT", "8766"))
+CONTRACT_VERSION = GIS_CONTRACT_VERSION
+
+
+class AlertDispatchBody(BaseModel):
+    subject: str = Field(..., min_length=1, max_length=200)
+    message: str = Field(..., min_length=1, max_length=20000)
+    to: Any = Field(..., description="Email string or list of emails / {email,name}")
+    severity: str = Field("critical", description="critical|warning|info")
+    tags: Optional[List[str]] = None
 
 
 class GateStatus(BaseModel):
@@ -114,7 +135,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="UAIP Visualizer 2026 Internal Engine",
-    version="1.0.0-prod",
+    version=CONTRACT_VERSION,
     lifespan=lifespan,
 )
 
@@ -125,6 +146,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def attach_contract_version_header(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers["X-Contract-Version"] = CONTRACT_VERSION
+    return response
 
 
 @app.get("/output/api/v1/health", response_model=GateStatus)
@@ -157,6 +185,68 @@ async def get_quant_risk(
     """Deterministic Quant Risk Payload with Dual-Gate Consumer Contract."""
     payload = compute_quant_risk_payload(horizon=horizon)
     return QuantRiskMetrics(**payload)
+
+
+@app.get("/api/v1/gis/compressor-stations")
+@app.get("/output/api/v1/gis/compressor-stations")
+async def get_compressor_stations() -> dict:
+    """GIS SoT: all 185 compressor stations (Contract 1.8.0-ops-gis-sot)."""
+    return build_gis_stations_payload()
+
+
+@app.post("/api/v1/route/analytics")
+@app.post("/output/api/v1/route/analytics")
+async def post_route_analytics(request: Request) -> dict:
+    """Enrich vessel position(s) with proximity_compressors within 50 nm."""
+    try:
+        body = await request.json()
+    except Exception:  # noqa: BLE001
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    return analyze_route_payload(body)
+
+
+# GIS tile proxy — mounted from services.tile_proxy.router (Contract 1.8.0)
+if gis_tiles_router is not None:
+    app.include_router(gis_tiles_router)
+    app.include_router(gis_tiles_router, prefix="/output")
+
+# GIS AIS tracker — local G3 cache-first (satellite stub; $30/mo hard-stop ready)
+if gis_ais_router is not None:
+    app.include_router(gis_ais_router)
+    app.include_router(gis_ais_router, prefix="/output")
+
+
+@app.get("/api/v1/news/latest")
+@app.get("/output/api/v1/news/latest")
+async def get_news_latest(limit: int = Query(25, ge=1, le=50)) -> dict:
+    """Unified NewsAPI + GIE feed (offline cache fallback)."""
+    return fetch_latest_news(limit=limit)
+
+
+@app.get("/api/v1/gis/firms/anomalies")
+@app.get("/output/api/v1/gis/firms/anomalies")
+async def get_firms_anomalies(
+    days: int = Query(1, ge=1, le=10),
+    max_distance_nm: float = Query(50.0, ge=1.0, le=500.0),
+) -> dict:
+    """GeoJSON thermal anomalies near 185 compressor stations."""
+    return fetch_firms_anomalies(days=days, max_distance_nm=max_distance_nm)
+
+
+@app.get("/api/v1/market/summary")
+@app.get("/output/api/v1/market/summary")
+async def get_market_summary() -> dict:
+    """FX rates + Nasdaq commodity latest rows."""
+    return fetch_market_summary()
+
+
+@app.post("/api/v1/alerts/dispatch")
+@app.post("/output/api/v1/alerts/dispatch")
+async def post_alerts_dispatch(body: AlertDispatchBody) -> dict:
+    """Dispatch system alert via Brevo (logs to output/archive/alerts.log)."""
+    return dispatch_alert(body.model_dump())
 
 
 if __name__ == "__main__":

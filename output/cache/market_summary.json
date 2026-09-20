@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "contract_version": "1.8.0-ops-gis-sot",
+  "fetched_at": "2026-09-20T11:07:45Z",
+  "fx": {
+    "configured": true,
+    "base": "USD",
+    "rates": {
+      "EUR": 0.8711,
+      "GBP": 0.7477,
+      "RUB": 84.6303,
+      "CNY": 6.7184,
+      "JPY": 156.7327
+    },
+    "provider": "exchangerate-api",
+    "time_last_update_utc": "Sun, 20 Sep 2026 00:00:01 +0000"
+  },
+  "commodities": {
+    "ttf_proxy": {
+      "configured": true,
+      "code": "CHRIS/ICE_TFM1",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    "brent": {
+      "configured": true,
+      "code": "CHRIS/ICE_B1",
+      "error": "HTTP Error 403: Forbidden"
+    }
+  },
+  "is_cached": false,
+  "errors": [
+    "nasdaq:ttf_proxy:HTTP Error 403: Forbidden",
+    "nasdaq:brent:HTTP Error 403: Forbidden"
+  ]
+}

@@ -751,6 +751,39 @@ def build_route_analytics_payload(
         }
 
     groups = sorted({str(v.get("group_tag") or "FLEET") for v in vessels} | {"ALL"})
+
+    # GIS proximity (Contract 1.8.0): last known position vs compressor stations ≤50 nm
+    fleet_proximity: list[dict[str, Any]] = []
+    try:
+        from services.compressor_stations import find_nearest_stations
+
+        hz30 = by_horizon.get("30d") or {}
+        tracks = hz30.get("tracks") or {}
+        for v in vessels:
+            imo = str(v.get("imo") or "")
+            tr = tracks.get(imo) or []
+            if not tr:
+                continue
+            last = tr[-1]
+            try:
+                vlat = float(last["lat"])
+                vlon = float(last["lon"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            prox = find_nearest_stations(vlat, vlon, max_distance_nm=50.0)
+            fleet_proximity.append(
+                {
+                    "imo": imo,
+                    "mmsi": v.get("mmsi"),
+                    "lat": vlat,
+                    "lon": vlon,
+                    "proximity_compressors": prox,
+                }
+            )
+            v["proximity_compressors"] = prox
+    except Exception:  # noqa: BLE001
+        fleet_proximity = []
+
     return {
         "generated_at_utc": _utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "source_mode": source_mode,
@@ -768,6 +801,9 @@ def build_route_analytics_payload(
         "by_horizon": by_horizon,
         "track_sources": track_sources,
         "integrity": "PASS",
+        "proximity_compressors": fleet_proximity,
+        "proximity_buffer_nm": 50.0,
+        "contract_version": "1.8.0-ops-gis-sot",
     }
 
 
