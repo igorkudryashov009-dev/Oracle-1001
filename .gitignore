@@ -52,3 +52,9 @@ output/assets/arctic/_probe/
 output/assets/arctic/screenshots/
 assets/arctic/videos/*_source.mp4
 nasa-mission-control/
+
+# Ops & Local Caches
+scripts/ops/
+data/cache/
+output/cache/
+*.meta.json
