@@ -39,6 +39,10 @@ Thumbs.db
 # Local runtime noise (keep intentional outputs tracked when added)
 *.tmp
 output/tile_cache/
+data/tile_cache/
+data/ais_history.db
+data/archive/tile_usage_counter.sqlite
+data/archive/ais_tracker_budget.sqlite
 data/archive/maptiles_budget.json
 data/archive/vesselfinder_budget.json
 *.bak

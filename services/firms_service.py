@@ -171,24 +171,20 @@ def fetch_firms_anomalies(
     max_distance_nm: float = DEFAULT_BUFFER_NM,
     use_cache: bool = True,
 ) -> dict[str, Any]:
-    """GeoJSON FeatureCollection of FIRMS hits within ``max_distance_nm`` of CS."""
-    errors: list[str] = []
-    try:
+    """GeoJSON FeatureCollection of FIRMS hits within ``max_distance_nm`` of CS (SWR)."""
+
+    def _fresh() -> dict[str, Any]:
         fires = _fetch_firms_csv(days=days)
         near = _attach_proximity(fires, max_distance_nm=max_distance_nm)
         features = [
             {
                 "type": "Feature",
                 "geometry": {"type": "Point", "coordinates": [r["lon"], r["lat"]]},
-                "properties": {
-                    k: v
-                    for k, v in r.items()
-                    if k not in ("lat", "lon")
-                },
+                "properties": {k: v for k, v in r.items() if k not in ("lat", "lon")},
             }
             for r in near
         ]
-        payload = {
+        return {
             "ok": True,
             "contract_version": CONTRACT_VERSION,
             "fetched_at": _now_iso(),
@@ -198,37 +194,57 @@ def fetch_firms_anomalies(
             "raw_fire_count": len(fires),
             "proximity_buffer_nm": max_distance_nm,
             "is_cached": False,
-            "errors": errors,
+            "errors": [],
         }
-        _save_cache(payload)
-        return payload
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, RuntimeError, csv.Error) as exc:
-        errors.append(str(exc)[:240])
-        LOG.warning("FIRMS fetch failed: %s", exc)
 
-    cached = _load_cache() if use_cache else None
-    if cached:
-        cached = dict(cached)
-        cached["ok"] = True
-        cached["is_cached"] = True
-        cached["cache_fallback"] = True
-        cached["errors"] = errors
-        cached["contract_version"] = CONTRACT_VERSION
-        return cached
+    if not use_cache:
+        try:
+            return _fresh()
+        except Exception as exc:  # noqa: BLE001
+            return {
+                "ok": True,
+                "contract_version": CONTRACT_VERSION,
+                "fetched_at": _now_iso(),
+                "type": "FeatureCollection",
+                "features": [],
+                "count": 0,
+                "raw_fire_count": 0,
+                "proximity_buffer_nm": max_distance_nm,
+                "is_cached": False,
+                "errors": [str(exc)[:240]],
+            }
 
-    return {
-        "ok": True,
-        "contract_version": CONTRACT_VERSION,
-        "fetched_at": _now_iso(),
-        "type": "FeatureCollection",
-        "features": [],
-        "count": 0,
-        "raw_fire_count": 0,
-        "proximity_buffer_nm": max_distance_nm,
-        "is_cached": False,
-        "errors": errors or ["no_key_or_empty"],
-        "note": "Configure FIRMS_MAP_KEY in .env",
-    }
+    from services.cache_swr import swr_fetch
+
+    try:
+        return swr_fetch(
+            cache_path=CACHE_PATH,
+            fresh_fetch=_fresh,
+            cache_key=f"firms_{days}_{max_distance_nm}",
+        )
+    except Exception as exc:  # noqa: BLE001
+        cached = _load_cache()
+        if cached:
+            cached = dict(cached)
+            cached["ok"] = True
+            cached["is_cached"] = True
+            cached["cache_fallback"] = True
+            cached["errors"] = list(cached.get("errors") or []) + [str(exc)[:160]]
+            cached["contract_version"] = CONTRACT_VERSION
+            return cached
+        return {
+            "ok": True,
+            "contract_version": CONTRACT_VERSION,
+            "fetched_at": _now_iso(),
+            "type": "FeatureCollection",
+            "features": [],
+            "count": 0,
+            "raw_fire_count": 0,
+            "proximity_buffer_nm": max_distance_nm,
+            "is_cached": False,
+            "errors": [str(exc)[:240]],
+            "note": "Configure FIRMS_MAP_KEY in .env",
+        }
 
 
 __all__ = ("fetch_firms_anomalies", "DEFAULT_BUFFER_NM", "CACHE_PATH")

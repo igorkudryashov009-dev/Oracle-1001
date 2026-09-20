@@ -62,6 +62,13 @@ class GateStatus(BaseModel):
     canonical_port: int
     operational_status: str = Field("NOMINAL", description="High-level operational health")
     active_node: str = Field("korolev", description="Active physical node: 'korolev' | 'london'")
+    # OOB overlay (1.8.0) — providers masked, disk, Node sync; never raw secrets
+    oob: Optional[Dict[str, Any]] = Field(
+        None,
+        description="OOB plane: 7-provider registry status, disk, ais_live cache, node_sync",
+    )
+    disk_free_pct: Optional[float] = Field(None, description="Host/container free disk %")
+    contract_version: str = Field(CONTRACT_VERSION, description="Binding AGENTS contract")
 
 
 class QuantRiskMetrics(BaseModel):
@@ -158,13 +165,18 @@ async def attach_contract_version_header(request: Request, call_next):
 @app.get("/output/api/v1/health", response_model=GateStatus)
 @app.get("/api/v1/health", response_model=GateStatus)
 async def get_health_status() -> GateStatus:
-    """Canonical Dual-Deploy Gate probe matching AGENTS.md contract."""
+    """Canonical Dual-Deploy Gate probe + OOB provider/disk/node plane (1.8.0)."""
     doc = build_health_document()
     pipeline_status = doc.get("pipeline_health_status", "CRITICAL")
     fleet_status = doc.get("fleet_sample_status", "INSUFFICIENT")
     coverage = int(doc.get("top500_live_coverage") or 0)
     ais_lag = float((doc.get("replica") or {}).get("age_sec") or (doc.get("pipeline_health") or {}).get("ais_lag_sec") or 0.0)
     active_node = str(doc.get("active_node") or resolve_active_node())
+    disk_pct = doc.get("disk_free_pct")
+    if disk_pct is None and isinstance(doc.get("disk"), dict):
+        disk_pct = doc["disk"].get("disk_free_pct")
+    if disk_pct is None and isinstance(doc.get("oob"), dict):
+        disk_pct = (doc["oob"].get("disk") or {}).get("disk_free_pct")
 
     return GateStatus(
         pipeline_health_status=pipeline_status,
@@ -174,7 +186,17 @@ async def get_health_status() -> GateStatus:
         canonical_port=CANONICAL_EDGE_PORT,
         operational_status=doc.get("operational_status", "NOMINAL" if pipeline_status == "NOMINAL" else "DEGRADED"),
         active_node=active_node,
+        oob=doc.get("oob") if isinstance(doc.get("oob"), dict) else None,
+        disk_free_pct=float(disk_pct) if disk_pct is not None else None,
+        contract_version=str(doc.get("contract_version") or CONTRACT_VERSION),
     )
+
+
+@app.get("/api/v1/health/full")
+@app.get("/output/api/v1/health/full")
+async def get_health_full() -> dict:
+    """Full health document (Dual Gate + OOB + oracle_state)."""
+    return build_health_document()
 
 
 @app.get("/api/v1/quant/risk", response_model=QuantRiskMetrics)

@@ -63,10 +63,12 @@ def main() -> int:
         else:
             ok(f"AGENTS.md has {needle!r}")
 
-    if "1.7.0-autodiscover-oracle-sot" in agents:
-        ok("AGENTS.md Contract-Version=1.7.0-autodiscover-oracle-sot")
+    if "1.8.0-ops-gis-sot" in agents:
+        ok("AGENTS.md Contract-Version=1.8.0-ops-gis-sot")
+    elif "1.7.0-autodiscover-oracle-sot" in agents:
+        warn("AGENTS.md still on 1.7.0-autodiscover-oracle-sot — expected bump to 1.8.0-ops-gis-sot")
     elif "1.6.4-oob-seal" in agents:
-        warn("AGENTS.md still on 1.6.4-oob-seal — expected bump to 1.7.0-autodiscover-oracle-sot")
+        warn("AGENTS.md still on 1.6.4-oob-seal — expected bump to 1.8.0-ops-gis-sot")
     elif "1.6.3-image-bake-proof" in agents:
         warn("AGENTS.md still on 1.6.3-image-bake-proof — expected bump to 1.7.0-autodiscover-oracle-sot")
     elif "1.6.2-particulars-provenance" in agents:
@@ -78,7 +80,7 @@ def main() -> int:
     elif "1.5.0-baked" in agents:
         warn("AGENTS.md still on 1.5.0-baked — expected bump to 1.7.0-autodiscover-oracle-sot")
     elif "Contract-Version" in agents:
-        warn("AGENTS.md Contract-Version present but expected 1.7.0-autodiscover-oracle-sot not found")
+        warn("AGENTS.md Contract-Version present but expected 1.8.0-ops-gis-sot not found")
 
     for theme in (
         "Archive provenance",
@@ -93,7 +95,7 @@ def main() -> int:
         fail("AGENTS.md missing consolidated themes section (v1.4.0)")
     else:
         ok("AGENTS.md has consolidated themes section")
-    if "Image bake lock" not in agents and "1.5.0-baked" not in agents and "1.6.0-arctic-tiles-vf" not in agents and "1.6.1-arctic-user-frames" not in agents and "1.6.2-particulars-provenance" not in agents and "1.6.3-image-bake-proof" not in agents and "1.6.4-oob-seal" not in agents and "1.7.0-autodiscover-oracle-sot" not in agents:
+    if "Image bake lock" not in agents and "1.5.0-baked" not in agents and "1.6.0-arctic-tiles-vf" not in agents and "1.6.1-arctic-user-frames" not in agents and "1.6.2-particulars-provenance" not in agents and "1.6.3-image-bake-proof" not in agents and "1.6.4-oob-seal" not in agents and "1.7.0-autodiscover-oracle-sot" not in agents and "1.8.0-ops-gis-sot" not in agents:
         fail("AGENTS.md missing image bake lock (v1.5.0+)")
     else:
         ok("AGENTS.md has image bake lock")
@@ -150,6 +152,42 @@ def main() -> int:
         ok("scripts/append_health_snapshot.py present")
     else:
         fail("scripts/append_health_snapshot.py missing")
+
+    # --- OOB zero-touch plane (1.8.0) ---
+    print("\n--- OOB zero-touch (1.8.0) ---")
+    for rel in (
+        "scripts/bootstrap_oob.py",
+        "services/ais_worker.py",
+        "services/healthcheck.py",
+        "services/cache_swr.py",
+        "services/config_keys.py",
+    ):
+        if (ROOT / rel).is_file():
+            ok(f"present {rel}")
+        else:
+            fail(f"missing OOB module {rel}")
+    aw = (ROOT / "services" / "ais_worker.py").read_text(encoding="utf-8", errors="ignore")
+    if "single_persistent" in aw or "no extra WS" in aw or "G3-safe" in aw:
+        ok("ais_worker documents G3-safe / no second WS")
+    else:
+        fail("ais_worker missing G3-safe / no-second-WS guard language")
+    if "--ingest" in aw and "aisstream_connector" in aw:
+        ok("ais_worker --ingest delegates to aisstream_connector")
+    else:
+        warn("ais_worker should delegate --ingest to aisstream_connector")
+    compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8", errors="ignore")
+    if "oob-buffer" in compose and "ais_worker" in compose:
+        ok("docker-compose has oob-buffer profile for ais_worker")
+    else:
+        warn("docker-compose missing oob-buffer / ais_worker profile")
+    if "bootstrap_oob" in (ROOT / "docker" / "entrypoint.sh").read_text(encoding="utf-8", errors="ignore"):
+        ok("entrypoint invokes bootstrap_oob.py")
+    else:
+        warn("entrypoint should invoke bootstrap_oob.py")
+    if "OOB zero-touch" in agents or "bootstrap_oob" in agents:
+        ok("AGENTS.md documents OOB zero-touch")
+    else:
+        warn("AGENTS.md should document OOB zero-touch (0d)")
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8", errors="ignore")
     if "READ THIS FIRST" not in readme:

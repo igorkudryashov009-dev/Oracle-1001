@@ -166,67 +166,85 @@ def _fetch_gie() -> list[dict[str, Any]]:
 
 
 def fetch_latest_news(*, limit: int = 25, use_cache: bool = True) -> dict[str, Any]:
-    """Unified NewsAPI + GIE feed with offline cache fallback."""
-    errors: list[str] = []
-    items: list[dict[str, Any]] = []
-    sources_ok: list[str] = []
+    """Unified NewsAPI + GIE feed with stale-while-revalidate cache."""
+
+    def _fresh() -> dict[str, Any]:
+        errors: list[str] = []
+        items: list[dict[str, Any]] = []
+        sources_ok: list[str] = []
+        try:
+            news = _fetch_newsapi(limit=limit)
+            if news:
+                items.extend(news)
+                sources_ok.append("newsapi")
+        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as exc:
+            errors.append(f"newsapi:{exc}")
+            LOG.warning("NewsAPI fetch failed: %s", exc)
+        try:
+            gie = _fetch_gie()
+            if gie:
+                items.extend(gie)
+                sources_ok.append("gie")
+        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as exc:
+            errors.append(f"gie:{exc}")
+            LOG.warning("GIE fetch failed: %s", exc)
+        items = items[:limit]
+        if items:
+            return {
+                "ok": True,
+                "contract_version": CONTRACT_VERSION,
+                "fetched_at": _now_iso(),
+                "topics": list(TOPIC_TERMS),
+                "sources_ok": sources_ok,
+                "count": len(items),
+                "items": items,
+                "is_cached": False,
+                "errors": errors,
+            }
+        raise RuntimeError(";".join(errors) if errors else "empty_news_feed")
+
+    if not use_cache:
+        try:
+            return _fresh()
+        except Exception as exc:  # noqa: BLE001
+            return {
+                "ok": True,
+                "contract_version": CONTRACT_VERSION,
+                "fetched_at": _now_iso(),
+                "topics": list(TOPIC_TERMS),
+                "sources_ok": [],
+                "count": 0,
+                "items": [],
+                "is_cached": False,
+                "errors": [str(exc)[:240]],
+            }
+
+    from services.cache_swr import swr_fetch
 
     try:
-        news = _fetch_newsapi(limit=limit)
-        if news:
-            items.extend(news)
-            sources_ok.append("newsapi")
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as exc:
-        errors.append(f"newsapi:{exc}")
-        LOG.warning("NewsAPI fetch failed: %s", exc)
-
-    try:
-        gie = _fetch_gie()
-        if gie:
-            items.extend(gie)
-            sources_ok.append("gie")
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as exc:
-        errors.append(f"gie:{exc}")
-        LOG.warning("GIE fetch failed: %s", exc)
-
-    items = items[:limit]
-    if items:
-        payload = {
+        return swr_fetch(cache_path=CACHE_PATH, fresh_fetch=_fresh, cache_key="news_latest")
+    except Exception as exc:  # noqa: BLE001
+        cached = _load_cache()
+        if cached:
+            cached = dict(cached)
+            cached["ok"] = True
+            cached["is_cached"] = True
+            cached["cache_fallback"] = True
+            cached["errors"] = list(cached.get("errors") or []) + [str(exc)[:160]]
+            cached["contract_version"] = CONTRACT_VERSION
+            return cached
+        return {
             "ok": True,
             "contract_version": CONTRACT_VERSION,
             "fetched_at": _now_iso(),
             "topics": list(TOPIC_TERMS),
-            "sources_ok": sources_ok,
-            "count": len(items),
-            "items": items,
+            "sources_ok": [],
+            "count": 0,
+            "items": [],
             "is_cached": False,
-            "errors": errors,
+            "errors": [str(exc)[:240]],
+            "note": "Configure NEWSAPI_KEY / GIE_API_KEY in .env",
         }
-        _save_cache(payload)
-        return payload
-
-    cached = _load_cache() if use_cache else None
-    if cached:
-        cached = dict(cached)
-        cached["ok"] = True
-        cached["is_cached"] = True
-        cached["cache_fallback"] = True
-        cached["errors"] = errors or cached.get("errors") or ["upstream_unavailable"]
-        cached["contract_version"] = CONTRACT_VERSION
-        return cached
-
-    return {
-        "ok": True,
-        "contract_version": CONTRACT_VERSION,
-        "fetched_at": _now_iso(),
-        "topics": list(TOPIC_TERMS),
-        "sources_ok": [],
-        "count": 0,
-        "items": [],
-        "is_cached": False,
-        "errors": errors or ["no_keys_or_empty_feed"],
-        "note": "Configure NEWSAPI_KEY / GIE_API_KEY in .env",
-    }
 
 
 __all__ = ("TOPIC_TERMS", "fetch_latest_news", "CACHE_PATH")

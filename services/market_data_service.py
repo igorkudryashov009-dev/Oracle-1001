@@ -100,28 +100,33 @@ def _fetch_nasdaq_dataset(code: str) -> dict[str, Any]:
 
 
 def fetch_market_summary(*, use_cache: bool = True) -> dict[str, Any]:
-    errors: list[str] = []
-    fx: dict[str, Any] = {"configured": False, "rates": {}}
-    commodities: dict[str, Any] = {}
+    """FX + Nasdaq with stale-while-revalidate cache."""
 
-    try:
-        fx = _fetch_fx()
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as exc:
-        errors.append(f"fx:{exc}")
-        LOG.warning("FX fetch failed: %s", exc)
-
-    for label, code in NASDAQ_CODES.items():
+    def _fresh() -> dict[str, Any]:
+        errors: list[str] = []
+        fx: dict[str, Any] = {"configured": False, "rates": {}}
+        commodities: dict[str, Any] = {}
         try:
-            commodities[label] = _fetch_nasdaq_dataset(code)
+            fx = _fetch_fx()
         except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as exc:
-            errors.append(f"nasdaq:{label}:{exc}")
-            commodities[label] = {"configured": bool(get_key("NASDAQ_DATA_KEY")), "code": code, "error": str(exc)[:160]}
-
-    has_data = bool(fx.get("rates")) or any(
-        isinstance(v, dict) and v.get("latest") for v in commodities.values()
-    )
-    if has_data:
-        payload = {
+            errors.append(f"fx:{exc}")
+            LOG.warning("FX fetch failed: %s", exc)
+        for label, code in NASDAQ_CODES.items():
+            try:
+                commodities[label] = _fetch_nasdaq_dataset(code)
+            except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as exc:
+                errors.append(f"nasdaq:{label}:{exc}")
+                commodities[label] = {
+                    "configured": bool(get_key("NASDAQ_DATA_KEY")),
+                    "code": code,
+                    "error": str(exc)[:160],
+                }
+        has_data = bool(fx.get("rates")) or any(
+            isinstance(v, dict) and v.get("latest") for v in commodities.values()
+        )
+        if not has_data:
+            raise RuntimeError(";".join(errors) if errors else "empty_market")
+        return {
             "ok": True,
             "contract_version": CONTRACT_VERSION,
             "fetched_at": _now_iso(),
@@ -130,29 +135,45 @@ def fetch_market_summary(*, use_cache: bool = True) -> dict[str, Any]:
             "is_cached": False,
             "errors": errors,
         }
-        _save_cache(payload)
-        return payload
 
-    cached = _load_cache() if use_cache else None
-    if cached:
-        cached = dict(cached)
-        cached["ok"] = True
-        cached["is_cached"] = True
-        cached["cache_fallback"] = True
-        cached["errors"] = errors
-        cached["contract_version"] = CONTRACT_VERSION
-        return cached
+    if not use_cache:
+        try:
+            return _fresh()
+        except Exception as exc:  # noqa: BLE001
+            return {
+                "ok": True,
+                "contract_version": CONTRACT_VERSION,
+                "fetched_at": _now_iso(),
+                "fx": {"configured": False, "rates": {}},
+                "commodities": {},
+                "is_cached": False,
+                "errors": [str(exc)[:240]],
+            }
 
-    return {
-        "ok": True,
-        "contract_version": CONTRACT_VERSION,
-        "fetched_at": _now_iso(),
-        "fx": fx,
-        "commodities": commodities,
-        "is_cached": False,
-        "errors": errors or ["no_keys_or_empty"],
-        "note": "Configure EXCHANGERATE_KEY / NASDAQ_DATA_KEY in .env",
-    }
+    from services.cache_swr import swr_fetch
+
+    try:
+        return swr_fetch(cache_path=CACHE_PATH, fresh_fetch=_fresh, cache_key="market_summary")
+    except Exception as exc:  # noqa: BLE001
+        cached = _load_cache()
+        if cached:
+            cached = dict(cached)
+            cached["ok"] = True
+            cached["is_cached"] = True
+            cached["cache_fallback"] = True
+            cached["errors"] = list(cached.get("errors") or []) + [str(exc)[:160]]
+            cached["contract_version"] = CONTRACT_VERSION
+            return cached
+        return {
+            "ok": True,
+            "contract_version": CONTRACT_VERSION,
+            "fetched_at": _now_iso(),
+            "fx": {"configured": False, "rates": {}},
+            "commodities": {},
+            "is_cached": False,
+            "errors": [str(exc)[:240]],
+            "note": "Configure EXCHANGERATE_KEY / NASDAQ_DATA_KEY in .env",
+        }
 
 
 __all__ = ("fetch_market_summary", "CACHE_PATH", "NASDAQ_CODES")

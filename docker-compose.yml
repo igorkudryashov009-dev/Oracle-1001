@@ -123,6 +123,21 @@ services:
       oracle1001.plane: "sentinel-web"
       oracle1001.role: "Sentinel HUD HTTP (DASHBOARD_PORT)"
 
+  # ── Plane C: AIS live JSON buffer (G3-safe — NO second WebSocket) ──────────
+  # Reads G3 SQLite → data/cache/ais_live.json. Do NOT set --ingest here while
+  # sentinel-core owns the single_persistent AISstream connection.
+  sentinel-ais-buffer:
+    <<: *sentinel-base
+    container_name: sentinel-ais-buffer
+    profiles: ["oob-buffer"]
+    command: ["python", "-u", "-m", "services.ais_worker"]
+    depends_on:
+      sentinel-core:
+        condition: service_started
+    labels:
+      oracle1001.plane: "sentinel-ais-buffer"
+      oracle1001.role: "G3 DB → ais_live.json buffer (no multi-WS)"
+
 volumes:
   # Persistent SQLite state (sentinel_ais.db + WAL/SHM sidecars)
   data_sqlite:

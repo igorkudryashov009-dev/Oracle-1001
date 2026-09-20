@@ -519,6 +519,14 @@ def build_health_document(
     except Exception:  # noqa: BLE001
         pass
 
+    # OOB plane — providers / disk / ais_live cache / node sync (never secrets).
+    try:
+        from services.healthcheck import attach_oob_plane
+
+        attach_oob_plane(doc)
+    except Exception:  # noqa: BLE001
+        pass
+
     return doc
 
 

@@ -67,7 +67,13 @@ if [[ ! -f "${HEALTH_FILE}" ]]; then
 EOF
 fi
 
-mkdir -p "${OUTPUT_DIR}/archive" "${DATA_DIR}/archive"
+mkdir -p "${OUTPUT_DIR}/archive" "${DATA_DIR}/archive" "${DATA_DIR}/cache" "${OUTPUT_DIR}/cache"
+
+# OOB zero-touch: dirs + .env validate + intel mocks (Contract 1.8.0)
+if [[ -f "${APP_HOME}/scripts/bootstrap_oob.py" ]]; then
+  python "${APP_HOME}/scripts/bootstrap_oob.py" \
+    >>"${APP_HOME}/logs/bootstrap_oob.log" 2>&1 || true
+fi
 
 # Out-of-box Archive + 7d balance bootstrap (sentinel-core only; non-blocking)
 _should_bootstrap() {
