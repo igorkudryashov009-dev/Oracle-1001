@@ -40,15 +40,25 @@ def disk_status(path: Path | None = None) -> dict[str, Any]:
 
 
 def provider_plane() -> dict[str, Any]:
-    from services.config_keys import registry_status
+    try:
+        from services.config_keys import registry_status
 
-    st = registry_status()
-    return {
-        "contract_version": CONTRACT_VERSION,
-        "configured": st["configured"],
-        "total": st["total"],
-        "keys": st["keys"],
-    }
+        st = registry_status()
+        return {
+            "contract_version": CONTRACT_VERSION,
+            "configured": st["configured"],
+            "total": st["total"],
+            "keys": st["keys"],
+        }
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "contract_version": CONTRACT_VERSION,
+            "configured": 0,
+            "total": 7,
+            "keys": [],
+            "ok": False,
+            "error": str(exc)[:160],
+        }
 
 
 def ais_live_cache_status() -> dict[str, Any]:
