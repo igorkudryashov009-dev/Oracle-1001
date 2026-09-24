@@ -196,7 +196,7 @@ def record_spend(
     detail: str | None = None,
     estimated_credits: float | None = None,
 ) -> dict[str, Any]:
-    """Commit spend after an HTTP attempt (count failed auth attempts too — they still hit VF)."""
+    """Commit spend after a successful (or intentionally billed) HTTP attempt."""
     if n < 1:
         n = 1
     with _LOCK:
@@ -216,6 +216,7 @@ def record_spend(
                 "ok": bool(ok),
                 "detail": (detail or "")[:200] or None,
                 "estimated_credits": estimated_credits,
+                "action": "spend",
             }
         )
         st["history"] = hist[-100:]
@@ -229,3 +230,38 @@ def record_spend(
                 status["month"],
             )
         return status
+
+
+def refund_spend(
+    n: int = 1,
+    *,
+    endpoint: str = "",
+    imo: str | None = None,
+    detail: str | None = None,
+) -> dict[str, Any]:
+    """Return credits to the monthly pool (error / empty VF response). Never goes below 0 used."""
+    if n < 1:
+        n = 1
+    with _LOCK:
+        st = _load_unlocked()
+        used = max(0, int(st.get("used") or 0) - n)
+        st["used"] = used
+        st["last_call_at"] = _utc_iso()
+        st["last_endpoint"] = endpoint or st.get("last_endpoint")
+        st["last_imo"] = imo if imo is not None else st.get("last_imo")
+        st["last_ok"] = False
+        hist = list(st.get("history") or [])
+        hist.append(
+            {
+                "at": st["last_call_at"],
+                "n": n,
+                "endpoint": endpoint,
+                "imo": imo,
+                "ok": False,
+                "detail": (detail or "refund")[:200],
+                "action": "refund",
+            }
+        )
+        st["history"] = hist[-100:]
+        _save_unlocked(st)
+        return get_budget_status()

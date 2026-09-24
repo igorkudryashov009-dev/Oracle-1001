@@ -81,6 +81,7 @@ def fetch_vessel(
     detail: Optional[str] = None
     data: Any = None
     status_code: Optional[int] = None
+    billed = False
     try:
         resp = requests.get(
             VESSELS_URL,
@@ -102,22 +103,39 @@ def fetch_vessel(
             detail = f"http_{status_code}:{text_head[:120]}"
             ok = False
         else:
-            ok = True
-            detail = None
+            row_probe = _pick_vessel_row(data, imo_s)
+            ais = row_probe.get("AIS") if isinstance(row_probe.get("AIS"), dict) else {}
+            master = row_probe.get("MASTERDATA") if isinstance(row_probe.get("MASTERDATA"), dict) else {}
+            empty = not (ais or master) and not row_probe
+            if empty:
+                detail = "empty_payload"
+                ok = False
+            else:
+                ok = True
+                detail = None
     except requests.RequestException as exc:
         detail = f"network:{exc}"
         ok = False
         data = None
     finally:
-        # Count against monthly envelope even on Invalid Userkey — VF saw the call.
-        record_spend(
-            1,
-            endpoint=endpoint,
-            imo=imo_s,
-            ok=ok,
-            detail=detail,
-            estimated_credits=est if ok else 0.0,
-        )
+        # Contract 1.8.0 allocator: bill only successful non-empty responses;
+        # error/empty refunds the reserved credit (used not incremented).
+        if ok:
+            record_spend(
+                1,
+                endpoint=endpoint,
+                imo=imo_s,
+                ok=True,
+                detail=None,
+                estimated_credits=est,
+            )
+            billed = True
+        else:
+            LOG.info(
+                "VesselFinder /vessels imo=%s not billed (error/empty): %s",
+                imo_s,
+                detail,
+            )
 
     if not ok:
         err = detail or "unknown_error"
@@ -143,6 +161,7 @@ def fetch_vessel(
         "extradata": extradata,
         "estimated_credits": est,
         "status_code": status_code,
+        "billed": billed,
         "normalized": normalized,
         "raw": row,
     }

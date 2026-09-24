@@ -499,6 +499,14 @@ def build_health_document(
     except Exception:  # noqa: BLE001
         pass
 
+    # Full-fleet daily archive reporting (does NOT feed Dual Gate fleet_sample).
+    try:
+        from services.archive_snapshot_worker import compute_fleet_archive_metrics
+
+        doc["fleet_archive"] = compute_fleet_archive_metrics()
+    except Exception:  # noqa: BLE001
+        pass
+
     # Paid map-tile budget (cache hits / Esri fallback do not increment used).
     try:
         from services.maptiles_proxy import public_status as maptiles_public_status
