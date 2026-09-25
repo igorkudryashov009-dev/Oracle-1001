@@ -17,10 +17,18 @@ if [[ ! -d "${SRC_DIR}" ]]; then
 fi
 
 echo "==> install sentinel automation units from ${SRC_DIR}"
-install -m 0755 "${DEPLOY_DIR}/run_sentinel_job.sh" /opt/oracle1001/deploy/sentinel/run_sentinel_job.sh 2>/dev/null \
-  || install -m 0755 "$(dirname "$0")/run_sentinel_job.sh" /opt/oracle1001/deploy/sentinel/run_sentinel_job.sh
-sed -i 's/\r$//' /opt/oracle1001/deploy/sentinel/run_sentinel_job.sh
-chmod +x /opt/oracle1001/deploy/sentinel/run_sentinel_job.sh
+mkdir -p /opt/oracle1001/deploy/sentinel
+DEST_RUNNER=/opt/oracle1001/deploy/sentinel/run_sentinel_job.sh
+RUNNER_SRC="$(dirname "$0")/run_sentinel_job.sh"
+[[ -f "${RUNNER_SRC}" ]] || RUNNER_SRC="${DEPLOY_DIR}/run_sentinel_job.sh"
+if [[ -f "${RUNNER_SRC}" ]]; then
+  # Avoid cp self→self (fails with exit 1 on GNU cp).
+  if [[ "${RUNNER_SRC}" != "${DEST_RUNNER}" ]]; then
+    cp -f "${RUNNER_SRC}" "${DEST_RUNNER}"
+  fi
+fi
+sed -i 's/\r$//' "${DEST_RUNNER}"
+chmod +x "${DEST_RUNNER}"
 
 install -m 0644 "${SRC_DIR}/sentinel-job@.service" "${UNIT_DIR}/sentinel-job@.service"
 for t in \
