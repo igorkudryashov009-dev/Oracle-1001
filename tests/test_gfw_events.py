@@ -7,6 +7,8 @@ import json
 import sqlite3
 from pathlib import Path
 
+import pytest
+
 from services.gfw_events import (
     gfw_status,
     persist_events,
@@ -15,20 +17,28 @@ from services.gfw_events import (
 )
 
 
-def test_gfw_status_not_configured_without_token(monkeypatch) -> None:
+@pytest.fixture(autouse=True)
+def _isolate_gfw_secrets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Never read workstation .env / runtime_env during unit tests."""
+    monkeypatch.setattr(
+        "services.runtime_env.RUNTIME_ENV_PATH", tmp_path / "runtime_env.json"
+    )
+    monkeypatch.setattr("services.runtime_env.SIGNAL_PATH", tmp_path / "signal")
     monkeypatch.delenv("GFW_API_TOKEN", raising=False)
     monkeypatch.delenv("GFW_API_KEY", raising=False)
     monkeypatch.delenv("GLOBAL_FISHING_WATCH_TOKEN", raising=False)
+
+
+def test_gfw_status_not_configured_without_token() -> None:
     st = gfw_status()
     assert st["configured"] is False
     assert st["provider"] == "global_fishing_watch"
-    assert "token" not in json.dumps(st).lower() or st.get("token_masked") in (None, "")
+    dumped = json.dumps(st).lower()
+    assert "eyj" not in dumped  # no JWT leakage
+    assert st.get("token_masked") in (None, "", "****")
 
 
-def test_run_batch_skips_when_not_configured(monkeypatch) -> None:
-    monkeypatch.delenv("GFW_API_TOKEN", raising=False)
-    monkeypatch.delenv("GFW_API_KEY", raising=False)
-    monkeypatch.delenv("GLOBAL_FISHING_WATCH_TOKEN", raising=False)
+def test_run_batch_skips_when_not_configured() -> None:
     out = run_daily_gfw_batch(limit=5, dry_run=False)
     assert out["configured"] is False
     assert out.get("error") == "not_configured"
@@ -86,9 +96,25 @@ def test_persist_events_sets_flag_without_source_overwrite(tmp_path: Path) -> No
     conn.close()
 
 
-def test_resolve_token_prefers_gfw_api_token(monkeypatch) -> None:
+def test_resolve_token_prefers_gfw_api_token(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GFW_API_TOKEN", "abcd1234token")
     monkeypatch.delenv("GFW_API_KEY", raising=False)
     assert resolve_token().endswith("token")
     monkeypatch.delenv("GFW_API_TOKEN", raising=False)
     assert resolve_token() == ""
+
+
+def test_auth_401_does_not_verify(monkeypatch: pytest.MonkeyPatch) -> None:
+    """401 on vessel search must not flag gfw_verified / must not look like success."""
+    monkeypatch.setenv("GFW_API_TOKEN", "deadtoken_for_unit_test_xxxx")
+
+    def fake_resolve(imo, token, *, timeout=30.0):
+        return None, "auth_http_401"
+
+    monkeypatch.setattr("services.gfw_events._resolve_vessel_id", fake_resolve)
+    from services.gfw_events import fetch_events_for_imo
+
+    out = fetch_events_for_imo("9388819", use_cache=False)
+    assert out["ok"] is False
+    assert out.get("auth_failed") is True
+    assert out.get("error") == "auth_http_401"

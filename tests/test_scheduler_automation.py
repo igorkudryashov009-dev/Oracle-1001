@@ -104,6 +104,12 @@ def test_key_activation_skips_without_keys(monkeypatch: pytest.MonkeyPatch, tmp_
     monkeypatch.delenv("VESSEL_FINDER_USERKEY", raising=False)
     monkeypatch.delenv("GFW_API_TOKEN", raising=False)
     monkeypatch.delenv("GFW_API_KEY", raising=False)
+    monkeypatch.delenv("GLOBAL_FISHING_WATCH_TOKEN", raising=False)
+    # Isolate from workstation runtime_env / .env secrets
+    monkeypatch.setattr(
+        "services.runtime_env.RUNTIME_ENV_PATH", tmp_path / "runtime_env.json"
+    )
+    monkeypatch.setattr("services.runtime_env.SIGNAL_PATH", tmp_path / "signal")
     monkeypatch.setattr("services.key_activation.STATE_PATH", tmp_path / "prov.json")
     out = run_key_activation_cycle()
     assert out["vf"]["configured"] is False

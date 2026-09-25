@@ -291,8 +291,12 @@ def _auth_headers(token: str) -> dict[str, str]:
     }
 
 
-def _resolve_vessel_id(imo: str, token: str, *, timeout: float = 30.0) -> Optional[str]:
-    """Map IMO → GFW vessel id via identity search. Returns None if not found."""
+def _resolve_vessel_id(imo: str, token: str, *, timeout: float = 30.0) -> tuple[Optional[str], Optional[str]]:
+    """Map IMO → GFW vessel id. Returns (vessel_id|None, error|None).
+
+    error is ``auth_http_401`` / ``auth_http_403`` on auth failures (must not
+    be treated as honest empty / vessel-not-found).
+    """
     _rate_limit()
     try:
         resp = requests.get(
@@ -306,16 +310,19 @@ def _resolve_vessel_id(imo: str, token: str, *, timeout: float = 30.0) -> Option
             timeout=timeout,
         )
         _record_call(ok=resp.status_code < 400, detail=f"vessels_search http_{resp.status_code}")
+        if resp.status_code in (401, 403):
+            LOG.warning("GFW vessel search imo=%s http=%s (auth)", imo, resp.status_code)
+            return None, f"auth_http_{resp.status_code}"
         if resp.status_code >= 400:
             LOG.warning("GFW vessel search imo=%s http=%s", imo, resp.status_code)
-            return None
+            return None, f"http_{resp.status_code}"
         data = resp.json()
     except (requests.RequestException, ValueError) as exc:
         _record_call(ok=False, detail=f"vessels_search:{exc}"[:160])
-        return None
+        return None, f"vessels_search:{type(exc).__name__}"
     entries = data.get("entries") if isinstance(data, dict) else None
     if not isinstance(entries, list):
-        return None
+        return None, None
     for ent in entries:
         if not isinstance(ent, dict):
             continue
@@ -324,8 +331,8 @@ def _resolve_vessel_id(imo: str, token: str, *, timeout: float = 30.0) -> Option
             vessel = ent.get("vessel") if isinstance(ent.get("vessel"), dict) else {}
             vid = vessel.get("id")
         if vid:
-            return str(vid)
-    return None
+            return str(vid), None
+    return None, None
 
 
 def fetch_events_for_imo(
@@ -336,7 +343,10 @@ def fetch_events_for_imo(
     timeout: float = 45.0,
     use_cache: bool = True,
 ) -> dict[str, Any]:
-    """Fetch trailing events for one IMO. Empty entries = no events (ok)."""
+    """Fetch trailing events for one IMO. Empty entries = no events (ok).
+
+    Auth failures (401/403) return ok=False — never flag gfw_verified.
+    """
     imo_s = str(imo).strip()
     if not imo_s.isdigit():
         raise ValueError(f"invalid IMO: {imo!r}")
@@ -373,9 +383,18 @@ def fetch_events_for_imo(
                 "budget": get_budget_status(),
             }
 
-    vessel_id = _resolve_vessel_id(imo_s, tok, timeout=timeout)
+    vessel_id, resolve_err = _resolve_vessel_id(imo_s, tok, timeout=timeout)
+    if resolve_err and str(resolve_err).startswith("auth_http_"):
+        return {
+            "ok": False,
+            "configured": True,
+            "imo": imo_s,
+            "events": [],
+            "error": resolve_err,
+            "auth_failed": True,
+        }
     if not vessel_id:
-        # Honest empty — vessel unknown to GFW; not a hard failure
+        # Honest empty — vessel unknown to GFW (not auth); do NOT set verified here
         payload = {
             "ok": True,
             "configured": True,
@@ -385,6 +404,7 @@ def fetch_events_for_imo(
             "note": "vessel_not_found_in_gfw_identity",
             "fetched_at": _utc_iso(),
             "cache_hit": False,
+            "verify": False,  # identity miss ≠ verification success
         }
         _write_cache(cache_p, payload)
         return payload
@@ -419,6 +439,7 @@ def fetch_events_for_imo(
             err = None
             if isinstance(data, dict):
                 err = data.get("error") or data.get("message")
+            auth_failed = status in (401, 403)
             return {
                 "ok": False,
                 "configured": True,
@@ -428,6 +449,7 @@ def fetch_events_for_imo(
                 "http_status": status,
                 "error": str(err or f"http_{status}")[:200],
                 "token_masked": _mask(tok),
+                "auth_failed": auth_failed,
             }
     except requests.RequestException as exc:
         _record_call(ok=False, detail=f"events_network:{exc}"[:160])
@@ -481,6 +503,7 @@ def fetch_events_for_imo(
         "window": {"start": start_s, "end": end_s},
         "cache_hit": False,
         "token_masked": _mask(tok),
+        "verify": True,  # real GFW events call succeeded (0 events still ok)
     }
     _write_cache(cache_p, payload)
     return payload
@@ -605,23 +628,39 @@ def run_daily_gfw_batch(
     if dry_run:
         return result
 
+    auth_failures = 0
     for imo in imos:
         try:
-            payload = fetch_events_for_imo(imo)
+            payload = fetch_events_for_imo(imo, use_cache=False)
+            if payload.get("auth_failed") or str(payload.get("error") or "").startswith("auth_http_"):
+                auth_failures += 1
+                result["errors"].append({"imo": imo, "error": payload.get("error")})
+                # Stop early — dead key, don't burn budget
+                if auth_failures >= 3:
+                    result["ok"] = False
+                    result["error"] = str(payload.get("error") or "auth_failed")
+                    result["auth_failed"] = True
+                    break
+                continue
             if not payload.get("ok"):
                 result["errors"].append({"imo": imo, "error": payload.get("error")})
                 continue
             result["fetched"] += 1
             events = payload.get("events") or []
             result["events_total"] += len(events)
-            # Empty events still marks verified probe for the day (honest zero)
-            pers = persist_events(imo, events, db_path=db_path)
-            result["flagged"] += int(pers.get("archive_rows_flagged") or 0)
+            # Only flag gfw_verified after a real successful events call (verify=True)
+            if payload.get("verify") is True:
+                pers = persist_events(imo, events, db_path=db_path)
+                result["flagged"] += int(pers.get("archive_rows_flagged") or 0)
         except Exception as exc:  # noqa: BLE001
             LOG.warning("GFW batch imo=%s failed: %s", imo, exc)
             result["errors"].append({"imo": imo, "error": str(exc)[:120]})
     result["budget"] = get_budget_status()
     result["status"] = gfw_status()
+    if auth_failures and result.get("flagged", 0) == 0 and result.get("events_total", 0) == 0:
+        result["ok"] = False
+        result.setdefault("error", "auth_failed")
+        result["auth_failed"] = True
     return result
 
 

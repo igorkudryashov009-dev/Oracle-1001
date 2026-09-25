@@ -63,8 +63,8 @@ def _job_gfw_poll() -> dict[str, Any]:
     try:
         from services.acceptance import maybe_rerun_acceptance_after_verification
 
-        verified = int(out.get("updated") or out.get("events_total") or out.get("fetched") or 0)
-        if out.get("ok") and verified > 0:
+        verified = int(out.get("updated") or out.get("flagged") or out.get("events_total") or 0)
+        if out.get("ok") and verified > 0 and not out.get("auth_failed"):
             acc = maybe_rerun_acceptance_after_verification(
                 channel="gfw", verified_hint=verified, job_detail=out
             )

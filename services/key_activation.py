@@ -249,7 +249,11 @@ def probe_gfw(*, force: bool = False) -> dict[str, Any]:
         }
     try:
         out = fetch_events_for_imo("9388819", use_cache=False)
-        if out.get("ok"):
+        if out.get("auth_failed") or str(out.get("error") or "").startswith("auth_http_"):
+            err = str(out.get("error") or "auth_failed")
+            record_provider_error("gfw", err)
+            return {"ok": False, "configured": True, "error": err, "auth_failed": True}
+        if out.get("ok") and out.get("verify") is True:
             record_provider_ok("gfw")
             _set_provider("gfw", key_fp=_fingerprint(tok))
             return {
@@ -257,6 +261,18 @@ def probe_gfw(*, force: bool = False) -> dict[str, Any]:
                 "configured": True,
                 "events_n": out.get("events_n") or 0,
                 "new_key": new_key,
+            }
+        # vessel_not_found is not auth success for activation
+        if out.get("ok") and out.get("note") == "vessel_not_found_in_gfw_identity":
+            # Token accepted enough to search, but probe IMO unknown — soft ok only if no auth
+            record_provider_ok("gfw")
+            _set_provider("gfw", key_fp=_fingerprint(tok))
+            return {
+                "ok": True,
+                "configured": True,
+                "events_n": 0,
+                "new_key": new_key,
+                "note": "probe_imo_not_in_gfw_identity",
             }
         err = str(out.get("error") or "gfw_probe_failed")
         if err == "not_configured":
@@ -293,12 +309,12 @@ def _immediate_first_run(provider: str) -> dict[str, Any]:
             from services.acceptance import maybe_rerun_acceptance_after_verification
 
             verified = int(
-                (out["gfw_poll"] or {}).get("updated")
+                (out["gfw_poll"] or {}).get("flagged")
                 or (out["gfw_poll"] or {}).get("events_total")
-                or (out["gfw_poll"] or {}).get("fetched")
                 or 0
             )
-            if verified > 0:
+            # Never treat fetched/planned as verified (401-as-empty bug class)
+            if verified > 0 and not (out["gfw_poll"] or {}).get("auth_failed"):
                 acc = maybe_rerun_acceptance_after_verification(
                     channel="gfw",
                     verified_hint=verified,
