@@ -27,7 +27,7 @@ from services.key_activation import (
 from services.scheduler import JOB_HANDLERS, run_job
 
 
-def test_scheduler_registers_six_jobs() -> None:
+def test_scheduler_registers_seven_jobs() -> None:
     assert set(JOB_SCHEDULE.keys()) == {
         "archive_snapshot",
         "gfw_poll",
@@ -35,15 +35,17 @@ def test_scheduler_registers_six_jobs() -> None:
         "pipeline_watchdog",
         "budget_sync",
         "acceptance_check",
+        "daily_brief",
     }
     assert set(JOB_HANDLERS.keys()) == set(JOB_SCHEDULE.keys())
-    assert len(JOB_SCHEDULE) == 6
+    assert len(JOB_SCHEDULE) == 7
 
 
 def test_scheduler_registers_five_jobs() -> None:
-    # Compat alias — full set is six after acceptance_check
+    # Compat alias — full set is seven after daily_brief
     assert len(JOB_SCHEDULE) >= 5
     assert "pipeline_watchdog" in JOB_SCHEDULE
+    assert "daily_brief" in JOB_SCHEDULE
 
 def test_job_log_roundtrip(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     db = tmp_path / "sentinel_ais.db"

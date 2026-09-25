@@ -26,10 +26,11 @@ from services.runtime_env import (
 from services.scheduler import JOB_HANDLERS
 
 
-def test_scheduler_registers_six_jobs() -> None:
+def test_scheduler_registers_seven_jobs() -> None:
     assert "acceptance_check" in JOB_SCHEDULE
+    assert "daily_brief" in JOB_SCHEDULE
     assert set(JOB_HANDLERS.keys()) == set(JOB_SCHEDULE.keys())
-    assert len(JOB_SCHEDULE) == 6
+    assert len(JOB_SCHEDULE) == 7
 
 
 def test_runtime_env_masked_no_leak(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

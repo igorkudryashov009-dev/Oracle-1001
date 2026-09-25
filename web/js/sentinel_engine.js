@@ -102,7 +102,10 @@
   async function syncLiveHealth() {
     try {
       const url = `${HEALTH_URL}?nocache=${Date.now()}`;
-      const h = await fetch(url, { cache: "no-store" }).then((r) => {
+      const h = await fetch(url, {
+        cache: "no-store",
+        headers: { "X-Contract-Version": "1.8.0-ops-gis-sot" },
+      }).then((r) => {
         if (!r.ok) throw new Error(`health HTTP ${r.status}`);
         return r.json();
       });

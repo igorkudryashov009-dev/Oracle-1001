@@ -69,6 +69,12 @@ JOB_SCHEDULE: dict[str, dict[str, Any]] = {
         "period_sec": 86400,
         "description": "TZ self-acceptance → health.acceptance GREEN|DEGRADED|WAITING_KEYS",
     },
+    "daily_brief": {
+        "hour": 2,
+        "minute": 30,
+        "period_sec": 86400,
+        "description": "LLM gap digest → llm_daily_brief (Anthropic Haiku; optional)",
+    },
 }
 
 

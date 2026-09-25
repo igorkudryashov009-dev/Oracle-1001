@@ -295,6 +295,46 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         self._send_file(serve_path, no_store=True)
         return True
 
+    def _auth_context(self) -> dict:
+        """Resolve inbound API auth for current request."""
+        from services.api_auth import resolve_auth
+
+        api_key = self.headers.get("X-API-Key") or self.headers.get("x-api-key")
+        cv = self.headers.get("X-Contract-Version") or self.headers.get("x-contract-version")
+        return resolve_auth(api_key=api_key, contract_version=cv, path=self.path)
+
+    def _reject_auth(self, auth: dict) -> None:
+        status = int(auth.get("status") or 401)
+        payload = {
+            "ok": False,
+            "error": auth.get("reason") or "unauthorized",
+            "hint": "Provide X-API-Key (admin|readonly) or legacy X-Contract-Version for readonly",
+        }
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        if status == 429 and auth.get("retry_after"):
+            self.send_header("Retry-After", str(int(auth["retry_after"])))
+        raw = json.dumps(payload).encode("utf-8")
+        self.send_header("Content-Length", str(len(raw)))
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(raw)
+
+    def _gate_api_v1(self) -> bool:
+        """Return True if request was rejected (caller should return)."""
+        path = unquote(urlparse(self.path).path or "")
+        if "/api/v1/" not in path:
+            return False
+        # Tiles/static-ish GIS under /api/v1/gis/tiles stay open for map Never-Black
+        if "/api/v1/gis/tiles/" in path or "/api/tiles/" in path:
+            return False
+        auth = self._auth_context()
+        if not auth.get("ok"):
+            self._reject_auth(auth)
+            return True
+        self._api_auth = auth  # type: ignore[attr-defined]
+        return False
+
     def _serve_live_health(self) -> bool:
         """Dynamic Truth Contract health — always HTTP 200 on dashboard port."""
         parsed = urlparse(self.path)
@@ -307,8 +347,15 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             "/api/v1/health/",
         ):
             return False
+        from services.api_auth import sanitize_health
+
+        auth = getattr(self, "_api_auth", None) or self._auth_context()
+        if not auth.get("ok"):
+            self._reject_auth(auth)
+            return True
         try:
             doc = build_health_document()
+            doc = sanitize_health(doc, tier=str(auth.get("tier") or "public"))
             raw = json.dumps(doc, indent=2, ensure_ascii=False).encode("utf-8")
         except Exception as exc:  # noqa: BLE001
             raw = json.dumps(
@@ -318,6 +365,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(raw)))
+        self.send_header("X-Auth-Tier", str(auth.get("tier") or "public"))
         self.send_header(
             "Cache-Control",
             "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
@@ -795,6 +843,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         return True
 
     def do_GET(self):  # noqa: N802
+        if self._gate_api_v1():
+            return
         if self._serve_gis_tiles():
             return
         if self._serve_gis_ais():
@@ -833,6 +883,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802
         """Always handle POST — never fall through to BaseHTTPRequestHandler 501."""
         try:
+            if self._gate_api_v1():
+                return
             if self._handle_alerts_dispatch_post():
                 return
             if self._handle_route_analytics_post():
@@ -847,6 +899,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 self.send_error(500, str(exc))
 
     def do_HEAD(self):  # noqa: N802
+        if self._gate_api_v1():
+            return
         if self._serve_gis_tiles():
             return
         if self._serve_gis_ais():

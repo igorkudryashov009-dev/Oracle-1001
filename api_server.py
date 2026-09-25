@@ -162,6 +162,42 @@ async def attach_contract_version_header(request: Request, call_next):
     return response
 
 
+@app.middleware("http")
+async def api_key_gate(request: Request, call_next):
+    """Inbound API auth for FastAPI micro-API (mirrors edge serve_dashboard)."""
+    from fastapi.responses import JSONResponse
+
+    from services.api_auth import resolve_auth
+
+    path = request.url.path or ""
+    if "/api/v1/" not in path:
+        return await call_next(request)
+    if "/api/v1/gis/tiles/" in path:
+        return await call_next(request)
+    api_key = request.headers.get("x-api-key")
+    cv = request.headers.get("x-contract-version")
+    auth = resolve_auth(api_key=api_key, contract_version=cv, path=path)
+    if not auth.get("ok"):
+        headers = {}
+        if auth.get("status") == 429 and auth.get("retry_after"):
+            headers["Retry-After"] = str(int(auth["retry_after"]))
+        return JSONResponse(
+            {
+                "ok": False,
+                "error": auth.get("reason") or "unauthorized",
+            },
+            status_code=int(auth.get("status") or 401),
+            headers=headers,
+        )
+    request.state.api_auth = auth
+    response = await call_next(request)
+    # Sanitize health responses for non-admin
+    if "/api/v1/health" in path and auth.get("tier") != "admin":
+        # Best-effort: leave GateStatus slim endpoints as-is; full health uses builder
+        response.headers["X-Auth-Tier"] = str(auth.get("tier") or "public")
+    return response
+
+
 @app.get("/output/api/v1/health", response_model=GateStatus)
 @app.get("/api/v1/health", response_model=GateStatus)
 async def get_health_status() -> GateStatus:

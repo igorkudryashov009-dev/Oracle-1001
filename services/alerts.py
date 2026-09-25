@@ -117,6 +117,7 @@ def emit_alert(
 
         rec = {
             "at": _utc_iso(now),
+            "ts": _utc_iso(now),
             "kind": str(kind),
             "severity": str(severity),
             "message": str(message)[:500],
@@ -124,6 +125,26 @@ def emit_alert(
             "status": "active",
         }
         _append_jsonl(rec)
+        # delivery_log for webhook audit (no secrets)
+        try:
+            dlog = ROOT / "data" / "archive" / "alert_delivery_log.jsonl"
+            dlog.parent.mkdir(parents=True, exist_ok=True)
+            with dlog.open("a", encoding="utf-8") as fh:
+                fh.write(
+                    json.dumps(
+                        {
+                            "ts": rec["ts"],
+                            "kind": rec["kind"],
+                            "severity": rec["severity"],
+                            "queued": True,
+                            "webhook_configured": False,  # updated below
+                        },
+                        ensure_ascii=False,
+                    )
+                    + "\n"
+                )
+        except OSError:
+            pass
         active = [a for a in active if a.get("kind") != kind][-20:]
         active.append(
             {
@@ -153,6 +174,24 @@ def emit_alert(
             import requests
 
             requests.post(webhook, json=rec, timeout=8)
+            try:
+                dlog = ROOT / "data" / "archive" / "alert_delivery_log.jsonl"
+                with dlog.open("a", encoding="utf-8") as fh:
+                    fh.write(
+                        json.dumps(
+                            {
+                                "ts": rec["ts"],
+                                "kind": rec["kind"],
+                                "severity": rec["severity"],
+                                "delivered": True,
+                                "webhook_configured": True,
+                            },
+                            ensure_ascii=False,
+                        )
+                        + "\n"
+                    )
+            except OSError:
+                pass
         except Exception as exc:  # noqa: BLE001
             LOG.warning("alert webhook failed: %s", type(exc).__name__)
     return rec

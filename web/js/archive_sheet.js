@@ -46,7 +46,10 @@ async function loadApiStatus() {
 
     let liveCoverage = "—";
     try {
-      const h = await fetch("/output/api/v1/health", { cache: "no-store" }).then((r) => r.json());
+      const h = await fetch("/output/api/v1/health", {
+        cache: "no-store",
+        headers: { "X-Contract-Version": "1.8.0-ops-gis-sot" },
+      }).then((r) => r.json());
       const n = h.top500_live_coverage ?? (h.fleet_sample || {}).top500_live_coverage;
       if (n != null) liveCoverage = String(n);
     } catch {

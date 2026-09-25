@@ -6,6 +6,7 @@ import json
 import math
 import os
 import sqlite3
+import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,6 +20,11 @@ STALE_LAG_SEC = 600
 # (see coverage_window_from_config). Legacy hardcode 720 (= 3×240s) removed:
 # Prompt-7 locked interval=180s → full cycle 540s for TOP-500 @ 200 MMSI/chunk.
 DEFAULT_COVERAGE_WINDOW_MIN = 9
+
+# Burst-collapse cache for /api/v1/health (stress 8×); Dual Gate fields stay live via short TTL.
+HEALTH_DOC_CACHE_TTL_SEC = 2.5
+_HEALTH_DOC_LOCK = threading.RLock()
+_HEALTH_DOC_CACHE: dict[str, Any] = {"doc": None, "ts": 0.0}
 
 DB_CANDIDATES = [
     ROOT / "история1" / "sentinel_ais.db",
@@ -365,6 +371,39 @@ def build_health_document(
     freshness: dict[str, Any] | None = None,
     source_mode: str | None = None,
     extra: dict[str, Any] | None = None,
+    bypass_cache: bool = False,
+) -> dict[str, Any]:
+    """Truth-contract health payload for /output/api/v1/health (HTTP 200).
+
+    Short in-process TTL (HEALTH_DOC_CACHE_TTL_SEC) collapses burst stress without
+    stale Dual Gate semantics — fleet_archive has its own 3600s cache underneath.
+    """
+    global _HEALTH_DOC_CACHE
+    if not bypass_cache and freshness is None and source_mode is None and not extra:
+        now = time.monotonic()
+        with _HEALTH_DOC_LOCK:
+            hit = _HEALTH_DOC_CACHE.get("doc")
+            ts = float(_HEALTH_DOC_CACHE.get("ts") or 0.0)
+            if hit is not None and (now - ts) < HEALTH_DOC_CACHE_TTL_SEC:
+                out = dict(hit)
+                out["cache_hit"] = True
+                return out
+
+    doc = _build_health_document_uncached(
+        freshness=freshness, source_mode=source_mode, extra=extra
+    )
+    if not bypass_cache and freshness is None and source_mode is None and not extra:
+        with _HEALTH_DOC_LOCK:
+            _HEALTH_DOC_CACHE["doc"] = dict(doc)
+            _HEALTH_DOC_CACHE["ts"] = time.monotonic()
+    return doc
+
+
+def _build_health_document_uncached(
+    *,
+    freshness: dict[str, Any] | None = None,
+    source_mode: str | None = None,
+    extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Truth-contract health payload for /output/api/v1/health (HTTP 200)."""
     fr = freshness or compute_ais_freshness()
@@ -570,6 +609,58 @@ def build_health_document(
         attach_oob_plane(doc)
     except Exception:  # noqa: BLE001
         pass
+
+    # Satellite AIS — armed stub for pitch (not activated).
+    try:
+        from services.satellite_ais_adapter import SatelliteAISAdapter
+
+        stub = SatelliteAISAdapter()
+        cov = stub.coverage_report()
+        doc["satellite"] = {
+            "status": "not_activated",
+            "providers_ready": ["spire", "unseenlabs", "iceye"],
+            "note": "contract pending",
+            "adapter": cov.get("adapter"),
+            "credentials_present": bool(cov.get("credentials_present")),
+        }
+    except Exception:  # noqa: BLE001
+        doc["satellite"] = {
+            "status": "not_activated",
+            "providers_ready": ["spire", "unseenlabs", "iceye"],
+            "note": "contract pending",
+        }
+
+    # VesselFinder plane — paused until new key; GFW covers verification.
+    try:
+        from services.key_activation import provider_state
+        from services.vesselfinder_client import resolve_userkey
+
+        vf_st = provider_state("vesselfinder")
+        doc["vf"] = {
+            "configured": bool(resolve_userkey()),
+            "paused": bool(vf_st.get("paused")),
+            "last_ok": vf_st.get("last_ok"),
+            "note": "awaiting new key — function covered by GFW",
+        }
+    except Exception:  # noqa: BLE001
+        doc["vf"] = {
+            "configured": False,
+            "paused": True,
+            "note": "awaiting new key — function covered by GFW",
+        }
+
+    # LLM daily-brief plane (optional Anthropic) — never blocks Dual Gate.
+    try:
+        from services.llm_router import llm_health_block
+
+        llm = llm_health_block()
+        doc["llm_status"] = llm.get("status")
+        doc["llm"] = {k: v for k, v in llm.items() if k != "budget"}
+        if llm.get("budget") is not None:
+            doc["llm_budget"] = llm["budget"]  # admin-only via sanitize
+    except Exception:  # noqa: BLE001
+        doc["llm_status"] = "degraded"
+        doc["llm"] = {"status": "degraded", "note": "llm_router_unavailable"}
 
     return doc
 

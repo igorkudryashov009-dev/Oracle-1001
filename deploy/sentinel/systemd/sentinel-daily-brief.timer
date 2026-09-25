@@ -1,0 +1,10 @@
+[Unit]
+Description=Sentinel daily_brief LLM digest (02:30 UTC)
+
+[Timer]
+OnCalendar=*-*-* 02:30:00 UTC
+Persistent=true
+Unit=sentinel-job@daily_brief.service
+
+[Install]
+WantedBy=timers.target

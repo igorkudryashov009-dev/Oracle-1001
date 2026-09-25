@@ -164,3 +164,9 @@ echo "DONE ${ENV_KEY}=${MASKED} — probe triggered. Check /api/v1/health (alert
 if [[ "${ENV_KEY}" == "GFW_API_TOKEN" || "${ENV_KEY}" == "VESSELFINDER_API_KEY" ]]; then
   echo "TIP: optional — bash scripts/install_key.sh ALERT_WEBHOOK  # notify on GREEN commissioning"
 fi
+if [[ "${ENV_KEY}" == "ALERT_WEBHOOK_URL" ]]; then
+  echo "TIP: webhook receives JSON POST {at,kind,severity,message,detail,status} — see services/alerts.py"
+fi
+if [[ "${ENV_KEY}" == "ANTHROPIC_API_KEY" ]]; then
+  echo "TIP: daily_brief timer 02:30 UTC writes llm_daily_brief only (no scores/positions)"
+fi
