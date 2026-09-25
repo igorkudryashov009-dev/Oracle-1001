@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-09-25T10:49:07Z",
+  "generated_at": "2026-09-25T11:39:38Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -452,8 +452,8 @@
         "services/acceptance.py"
       ],
       "resolved_path": "services/acceptance.py",
-      "sha256": "60e8166be27741a6310a12ef2d8fcf40ab1e2f43f4ad97cf9399015c537ad2c9",
-      "bytes": 18898,
+      "sha256": "de12c1561ea22adce332c81abe76f153aadca171b2b7d0086ec6364a6077924c",
+      "bytes": 24037,
       "critical": false
     },
     {
@@ -1376,8 +1376,8 @@
         "services/watchdog.py"
       ],
       "resolved_path": "services/watchdog.py",
-      "sha256": "cf02b40299c67fae84b8aac7f1ebeb232adf37abaf3d6f00e833bc9fc1316dc1",
-      "bytes": 7151,
+      "sha256": "606384cf6befacd017e25f34b9ab434e612e0abfd06872bfb16b978b8c2f12a4",
+      "bytes": 7319,
       "critical": false
     },
     {
