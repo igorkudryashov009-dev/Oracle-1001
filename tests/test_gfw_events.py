@@ -122,6 +122,18 @@ def test_sanitize_repairs_duplicated_jwt_segments(monkeypatch: pytest.MonkeyPatc
     assert resolve_token() == fixed
 
 
+def test_extract_vessel_id_from_v3_identity_shape() -> None:
+    from services.gfw_events import _extract_vessel_id_from_entry
+
+    ent = {
+        "dataset": "public-global-vessel-identity:v4.0",
+        "combinedSourcesInfo": [{"vesselId": "abc-vessel-1", "geartypes": []}],
+        "selfReportedInfo": [{"id": "abc-vessel-1", "imo": "9905980", "shipname": "X"}],
+    }
+    assert _extract_vessel_id_from_entry(ent, imo="9905980") == "abc-vessel-1"
+    assert _extract_vessel_id_from_entry({"id": "top"}, imo="1") == "top"
+
+
 def test_auth_401_does_not_verify(monkeypatch: pytest.MonkeyPatch) -> None:
     """401 on vessel search must not flag gfw_verified / must not look like success."""
     monkeypatch.setenv("GFW_API_TOKEN", "deadtoken_for_unit_test_xxxx")

@@ -321,6 +321,38 @@ def _auth_headers(token: str) -> dict[str, str]:
     }
 
 
+def _extract_vessel_id_from_entry(ent: dict[str, Any], *, imo: str) -> Optional[str]:
+    """GFW v3 identity entry: id lives under combinedSourcesInfo / selfReportedInfo."""
+    vid = ent.get("id") or ent.get("vesselId")
+    if vid:
+        return str(vid)
+    vessel = ent.get("vessel") if isinstance(ent.get("vessel"), dict) else {}
+    if vessel.get("id"):
+        return str(vessel["id"])
+
+    combined = ent.get("combinedSourcesInfo")
+    if isinstance(combined, list):
+        for row in combined:
+            if isinstance(row, dict) and row.get("vesselId"):
+                return str(row["vesselId"])
+
+    self_rep = ent.get("selfReportedInfo")
+    if isinstance(self_rep, list):
+        # Prefer row whose imo matches query when present
+        for row in self_rep:
+            if not isinstance(row, dict):
+                continue
+            row_imo = str(row.get("imo") or "").strip()
+            if row_imo and row_imo != str(imo).strip():
+                continue
+            if row.get("id"):
+                return str(row["id"])
+        for row in self_rep:
+            if isinstance(row, dict) and row.get("id"):
+                return str(row["id"])
+    return None
+
+
 def _resolve_vessel_id(imo: str, token: str, *, timeout: float = 30.0) -> tuple[Optional[str], Optional[str]]:
     """Map IMO → GFW vessel id. Returns (vessel_id|None, error|None).
 
@@ -357,12 +389,9 @@ def _resolve_vessel_id(imo: str, token: str, *, timeout: float = 30.0) -> tuple[
     for ent in entries:
         if not isinstance(ent, dict):
             continue
-        vid = ent.get("id") or ent.get("vesselId")
-        if not vid:
-            vessel = ent.get("vessel") if isinstance(ent.get("vessel"), dict) else {}
-            vid = vessel.get("id")
+        vid = _extract_vessel_id_from_entry(ent, imo=imo)
         if vid:
-            return str(vid), None
+            return vid, None
     return None, None
 
 
