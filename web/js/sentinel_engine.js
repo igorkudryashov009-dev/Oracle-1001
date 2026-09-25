@@ -73,6 +73,7 @@
 
   const HEALTH_URL = "/output/api/v1/health";
   const HEALTH_POLL_MS = 30000;
+  const API_HEADERS = { "X-Contract-Version": "1.8.0-ops-gis-sot" };
   let _healthPollTimer = null;
 
   function applyLiveHealth(h) {
@@ -104,7 +105,7 @@
       const url = `${HEALTH_URL}?nocache=${Date.now()}`;
       const h = await fetch(url, {
         cache: "no-store",
-        headers: { "X-Contract-Version": "1.8.0-ops-gis-sot" },
+        headers: API_HEADERS,
       }).then((r) => {
         if (!r.ok) throw new Error(`health HTTP ${r.status}`);
         return r.json();
@@ -220,7 +221,10 @@
     L.control.layers(null, overlays, { collapsed: true, position: "topright" }).addTo(map);
     map.__sentinelLayers = { vesselLayer, firmsLayer, newsLayer };
     // Lazy-load FIRMS anomalies onto the thermal layer
-    fetch(`/api/v1/gis/firms/anomalies?days=1&max_distance_nm=50&nocache=${Date.now()}`, { cache: "no-store" })
+    fetch(`/api/v1/gis/firms/anomalies?days=1&max_distance_nm=50&nocache=${Date.now()}`, {
+      cache: "no-store",
+      headers: API_HEADERS,
+    })
       .then((r) => (r.ok ? r.json() : null))
       .then((geo) => {
         if (!geo || !Array.isArray(geo.features)) return;
@@ -282,7 +286,10 @@
     const track = document.getElementById("sentinelNewsTickerTrack");
     if (!track) return;
     try {
-      const data = await fetch(`/api/v1/news/latest?limit=12&nocache=${Date.now()}`, { cache: "no-store" })
+      const data = await fetch(`/api/v1/news/latest?limit=12&nocache=${Date.now()}`, {
+        cache: "no-store",
+        headers: API_HEADERS,
+      })
         .then((r) => {
           if (!r.ok) throw new Error(`news HTTP ${r.status}`);
           return r.json();

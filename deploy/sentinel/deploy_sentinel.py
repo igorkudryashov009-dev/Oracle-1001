@@ -550,7 +550,11 @@ def main() -> int:
             "/api/v1/news/latest?limit=3",
         ):
             try:
-                with urllib.request.urlopen(base + path, timeout=30) as resp:
+                req = urllib.request.Request(
+                    base + path,
+                    headers={"X-Contract-Version": "1.8.0-ops-gis-sot"},
+                )
+                with urllib.request.urlopen(req, timeout=30) as resp:
                     cv = resp.headers.get("X-Contract-Version")
                     print(f"[+] {path.split('?')[0]} -> {resp.status} cv={cv}")
                     if resp.status != 200:
