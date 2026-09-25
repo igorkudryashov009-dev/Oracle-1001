@@ -207,4 +207,15 @@ if [[ -n "${VOL_OUT}" && -d "${VOL_OUT}" && -d output/js ]]; then
 fi
 
 free -h
+
+echo "==> install zero-touch systemd automation timers"
+# Prefer DEPLOY sync path (always refreshed by deploy_sentinel.py).
+if [[ -f /opt/oracle1001/deploy/sentinel/install_sentinel_automation.sh ]]; then
+  bash /opt/oracle1001/deploy/sentinel/install_sentinel_automation.sh || true
+elif [[ -f deploy/sentinel/install_sentinel_automation.sh ]]; then
+  bash deploy/sentinel/install_sentinel_automation.sh || true
+else
+  echo "WARN: install_sentinel_automation.sh missing — timers not armed" >&2
+fi
+
 echo "==> deploy_korolev_sentinel done (baked)"

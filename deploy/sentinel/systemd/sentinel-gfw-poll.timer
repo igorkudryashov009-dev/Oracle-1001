@@ -1,0 +1,10 @@
+[Unit]
+Description=Sentinel GFW events poll (01:00 UTC)
+
+[Timer]
+OnCalendar=*-*-* 01:00:00 UTC
+Persistent=true
+Unit=sentinel-job@gfw_poll.service
+
+[Install]
+WantedBy=timers.target

@@ -205,10 +205,19 @@ def sync_heal_scripts(ssh: paramiko.SSHClient) -> None:
         "export_ais_db_to_host.sh",
         "recover_ais_db.sh",
         "deploy_korolev_sentinel.sh",
+        "install_sentinel_automation.sh",
+        "run_sentinel_job.sh",
     ):
         lp = local_deploy / name
         if lp.is_file():
             sftp_put(ssh, lp, f"{DEPLOY}/{name}")
+    # systemd timer units for zero-touch automation
+    systemd_local = local_deploy / "systemd"
+    if systemd_local.is_dir():
+        run(ssh, f"mkdir -p '{DEPLOY}/systemd'")
+        for unit in sorted(systemd_local.glob("*")):
+            if unit.is_file():
+                sftp_put(ssh, unit, f"{DEPLOY}/systemd/{unit.name}")
     prod = REPO / "docker-compose.prod.yml"
     if prod.is_file():
         sftp_put(ssh, prod, f"{APP_A}/docker-compose.prod.yml")

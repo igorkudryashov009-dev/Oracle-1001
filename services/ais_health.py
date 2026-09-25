@@ -509,6 +509,20 @@ def build_health_document(
     except Exception:  # noqa: BLE001
         pass
 
+    # Zero-touch scheduler + alerts (systemd timers on Korolev).
+    try:
+        from services.alerts import alerts_health_block
+        from services.job_log import scheduler_health_block
+
+        sched = scheduler_health_block()
+        doc["scheduler"] = sched
+        if int(sched.get("overdue_jobs_n") or 0) > 0:
+            # Informational WARN plane — do not flip Dual Gate pipeline status here.
+            doc["scheduler_warn"] = True
+        doc["alerts"] = alerts_health_block()
+    except Exception:  # noqa: BLE001
+        pass
+
     # Full-fleet daily archive reporting (does NOT feed Dual Gate fleet_sample).
     try:
         from services.archive_snapshot_worker import compute_fleet_archive_metrics

@@ -1,0 +1,11 @@
+[Unit]
+Description=Sentinel budget sync every 60 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=60min
+Persistent=true
+Unit=sentinel-job@budget_sync.service
+
+[Install]
+WantedBy=timers.target

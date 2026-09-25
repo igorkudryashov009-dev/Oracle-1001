@@ -1,0 +1,10 @@
+[Unit]
+Description=Sentinel daily archive snapshot (00:30 UTC)
+
+[Timer]
+OnCalendar=*-*-* 00:30:00 UTC
+Persistent=true
+Unit=sentinel-job@archive_snapshot.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Sentinel VF allocator (01:30 UTC)
+
+[Timer]
+OnCalendar=*-*-* 01:30:00 UTC
+Persistent=true
+Unit=sentinel-job@vf_allocator.service
+
+[Install]
+WantedBy=timers.target

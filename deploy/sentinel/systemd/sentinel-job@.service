@@ -1,0 +1,11 @@
+[Unit]
+Description=Sentinel automation job (%i)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+# Host wrapper: docker exec into sentinel-web + process worker restart queue.
+ExecStart=/opt/oracle1001/deploy/sentinel/run_sentinel_job.sh %i
+User=root
+TimeoutStartSec=1800
