@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-09-20T14:43:39Z",
+  "generated_at": "2026-09-25T05:14:38Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -464,8 +464,8 @@
         "services/ais_health.py"
       ],
       "resolved_path": "services/ais_health.py",
-      "sha256": "4461c0236f4cd4ed0ffe43247d270a22376d7147d8c0f93a93d596c2c6dfb0f8",
-      "bytes": 19893,
+      "sha256": "777f1880806859f08ddd77e1d7a38af815908cfc7497d1a6e422ef008b3398c6",
+      "bytes": 21088,
       "critical": true
     },
     {
@@ -517,6 +517,18 @@
       "critical": false
     },
     {
+      "name": "alerts.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/alerts.py"
+      ],
+      "resolved_path": "services/alerts.py",
+      "sha256": "31a48ed56dbcd5bcd6276e91855032c5b54a45f468d084ba2559b14bdb28be40",
+      "bytes": 3661,
+      "critical": false
+    },
+    {
       "name": "alerts_engine.py",
       "kind": "service_py",
       "url_path": null,
@@ -548,8 +560,8 @@
         "services/archive_schema.py"
       ],
       "resolved_path": "services/archive_schema.py",
-      "sha256": "04142c5d102e24748f004e11a918ec3b86f4a3be8255bfc5915e3b9267d3032a",
-      "bytes": 1427,
+      "sha256": "b45de8e180f13c6ed776c9b739071b190ee562b3a50b0d037f9eef1d50510d62",
+      "bytes": 2949,
       "critical": false
     },
     {
@@ -572,8 +584,8 @@
         "services/archive_snapshot_worker.py"
       ],
       "resolved_path": "services/archive_snapshot_worker.py",
-      "sha256": "c68d70e0699fba6c577746c2f546e86449886640bd5f62fb2f009d1c939618e6",
-      "bytes": 12114,
+      "sha256": "4089528a580fcedc604dffaedf08d5aaef64c88b5ff27c8eef477185b487663d",
+      "bytes": 26249,
       "critical": false
     },
     {
@@ -709,6 +721,18 @@
       "critical": false
     },
     {
+      "name": "gfw_events.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/gfw_events.py"
+      ],
+      "resolved_path": "services/gfw_events.py",
+      "sha256": "d41866cce93bfa615be2b214a22e9c8998af61c188bddd9937dca576e0623521",
+      "bytes": 21534,
+      "critical": false
+    },
+    {
       "name": "healthcheck.py",
       "kind": "service_py",
       "url_path": null,
@@ -718,6 +742,30 @@
       "resolved_path": "services/healthcheck.py",
       "sha256": "adb5a72e0efce1d4df467d523a155bf028755ec50ddb7b8c93e4b3c0bf5bd223",
       "bytes": 4890,
+      "critical": false
+    },
+    {
+      "name": "job_log.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/job_log.py"
+      ],
+      "resolved_path": "services/job_log.py",
+      "sha256": "50034121dbd90e65c1642bea6ef739536d93d068f83a97a4da1ed5380b60ebf1",
+      "bytes": 8972,
+      "critical": false
+    },
+    {
+      "name": "key_activation.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/key_activation.py"
+      ],
+      "resolved_path": "services/key_activation.py",
+      "sha256": "631303be13bfeb20e8cab7400792ed6ed18d83f9d207edd5d2f2aca769f76c4b",
+      "bytes": 7978,
       "critical": false
     },
     {
@@ -776,8 +824,8 @@
         "services/market_data_service.py"
       ],
       "resolved_path": "services/market_data_service.py",
-      "sha256": "3502b1e4e890a2db5e125b3cd3c507e2e577b3632ea7633c92f11580213aa701",
-      "bytes": 6387,
+      "sha256": "671436a011399c255b548ead0c412b08f85ff1669e20a9659dab3227656ec6df",
+      "bytes": 14513,
       "critical": false
     },
     {
@@ -886,6 +934,18 @@
       "resolved_path": "services/satellite_ais_adapter.py",
       "sha256": "6d0f8429f80a77b8dd321dbea2d81fceccedda829f534ea26cb717fc131b55bb",
       "bytes": 2524,
+      "critical": false
+    },
+    {
+      "name": "scheduler.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/scheduler.py"
+      ],
+      "resolved_path": "services/scheduler.py",
+      "sha256": "68764a4fdd0aaf9f4c5b58c1b35f1f97e519a73ebd239c85c71249cb0d8536e5",
+      "bytes": 6993,
       "critical": false
     },
     {
@@ -1244,8 +1304,8 @@
         "services/vesselfinder_budget.py"
       ],
       "resolved_path": "services/vesselfinder_budget.py",
-      "sha256": "3ecb23584d337158b125cfaed2e58db09b7d2b3d6ea6619cc748cfaa934f6024",
-      "bytes": 7782,
+      "sha256": "7ceb61a1b9a9401f6b35db93978ee50711dc91ebb042a3d2360bcd08d61c1fb2",
+      "bytes": 8893,
       "critical": false
     },
     {
@@ -1256,8 +1316,44 @@
         "services/vesselfinder_client.py"
       ],
       "resolved_path": "services/vesselfinder_client.py",
-      "sha256": "06bc7ec43449e2306f9b69e93ea53722270be3521ccaf6954de514c52a6e6dbc",
-      "bytes": 8052,
+      "sha256": "80c1a16ce7b9535ada2ab09c9e9d72edff09eda64175297b36459d15b6ff739e",
+      "bytes": 8837,
+      "critical": false
+    },
+    {
+      "name": "vf_allocator_runner.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/vf_allocator_runner.py"
+      ],
+      "resolved_path": "services/vf_allocator_runner.py",
+      "sha256": "bc59564e5e87ae24f6464a02ad7e00cc3a1031f626e03c4878f29a23b58f2c61",
+      "bytes": 4925,
+      "critical": false
+    },
+    {
+      "name": "vf_budget_allocator.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/vf_budget_allocator.py"
+      ],
+      "resolved_path": "services/vf_budget_allocator.py",
+      "sha256": "d76e704486404bcff0541c3afed3f82ab3b4b6da3f47d026aeeab7aea0d979b5",
+      "bytes": 22451,
+      "critical": false
+    },
+    {
+      "name": "watchdog.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/watchdog.py"
+      ],
+      "resolved_path": "services/watchdog.py",
+      "sha256": "cf02b40299c67fae84b8aac7f1ebeb232adf37abaf3d6f00e833bc9fc1316dc1",
+      "bytes": 7151,
       "critical": false
     },
     {
