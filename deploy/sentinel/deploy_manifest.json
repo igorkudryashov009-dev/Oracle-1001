@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-09-25T05:14:38Z",
+  "generated_at": "2026-09-25T05:40:03Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -445,6 +445,18 @@
       "critical": false
     },
     {
+      "name": "acceptance.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/acceptance.py"
+      ],
+      "resolved_path": "services/acceptance.py",
+      "sha256": "ce6e8488a80cce61a818b13a203a45a7f6075b807e5f5fb8f6b2a15e2fcb5709",
+      "bytes": 8770,
+      "critical": false
+    },
+    {
       "name": "ais_daily_aggregates.py",
       "kind": "service_py",
       "url_path": null,
@@ -464,8 +476,8 @@
         "services/ais_health.py"
       ],
       "resolved_path": "services/ais_health.py",
-      "sha256": "777f1880806859f08ddd77e1d7a38af815908cfc7497d1a6e422ef008b3398c6",
-      "bytes": 21088,
+      "sha256": "8527b16eeab81f4e7eaa8981e2e4bfe81dc00de77f7dc4595e3f3281693c8b96",
+      "bytes": 21268,
       "critical": true
     },
     {
@@ -524,8 +536,8 @@
         "services/alerts.py"
       ],
       "resolved_path": "services/alerts.py",
-      "sha256": "31a48ed56dbcd5bcd6276e91855032c5b54a45f468d084ba2559b14bdb28be40",
-      "bytes": 3661,
+      "sha256": "5ad3cbc08668dd288082d16153d150eda5ff8d882449d67d558400ed5d11aaa7",
+      "bytes": 7744,
       "critical": false
     },
     {
@@ -728,8 +740,8 @@
         "services/gfw_events.py"
       ],
       "resolved_path": "services/gfw_events.py",
-      "sha256": "d41866cce93bfa615be2b214a22e9c8998af61c188bddd9937dca576e0623521",
-      "bytes": 21534,
+      "sha256": "a8fa7f59eec060da05ba2541c7cf7908c818098056ba7c5d87fd31dfbcbf627f",
+      "bytes": 21781,
       "critical": false
     },
     {
@@ -752,8 +764,8 @@
         "services/job_log.py"
       ],
       "resolved_path": "services/job_log.py",
-      "sha256": "50034121dbd90e65c1642bea6ef739536d93d068f83a97a4da1ed5380b60ebf1",
-      "bytes": 8972,
+      "sha256": "2c7164f1426997264c1bfc8170cdf22e1660918ea220d39cfc7481e027ded2ea",
+      "bytes": 9175,
       "critical": false
     },
     {
@@ -764,8 +776,8 @@
         "services/key_activation.py"
       ],
       "resolved_path": "services/key_activation.py",
-      "sha256": "631303be13bfeb20e8cab7400792ed6ed18d83f9d207edd5d2f2aca769f76c4b",
-      "bytes": 7978,
+      "sha256": "11d4c032c3a50272cb30f54f0898d3233c1b390f8d67815c8c8015ab7001f9f1",
+      "bytes": 13075,
       "critical": false
     },
     {
@@ -925,6 +937,18 @@
       "critical": false
     },
     {
+      "name": "runtime_env.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/runtime_env.py"
+      ],
+      "resolved_path": "services/runtime_env.py",
+      "sha256": "931bedc10d741329241db198ca5c63e4070600c8911662b78582f134c71185bb",
+      "bytes": 4274,
+      "critical": false
+    },
+    {
       "name": "satellite_ais_adapter.py",
       "kind": "service_py",
       "url_path": null,
@@ -944,8 +968,8 @@
         "services/scheduler.py"
       ],
       "resolved_path": "services/scheduler.py",
-      "sha256": "68764a4fdd0aaf9f4c5b58c1b35f1f97e519a73ebd239c85c71249cb0d8536e5",
-      "bytes": 6993,
+      "sha256": "777003e419ee16a6b10e96bbaf230276a72fd0278b5017feff3f31a841efa0e3",
+      "bytes": 7188,
       "critical": false
     },
     {
@@ -1316,8 +1340,8 @@
         "services/vesselfinder_client.py"
       ],
       "resolved_path": "services/vesselfinder_client.py",
-      "sha256": "80c1a16ce7b9535ada2ab09c9e9d72edff09eda64175297b36459d15b6ff739e",
-      "bytes": 8837,
+      "sha256": "48fff3e44d493a463859022789d20d477dbaec397cc72121737bc04f68d4b2f4",
+      "bytes": 8991,
       "critical": false
     },
     {
