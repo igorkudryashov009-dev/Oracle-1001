@@ -524,9 +524,14 @@ def build_health_document(
         pass
 
     try:
-        from services.acceptance import acceptance_health_block
+        from services.acceptance import acceptance_health_block, gfw_budget_warn_block
 
         doc["acceptance"] = acceptance_health_block()
+        gfw_warn = gfw_budget_warn_block()
+        if gfw_warn is not None:
+            doc["gfw_budget_warn"] = gfw_warn
+            if gfw_warn.get("warn"):
+                doc["gfw_budget_warn_active"] = True
     except Exception:  # noqa: BLE001
         pass
 

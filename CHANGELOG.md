@@ -8,6 +8,7 @@
 - **Test hygiene**: `c08_speed_spectrum` assert aligned to 6 SOG bins; OSINT uppercase test accepts L8 `SANCTIONS_TAGS` side-channel beside 20 ТЗ core keys.
 
 ### Added
+- **Commissioning loop**: event-driven `acceptance_check` after first verified gfw/vf data (no wait for 02:00); append-only `fully_commissioned_at` + `output/commissioning_report.json` + webhook/jsonl notify; GREEN→DEGRADED after 3d verified silence (stamp preserved); GFW budget remaining&lt;50 WARN plane.
 - **Auto-activation loop**: `scripts/install_key.sh` (GFW/VF/ANTHROPIC/ALERT_WEBHOOK) → local+Korolev `.env` + bind-mounted `runtime_env.json` + `key_installed:<provider>` signal → immediate probe/first job/resnapshot; alert auto-resolve + 24h dedup; daily `acceptance_check` (02:00 UTC) → `health.acceptance` GREEN|DEGRADED|WAITING_KEYS. Timers 6/6.
 - **Zero-touch automation (systemd timers)**: `services/scheduler.py` + `job_log` / `watchdog` / `alerts` / `key_activation` / `vf_allocator_runner`; five UTC jobs (archive 00:30, GFW 01:00, VF 01:30, watchdog */15m, budget */60m); `deploy/sentinel/install_sentinel_automation.sh` arms timers on bake. Never restarts edge-gateway; Dual Gate untouched.
 - **GFW Events verification plane (`services/gfw_events.py`)**: optional `GFW_API_TOKEN`; gap_48h batch ≤20/day; `vessel_gfw_events` + `gfw_verified` / `gfw_events_n` on daily archive; health `gfw_status` / `gfw_budget` (daily_cap 500, ≤2 rps). Does **not** overwrite `terrestrial_ais`/`vf_api` source. Free non-commercial GFW — Dual Gate untouched.

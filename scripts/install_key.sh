@@ -146,3 +146,6 @@ fi
 
 unset KEY_VALUE INSTALL_KEY_VALUE B64 || true
 echo "DONE ${ENV_KEY}=${MASKED} — probe triggered. Check /api/v1/health (alerts, acceptance)."
+if [[ "${ENV_KEY}" == "GFW_API_TOKEN" || "${ENV_KEY}" == "VESSELFINDER_API_KEY" ]]; then
+  echo "TIP: optional — bash scripts/install_key.sh ALERT_WEBHOOK  # notify on GREEN commissioning"
+fi

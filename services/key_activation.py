@@ -282,18 +282,57 @@ def _force_today_resnapshot() -> dict[str, Any]:
 
 
 def _immediate_first_run(provider: str) -> dict[str, Any]:
-    """After successful probe: run the matching job + today resnapshot."""
+    """After successful probe: run the matching job + today resnapshot + acceptance."""
     out: dict[str, Any] = {"provider": provider}
     if provider in {"gfw", "gfw_api_token"}:
         from services.gfw_events import run_daily_gfw_batch
 
         out["gfw_poll"] = run_daily_gfw_batch(limit=20, dry_run=False)
         out["resnapshot"] = _force_today_resnapshot()
+        try:
+            from services.acceptance import maybe_rerun_acceptance_after_verification
+
+            verified = int(
+                (out["gfw_poll"] or {}).get("updated")
+                or (out["gfw_poll"] or {}).get("events_total")
+                or (out["gfw_poll"] or {}).get("fetched")
+                or 0
+            )
+            if verified > 0:
+                acc = maybe_rerun_acceptance_after_verification(
+                    channel="gfw",
+                    verified_hint=verified,
+                    job_detail=out["gfw_poll"] or {},
+                )
+                if acc:
+                    out["acceptance"] = {
+                        "status": acc.get("status"),
+                        "transition": acc.get("transition"),
+                        "fully_commissioned_at": acc.get("fully_commissioned_at"),
+                    }
+        except Exception:  # noqa: BLE001
+            pass
     elif provider in {"vesselfinder", "vf", "vesselfinder_api_key"}:
         from services.vf_allocator_runner import run_vf_allocator_live
 
         out["vf_allocator"] = run_vf_allocator_live(dry_run=False)
         out["resnapshot"] = _force_today_resnapshot()
+        try:
+            from services.acceptance import maybe_rerun_acceptance_after_verification
+
+            billed = int((out["vf_allocator"] or {}).get("billed") or 0)
+            if billed > 0:
+                acc = maybe_rerun_acceptance_after_verification(
+                    channel="vf", verified_hint=billed, job_detail=out["vf_allocator"]
+                )
+                if acc:
+                    out["acceptance"] = {
+                        "status": acc.get("status"),
+                        "transition": acc.get("transition"),
+                        "fully_commissioned_at": acc.get("fully_commissioned_at"),
+                    }
+        except Exception:  # noqa: BLE001
+            pass
     return out
 
 

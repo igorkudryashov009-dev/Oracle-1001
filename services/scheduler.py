@@ -59,13 +59,49 @@ def _job_gfw_poll() -> dict[str, Any]:
     if st.get("last_ok") is not True:
         return {"skipped": True, "reason": "awaiting_gfw_activation"}
     out = run_daily_gfw_batch(limit=20, dry_run=False)
+    # Event-driven acceptance (do not wait for 02:00)
+    try:
+        from services.acceptance import maybe_rerun_acceptance_after_verification
+
+        verified = int(out.get("updated") or out.get("events_total") or out.get("fetched") or 0)
+        if out.get("ok") and verified > 0:
+            acc = maybe_rerun_acceptance_after_verification(
+                channel="gfw", verified_hint=verified, job_detail=out
+            )
+            if acc:
+                out["acceptance"] = {
+                    "status": acc.get("status"),
+                    "transition": acc.get("transition"),
+                    "fully_commissioned_at": acc.get("fully_commissioned_at"),
+                    "trigger": acc.get("trigger"),
+                }
+    except Exception:  # noqa: BLE001
+        pass
     return out
 
 
 def _job_vf_allocator() -> dict[str, Any]:
     from services.vf_allocator_runner import run_vf_allocator_live
 
-    return run_vf_allocator_live(dry_run=False)
+    out = run_vf_allocator_live(dry_run=False)
+    try:
+        from services.acceptance import maybe_rerun_acceptance_after_verification
+
+        billed = int(out.get("billed") or 0)
+        if out.get("ok") and not out.get("skipped") and billed > 0:
+            acc = maybe_rerun_acceptance_after_verification(
+                channel="vf", verified_hint=billed, job_detail=out
+            )
+            if acc:
+                out["acceptance"] = {
+                    "status": acc.get("status"),
+                    "transition": acc.get("transition"),
+                    "fully_commissioned_at": acc.get("fully_commissioned_at"),
+                    "trigger": acc.get("trigger"),
+                }
+    except Exception:  # noqa: BLE001
+        pass
+    return out
 
 
 def _job_pipeline_watchdog() -> dict[str, Any]:
