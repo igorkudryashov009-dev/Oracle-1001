@@ -42,8 +42,10 @@ MMSI: **356117000**
 
 def test_paragon_100_percent_uppercase():
     rec = parse_osint_narrative(G_PARAGON_RAW, declared_imo="9656888", as_snake=False)
-    assert list(rec.keys()) == TZ_KEYS_UPPER
-    assert fill_rate(rec, uppercase=True) == 100.0
+    # Core ТЗ = exactly 20 keys (NASA / Wet-Glass); L8 extras ride alongside.
+    core = {k: rec[k] for k in TZ_KEYS_UPPER}
+    assert list(core.keys()) == TZ_KEYS_UPPER
+    assert fill_rate(core, uppercase=True) == 100.0
     assert rec["VESSEL_NAME"] == "G. PARAGON"
     assert rec["MMSI"] == "356117000"
     assert rec["CALL_SIGN"] == "3FTI4"
@@ -55,3 +57,6 @@ def test_paragon_100_percent_uppercase():
     assert "Йосу" in rec["DESTINATION_PORT"]
     assert rec["COMPLIANCE_RISK_LEVEL"] == "LOW"
     assert rec["AGE_YEARS"] == 13
+    # L8 side-channel (not part of the 20-key fill-rate contract)
+    assert "SANCTIONS_TAGS" in rec
+    assert "RISK_SOURCE" in rec

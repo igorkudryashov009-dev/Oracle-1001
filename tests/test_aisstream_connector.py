@@ -200,7 +200,11 @@ def test_sentinel_payload_has_18_chart_keys():
         assert key in payload, f"missing {key}"
     assert payload["live_vessel_count"] > 0
     assert len(payload["c01_heatmap"]) > 0
-    assert len(payload["c08_speed_spectrum"]["labels"]) == 7
+    # SoT: services.analytics.SOG_LABELS — 6 bins (0-2 … 20+), HUD subtitle matches
+    assert len(payload["c08_speed_spectrum"]["labels"]) == 6
+    assert payload["c08_speed_spectrum"]["labels"] == [
+        "0-2", "2-8", "8-12", "12-16", "16-20", "20+",
+    ]
 
 
 def test_backoff_curve():

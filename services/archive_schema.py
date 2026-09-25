@@ -1,7 +1,9 @@
 """Immutable daily vessel archive schema for sentinel_ais.db.
 
 Provenance contract (1.8.0):
-  source ∈ {terrestrial_ais, vf_api, none} — never interpolated / synthetic positions.
+  source ∈ {terrestrial_ais, vf_api, gfw_events, none} — never interpolated /
+  synthetic positions. gfw_events is reserved; GFW normally sets gfw_verified
+  without overwriting terrestrial_ais / vf_api source rows.
 """
 
 from __future__ import annotations
@@ -62,6 +64,8 @@ PROVENANCE_COLUMNS: tuple[tuple[str, str], ...] = (
     ("in_sts_zone", "INTEGER NOT NULL DEFAULT 0"),
     ("spoof_flag", "INTEGER NOT NULL DEFAULT 0"),
     ("vf_verified", "INTEGER NOT NULL DEFAULT 0"),
+    ("gfw_verified", "INTEGER NOT NULL DEFAULT 0"),
+    ("gfw_events_n", "INTEGER NOT NULL DEFAULT 0"),
 )
 
 ARCHIVE_COLUMNS = (
@@ -95,6 +99,8 @@ ARCHIVE_COLUMNS = (
     "in_sts_zone",
     "spoof_flag",
     "vf_verified",
+    "gfw_verified",
+    "gfw_events_n",
 )
 
-ALLOWED_ARCHIVE_SOURCES = frozenset({"terrestrial_ais", "vf_api", "none"})
+ALLOWED_ARCHIVE_SOURCES = frozenset({"terrestrial_ais", "vf_api", "gfw_events", "none"})

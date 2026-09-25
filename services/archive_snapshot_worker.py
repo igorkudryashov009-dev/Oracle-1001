@@ -438,6 +438,8 @@ def build_snapshot_rows(
                 in_sts,
                 spoof_flag,
                 vf_verified,
+                0,  # gfw_verified — set by gfw_events poller, never invent here
+                0,  # gfw_events_n
             )
         )
     return rows
@@ -609,6 +611,7 @@ def compute_fleet_archive_metrics(
         "row_count": 0,
         "terrestrial_covered_n": 0,
         "vf_verified_n": 0,
+        "gfw_verified_n": 0,
         "gap_24h_n": 0,
         "gap_48h_n": 0,
         "source_none_n": 0,
@@ -625,6 +628,12 @@ def compute_fleet_archive_metrics(
     conn = sqlite3.connect(str(db), timeout=15.0)
     try:
         ensure_schema(conn)
+        try:
+            from services.gfw_events import ensure_gfw_schema
+
+            ensure_gfw_schema(conn)
+        except Exception:  # noqa: BLE001
+            pass
         cur = conn.execute(
             "SELECT COUNT(*) FROM vessel_daily_archive WHERE snapshot_date = ?",
             (day_s,),
@@ -636,25 +645,32 @@ def compute_fleet_archive_metrics(
         # Prefer new provenance columns; fall back gracefully
         cols = {str(r[1]) for r in conn.execute("PRAGMA table_info(vessel_daily_archive)").fetchall()}
         if "source" in cols:
+            gfw_expr = (
+                "SUM(CASE WHEN COALESCE(gfw_verified, 0) = 1 THEN 1 ELSE 0 END)"
+                if "gfw_verified" in cols
+                else "0"
+            )
             cur = conn.execute(
-                """
+                f"""
                 SELECT
                   SUM(CASE WHEN source = 'terrestrial_ais' THEN 1 ELSE 0 END),
                   SUM(CASE WHEN vf_verified = 1 OR source = 'vf_api' THEN 1 ELSE 0 END),
                   SUM(CASE WHEN gap_hours IS NOT NULL AND gap_hours > 24 THEN 1 ELSE 0 END),
                   SUM(CASE WHEN gap_hours IS NOT NULL AND gap_hours > 48 THEN 1 ELSE 0 END),
-                  SUM(CASE WHEN source = 'none' THEN 1 ELSE 0 END)
+                  SUM(CASE WHEN source = 'none' THEN 1 ELSE 0 END),
+                  {gfw_expr}
                 FROM vessel_daily_archive
                 WHERE snapshot_date = ?
                 """,
                 (day_s,),
             )
-            row = cur.fetchone() or (0, 0, 0, 0, 0)
+            row = cur.fetchone() or (0, 0, 0, 0, 0, 0)
             metrics["terrestrial_covered_n"] = int(row[0] or 0)
             metrics["vf_verified_n"] = int(row[1] or 0)
             metrics["gap_24h_n"] = int(row[2] or 0)
             metrics["gap_48h_n"] = int(row[3] or 0)
             metrics["source_none_n"] = int(row[4] or 0)
+            metrics["gfw_verified_n"] = int(row[5] or 0)
     finally:
         conn.close()
 

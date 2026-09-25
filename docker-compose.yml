@@ -41,6 +41,9 @@ x-sentinel-env: &sentinel-env
   NASDAQ_DATA_KEY: ${NASDAQ_DATA_KEY:-}
   BREVO_API_KEY: ${BREVO_API_KEY:-}
   BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL:-}
+  # Optional GFW Events verification (not part of OOB 7-key registry)
+  GFW_API_TOKEN: ${GFW_API_TOKEN:-}
+  GFW_API_KEY: ${GFW_API_KEY:-}
 
 x-sentinel-base: &sentinel-base
   build:

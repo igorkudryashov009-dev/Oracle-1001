@@ -5,8 +5,10 @@
 ### Fixed
 - **Terrestrial→archive linkage**: `archive_snapshot_worker.load_latest_ais` now indexes `ais_positions` by **MMSI primary** (`MAX(id)` per MMSI; IMO fallback). Closes empty `terrestrial_covered_n` when health reports yesterday's day. No synthetic positions.
 - **Health latency**: `fleet_archive` metrics cached TTL 3600s (invalidate on snapshot write); avoids pandas `load_fleet_rows` on every `/api/v1/health`.
+- **Test hygiene**: `c08_speed_spectrum` assert aligned to 6 SOG bins; OSINT uppercase test accepts L8 `SANCTIONS_TAGS` side-channel beside 20 ТЗ core keys.
 
 ### Added
+- **GFW Events verification plane (`services/gfw_events.py`)**: optional `GFW_API_TOKEN`; gap_48h batch ≤20/day; `vessel_gfw_events` + `gfw_verified` / `gfw_events_n` on daily archive; health `gfw_status` / `gfw_budget` (daily_cap 500, ≤2 rps). Does **not** overwrite `terrestrial_ais`/`vf_api` source. Free non-commercial GFW — Dual Gate untouched.
 - **VF-500 Optimal Allocator (`services/vf_budget_allocator.py`)**: 60/40 split (300 top-500 DWT / 200 rest); daily quota 16 (10+6); weekly cap 112 with rollover; P1 gap / P2 hotlist / P3 round-robin; rolling coverage ≥1 hit / 50d (top) and / 114d (rest). Error/empty VF responses do not bill credits (`refund_spend` / no `record_spend`).
 - **Full-fleet daily archive provenance**: `vessel_daily_archive` columns `source∈{terrestrial_ais,vf_api,none}`, `lat/lon/cog`, `gap_hours`, `in_sts_zone`, `spoof_flag`, `vf_verified` — no interpolated positions. Health block `fleet_archive` (completeness, gaps, `vf_budget` tier_split 300/200) — **does not** feed Dual Gate `fleet_sample_status`.
 - **Tests**: `tests/test_vf_allocator_archive.py` (budget cap, rolling coverage, 1260-row day, Dual Gate lock) — 17 pytest with Sections II–V.

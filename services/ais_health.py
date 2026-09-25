@@ -499,6 +499,16 @@ def build_health_document(
     except Exception:  # noqa: BLE001
         pass
 
+    # Global Fishing Watch Events (free verification plane — optional token).
+    try:
+        from services.gfw_events import get_budget_status as gfw_budget_status
+        from services.gfw_events import gfw_status
+
+        doc["gfw_status"] = gfw_status()
+        doc["gfw_budget"] = gfw_budget_status()
+    except Exception:  # noqa: BLE001
+        pass
+
     # Full-fleet daily archive reporting (does NOT feed Dual Gate fleet_sample).
     try:
         from services.archive_snapshot_worker import compute_fleet_archive_metrics
