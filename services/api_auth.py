@@ -228,6 +228,31 @@ def _rate_limit_check(bucket: str) -> dict[str, Any]:
         return {"ok": True, "retry_after": 0}
 
 
+def _redact_internal_paths(obj: Any) -> Any:
+    """Recursively redact container/host absolute paths for non-admin callers."""
+    if isinstance(obj, dict):
+        out: dict[str, Any] = {}
+        for k, v in obj.items():
+            kl = str(k).lower()
+            if kl.endswith("_path") or kl.endswith("_file") or "path" in kl or kl.endswith("_report"):
+                if isinstance(v, str) and (
+                    "/app/" in v
+                    or v.startswith("/")
+                    or (len(v) > 2 and v[1] == ":" and v[0].isalpha())
+                ):
+                    out[k] = "[redacted]"
+                    continue
+            out[k] = _redact_internal_paths(v)
+        return out
+    if isinstance(obj, list):
+        return [_redact_internal_paths(v) for v in obj]
+    if isinstance(obj, str):
+        if "/app/" in obj or (len(obj) > 3 and obj[1] == ":" and obj[0].isalpha() and ("\\" in obj or "/" in obj)):
+            return "[redacted]"
+        return obj
+    return obj
+
+
 def sanitize_health(doc: dict[str, Any], *, tier: str) -> dict[str, Any]:
     """Return health payload appropriate for caller tier."""
     if tier == "admin":
@@ -276,7 +301,8 @@ def sanitize_health(doc: dict[str, Any], *, tier: str) -> dict[str, Any]:
         out["replica"] = rep
     # llm_budget admin-only; keep llm_status
     out.pop("llm_budget", None)
-    return out
+    # acceptance.commissioning_report and any leftover /app/ paths
+    return _redact_internal_paths(out)
 
 
 def upsert_key_into_env_map(

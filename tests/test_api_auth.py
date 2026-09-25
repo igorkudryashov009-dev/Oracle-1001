@@ -75,6 +75,18 @@ def test_legacy_contract_version_readonly(monkeypatch: pytest.MonkeyPatch) -> No
     assert doc["fleet_archive"]["gfw_verified_n"] == 20
     assert "vf_budget" not in doc["fleet_archive"]
     assert doc["replica"]["db_path"] == "[redacted]"
+    # Nested absolute paths (e.g. acceptance.commissioning_report) stay redacted
+    nested = sanitize_health(
+        {
+            "acceptance": {
+                "status": "GREEN",
+                "commissioning_report": "/app/output/commissioning_report.json",
+            }
+        },
+        tier="readonly",
+    )
+    assert "/app/" not in json.dumps(nested)
+    assert nested["acceptance"]["commissioning_report"] == "[redacted]"
 
 
 def test_admin_key_keeps_budget(monkeypatch: pytest.MonkeyPatch) -> None:
