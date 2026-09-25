@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-09-25T11:39:38Z",
+  "generated_at": "2026-09-25T12:43:02Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -60,8 +60,8 @@
         "web/js/archive_sheet.js"
       ],
       "resolved_path": "output/js/archive_sheet.js",
-      "sha256": "d2edca1c068cb3a7829353bd30653e8fbe63b3cbb754ae4ac30225fda1a61ea9",
-      "bytes": 13809,
+      "sha256": "167534e02151d0c38c89b5429a6cf18e825a45c7597e3c8887cfb7d9d0656bd5",
+      "bytes": 13888,
       "critical": false
     },
     {
@@ -229,8 +229,8 @@
         "web/js/sentinel_engine.js"
       ],
       "resolved_path": "output/js/sentinel_engine.js",
-      "sha256": "65cf1518b8c1cb3182792fc7fda99ea2afd4ea285c99488b84466d479912209f",
-      "bytes": 51751,
+      "sha256": "bf73042a580d1fa644c5561d93912964c6138d1197776dca24727d94d398f7fc",
+      "bytes": 51833,
       "critical": true
     },
     {
@@ -476,8 +476,8 @@
         "services/ais_health.py"
       ],
       "resolved_path": "services/ais_health.py",
-      "sha256": "17b4079d46d0a8d19a7575eac1e3d0a96105793b7aa0ab330bb64306b1f1ba77",
-      "bytes": 21503,
+      "sha256": "b76986439b01f6c9210148afe27fdda31562196e922e1d8eedafc135bf5aa82d",
+      "bytes": 25029,
       "critical": true
     },
     {
@@ -536,8 +536,8 @@
         "services/alerts.py"
       ],
       "resolved_path": "services/alerts.py",
-      "sha256": "5ad3cbc08668dd288082d16153d150eda5ff8d882449d67d558400ed5d11aaa7",
-      "bytes": 7744,
+      "sha256": "98a2bec4ba6250e8efb48a7c7fb749dc0243763a671d88c1a7456d09e055f4ea",
+      "bytes": 9338,
       "critical": false
     },
     {
@@ -562,6 +562,18 @@
       "resolved_path": "services/analytics.py",
       "sha256": "c51c217cfa60352c4efaed307db4ed91ca0a8f8c8133ed3d12ccfcbc8015f1ce",
       "bytes": 13797,
+      "critical": false
+    },
+    {
+      "name": "api_auth.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/api_auth.py"
+      ],
+      "resolved_path": "services/api_auth.py",
+      "sha256": "3d4f70b327aa3e7852b9ee7ffed83a4e05d945619eefc8b790133b34ad346b79",
+      "bytes": 9066,
       "critical": false
     },
     {
@@ -764,8 +776,8 @@
         "services/job_log.py"
       ],
       "resolved_path": "services/job_log.py",
-      "sha256": "2c7164f1426997264c1bfc8170cdf22e1660918ea220d39cfc7481e027ded2ea",
-      "bytes": 9175,
+      "sha256": "3483ff4b41121c81af35be0fd4a1d5ccce34f6a32db2b5840cae472e2bd4f856",
+      "bytes": 9368,
       "critical": false
     },
     {
@@ -790,6 +802,18 @@
       "resolved_path": "services/key_manager.py",
       "sha256": "e6e79036a5d821e5197cc207f171ec749215568b9362c0e19bdeb17e001e8c68",
       "bytes": 16364,
+      "critical": false
+    },
+    {
+      "name": "llm_router.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/llm_router.py"
+      ],
+      "resolved_path": "services/llm_router.py",
+      "sha256": "0179d0abb437050c1a60440c5eec6a302f5fb75b25b357ac06f0afd1b613017c",
+      "bytes": 10645,
       "critical": false
     },
     {
@@ -968,8 +992,8 @@
         "services/scheduler.py"
       ],
       "resolved_path": "services/scheduler.py",
-      "sha256": "6791630b86dff599ce880ebee91befcd59e48af832df241e899b1e98dc5cee9c",
-      "bytes": 8773,
+      "sha256": "b37183e75d2b4dec2f15dc36e073d91c8956748afc858a545f0b533a343abe03",
+      "bytes": 8943,
       "critical": false
     },
     {
@@ -1566,8 +1590,8 @@
     {
       "web": "web/js/archive_sheet.js",
       "output": "output/js/archive_sheet.js",
-      "web_sha256": "d2edca1c068cb3a7829353bd30653e8fbe63b3cbb754ae4ac30225fda1a61ea9",
-      "output_sha256": "d2edca1c068cb3a7829353bd30653e8fbe63b3cbb754ae4ac30225fda1a61ea9",
+      "web_sha256": "167534e02151d0c38c89b5429a6cf18e825a45c7597e3c8887cfb7d9d0656bd5",
+      "output_sha256": "167534e02151d0c38c89b5429a6cf18e825a45c7597e3c8887cfb7d9d0656bd5",
       "match": true
     },
     {
@@ -1657,8 +1681,8 @@
     {
       "web": "web/js/sentinel_engine.js",
       "output": "output/js/sentinel_engine.js",
-      "web_sha256": "65cf1518b8c1cb3182792fc7fda99ea2afd4ea285c99488b84466d479912209f",
-      "output_sha256": "65cf1518b8c1cb3182792fc7fda99ea2afd4ea285c99488b84466d479912209f",
+      "web_sha256": "bf73042a580d1fa644c5561d93912964c6138d1197776dca24727d94d398f7fc",
+      "output_sha256": "bf73042a580d1fa644c5561d93912964c6138d1197776dca24727d94d398f7fc",
       "match": true
     },
     {
