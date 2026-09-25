@@ -471,7 +471,8 @@ def fetch_events_for_imo(
 
     body = {
         "datasets": list(EVENT_DATASETS),
-        "vessels": [{"id": vessel_id}],
+        # GFW v3: vessels must be string ids (objects → 422)
+        "vessels": [str(vessel_id)],
         "startDate": start_s,
         "endDate": end_s,
     }
@@ -491,6 +492,9 @@ def fetch_events_for_imo(
         ok = status < 400 and not (
             isinstance(data, dict) and data.get("error")
         )
+        # 201 Created is success for events POST
+        if status == 201:
+            ok = True
         _record_call(
             ok=ok,
             detail=None if ok else f"events http_{status}",
