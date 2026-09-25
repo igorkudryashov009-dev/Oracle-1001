@@ -50,10 +50,23 @@ FLEET_ARCHIVE_CACHE_TTL_SEC = 3600.0
 _FLEET_ARCHIVE_LOCK = threading.Lock()
 _FLEET_ARCHIVE_CACHE: dict[str, Any] = {"ts": 0.0, "key": None, "payload": None}
 _EXPECTED_N_CACHE: dict[str, Any] = {"ts": 0.0, "n": None}
+_CACHE_EPOCH_PATH = ROOT / "data" / "cache" / "fleet_archive_cache.epoch"
+
+
+def _fleet_archive_epoch() -> float:
+    try:
+        return float(_CACHE_EPOCH_PATH.stat().st_mtime)
+    except OSError:
+        return 0.0
 
 
 def invalidate_fleet_archive_cache() -> None:
-    """Call after take_daily_snapshot writes a new day."""
+    """Call after take_daily_snapshot writes a new day (cross-process via epoch file)."""
+    try:
+        _CACHE_EPOCH_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _CACHE_EPOCH_PATH.write_text(f"{time.time():.6f}\n", encoding="utf-8")
+    except OSError:
+        pass
     with _FLEET_ARCHIVE_LOCK:
         _FLEET_ARCHIVE_CACHE["ts"] = 0.0
         _FLEET_ARCHIVE_CACHE["key"] = None
@@ -573,7 +586,8 @@ def compute_fleet_archive_metrics(
     yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
     day_s = day or yesterday
     exp = _cached_expected_n(expected_n=expected_n)
-    cache_key = f"{db.resolve()}|{day_s}|{exp}"
+    epoch = _fleet_archive_epoch()
+    cache_key = f"{db.resolve()}|{day_s}|{exp}|{epoch}"
 
     if not bypass_cache:
         now = time.monotonic()
