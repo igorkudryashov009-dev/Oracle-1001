@@ -20,6 +20,8 @@ import json
 import os
 import sqlite3
 import sys
+import threading
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -42,6 +44,22 @@ FLEET_CSV = ROOT / "output" / "fleet_database.csv"
 ARCHIVE_OUT = ROOT / "output" / "archive"
 LIVE_AIS_FRESH_HOURS = 24.0
 LIVE_AIS_STALE_HOURS = 168.0  # 7d
+
+# Health embeds fleet_archive — never re-scan CSV / archive table every request.
+FLEET_ARCHIVE_CACHE_TTL_SEC = 3600.0
+_FLEET_ARCHIVE_LOCK = threading.Lock()
+_FLEET_ARCHIVE_CACHE: dict[str, Any] = {"ts": 0.0, "key": None, "payload": None}
+_EXPECTED_N_CACHE: dict[str, Any] = {"ts": 0.0, "n": None}
+
+
+def invalidate_fleet_archive_cache() -> None:
+    """Call after take_daily_snapshot writes a new day."""
+    with _FLEET_ARCHIVE_LOCK:
+        _FLEET_ARCHIVE_CACHE["ts"] = 0.0
+        _FLEET_ARCHIVE_CACHE["key"] = None
+        _FLEET_ARCHIVE_CACHE["payload"] = None
+        _EXPECTED_N_CACHE["ts"] = 0.0
+        _EXPECTED_N_CACHE["n"] = None
 
 
 def _db_path() -> Path:
@@ -112,51 +130,74 @@ def load_fleet_rows(csv_path: Path = FLEET_CSV, *, target_n: int = TARGET_FLEET_
     return df.to_dict(orient="records")
 
 
-def load_latest_ais(conn: sqlite3.Connection) -> dict[str, dict[str, Any]]:
-    """Latest ais_positions row keyed by IMO string (real telemetry only)."""
+def _norm_id_str(v: Any) -> Optional[str]:
+    """Normalize MMSI/IMO to digit string (strip .0 / whitespace); no leading-zero invent)."""
+    i = _to_int(v)
+    if i is None:
+        return None
+    return str(i)
+
+
+def load_latest_ais_overlays(
+    conn: sqlite3.Connection,
+) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
+    """Latest ais_positions: primary index MMSI, IMO fallback index.
+
+    Uses MAX(id) per MMSI (same pattern as storage.fetch_latest_positions_for_mmsis)
+    — avoids brittle COALESCE(timestamp) joins that can drop or duplicate rows.
+    """
+    by_mmsi: dict[str, dict[str, Any]] = {}
+    by_imo: dict[str, dict[str, Any]] = {}
     try:
-        # Prefer lat/lon columns when present
         cols = {str(r[1]) for r in conn.execute("PRAGMA table_info(ais_positions)").fetchall()}
-        has_lat = "lat" in cols or "latitude" in cols
+        if "mmsi" not in cols:
+            return by_mmsi, by_imo
+        has_id = "id" in cols
         lat_col = "lat" if "lat" in cols else ("latitude" if "latitude" in cols else None)
         lon_col = "lon" if "lon" in cols else ("longitude" if "longitude" in cols else None)
         cog_col = "cog" if "cog" in cols else ("course" if "course" in cols else None)
-        select_extra = []
-        if lat_col:
-            select_extra.append(f"p.{lat_col} AS lat")
-        else:
-            select_extra.append("NULL AS lat")
-        if lon_col:
-            select_extra.append(f"p.{lon_col} AS lon")
-        else:
-            select_extra.append("NULL AS lon")
-        if cog_col:
-            select_extra.append(f"p.{cog_col} AS cog")
-        else:
-            select_extra.append("NULL AS cog")
+        select_extra = [
+            f"p.{lat_col} AS lat" if lat_col else "NULL AS lat",
+            f"p.{lon_col} AS lon" if lon_col else "NULL AS lon",
+            f"p.{cog_col} AS cog" if cog_col else "NULL AS cog",
+        ]
         extra_sql = ", ".join(select_extra)
-        cur = conn.execute(
-            f"""
+        if has_id:
+            join_sql = f"""
             SELECT p.imo, p.mmsi, p.vessel_name, p.sog, p.nav_status, p.draft_m,
                    p.destination, p.timestamp_utc, p.received_at, {extra_sql}
             FROM ais_positions p
             INNER JOIN (
-                SELECT imo AS _imo, MAX(COALESCE(received_at, timestamp_utc)) AS mx
+                SELECT mmsi AS _m, MAX(id) AS mid
                 FROM ais_positions
-                WHERE imo IS NOT NULL AND TRIM(imo) != ''
-                GROUP BY imo
-            ) t ON p.imo = t._imo AND COALESCE(p.received_at, p.timestamp_utc) = t.mx
+                WHERE mmsi IS NOT NULL AND TRIM(CAST(mmsi AS TEXT)) != ''
+                GROUP BY mmsi
+            ) t ON p.id = t.mid
             """
-        )
+        else:
+            # Tests / minimal schemas without id — latest by timestamp per MMSI.
+            join_sql = f"""
+            SELECT p.imo, p.mmsi, p.vessel_name, p.sog, p.nav_status, p.draft_m,
+                   p.destination, p.timestamp_utc, p.received_at, {extra_sql}
+            FROM ais_positions p
+            INNER JOIN (
+                SELECT mmsi AS _m, MAX(COALESCE(received_at, timestamp_utc)) AS mx
+                FROM ais_positions
+                WHERE mmsi IS NOT NULL AND TRIM(CAST(mmsi AS TEXT)) != ''
+                GROUP BY mmsi
+            ) t ON p.mmsi = t._m AND COALESCE(p.received_at, p.timestamp_utc) = t.mx
+            """
+        cur = conn.execute(join_sql)
     except sqlite3.Error:
-        return {}
-    out: dict[str, dict[str, Any]] = {}
+        return by_mmsi, by_imo
+
     for row in cur.fetchall():
-        imo = str(row[0] or "").strip()
-        if not imo:
+        mmsi_key = _norm_id_str(row[1])
+        if not mmsi_key:
             continue
-        out[imo] = {
+        rec = {
             "mmsi": row[1],
+            "imo": row[0],
             "vessel_name": row[2],
             "sog": row[3],
             "nav_status": row[4],
@@ -169,7 +210,17 @@ def load_latest_ais(conn: sqlite3.Connection) -> dict[str, dict[str, Any]]:
             "cog": row[11],
             "source": "terrestrial_ais",
         }
-    return out
+        by_mmsi[mmsi_key] = rec
+        imo_key = _norm_id_str(row[0])
+        if imo_key:
+            by_imo[imo_key] = rec
+    return by_mmsi, by_imo
+
+
+def load_latest_ais(conn: sqlite3.Connection) -> dict[str, dict[str, Any]]:
+    """Backward-compatible: latest AIS keyed by IMO string (built via MMSI-primary)."""
+    _by_mmsi, by_imo = load_latest_ais_overlays(conn)
+    return by_imo
 
 
 def load_vf_overlays(conn: sqlite3.Connection, snapshot_date: str) -> dict[str, dict[str, Any]]:
@@ -257,9 +308,11 @@ def build_snapshot_rows(
     *,
     now: datetime | None = None,
     vf_by_imo: dict[str, dict[str, Any]] | None = None,
+    ais_by_mmsi: dict[str, dict[str, Any]] | None = None,
 ) -> list[tuple[Any, ...]]:
     now = now or datetime.now(timezone.utc)
     vf_by_imo = vf_by_imo or {}
+    ais_by_mmsi = ais_by_mmsi or {}
     spoofed = _load_spoof_imos()
     rows: list[tuple[Any, ...]] = []
     for rec in fleet:
@@ -267,13 +320,23 @@ def build_snapshot_rows(
         if imo is None:
             continue
         imo_key = str(imo)
-        live = ais_by_imo.get(imo_key) or ais_by_imo.get(imo_key.zfill(7)) or {}
+        mmsi_key = _norm_id_str(rec.get("mmsi"))
+        # Primary: MMSI from fleet registry ↔ ais_positions; IMO as fallback.
+        live: dict[str, Any] = {}
+        if mmsi_key:
+            live = ais_by_mmsi.get(mmsi_key) or {}
+        if not live:
+            live = (
+                ais_by_imo.get(imo_key)
+                or ais_by_imo.get(imo_key.zfill(7))
+                or {}
+            )
         vf = vf_by_imo.get(imo_key) or {}
 
         # Provenance: prefer fresh terrestrial, else VF verification, else none.
         # Never invent lat/lon.
         source = "none"
-        pos = {}
+        pos: dict[str, Any] = {}
         if live and _gap_hours(live.get("received_at") or live.get("timestamp_utc"), now=now) <= LIVE_AIS_STALE_HOURS:
             source = "terrestrial_ais"
             pos = live
@@ -445,9 +508,11 @@ def take_daily_snapshot(
     conn = sqlite3.connect(str(db), timeout=30.0)
     try:
         ensure_schema(conn)
-        ais = load_latest_ais(conn)
+        ais_by_mmsi, ais_by_imo = load_latest_ais_overlays(conn)
         vf = load_vf_overlays(conn, day)
-        rows = build_snapshot_rows(fleet, ais, day, vf_by_imo=vf)
+        rows = build_snapshot_rows(
+            fleet, ais_by_imo, day, vf_by_imo=vf, ais_by_mmsi=ais_by_mmsi
+        )
         n = upsert_snapshot(conn, rows)
         cur = conn.execute(
             "SELECT COUNT(*) FROM vessel_daily_archive WHERE snapshot_date = ?", (day,)
@@ -456,6 +521,7 @@ def take_daily_snapshot(
     finally:
         conn.close()
 
+    invalidate_fleet_archive_cache()
     manifest = export_snapshot_artifacts(rows, day) if export else {}
     return {
         "ok": True,
@@ -464,10 +530,30 @@ def take_daily_snapshot(
         "fleet_source_rows": len(fleet),
         "upserted": n,
         "stored_for_date": stored,
-        "live_ais_overlay": len(ais),
+        "live_ais_overlay": len(ais_by_mmsi),
+        "live_ais_overlay_imo": len(ais_by_imo),
         "vf_overlay": len(vf),
         "manifest": manifest,
     }
+
+
+def _cached_expected_n(*, expected_n: int | None = None) -> int:
+    if expected_n is not None:
+        return int(expected_n)
+    now = time.monotonic()
+    with _FLEET_ARCHIVE_LOCK:
+        cached_n = _EXPECTED_N_CACHE.get("n")
+        cached_ts = float(_EXPECTED_N_CACHE.get("ts") or 0.0)
+        if cached_n is not None and (now - cached_ts) < FLEET_ARCHIVE_CACHE_TTL_SEC:
+            return int(cached_n)
+    try:
+        n = len(load_fleet_rows(target_n=TARGET_FLEET_N))
+    except Exception:  # noqa: BLE001
+        n = int(TARGET_FLEET_N)
+    with _FLEET_ARCHIVE_LOCK:
+        _EXPECTED_N_CACHE["n"] = int(n)
+        _EXPECTED_N_CACHE["ts"] = now
+    return int(n)
 
 
 def compute_fleet_archive_metrics(
@@ -475,18 +561,32 @@ def compute_fleet_archive_metrics(
     db_path: Path | None = None,
     day: str | None = None,
     expected_n: int | None = None,
+    bypass_cache: bool = False,
 ) -> dict[str, Any]:
-    """Reporting block for /api/v1/health — does NOT feed Dual Gate sample logic."""
+    """Reporting block for /api/v1/health — does NOT feed Dual Gate sample logic.
+
+    Cached for FLEET_ARCHIVE_CACHE_TTL_SEC (default 3600). Invalidated on snapshot write.
+    """
     from services.vf_budget_allocator import allocator_status
 
     db = Path(db_path or _db_path())
     yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
     day_s = day or yesterday
-    try:
-        universe_n = len(load_fleet_rows(target_n=TARGET_FLEET_N))
-    except Exception:  # noqa: BLE001
-        universe_n = TARGET_FLEET_N
-    exp = int(expected_n) if expected_n is not None else int(universe_n or TARGET_FLEET_N)
+    exp = _cached_expected_n(expected_n=expected_n)
+    cache_key = f"{db.resolve()}|{day_s}|{exp}"
+
+    if not bypass_cache:
+        now = time.monotonic()
+        with _FLEET_ARCHIVE_LOCK:
+            if (
+                _FLEET_ARCHIVE_CACHE.get("payload") is not None
+                and _FLEET_ARCHIVE_CACHE.get("key") == cache_key
+                and (now - float(_FLEET_ARCHIVE_CACHE.get("ts") or 0.0))
+                < FLEET_ARCHIVE_CACHE_TTL_SEC
+            ):
+                cached = dict(_FLEET_ARCHIVE_CACHE["payload"])
+                cached["cache_hit"] = True
+                return cached
 
     metrics: dict[str, Any] = {
         "snapshot_date": day_s,
@@ -501,6 +601,8 @@ def compute_fleet_archive_metrics(
         "vf_budget": allocator_status(),
         "feeds_fleet_sample": False,
         "note": "Archive reporting only — Dual Gate fleet_sample uses live 540s window",
+        "cache_hit": False,
+        "cache_ttl_sec": FLEET_ARCHIVE_CACHE_TTL_SEC,
     }
     if not db.is_file():
         metrics["error"] = "db_missing"
@@ -541,6 +643,12 @@ def compute_fleet_archive_metrics(
             metrics["source_none_n"] = int(row[4] or 0)
     finally:
         conn.close()
+
+    if not bypass_cache:
+        with _FLEET_ARCHIVE_LOCK:
+            _FLEET_ARCHIVE_CACHE["ts"] = time.monotonic()
+            _FLEET_ARCHIVE_CACHE["key"] = cache_key
+            _FLEET_ARCHIVE_CACHE["payload"] = dict(metrics)
     return metrics
 
 

@@ -156,6 +156,7 @@ def test_daily_archive_exactly_1260_with_source(tmp_path: Path) -> None:
     conn.execute(
         """
         CREATE TABLE ais_positions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             imo TEXT, mmsi TEXT, vessel_name TEXT, sog REAL, nav_status TEXT,
             draft_m REAL, destination TEXT, timestamp_utc TEXT, received_at TEXT,
             lat REAL, lon REAL, cog REAL
@@ -194,6 +195,117 @@ def test_daily_archive_exactly_1260_with_source(tmp_path: Path) -> None:
     for c in ARCHIVE_COLUMNS:
         assert c in cols
     conn.close()
+
+
+def test_terrestrial_linkage_by_mmsi_primary(tmp_path: Path) -> None:
+    """MMSI-primary overlay: matching MMSI → terrestrial_ais; miss → none; 1 row/IMO/day."""
+    from services.archive_schema import ARCHIVE_COLUMNS
+    from services.archive_snapshot_worker import (
+        invalidate_fleet_archive_cache,
+        take_daily_snapshot,
+    )
+
+    fleet = _make_fleet_csv(tmp_path / "fleet.csv", 20)
+    db = tmp_path / "sentinel_ais.db"
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    conn = sqlite3.connect(str(db))
+    conn.execute(
+        """
+        CREATE TABLE ais_positions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            imo TEXT, mmsi TEXT, vessel_name TEXT, sog REAL, nav_status TEXT,
+            draft_m REAL, destination TEXT, timestamp_utc TEXT, received_at TEXT,
+            lat REAL, lon REAL, cog REAL
+        )
+        """
+    )
+    # Vessel 0: MMSI match, IMO intentionally empty (regression for IMO-only join)
+    conn.execute(
+        "INSERT INTO ais_positions (imo,mmsi,vessel_name,sog,nav_status,draft_m,destination,"
+        "timestamp_utc,received_at,lat,lon,cog) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("", "200000000", "LIVE 1", 12.0, "Under way", 11.0, "DOHA", now, now, 25.1, 55.2, 90.0),
+    )
+    # Vessel 1: both MMSI+IMO present
+    conn.execute(
+        "INSERT INTO ais_positions (imo,mmsi,vessel_name,sog,nav_status,draft_m,destination,"
+        "timestamp_utc,received_at,lat,lon,cog) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("9000001", "200000001", "LIVE 2", 10.0, "Under way", 10.0, "RAS LAFFAN", now, now, 26.0, 51.5, 180.0),
+    )
+    # Noise MMSI not in fleet
+    conn.execute(
+        "INSERT INTO ais_positions (imo,mmsi,vessel_name,sog,nav_status,draft_m,destination,"
+        "timestamp_utc,received_at,lat,lon,cog) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("9999999", "299999999", "NOISE", 1.0, "At anchor", 9.0, "X", now, now, 1.0, 2.0, 0.0),
+    )
+    conn.commit()
+    conn.close()
+
+    day = "2026-09-24"
+    invalidate_fleet_archive_cache()
+    result = take_daily_snapshot(
+        snapshot_date=day,
+        db_path=db,
+        fleet_csv=fleet,
+        export=False,
+        target_n=20,
+    )
+    assert result["ok"] is True
+    assert result["live_ais_overlay"] >= 2
+
+    conn = sqlite3.connect(str(db))
+    rows = conn.execute(
+        "SELECT imo, mmsi, source, lat, lon FROM vessel_daily_archive WHERE snapshot_date = ? ORDER BY imo",
+        (day,),
+    ).fetchall()
+    assert len(rows) == 20
+    by_imo = {int(r[0]): r for r in rows}
+    # MMSI-only AIS row linked
+    assert by_imo[9000000][2] == "terrestrial_ais"
+    assert by_imo[9000000][3] == 25.1 and by_imo[9000000][4] == 55.2
+    assert by_imo[9000001][2] == "terrestrial_ais"
+    # Unmatched stay none with null coords
+    assert by_imo[9000002][2] == "none"
+    assert by_imo[9000002][3] is None and by_imo[9000002][4] is None
+    # No duplicate IMOs for the day
+    imos = [r[0] for r in rows]
+    assert len(imos) == len(set(imos))
+    conn.close()
+
+
+def test_fleet_archive_metrics_cache(tmp_path: Path) -> None:
+    from services.archive_snapshot_worker import (
+        compute_fleet_archive_metrics,
+        invalidate_fleet_archive_cache,
+        take_daily_snapshot,
+    )
+
+    fleet = _make_fleet_csv(tmp_path / "fleet.csv", 30)
+    db = tmp_path / "sentinel_ais.db"
+    conn = sqlite3.connect(str(db))
+    conn.execute(
+        """
+        CREATE TABLE ais_positions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            imo TEXT, mmsi TEXT, vessel_name TEXT, sog REAL, nav_status TEXT,
+            draft_m REAL, destination TEXT, timestamp_utc TEXT, received_at TEXT,
+            lat REAL, lon REAL, cog REAL
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
+    day = "2026-09-22"
+    invalidate_fleet_archive_cache()
+    take_daily_snapshot(snapshot_date=day, db_path=db, fleet_csv=fleet, export=False, target_n=30)
+    m1 = compute_fleet_archive_metrics(db_path=db, day=day, expected_n=30)
+    m2 = compute_fleet_archive_metrics(db_path=db, day=day, expected_n=30)
+    assert m1["row_count"] == 30
+    assert m1.get("cache_hit") is False
+    assert m2.get("cache_hit") is True
+    assert m2["archive_completeness_pct"] == 100.0
+    invalidate_fleet_archive_cache()
+    m3 = compute_fleet_archive_metrics(db_path=db, day=day, expected_n=30)
+    assert m3.get("cache_hit") is False
 
 
 def test_archive_no_interpolated_source(tmp_path: Path) -> None:
@@ -239,6 +351,7 @@ def test_dual_gate_thresholds_unchanged() -> None:
 def test_fleet_archive_metrics_block(tmp_path: Path) -> None:
     from services.archive_snapshot_worker import (
         compute_fleet_archive_metrics,
+        invalidate_fleet_archive_cache,
         take_daily_snapshot,
     )
 
@@ -248,6 +361,7 @@ def test_fleet_archive_metrics_block(tmp_path: Path) -> None:
     conn.execute(
         """
         CREATE TABLE ais_positions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             imo TEXT, mmsi TEXT, vessel_name TEXT, sog REAL, nav_status TEXT,
             draft_m REAL, destination TEXT, timestamp_utc TEXT, received_at TEXT,
             lat REAL, lon REAL, cog REAL
@@ -257,8 +371,9 @@ def test_fleet_archive_metrics_block(tmp_path: Path) -> None:
     conn.commit()
     conn.close()
     day = "2026-09-23"
+    invalidate_fleet_archive_cache()
     take_daily_snapshot(snapshot_date=day, db_path=db, fleet_csv=fleet, export=False)
-    m = compute_fleet_archive_metrics(db_path=db, day=day, expected_n=1260)
+    m = compute_fleet_archive_metrics(db_path=db, day=day, expected_n=1260, bypass_cache=True)
     assert m["row_count"] == 1260
     assert m["archive_completeness_pct"] == 100.0
     assert m["feeds_fleet_sample"] is False
