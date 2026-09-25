@@ -170,14 +170,18 @@ print(
 )
 PY
 
-# Intel route smoke (must be 200 after bake — closes Sections II–V 404 drift)
+# Intel route smoke (must be 200 after bake — closes Sections II–V 404 drift).
+# Auth: empty API_KEYS_JSON = bootstrap open; with keys, legacy X-Contract-Version
+# grants readonly for 24h deprecation (HUD/smoke must not require X-API-Key).
 echo "==> intel route smoke"
 for path in \
   /output/api/v1/news/latest \
   /output/api/v1/gis/firms/anomalies \
   /output/api/v1/market/summary
 do
-  code="$(curl -sS -o /tmp/intel_smoke.json -w '%{http_code}' --max-time 20 "http://127.0.0.1:8765${path}" || echo 000)"
+  code="$(curl -sS -o /tmp/intel_smoke.json -w '%{http_code}' --max-time 20 \
+    -H 'X-Contract-Version: 1.8.0-ops-gis-sot' \
+    "http://127.0.0.1:8765${path}" || echo 000)"
   echo "  ${path} -> HTTP ${code}"
   if [[ "${code}" != "200" ]]; then
     echo "ERROR: intel route ${path} expected 200 got ${code}" >&2
