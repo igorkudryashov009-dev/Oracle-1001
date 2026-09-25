@@ -67,6 +67,21 @@ echo -n "Paste key/token (input hidden): "
 IFS= read -r -s KEY_VALUE
 echo
 KEY_VALUE="$(printf '%s' "${KEY_VALUE}" | tr -d '\r\n')"
+# GFW JWT must be exactly 3 segments; repair duplicated payload/sig paste
+if [[ "${ENV_KEY}" == "GFW_API_TOKEN" ]]; then
+  export INSTALL_KEY_VALUE="${KEY_VALUE}"
+  KEY_VALUE="$(
+    ./venv/Scripts/python.exe - <<'PY' 2>/dev/null || python - <<'PY'
+import os
+from services.gfw_events import sanitize_gfw_token
+print(sanitize_gfw_token(os.environ.get("INSTALL_KEY_VALUE") or ""), end="")
+PY
+  )"
+  unset INSTALL_KEY_VALUE
+  segs="${KEY_VALUE//[^.]/}"
+  # segs var = only dots; count = length of dots string + ... use python lens
+  echo "GFW token normalized: len=${#KEY_VALUE} mask=$(mask_last4 "${KEY_VALUE}")"
+fi
 if [[ -z "${KEY_VALUE}" ]]; then
   echo "ERROR: empty key" >&2
   exit 3

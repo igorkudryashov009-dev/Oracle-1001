@@ -93,22 +93,52 @@ def _mask(token: str) -> str:
     return f"****{t[-4:]}"
 
 
+def sanitize_gfw_token(raw: str) -> str:
+    """Normalize GFW JWT: strip junk; repair duplicated payload/sig paste.
+
+    Valid GFW JWT has exactly 3 dot-separated segments. A known corruption
+    (Windows paste / install) yields many segments: header.payload.(payload.sig)*N
+    with the real signature in the *last* segment. Reconstruct
+    header.payload.last_sig — never log the token value.
+    """
+    v = (raw or "").strip().strip('"').strip("'")
+    v = v.replace("\r", "").replace("\n", "").strip()
+    if v.lower().startswith("bearer "):
+        v = v[7:].strip()
+    if not v:
+        return ""
+    segs = v.split(".")
+    if len(segs) == 3:
+        return v
+    if len(segs) > 3 and segs[0].startswith("eyJ") and segs[1] and segs[-1]:
+        repaired = ".".join((segs[0], segs[1], segs[-1]))
+        if repaired.count(".") == 2:
+            LOG.warning(
+                "GFW token sanitized: segments %s→3 len %s→%s mask %s",
+                len(segs),
+                len(v),
+                len(repaired),
+                _mask(repaired),
+            )
+            return repaired
+    return v
+
+
 def resolve_token() -> str:
     try:
         from services.runtime_env import getenv_secret
 
         v = getenv_secret("GFW_API_TOKEN", "GFW_API_KEY", "GLOBAL_FISHING_WATCH_TOKEN")
         if v:
-            return v
+            return sanitize_gfw_token(v)
     except Exception:  # noqa: BLE001
         pass
-    return (
+    return sanitize_gfw_token(
         os.getenv("GFW_API_TOKEN")
         or os.getenv("GFW_API_KEY")
         or os.getenv("GLOBAL_FISHING_WATCH_TOKEN")
         or ""
-    ).strip()
-
+    )
 
 def _day_key(dt: Optional[datetime] = None) -> str:
     return (dt or _utc_now()).strftime("%Y-%m-%d")
@@ -299,13 +329,14 @@ def _resolve_vessel_id(imo: str, token: str, *, timeout: float = 30.0) -> tuple[
     """
     _rate_limit()
     try:
+        # GFW requires datasets[0]=… bracket form; flat datasets= yields 403.
         resp = requests.get(
             GFW_VESSELS_SEARCH_URL,
-            params={
-                "query": imo,
-                "datasets": VESSEL_IDENTITY_DATASET,
-                "limit": 5,
-            },
+            params=[
+                ("query", imo),
+                ("datasets[0]", VESSEL_IDENTITY_DATASET),
+                ("limit", 5),
+            ],
             headers=_auth_headers(token),
             timeout=timeout,
         )
@@ -350,7 +381,7 @@ def fetch_events_for_imo(
     imo_s = str(imo).strip()
     if not imo_s.isdigit():
         raise ValueError(f"invalid IMO: {imo!r}")
-    tok = (token or resolve_token()).strip()
+    tok = sanitize_gfw_token(token or resolve_token())
     if not tok:
         return {
             "ok": False,

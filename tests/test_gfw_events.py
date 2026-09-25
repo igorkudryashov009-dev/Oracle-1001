@@ -104,6 +104,24 @@ def test_resolve_token_prefers_gfw_api_token(monkeypatch: pytest.MonkeyPatch) ->
     assert resolve_token() == ""
 
 
+def test_sanitize_repairs_duplicated_jwt_segments(monkeypatch: pytest.MonkeyPatch) -> None:
+    """15-seg corrupt paste → header.payload.last_sig (3 segs)."""
+    from services.gfw_events import sanitize_gfw_token
+
+    hdr = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtpZEtleSJ9"
+    pay = "eyJpc3MiOiJnZnciLCJhdWQiOiJnZnciLCJpYXQiOjEsImV4cCI6OTk5fQ"
+    sig_bad = "b" * 50
+    sig_good = "c" * 40
+    # header.payload.sig_bad.payload.sig_bad.payload.sig_good  (7 segs)
+    corrupt = ".".join([hdr, pay, sig_bad, pay, sig_bad, pay, sig_good])
+    fixed = sanitize_gfw_token(corrupt)
+    assert fixed.count(".") == 2
+    assert fixed == ".".join([hdr, pay, sig_good])
+    assert fixed.endswith(sig_good)
+    monkeypatch.setenv("GFW_API_TOKEN", corrupt + "\r")
+    assert resolve_token() == fixed
+
+
 def test_auth_401_does_not_verify(monkeypatch: pytest.MonkeyPatch) -> None:
     """401 on vessel search must not flag gfw_verified / must not look like success."""
     monkeypatch.setenv("GFW_API_TOKEN", "deadtoken_for_unit_test_xxxx")
