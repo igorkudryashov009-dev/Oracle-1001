@@ -143,7 +143,10 @@ def log_job_finish(
 
 def last_job_run(job_name: str) -> dict[str, Any] | None:
     ensure_job_log_schema()
-    conn = sqlite3.connect(f"file:{_db_path()}?mode=ro", uri=True)
+    try:
+        conn = sqlite3.connect(f"file:{_db_path()}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return None
     try:
         row = conn.execute(
             """
@@ -170,6 +173,41 @@ def last_job_run(job_name: str) -> dict[str, Any] | None:
         conn.close()
 
 
+def _last_runs_batch(job_names: list[str]) -> dict[str, dict[str, Any] | None]:
+    """One RO connection for all job last-run rows (health hot path)."""
+    out: dict[str, dict[str, Any] | None] = {n: None for n in job_names}
+    ensure_job_log_schema()
+    try:
+        conn = sqlite3.connect(f"file:{_db_path()}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return out
+    try:
+        for name in job_names:
+            row = conn.execute(
+                """
+                SELECT id, started_at, finished_at, status, rows_affected, error
+                  FROM job_log
+                 WHERE job_name=?
+                 ORDER BY id DESC LIMIT 1
+                """,
+                (name,),
+            ).fetchone()
+            if row:
+                out[name] = {
+                    "id": row[0],
+                    "started_at": row[1],
+                    "finished_at": row[2],
+                    "status": row[3],
+                    "rows_affected": row[4],
+                    "error": row[5],
+                }
+    except sqlite3.Error:
+        return out
+    finally:
+        conn.close()
+    return out
+
+
 def _parse_iso(ts: str | None) -> datetime | None:
     if not ts:
         return None
@@ -183,12 +221,18 @@ def _parse_iso(ts: str | None) -> datetime | None:
         return None
 
 
-def next_run_utc(job_name: str, *, now: datetime | None = None) -> str:
+def next_run_utc(
+    job_name: str,
+    *,
+    now: datetime | None = None,
+    last: dict[str, Any] | None = None,
+) -> str:
     now = now or _utc_now()
     meta = JOB_SCHEDULE.get(job_name) or {}
     every = meta.get("every_sec")
     if every:
-        last = last_job_run(job_name)
+        if last is None:
+            last = last_job_run(job_name)
         last_dt = _parse_iso((last or {}).get("finished_at") or (last or {}).get("started_at"))
         if last_dt:
             nxt = last_dt + timedelta(seconds=int(every))
@@ -209,17 +253,15 @@ def scheduler_health_block() -> dict[str, Any]:
     now = _utc_now()
     jobs: dict[str, Any] = {}
     overdue: list[str] = []
+    lasts = _last_runs_batch(list(JOB_SCHEDULE.keys()))
     for name, meta in JOB_SCHEDULE.items():
-        last = last_job_run(name)
+        last = lasts.get(name)
         period = int(meta.get("period_sec") or 86400)
         last_status = (last or {}).get("status")
         last_run = (last or {}).get("finished_at") or (last or {}).get("started_at")
         last_dt = _parse_iso(last_run)
         is_overdue = False
         if last_dt is None:
-            # Grace 2× period from process boot / first deploy — mark overdue only
-            # if we have never run AND next_run is already in the past window.
-            # After install, first watchdog should populate; don't false-alarm for 2d.
             is_overdue = False
         else:
             age = (now - last_dt).total_seconds()
@@ -229,7 +271,7 @@ def scheduler_health_block() -> dict[str, Any]:
         jobs[name] = {
             "last_run": last_run,
             "last_status": last_status,
-            "next_run": next_run_utc(name, now=now),
+            "next_run": next_run_utc(name, now=now, last=last),
             "period_sec": period,
             "description": meta.get("description"),
             "overdue": is_overdue,
