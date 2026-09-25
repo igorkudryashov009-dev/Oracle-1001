@@ -91,7 +91,7 @@ def _prune_tile_caches(*, max_age_sec: float) -> dict[str, Any]:
 
 
 def _disk_guard(disk_free_pct: float | None) -> dict[str, Any]:
-    from services.alerts import emit_alert
+    from services.alerts import emit_alert, resolve_alert
     from services.log_retention import run_retention
 
     out: dict[str, Any] = {"triggered": False}
@@ -107,6 +107,10 @@ def _disk_guard(disk_free_pct: float | None) -> dict[str, Any]:
             severity="WARN" if disk_free_pct >= 10.0 else "CRITICAL",
             detail={"disk_free_pct": disk_free_pct},
         )
+    else:
+        # Auto-resolve when headroom recovered
+        resolve_alert("disk_guard", reason="disk_recovered")
+        out["resolved"] = True
     return out
 
 

@@ -3,7 +3,9 @@
 
 GREEN = all non-skipped core checks OK AND ≥1 verification channel
 (gfw OR vf) with verified_n > 0. Channels without keys stay skipped.
-fully_commissioned_at is append-only (never overwritten).
+fully_commissioned_at is append-only while active. An invalidated stamp
+(commissioning_invalidated_*) does NOT count — next legitimate GREEN sets a
+new date; the old stamp is kept in commissioning_history.
 """
 
 from __future__ import annotations
@@ -49,6 +51,20 @@ def _parse_iso(ts: str | None) -> datetime | None:
         return None
 
 
+def _is_stamp_invalidated(st: dict[str, Any]) -> bool:
+    return bool(st.get("commissioning_invalidated_at") or st.get("commissioning_invalidated_reason"))
+
+
+def _active_commission_stamp(st: dict[str, Any]) -> str | None:
+    """Append-only active stamp — None when missing or marked invalidated."""
+    stamp = st.get("fully_commissioned_at")
+    if not stamp:
+        return None
+    if _is_stamp_invalidated(st):
+        return None
+    return str(stamp)
+
+
 def _load_state() -> dict[str, Any]:
     if not STATE_PATH.is_file():
         return {}
@@ -61,13 +77,26 @@ def _load_state() -> dict[str, Any]:
 
 def _save_state(st: dict[str, Any]) -> None:
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    # Preserve immutable commissioning timestamp
     prev = _load_state()
-    if prev.get("fully_commissioned_at") and not st.get("fully_commissioned_at"):
+    # Preserve active (non-invalidated) stamp — never overwrite with a different one.
+    # Invalidated stamps may be superseded by a new GREEN date carried in ``st``.
+    prev_active = _active_commission_stamp(prev)
+    if prev_active:
+        st["fully_commissioned_at"] = prev_active
+        # Keep invalidation cleared if we still have an active stamp
+        st.pop("commissioning_invalidated_at", None)
+        st.pop("commissioning_invalidated_reason", None)
+    elif prev.get("fully_commissioned_at") and not st.get("fully_commissioned_at"):
+        # Preserve invalidated historical stamp until superseded (for history)
         st["fully_commissioned_at"] = prev["fully_commissioned_at"]
-    elif prev.get("fully_commissioned_at") and st.get("fully_commissioned_at"):
-        # Never overwrite earlier stamp
-        st["fully_commissioned_at"] = prev["fully_commissioned_at"]
+        if prev.get("commissioning_invalidated_at"):
+            st.setdefault("commissioning_invalidated_at", prev["commissioning_invalidated_at"])
+        if prev.get("commissioning_invalidated_reason"):
+            st.setdefault(
+                "commissioning_invalidated_reason", prev["commissioning_invalidated_reason"]
+            )
+    if prev.get("commissioning_history") and not st.get("commissioning_history"):
+        st["commissioning_history"] = prev["commissioning_history"]
     tmp = STATE_PATH.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(st, indent=2, ensure_ascii=False), encoding="utf-8")
     tmp.replace(STATE_PATH)
@@ -96,6 +125,23 @@ def _git_head() -> str:
         return (os.getenv("SENTINEL_GIT_HEAD") or "unknown")[:12]
 
 
+def mark_commissioning_invalidated(*, reason: str) -> dict[str, Any]:
+    """Mark current stamp invalidated (history preserved). Next GREEN may set a new date."""
+    st = _load_state()
+    stamp = st.get("fully_commissioned_at")
+    if not stamp:
+        return st
+    if _is_stamp_invalidated(st):
+        return st
+    st["commissioning_invalidated_at"] = _utc_iso()
+    st["commissioning_invalidated_reason"] = str(reason)[:200]
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp = STATE_PATH.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(st, indent=2, ensure_ascii=False), encoding="utf-8")
+    tmp.replace(STATE_PATH)
+    return st
+
+
 def write_commissioning_report(blob: dict[str, Any], doc: dict[str, Any] | None = None) -> Path:
     """Pitch-ready commissioning artifact (no secrets)."""
     fa = (doc or {}).get("fleet_archive") or {}
@@ -121,6 +167,13 @@ def write_commissioning_report(blob: dict[str, Any], doc: dict[str, Any] | None 
         "transition": blob.get("transition"),
         "note": "Sentinel fully commissioned — Dual Gate unchanged",
     }
+    if blob.get("previous_fully_commissioned_at"):
+        report["previous_fully_commissioned_at"] = blob["previous_fully_commissioned_at"]
+    if blob.get("commissioning_history"):
+        report["commissioning_history"] = blob["commissioning_history"]
+    events_7d = ((doc or {}).get("gfw_status") or {}).get("events_7d_n")
+    if events_7d is not None:
+        report["channels"]["events_7d_n"] = int(events_7d or 0)
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmp = REPORT_PATH.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -362,7 +415,7 @@ def evaluate_acceptance(
         status = "DEGRADED"
     elif core_ok and channel_verified:
         status = "GREEN"
-    elif core_ok and silence_streak >= SILENCE_DAYS and keys_active and prev.get("fully_commissioned_at"):
+    elif core_ok and silence_streak >= SILENCE_DAYS and keys_active and _active_commission_stamp(prev):
         # Provider silent 3d after commissioning
         status = "DEGRADED"
     elif core_ok and not any_key_plane:
@@ -387,14 +440,49 @@ def evaluate_acceptance(
     if prev_status and prev_status != status:
         blob["transition"] = f"{prev_status}->{status}"
 
-    # Append-only commissioning stamp
+    # Append-only commissioning stamp (invalidated stamp ≠ first commission)
     first_commission = False
-    if prev.get("fully_commissioned_at"):
-        blob["fully_commissioned_at"] = prev["fully_commissioned_at"]
+    active_stamp = _active_commission_stamp(prev)
+    if active_stamp:
+        blob["fully_commissioned_at"] = active_stamp
     elif status == "GREEN":
-        blob["fully_commissioned_at"] = _utc_iso()
+        new_stamp = _utc_iso()
+        blob["fully_commissioned_at"] = new_stamp
         first_commission = True
         blob["transition"] = blob["transition"] or f"{prev_status or 'NEW'}->GREEN"
+        # Supersede invalidated stamp into history (do not rewrite history entries)
+        if prev.get("fully_commissioned_at") and _is_stamp_invalidated(prev):
+            hist = list(prev.get("commissioning_history") or [])
+            if isinstance(hist, list):
+                hist.append(
+                    {
+                        "fully_commissioned_at": prev.get("fully_commissioned_at"),
+                        "invalidated_at": prev.get("commissioning_invalidated_at"),
+                        "invalidated_reason": prev.get("commissioning_invalidated_reason"),
+                        "superseded_by": new_stamp,
+                        "superseded_at": new_stamp,
+                    }
+                )
+            blob["commissioning_history"] = hist
+            blob["commissioning_invalidated_at"] = None
+            blob["commissioning_invalidated_reason"] = None
+            blob["previous_fully_commissioned_at"] = prev.get("fully_commissioned_at")
+            # Resolve stale "commissioned" alert from false GREEN
+            try:
+                from services.alerts import resolve_alert
+
+                resolve_alert("commissioned", reason="superseded_by_recommission")
+            except Exception:  # noqa: BLE001
+                pass
+    elif prev.get("fully_commissioned_at"):
+        # Keep historical (possibly invalidated) stamp visible until superseded
+        blob["fully_commissioned_at"] = prev["fully_commissioned_at"]
+        if prev.get("commissioning_invalidated_at"):
+            blob["commissioning_invalidated_at"] = prev["commissioning_invalidated_at"]
+        if prev.get("commissioning_invalidated_reason"):
+            blob["commissioning_invalidated_reason"] = prev["commissioning_invalidated_reason"]
+        if prev.get("commissioning_history"):
+            blob["commissioning_history"] = prev["commissioning_history"]
 
     if status == "DEGRADED" and silence_streak >= SILENCE_DAYS and keys_active:
         blob["degraded_reason"] = f"verified_silence_{silence_streak}d"
@@ -484,10 +572,17 @@ def acceptance_health_block() -> dict[str, Any]:
         "checks": st.get("checks") or {},
         "evaluated_at": st.get("evaluated_at"),
         "transition": st.get("transition"),
-        "fully_commissioned_at": st.get("fully_commissioned_at"),
+        "fully_commissioned_at": _active_commission_stamp(st) or st.get("fully_commissioned_at"),
         "silence_streak_days": st.get("silence_streak_days") or 0,
         "trigger": st.get("trigger"),
     }
+    if st.get("commissioning_invalidated_at") or st.get("commissioning_invalidated_reason"):
+        out["commissioning_invalidated_at"] = st.get("commissioning_invalidated_at")
+        out["commissioning_invalidated_reason"] = st.get("commissioning_invalidated_reason")
+    if st.get("commissioning_history"):
+        out["commissioning_history"] = st.get("commissioning_history")
+    if st.get("previous_fully_commissioned_at"):
+        out["previous_fully_commissioned_at"] = st.get("previous_fully_commissioned_at")
     if REPORT_PATH.is_file():
         out["commissioning_report"] = str(REPORT_PATH.as_posix())
     return out
@@ -518,6 +613,7 @@ __all__ = (
     "acceptance_health_block",
     "evaluate_acceptance",
     "gfw_budget_warn_block",
+    "mark_commissioning_invalidated",
     "maybe_rerun_acceptance_after_verification",
     "run_acceptance_check",
     "write_commissioning_report",

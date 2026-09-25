@@ -110,6 +110,57 @@ def test_fully_commissioned_at_one_shot(
     assert b2["status"] == "GREEN"
 
 
+def test_invalidated_stamp_allows_new_green_date(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Invalidated false-GREEN stamp is superseded; new date is append-only thereafter."""
+    monkeypatch.setattr("services.acceptance.STATE_PATH", tmp_path / "acc.json")
+    monkeypatch.setattr("services.acceptance.REPORT_PATH", tmp_path / "comm.json")
+    monkeypatch.setattr("services.key_activation.STATE_PATH", tmp_path / "prov.json")
+    monkeypatch.setattr("services.alerts.STATE_PATH", tmp_path / "alerts.json")
+    monkeypatch.setattr("services.alerts.ALERTS_PATH", tmp_path / "a.jsonl")
+    monkeypatch.setattr("services.alerts.ALERTS_PATH_HOST", tmp_path / "nh.jsonl")
+    record_provider_ok("gfw")
+    monkeypatch.setattr("services.acceptance._probe_health_latency", lambda: 0.1)
+    monkeypatch.setattr("services.vesselfinder_client.resolve_userkey", lambda: "")
+
+    false_stamp = "2026-09-25T08:44:02Z"
+    (tmp_path / "acc.json").write_text(
+        json.dumps(
+            {
+                "status": "WAITING_KEYS",
+                "fully_commissioned_at": false_stamp,
+                "commissioning_invalidated_at": "2026-09-25T09:18:13Z",
+                "commissioning_invalidated_reason": "gfw_auth_http_401_false_verified",
+                "trigger": "auth_rollback_401",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    doc = _core_doc(gfw_verified_n=20)
+    doc["gfw_status"] = {"configured": True, "events_7d_n": 10}
+    b1 = evaluate_acceptance(doc, trigger="verified_data_arrived:gfw")
+    assert b1["status"] == "GREEN"
+    new_stamp = b1["fully_commissioned_at"]
+    assert new_stamp
+    assert new_stamp != false_stamp
+    assert b1.get("previous_fully_commissioned_at") == false_stamp
+    hist = b1.get("commissioning_history") or []
+    assert any(h.get("fully_commissioned_at") == false_stamp for h in hist)
+    assert not b1.get("commissioning_invalidated_reason")
+    report = json.loads((tmp_path / "comm.json").read_text(encoding="utf-8"))
+    assert report["fully_commissioned_at"] == new_stamp
+    assert report["previous_fully_commissioned_at"] == false_stamp
+
+    # Re-run must NOT change the new date
+    doc2 = _core_doc(gfw_verified_n=21)
+    doc2["gfw_status"] = {"configured": True, "events_7d_n": 10}
+    b2 = evaluate_acceptance(doc2, trigger="again")
+    assert b2["fully_commissioned_at"] == new_stamp
+    assert b2["status"] == "GREEN"
+
+
 def test_green_to_degraded_silence_regression(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
