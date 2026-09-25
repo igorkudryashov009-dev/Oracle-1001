@@ -1,0 +1,10 @@
+[Unit]
+Description=Sentinel acceptance_check (02:00 UTC)
+
+[Timer]
+OnCalendar=*-*-* 02:00:00 UTC
+Persistent=true
+Unit=sentinel-job@acceptance_check.service
+
+[Install]
+WantedBy=timers.target

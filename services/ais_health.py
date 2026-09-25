@@ -523,6 +523,13 @@ def build_health_document(
     except Exception:  # noqa: BLE001
         pass
 
+    try:
+        from services.acceptance import acceptance_health_block
+
+        doc["acceptance"] = acceptance_health_block()
+    except Exception:  # noqa: BLE001
+        pass
+
     # Full-fleet daily archive reporting (does NOT feed Dual Gate fleet_sample).
     try:
         from services.archive_snapshot_worker import compute_fleet_archive_metrics

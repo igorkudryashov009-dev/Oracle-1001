@@ -16,6 +16,8 @@ __pycache__/
 **/secrets.json
 **/*cookies*.json
 config/vesselfinder_cookies.json
+data/archive/runtime_env.json
+data/archive/key_install_signal
 
 # Node
 node_modules/

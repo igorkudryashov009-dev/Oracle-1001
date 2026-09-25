@@ -94,6 +94,14 @@ def _mask(token: str) -> str:
 
 
 def resolve_token() -> str:
+    try:
+        from services.runtime_env import getenv_secret
+
+        v = getenv_secret("GFW_API_TOKEN", "GFW_API_KEY", "GLOBAL_FISHING_WATCH_TOKEN")
+        if v:
+            return v
+    except Exception:  # noqa: BLE001
+        pass
     return (
         os.getenv("GFW_API_TOKEN")
         or os.getenv("GFW_API_KEY")

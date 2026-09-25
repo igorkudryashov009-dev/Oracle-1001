@@ -63,6 +63,12 @@ JOB_SCHEDULE: dict[str, dict[str, Any]] = {
         "period_sec": 3600,
         "description": "Refresh vf/gfw budget blobs into health side-cache",
     },
+    "acceptance_check": {
+        "hour": 2,
+        "minute": 0,
+        "period_sec": 86400,
+        "description": "TZ self-acceptance → health.acceptance GREEN|DEGRADED|WAITING_KEYS",
+    },
 }
 
 

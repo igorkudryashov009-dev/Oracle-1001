@@ -8,6 +8,7 @@
 - **Test hygiene**: `c08_speed_spectrum` assert aligned to 6 SOG bins; OSINT uppercase test accepts L8 `SANCTIONS_TAGS` side-channel beside 20 ТЗ core keys.
 
 ### Added
+- **Auto-activation loop**: `scripts/install_key.sh` (GFW/VF/ANTHROPIC/ALERT_WEBHOOK) → local+Korolev `.env` + bind-mounted `runtime_env.json` + `key_installed:<provider>` signal → immediate probe/first job/resnapshot; alert auto-resolve + 24h dedup; daily `acceptance_check` (02:00 UTC) → `health.acceptance` GREEN|DEGRADED|WAITING_KEYS. Timers 6/6.
 - **Zero-touch automation (systemd timers)**: `services/scheduler.py` + `job_log` / `watchdog` / `alerts` / `key_activation` / `vf_allocator_runner`; five UTC jobs (archive 00:30, GFW 01:00, VF 01:30, watchdog */15m, budget */60m); `deploy/sentinel/install_sentinel_automation.sh` arms timers on bake. Never restarts edge-gateway; Dual Gate untouched.
 - **GFW Events verification plane (`services/gfw_events.py`)**: optional `GFW_API_TOKEN`; gap_48h batch ≤20/day; `vessel_gfw_events` + `gfw_verified` / `gfw_events_n` on daily archive; health `gfw_status` / `gfw_budget` (daily_cap 500, ≤2 rps). Does **not** overwrite `terrestrial_ais`/`vf_api` source. Free non-commercial GFW — Dual Gate untouched.
 - **VF-500 Optimal Allocator (`services/vf_budget_allocator.py`)**: 60/40 split (300 top-500 DWT / 200 rest); daily quota 16 (10+6); weekly cap 112 with rollover; P1 gap / P2 hotlist / P3 round-robin; rolling coverage ≥1 hit / 50d (top) and / 114d (rest). Error/empty VF responses do not bill credits (`refund_spend` / no `record_spend`).

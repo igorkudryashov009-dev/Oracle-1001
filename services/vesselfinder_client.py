@@ -32,6 +32,12 @@ DEFAULT_TIMEOUT = float(os.getenv("VESSELFINDER_HTTP_TIMEOUT_SEC", "30"))
 
 
 def resolve_userkey() -> str:
+    try:
+        from services.runtime_env import apply_runtime_env
+
+        apply_runtime_env()
+    except Exception:  # noqa: BLE001
+        pass
     resolved = resolve_commercial_key(validate=False, auto_persist=False)
     if resolved and resolved.key:
         return resolved.key

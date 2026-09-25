@@ -36,7 +36,8 @@ for t in \
   sentinel-gfw-poll.timer \
   sentinel-vf-allocator.timer \
   sentinel-watchdog.timer \
-  sentinel-budget-sync.timer
+  sentinel-budget-sync.timer \
+  sentinel-acceptance.timer
 do
   install -m 0644 "${SRC_DIR}/${t}" "${UNIT_DIR}/${t}"
 done
@@ -47,7 +48,8 @@ for t in \
   sentinel-gfw-poll.timer \
   sentinel-vf-allocator.timer \
   sentinel-watchdog.timer \
-  sentinel-budget-sync.timer
+  sentinel-budget-sync.timer \
+  sentinel-acceptance.timer
 do
   systemctl enable --now "${t}"
 done
@@ -59,7 +61,7 @@ RUNNER=/opt/oracle1001/deploy/sentinel/run_sentinel_job.sh
 # Kick all jobs once so job_log + health.scheduler populate (idempotent skips OK)
 if docker ps --format '{{.Names}}' | grep -qx sentinel-web; then
   echo "==> bootstrap scheduler jobs (idempotent)"
-  for j in pipeline_watchdog budget_sync archive_snapshot gfw_poll vf_allocator; do
+  for j in pipeline_watchdog budget_sync archive_snapshot gfw_poll vf_allocator acceptance_check; do
     if [[ -x "${RUNNER}" ]]; then
       bash "${RUNNER}" "$j" || true
     else

@@ -89,12 +89,19 @@ def _job_budget_sync() -> dict[str, Any]:
     }
 
 
+def _job_acceptance_check() -> dict[str, Any]:
+    from services.acceptance import run_acceptance_check
+
+    return run_acceptance_check()
+
+
 JOB_HANDLERS: dict[str, Callable[[], dict[str, Any]]] = {
     "archive_snapshot": _job_archive_snapshot,
     "gfw_poll": _job_gfw_poll,
     "vf_allocator": _job_vf_allocator,
     "pipeline_watchdog": _job_pipeline_watchdog,
     "budget_sync": _job_budget_sync,
+    "acceptance_check": _job_acceptance_check,
 }
 
 
