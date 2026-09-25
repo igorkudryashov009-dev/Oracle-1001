@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-09-25T05:40:03Z",
+  "generated_at": "2026-09-25T06:42:11Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -452,8 +452,8 @@
         "services/acceptance.py"
       ],
       "resolved_path": "services/acceptance.py",
-      "sha256": "ce6e8488a80cce61a818b13a203a45a7f6075b807e5f5fb8f6b2a15e2fcb5709",
-      "bytes": 8770,
+      "sha256": "60e8166be27741a6310a12ef2d8fcf40ab1e2f43f4ad97cf9399015c537ad2c9",
+      "bytes": 18898,
       "critical": false
     },
     {
@@ -476,8 +476,8 @@
         "services/ais_health.py"
       ],
       "resolved_path": "services/ais_health.py",
-      "sha256": "8527b16eeab81f4e7eaa8981e2e4bfe81dc00de77f7dc4595e3f3281693c8b96",
-      "bytes": 21268,
+      "sha256": "17b4079d46d0a8d19a7575eac1e3d0a96105793b7aa0ab330bb64306b1f1ba77",
+      "bytes": 21503,
       "critical": true
     },
     {
@@ -776,8 +776,8 @@
         "services/key_activation.py"
       ],
       "resolved_path": "services/key_activation.py",
-      "sha256": "11d4c032c3a50272cb30f54f0898d3233c1b390f8d67815c8c8015ab7001f9f1",
-      "bytes": 13075,
+      "sha256": "9ceb58bcbbf8f212732a4bc479fa47203266e7e2542d91798a511efc7d7f9354",
+      "bytes": 14769,
       "critical": false
     },
     {
@@ -968,8 +968,8 @@
         "services/scheduler.py"
       ],
       "resolved_path": "services/scheduler.py",
-      "sha256": "777003e419ee16a6b10e96bbaf230276a72fd0278b5017feff3f31a841efa0e3",
-      "bytes": 7188,
+      "sha256": "1d97083632aa23efa838fc04f182b1d69c4ed1d7ad1bb34ac76a0e026532dac5",
+      "bytes": 8742,
       "critical": false
     },
     {
