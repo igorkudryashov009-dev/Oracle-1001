@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-09-25T12:43:02Z",
+  "generated_at": "2026-09-25T12:51:44Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -229,8 +229,8 @@
         "web/js/sentinel_engine.js"
       ],
       "resolved_path": "output/js/sentinel_engine.js",
-      "sha256": "bf73042a580d1fa644c5561d93912964c6138d1197776dca24727d94d398f7fc",
-      "bytes": 51833,
+      "sha256": "3a7c82ff8262eb068c55d61400c499f3e5f585ac2097eca4e08d48544bd5bb54",
+      "bytes": 51959,
       "critical": true
     },
     {
@@ -1681,8 +1681,8 @@
     {
       "web": "web/js/sentinel_engine.js",
       "output": "output/js/sentinel_engine.js",
-      "web_sha256": "bf73042a580d1fa644c5561d93912964c6138d1197776dca24727d94d398f7fc",
-      "output_sha256": "bf73042a580d1fa644c5561d93912964c6138d1197776dca24727d94d398f7fc",
+      "web_sha256": "3a7c82ff8262eb068c55d61400c499f3e5f585ac2097eca4e08d48544bd5bb54",
+      "output_sha256": "3a7c82ff8262eb068c55d61400c499f3e5f585ac2097eca4e08d48544bd5bb54",
       "match": true
     },
     {
