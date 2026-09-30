@@ -381,7 +381,15 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         host = (self.client_address[0] if self.client_address else "") or ""
         return host in {"127.0.0.1", "::1", "localhost"}
 
-    def _json_response(self, code: int, payload: dict, *, contract_header: bool = False) -> None:
+    def _json_response(
+        self,
+        code: int,
+        payload: dict,
+        *,
+        contract_header: bool = False,
+        retry_after: int | None = None,
+        extra_headers: dict | None = None,
+    ) -> None:
         raw = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -390,6 +398,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             "Cache-Control",
             "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
         )
+        if retry_after is not None:
+            self.send_header("Retry-After", str(int(retry_after)))
         if contract_header:
             try:
                 from services.compressor_stations import CONTRACT_VERSION
@@ -397,6 +407,11 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 self.send_header("X-Contract-Version", CONTRACT_VERSION)
             except Exception:  # noqa: BLE001
                 self.send_header("X-Contract-Version", "1.8.0-ops-gis-sot")
+        if extra_headers:
+            for hk, hv in extra_headers.items():
+                if str(hk).lower() in {"content-type", "content-length"}:
+                    continue
+                self.send_header(str(hk), str(hv))
         self.end_headers()
         if self.command != "HEAD":
             self.wfile.write(raw)
@@ -491,9 +506,23 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         path = unquote(parsed.path or "").rstrip("/") or "/"
         return path
 
-    def _send_json(self, data: dict, status: int = 200, *, contract_header: bool = False) -> None:
+    def _send_json(
+        self,
+        data: dict,
+        status: int = 200,
+        *,
+        contract_header: bool = False,
+        retry_after: int | None = None,
+        extra_headers: dict | None = None,
+    ) -> None:
         """Alias used by admin POST handlers."""
-        self._json_response(status, data, contract_header=contract_header)
+        self._json_response(
+            status,
+            data,
+            contract_header=contract_header,
+            retry_after=retry_after,
+            extra_headers=extra_headers,
+        )
 
     def _serve_gis_compressor_stations(self) -> bool:
         path = self._normalize_api_path()
@@ -643,6 +672,56 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                     "proximity_compressors": [],
                     "error": str(exc)[:400],
                 },
+                status=500,
+                contract_header=True,
+            )
+        return True
+
+    def _handle_pilot_register_post(self) -> bool:
+        """POST /api/v1/pilot/register — public, IP-rate-limited (Contract 1.8.0)."""
+        path = self._normalize_api_path()
+        if path not in (
+            "/api/v1/pilot/register",
+            "/output/api/v1/pilot/register",
+        ):
+            return False
+        length = int(self.headers.get("Content-Length") or 0)
+        if length > 16384:
+            self._send_json(
+                {"ok": False, "error": "validation_error", "detail": "body too large"},
+                status=400,
+                contract_header=True,
+            )
+            return True
+        raw = self.rfile.read(length) if length > 0 else b"{}"
+        try:
+            body = json.loads(raw.decode("utf-8", errors="replace") or "{}")
+        except Exception:  # noqa: BLE001
+            body = None
+        client_ip = (self.client_address[0] if self.client_address else "") or "unknown"
+        xff = (self.headers.get("X-Forwarded-For") or "").split(",")[0].strip()
+        if xff:
+            client_ip = xff
+        try:
+            from services.pilot_register import handle_pilot_register
+
+            status, payload, headers = handle_pilot_register(body, client_ip=client_ip)
+            retry = None
+            if status == 429 and headers.get("Retry-After"):
+                try:
+                    retry = int(headers["Retry-After"])
+                except ValueError:
+                    retry = 60
+            self._send_json(
+                payload,
+                status=status,
+                contract_header=True,
+                retry_after=retry,
+                extra_headers=headers,
+            )
+        except Exception as exc:  # noqa: BLE001
+            self._send_json(
+                {"ok": False, "error": str(exc)[:400]},
                 status=500,
                 contract_header=True,
             )
@@ -884,6 +963,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         """Always handle POST — never fall through to BaseHTTPRequestHandler 501."""
         try:
             if self._gate_api_v1():
+                return
+            if self._handle_pilot_register_post():
                 return
             if self._handle_alerts_dispatch_post():
                 return

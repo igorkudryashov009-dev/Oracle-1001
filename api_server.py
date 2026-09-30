@@ -307,6 +307,26 @@ async def post_alerts_dispatch(body: AlertDispatchBody) -> dict:
     return dispatch_alert(body.model_dump())
 
 
+@app.post("/api/v1/pilot/register")
+@app.post("/output/api/v1/pilot/register")
+async def post_pilot_register(request: Request) -> Response:
+    """Public pilot self-register — IP rate-limit 10/min, readonly key once."""
+    from fastapi.responses import JSONResponse
+
+    from services.pilot_register import handle_pilot_register
+
+    try:
+        body = await request.json()
+    except Exception:  # noqa: BLE001
+        body = None
+    client_ip = request.client.host if request.client else "unknown"
+    xff = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
+    if xff:
+        client_ip = xff
+    status, payload, headers = handle_pilot_register(body, client_ip=client_ip)
+    return JSONResponse(payload, status_code=status, headers=headers)
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("api_server:app", host="127.0.0.1", port=INTERNAL_API_PORT, reload=False)

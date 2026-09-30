@@ -112,10 +112,21 @@ def resolve_auth(
     )
     # Also match /output/api/v1/health
     is_health = is_health or "/api/v1/health" in path_n
+    # Pilot self-register is public (IP rate-limit enforced in handler)
+    is_pilot_register = "/api/v1/pilot/register" in path_n
 
     keys = list_api_keys()
     key = (api_key or "").strip()
     cv = (contract_version or "").strip()
+
+    if is_pilot_register:
+        return {
+            "ok": True,
+            "tier": "public",
+            "status": 200,
+            "name": "pilot_register",
+            "reason": "public_pilot_register",
+        }
 
     # Bootstrap / pytest: no keys configured yet → readonly open (install gen_api_key to lock)
     if not keys and not key:
@@ -139,13 +150,26 @@ def resolve_auth(
     if key:
         meta = keys.get(key)
         if not meta:
-            return {
-                "ok": False,
-                "tier": "denied",
-                "status": 401,
-                "reason": "invalid_api_key",
-                "name": None,
-            }
+            # Pilot clients store SHA-256 only — resolve via hash lookup
+            try:
+                from services.pilot_register import lookup_pilot_by_api_key
+
+                pilot = lookup_pilot_by_api_key(key)
+            except Exception:  # noqa: BLE001
+                pilot = None
+            if pilot:
+                meta = {
+                    "name": str(pilot.get("company") or pilot.get("email") or "pilot")[:64],
+                    "tier": "readonly",
+                }
+            else:
+                return {
+                    "ok": False,
+                    "tier": "denied",
+                    "status": 401,
+                    "reason": "invalid_api_key",
+                    "name": None,
+                }
         rl = _rate_limit_check(fingerprint_key(key))
         if not rl["ok"]:
             return {
