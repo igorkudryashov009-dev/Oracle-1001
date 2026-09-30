@@ -1517,17 +1517,32 @@ body.t10-modal-open .t10-viewport .t10-photo-fallback {
    Apple Refine × NASA Mission Control grid system
    ═════════════════════════════════════════════════════════════════════════════ */
 
-/* ── Balance sheet body + wrapper ──────────────────────────────────────────── */
-#sheet-balance {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+/* Sheet visibility is owned by html[data-sheet] in the dashboard
+   document and by switchSheet(). This file must not set display on
+   #sheet-balance / #sheet-route: a later !important rule beats the
+   switcher and shows one shared canvas set on two sheets.
+   Panels A–E live only inside #sheet-balance. */
+#bal-sample-caveat {
+  grid-column: 1 / -1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 179, 0, 0.45);
+  background: rgba(120, 53, 15, 0.35);
+  color: #fde68a;
+  font-family: JetBrains Mono, ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
 }
-html[data-sheet="balance"] #sheet-balance,
-html[data-sheet="balance"] #sheet-balance .bal-wrap {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+.bal-panel-fail {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 59, 48, 0.45);
+  color: #fecaca;
+  font-family: JetBrains Mono, ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 /* ── Balance sheet container (panels grid) — PASS: never collapse ──────────── */

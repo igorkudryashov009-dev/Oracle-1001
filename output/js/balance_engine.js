@@ -138,11 +138,19 @@
     return GREEN;
   }
 
+  function forgetChart(ch) {
+    if (!ch) return;
+    const i = balCharts.indexOf(ch);
+    if (i >= 0) balCharts.splice(i, 1);
+  }
+
   function killChart(id) {
     const el = document.getElementById(id);
     if (!el || typeof Chart === "undefined") return;
     const existing = typeof Chart.getChart === "function" ? Chart.getChart(el) : null;
-    if (existing) { try { existing.destroy(); } catch (_) {} }
+    if (!existing) return;
+    forgetChart(existing);
+    try { existing.destroy(); } catch (_) {}
   }
 
   function drawChart(id, config) {
@@ -750,6 +758,8 @@
     const badge = document.getElementById("bal-whatif-badge");
     const impact = document.getElementById("bal-whatif-impact");
     if (!blockage || !temp) return;
+    if (blockage.dataset.balWired === "1") return;
+    blockage.dataset.balWired = "1";
 
     // Restore from HUD state if available
     try {
@@ -802,6 +812,62 @@
     sync();
   }
 
+  // Diagnosis 2026-10-01, route sheet empty cards A–E (same cause each):
+  //   A TOP-500 VOLUMETRIC CAPACITY MATRIX     — (c) renderPanelA never called
+  //   B DATA FIDELITY & SRE TRUST HUD          — (c) renderPanelB never called
+  //   C OSINT ANOMALY & STS RISK RANKING       — (c) renderPanelC never called
+  //   D TTF ELASTICITY & SUPPLY CURVE          — (c) renderPanelD never called
+  //   E ADVANCED QUANT MATHEMATICAL PIPELINE   — (c) renderPanelE never called
+  // Not (a): Chart instances were absent, not thrown (boot skipped).
+  // Not (b): __SENTINEL_PAYLOAD__.balance is populated (fleet_size, cargo, lssi).
+  //          LIMITED/INSUFFICIENT is a caveat on that snapshot, not an empty series.
+  // Not (d): the five renderers and canvases are wired.
+  // Panels A–E are balance-sheet only (markup lives in #sheet-balance).
+  // Route owns routeP1–routeP9. Do not boot these charts on the route sheet.
+  function paintSampleCaveat() {
+    const host = document.getElementById("balance-sheet-container");
+    if (!host) return;
+    const fs = String(P.fleet_sample_status || BAL.fleet_sample_status || "").toUpperCase();
+    const insufficient = fs !== "FULL";
+    let note = document.getElementById("bal-sample-caveat");
+    if (!insufficient) {
+      if (note) note.remove();
+      return;
+    }
+    if (!note) {
+      note = document.createElement("div");
+      note.id = "bal-sample-caveat";
+      note.setAttribute("role", "status");
+      host.prepend(note);
+    }
+    const n = BAL.top500_live_coverage != null ? BAL.top500_live_coverage : P.top500_live_coverage;
+    const caveat = BAL.sample_size_caveat || P.sample_size_caveat || "";
+    const nText = n == null || n === "" ? "" : " · live coverage N=" + n;
+    note.textContent =
+      "INSUFFICIENT FOR FLEET-WIDE INFERENCE · fleet_sample_status=" + (fs || "UNKNOWN") +
+      nText +
+      (caveat ? " · " + caveat : "") +
+      " · figures are the stored balance snapshot.";
+  }
+
+  function renderPanelSafe(name, fn) {
+    try {
+      fn();
+    } catch (e) {
+      console.error("[BALANCE] panel " + name, e);
+      const panel = document.querySelector('.bal-panel[data-panel="' + name + '"]');
+      if (!panel) return;
+      let msg = panel.querySelector(".bal-panel-fail");
+      if (!msg) {
+        msg = document.createElement("div");
+        msg.className = "bal-panel-fail";
+        msg.setAttribute("role", "status");
+        panel.appendChild(msg);
+      }
+      msg.textContent = "PANEL " + name + " RENDER FAILED · " + ((e && e.message) || "error");
+    }
+  }
+
   // ── Main Entry Point ──────────────────────────────────────────────────────────
   function bootBalance() {
     if (!document.getElementById("sheet-balance")) return;
@@ -810,13 +876,14 @@
       return;
     }
     try {
+      paintSampleCaveat();
       wireWhatIfSliders();
       renderBalanceKPI();
-      renderPanelA();
-      renderPanelB();
-      renderPanelC();
-      renderPanelD();
-      renderPanelE();
+      renderPanelSafe("A", renderPanelA);
+      renderPanelSafe("B", renderPanelB);
+      renderPanelSafe("C", renderPanelC);
+      renderPanelSafe("D", renderPanelD);
+      renderPanelSafe("E", renderPanelE);
       console.info("[BALANCE] sheet rendered OK · fleet=" + (BAL.fleet_size || 0) + " · spoofed=" + (BAL.spoofed_excluded || 0));
     } catch (e) {
       console.error("[BALANCE] render error", e);
@@ -827,22 +894,17 @@
     balCharts.forEach((ch) => { try { ch.resize(); } catch (_) {} });
   }
 
-  // Boot: on DOMContentLoaded or when sheet becomes active
   document.addEventListener("DOMContentLoaded", function () {
     const sheet = document.documentElement.getAttribute("data-sheet") || "ais";
-    if (sheet === "balance") {
-      setTimeout(bootBalance, 60);
-    }
+    if (sheet === "balance") setTimeout(bootBalance, 60);
   });
 
-  // Also wire to switchTab event from sentinel_engine.js
   document.addEventListener("sentinelSheetChange", function (e) {
-    if ((e.detail || {}).sheet === "balance") {
-      setTimeout(function () {
-        bootBalance();
-        resizeAllCharts();
-      }, 80);
-    }
+    if ((e.detail || {}).sheet !== "balance") return;
+    setTimeout(function () {
+      bootBalance();
+      resizeAllCharts();
+    }, 80);
   });
 
   // Expose for manual reload / debugging
