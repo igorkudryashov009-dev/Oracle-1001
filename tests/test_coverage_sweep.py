@@ -71,6 +71,16 @@ def test_vf_gap_insurance_and_refund(tmp_path) -> None:
     assert refunded["credit_spent"] == 0 and refunded["result"] == "error_refunded"
 
 
+def test_sweep_numbers_count_stale_tier_b() -> None:
+    from services.coverage_sweep import sweep_numbers
+
+    fleet = classify_tiers(_fleet(600, stale_days=8))
+    numbers = sweep_numbers(fleet, used_today=10, now=NOW)
+    assert numbers["tier_b_older_than_6d"] == 100
+    assert numbers["tier_b_planned_requests"] == 100
+    assert numbers["gfw_remaining_before_hard_stop"] == 440
+
+
 def test_slim_health_does_not_copy_sweep_fields() -> None:
     from services.api_auth import sanitize_health
 

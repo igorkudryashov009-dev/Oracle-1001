@@ -257,6 +257,57 @@ def admin_coverage_fields(db_path: Path | None = None) -> dict[str, Any]:
     return fields
 
 
+def load_vessels_from_archive(db_path: Path) -> list[dict[str, Any]]:
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    try:
+        rows = conn.execute(
+            """
+            SELECT v.imo, v.dwt, v.mmsi, v.snapshot_date, v.gap_hours
+            FROM vessel_daily_archive AS v
+            JOIN (
+                SELECT imo, MAX(snapshot_date) AS snapshot_date
+                FROM vessel_daily_archive
+                GROUP BY imo
+            ) AS latest
+              ON latest.imo = v.imo AND latest.snapshot_date = v.snapshot_date
+            """
+        ).fetchall()
+    finally:
+        conn.close()
+    vessels = []
+    for imo, dwt, mmsi, day, gap in rows:
+        vessels.append(
+            {
+                "imo": imo,
+                "dwt": dwt,
+                "mmsi": mmsi,
+                "last_record": (str(day) + "T00:00:00Z") if day else None,
+                "gap_hours": gap,
+            }
+        )
+    return vessels
+
+
+def sweep_numbers(
+    vessels: list[dict[str, Any]],
+    *,
+    used_today: int = 0,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    now = now or _utc_now()
+    report = dry_run_report(vessels, used_today=used_today, now=now)
+    tier_b = report["tier_b"]
+    return {
+        "tier_b_older_than_6d": tier_b["planned"] + tier_b["carried"],
+        "tier_b_planned_requests": tier_b["planned"],
+        "tier_b_carried": tier_b["carried"],
+        "tier_a_planned_requests": report["tier_a"]["planned"],
+        "gfw_daily_requests_used": int(used_today),
+        "gfw_remaining_before_hard_stop": max(0, GFW_HARD_STOP - int(used_today)),
+        "gfw_hard_stop": GFW_HARD_STOP,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     """Default is a dry run. --execute is refused until SENTINEL_SWEEP_ARMED=1."""
     import argparse
@@ -265,11 +316,25 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--tier", choices=("A", "B"), default="B")
     parser.add_argument("--execute", action="store_true")
+    parser.add_argument("--db", default="")
     args = parser.parse_args(argv)
     if args.execute and os.environ.get("SENTINEL_SWEEP_ARMED") != "1":
         print("refusing execute: sweep stays dry until RAM is 3.0Gi and SENTINEL_SWEEP_ARMED=1")
         return 2
-    print(f"dry-run tier={args.tier} hard_stop={GFW_HARD_STOP}")
+    from services.storage import DEFAULT_DB
+
+    db = Path(args.db or os.environ.get("SENTINEL_DB_PATH") or DEFAULT_DB)
+    vessels = load_vessels_from_archive(db) if db.is_file() else []
+    used = 0
+    if BUDGET_PATH.is_file():
+        try:
+            used = int(json.loads(BUDGET_PATH.read_text(encoding="utf-8")).get("used") or 0)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError):
+            used = 0
+    numbers = sweep_numbers(vessels, used_today=used)
+    for key, value in numbers.items():
+        print(f"{key}={value}")
+    print("mode=dry-run")
     return 0
 
 
@@ -277,9 +342,14 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-def dry_run_report(vessels: list[dict[str, Any]], *, used_today: int = 0) -> dict[str, Any]:
+def dry_run_report(
+    vessels: list[dict[str, Any]],
+    *,
+    used_today: int = 0,
+    now: datetime | None = None,
+) -> dict[str, Any]:
     tiered = classify_tiers(vessels)
-    now = _utc_now()
+    now = now or _utc_now()
     b = plan_sweep(tiered, tier="B", used_today=used_today, now=now)
     a = plan_sweep(tiered, tier="A", used_today=used_today + b["planned"], now=now)
     return {"tier_b": b, "tier_a": a, "gfw_events_note": "events, not a position track"}
