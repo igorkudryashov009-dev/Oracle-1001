@@ -60,9 +60,7 @@ chown -R 10001:10001 "$AIS" 2>/dev/null || chmod -R a+rwX "$AIS" || true
 
 echo "==> start stack (named volume live DB)"
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-if [[ -f "$APP/scripts/run_sentinel_core.py" ]]; then
-  docker cp "$APP/scripts/run_sentinel_core.py" sentinel-core:/app/scripts/run_sentinel_core.py || true
-fi
+# Supervisor comes from the baked image.
 sleep 15
 docker ps --format '{{.Names}} {{.Status}}'
 docker logs sentinel-core --tail 15 2>&1 || true

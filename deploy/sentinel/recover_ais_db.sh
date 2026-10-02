@@ -74,10 +74,7 @@ sqlite3 "$DB" 'PRAGMA integrity_check;' 2>&1 | head -3 || echo "(empty/new db)"
 chown -R 10001:10001 "$AIS" 2>/dev/null || chmod -R a+rwX "$AIS" || true
 
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-# re-inject supervisor
-if [[ -f "$APP/scripts/run_sentinel_core.py" ]]; then
-  docker cp "$APP/scripts/run_sentinel_core.py" sentinel-core:/app/scripts/run_sentinel_core.py || true
-fi
+# Supervisor comes from the baked image.
 sleep 12
 docker logs sentinel-core --tail 25 2>&1 || true
 curl -fsS http://127.0.0.1:8765/output/api/v1/health > /tmp/h.json || true

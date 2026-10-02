@@ -9,15 +9,8 @@ cp -f "$SRC/catboost_model.py" /opt/oracle1001/sentinel/services/ttf_forecast/
 cp -f "$SRC/api_status.json" /opt/oracle1001/sentinel/output/archive/api_status.json
 cp -f "$SRC/ttf_catboost_meta.json" /opt/oracle1001/sentinel/output/models/ttf_catboost_meta.json
 
-for c in sentinel-web sentinel-core; do
-  docker cp /opt/oracle1001/sentinel/services/archive_service.py "${c}:/app/services/archive_service.py"
-  docker cp /opt/oracle1001/sentinel/services/quant_risk_service.py "${c}:/app/services/quant_risk_service.py"
-  docker cp /opt/oracle1001/sentinel/services/ttf_forecast/catboost_model.py "${c}:/app/services/ttf_forecast/catboost_model.py"
-  docker cp /opt/oracle1001/sentinel/output/archive/api_status.json "${c}:/app/output/archive/api_status.json"
-  docker cp /opt/oracle1001/sentinel/output/models/ttf_catboost_meta.json "${c}:/app/output/models/ttf_catboost_meta.json"
-done
-
-docker restart sentinel-web sentinel-core
+echo "[bake] refusing container hotfix; delivery is image bake + volume seed" >&2
+exit 1
 sleep 14
 
 docker exec sentinel-core python -c "from services.archive_service import write_api_status, load_rotation_state; st=load_rotation_state(); st['ingest_mode']='hybrid_local'; st['auth_mode']='hybrid_local'; p=write_api_status(st); print('api_plan', p.get('api_plan')); print('is_synthetic', p.get('is_synthetic'))"

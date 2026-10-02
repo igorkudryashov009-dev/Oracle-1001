@@ -8,12 +8,8 @@ source "${DEPLOY}/resolve_compose_dir.sh" 2>/dev/null || source "$(dirname "$0")
 APP=$(resolve_sentinel_app_dir) || { echo '[FAIL] no compose'; exit 1; }
 echo "[OK] compose dir=${APP}"
 
-docker cp /tmp/top10_sheet.js sentinel-web:/app/output/js/top10_sheet.js
-docker cp /tmp/sentinel_hud.css sentinel-web:/app/output/css/sentinel_hud.css
-# legacy path used by some HTML builds
-docker cp /tmp/sentinel_hud.css sentinel-web:/app/output/js/sentinel_hud.css 2>/dev/null || true
-docker cp /tmp/top10_sheet.js sentinel-core:/app/output/js/top10_sheet.js 2>/dev/null || true
-docker cp /tmp/sentinel_hud.css sentinel-core:/app/output/css/sentinel_hud.css 2>/dev/null || true
+echo "[bake] refusing container hotfix; delivery is image bake + volume seed" >&2
+exit 1
 
 # Cache-bust module URL in live HTML
 python3 - <<'PY'
@@ -51,9 +47,6 @@ elif "css/sentinel_hud.css" in t2:
 p.write_text(t2, encoding="utf-8")
 print("[OK] cache_bust patched")
 PY
-docker cp /tmp/sentinel_dashboard.html sentinel-web:/app/output/sentinel_dashboard.html
-docker cp /tmp/sentinel_dashboard.html sentinel-core:/app/output/sentinel_dashboard.html 2>/dev/null || true
-
 cd "${APP}"
 if [[ -f docker-compose.prod.yml ]]; then
   docker compose -f docker-compose.yml -f docker-compose.prod.yml restart sentinel-web

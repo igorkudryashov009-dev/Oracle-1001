@@ -8,7 +8,7 @@ mkdir -p "${AIS}"
 
 if docker ps --format '{{.Names}}' | grep -qx sentinel-core; then
   docker exec sentinel-core sqlite3 /app/история1/sentinel_ais.db 'PRAGMA wal_checkpoint(TRUNCATE);' >/dev/null 2>&1 || true
-  docker cp sentinel-core:/app/история1/sentinel_ais.db "${STAGING}.tmp"
+  docker exec sentinel-core cat /app/история1/sentinel_ais.db > "${STAGING}.tmp"
 else
   VOL=$(docker volume inspect sentinel_data_sqlite -f '{{.Mountpoint}}' 2>/dev/null || true)
   [[ -n "${VOL}" && -f "${VOL}/sentinel_ais.db" ]] || { echo "no source"; exit 1; }

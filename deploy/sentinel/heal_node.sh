@@ -103,10 +103,7 @@ heal_korolev() {
   else
     docker compose -f docker-compose.yml up -d --remove-orphans
   fi
-  # Ensure AIS-mode-aware supervisor if present on host
-  if [[ -f scripts/run_sentinel_core.py ]]; then
-    docker cp scripts/run_sentinel_core.py sentinel-core:/app/scripts/run_sentinel_core.py 2>/dev/null || true
-  fi
+  # Supervisor binary comes from the baked image. Do not copy it into a running container.
   # Soft integrity probe (named volume via container) — trigger hard recover if malformed
   local chk=""
   chk=$(docker exec sentinel-core sqlite3 /app/история1/sentinel_ais.db 'PRAGMA integrity_check;' 2>/dev/null | head -1 || true)
