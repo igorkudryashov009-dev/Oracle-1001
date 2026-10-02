@@ -10,7 +10,7 @@ Split 60/40:
   - 200 credits → rest (~760) (rolling ≥1 hit / 114 days → ~6/day)
 
 Priority inside each tier:
-  P1 — terrestrial gap (top: >48h, rest: >96h)
+  P1 — terrestrial gap (top: >48h, rest: >120h)
   P2 — STS / sanctions / ghost-detector hotlist
   P3 — round-robin remainder
 
@@ -46,7 +46,7 @@ DAILY_TOTAL_QUOTA = DAILY_TOP_QUOTA + DAILY_REST_QUOTA  # 16
 WEEKLY_CAP = 112
 
 TOP_GAP_HOURS = 48.0
-REST_GAP_HOURS = 96.0
+REST_GAP_HOURS = 120.0
 TOP_ROLLING_DAYS = 50
 REST_ROLLING_DAYS = 114
 

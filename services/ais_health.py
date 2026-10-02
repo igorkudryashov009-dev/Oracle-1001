@@ -662,6 +662,14 @@ def _build_health_document_uncached(
         doc["llm_status"] = "degraded"
         doc["llm"] = {"status": "degraded", "note": "llm_router_unavailable"}
 
+    # Coverage figures for the full document only. Public slim health does not copy them.
+    try:
+        from services.coverage_sweep import admin_coverage_fields
+
+        doc.update(admin_coverage_fields())
+    except Exception:  # noqa: BLE001
+        pass
+
     return doc
 
 

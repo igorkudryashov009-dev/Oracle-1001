@@ -1,0 +1,8 @@
+[Unit]
+Description=Sentinel Tier-A GFW events sweep
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/oracle1001/sentinel
+ExecStart=/usr/bin/docker exec sentinel-core python -m services.coverage_sweep --tier A
+# Do not pass --execute until the operator confirms RAM = 3.0Gi.
