@@ -227,7 +227,23 @@ def admin_coverage_fields(db_path: Path | None = None) -> dict[str, Any]:
             fields["gfw_daily_requests_used"] = int(raw.get("used") or 0)
         except (OSError, json.JSONDecodeError, TypeError, ValueError):
             pass
-    if db_path is None or not Path(db_path).is_file():
+    try:
+        from services.vesselfinder_budget import get_budget_status
+
+        fields["vf_credits_remaining_month"] = int(get_budget_status().get("remaining") or 0)
+    except (OSError, TypeError, ValueError):
+        pass
+    if db_path is None:
+        import os
+
+        env = (os.environ.get("SENTINEL_DB_PATH") or "").strip()
+        if env:
+            db_path = Path(env)
+        else:
+            from services.storage import DEFAULT_DB
+
+            db_path = DEFAULT_DB
+    if not Path(db_path).is_file():
         return fields
     try:
         conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
