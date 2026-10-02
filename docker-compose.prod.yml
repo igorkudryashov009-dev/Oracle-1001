@@ -1,4 +1,4 @@
-# ─── Production overlay for Node A (Korolev) — 1 GB VPS ─────────────────────
+# ─── Production overlay for Node A (Korolev) — 3 GB VPS ─────────────────────
 # Live AIS DB stays on named volume `data_sqlite` (NOT host bind).
 # Host bind caused recurring SQLite malformed under WAL + dual readers + OOM kills.
 # Staging export for London sync: deploy/sentinel/export_ais_db_to_host.sh → /opt/oracle1001/ais_data
@@ -8,9 +8,6 @@
 
 services:
   sentinel-core:
-    mem_limit: 512m
-    mem_reservation: 192m
-    memswap_limit: 768m
     cpus: "0.70"
     environment:
       # Current SoT: Korolev live AIS. Set off only after London cutover.
@@ -37,9 +34,6 @@ services:
       - ./assets/arctic:/app/assets/arctic:ro
 
   sentinel-web:
-    mem_limit: 384m
-    mem_reservation: 96m
-    memswap_limit: 512m
     cpus: "0.45"
     environment:
       MALLOC_ARENA_MAX: "2"
