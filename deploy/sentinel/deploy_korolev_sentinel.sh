@@ -45,6 +45,10 @@ if [[ ! -f .env ]]; then
 fi
 
 echo "==> IMAGE BAKE (no-cache=${NO_CACHE} force-recreate=${FORCE_RECREATE})"
+# Compose Bake shares one BuildKit session across both services and dies with
+# "only one connection allowed", leaving the build client hung. Classic build
+# still uses the layer cache.
+export COMPOSE_BAKE=0
 if [[ "${NO_CACHE}" == "1" ]]; then
   docker compose -f docker-compose.yml -f docker-compose.prod.yml build --no-cache --pull
 else
