@@ -135,9 +135,13 @@ class QuantRiskMetrics(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from services.process_shutdown import install_sigterm, note_shutdown
+
+    install_sigterm()
     print(f"[STARTUP] UAIP Visualizer 2026 Internal API running on port {INTERNAL_API_PORT}")
     print(f"[STARTUP] SQLite DB candidate: {resolve_db_path()}")
     yield
+    note_shutdown()
 
 
 app = FastAPI(

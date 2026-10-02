@@ -170,6 +170,13 @@ class DashboardHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
+    def _write_body(self, data: bytes) -> None:
+        """Client abort is not a server fault."""
+        try:
+            self.wfile.write(data)
+        except (BrokenPipeError, ConnectionResetError):
+            return
+
     def end_headers(self) -> None:
         # Dynamic CORS for dashboard + module scripts
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -210,7 +217,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self.send_header("Expires", "0")
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(data)
+            self._write_body(data)
 
     def _serve_desktop_7000(self) -> bool:
         parsed = urlparse(self.path)
@@ -318,7 +325,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(raw)))
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(raw)
+            self._write_body(raw)
 
     def _gate_api_v1(self) -> bool:
         """Return True if request was rejected (caller should return)."""
@@ -374,7 +381,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         self.send_header("Expires", "0")
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(raw)
+            self._write_body(raw)
         return True
 
     def _client_is_local(self) -> bool:
@@ -414,7 +421,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 self.send_header(str(hk), str(hv))
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(raw)
+            self._write_body(raw)
 
     def _serve_key_status(self) -> bool:
         parsed = urlparse(self.path)
@@ -471,7 +478,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
                 self.end_headers()
                 if self.command != "HEAD":
-                    self.wfile.write(raw)
+                    self._write_body(raw)
                 return True
         except Exception:
             pass
@@ -498,7 +505,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(raw)
+            self._write_body(raw)
         return True
 
     def _normalize_api_path(self) -> str:
@@ -643,7 +650,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self.send_header("X-Contract-Version", "1.8.0-ops-gis-sot")
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(raw)
+            self._write_body(raw)
         return True
 
     def _handle_route_analytics_post(self) -> bool:
@@ -854,7 +861,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self.send_header(hk, hv)
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(result.body)
+            self._write_body(result.body)
         return True
 
     def _serve_map_tiles(self) -> bool:
@@ -918,7 +925,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         self.send_header("X-Sentinel-Tile-Cache", "HIT" if result.cache_hit else "MISS")
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(result.body)
+            self._write_body(result.body)
         return True
 
     def do_GET(self):  # noqa: N802
@@ -1110,6 +1117,9 @@ def main() -> int:
     print(f"ROUTE Analytics sheet at {route_url}")
     print(f"BALANCE sheet at {balance_url}")
     print("Ctrl+C to stop")
+    from services.process_shutdown import install_sigterm
+
+    install_sigterm(server)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

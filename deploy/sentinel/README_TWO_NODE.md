@@ -16,8 +16,7 @@
 cd /opt/oracle1001/sentinel
 sed -i 's/^SENTINEL_AIS_MODE=.*/SENTINEL_AIS_MODE=off/' .env
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-docker cp scripts/run_sentinel_core.py sentinel-core:/app/scripts/run_sentinel_core.py
-docker restart sentinel-core
+# Supervisor is in the baked image. Do not copy files into the running container.
 
 # On London
 systemctl enable --now aisstream-connector.service

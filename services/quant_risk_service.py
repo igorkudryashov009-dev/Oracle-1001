@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 
 from services.dual_gate import (
+    FLEET_WIDE_METRIC_MIN_N,
     compute_fleet_sample_status,
     compute_pipeline_health_status,
     resolve_active_node,
@@ -36,7 +37,7 @@ DB_CANDIDATES = [
     Path("/opt/oracle1001/ais_ingest/история1/sentinel_ais.db"),
 ]
 
-MIN_STATISTICAL_SAMPLE_N = 30  # FLEET_WIDE_METRIC_MIN_N from AGENTS.md
+MIN_STATISTICAL_SAMPLE_N = FLEET_WIDE_METRIC_MIN_N
 
 
 def resolve_db_path(explicit: Optional[Path | str] = None) -> Path:
