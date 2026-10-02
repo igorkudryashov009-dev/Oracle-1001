@@ -1,0 +1,8 @@
+[Unit]
+Description=Sentinel Tier-B GFW events sweep
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/oracle1001/sentinel
+ExecStart=/opt/oracle1001/sentinel/venv/bin/python -m services.coverage_sweep --tier B
+# Do not pass --execute until the operator confirms RAM = 3.0Gi.

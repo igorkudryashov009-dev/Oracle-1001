@@ -1,0 +1,10 @@
+[Unit]
+Description=Sentinel Tier-A GFW sweep (dry-run until RAM is 3.0Gi)
+
+[Timer]
+OnCalendar=*-*-* 04:00:00 UTC
+Persistent=true
+Unit=sentinel-sweep-tiera.service
+
+[Install]
+WantedBy=timers.target
