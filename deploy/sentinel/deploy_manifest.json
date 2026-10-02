@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-09-25T13:14:02Z",
+  "generated_at": "2026-10-02T15:41:15Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -99,8 +99,8 @@
         "web/js/balance_engine.js"
       ],
       "resolved_path": "output/js/balance_engine.js",
-      "sha256": "c0d0ed663fc4a924ecb2bf56398687d535e44222b9ec7efa7f9f99f832f2d81d",
-      "bytes": 36444,
+      "sha256": "4d14809755b723fe73be7e219c60cc40c46f8ff4f1a08c4236364c4bcd8dd59c",
+      "bytes": 39323,
       "critical": false
     },
     {
@@ -386,8 +386,8 @@
         "web/css/sentinel_hud.css"
       ],
       "resolved_path": "output/js/sentinel_hud.css",
-      "sha256": "b695d2ce544a20cd2842a332ce58d02fb34141a186b6855f9c7b8d9d83f5b941",
-      "bytes": 64532,
+      "sha256": "d124ea1c36f3bc99f3c41676261cbd07cff0eb9920609ae8a8b50c0efcfd2a71",
+      "bytes": 64949,
       "critical": true
     },
     {
@@ -476,8 +476,8 @@
         "services/ais_health.py"
       ],
       "resolved_path": "services/ais_health.py",
-      "sha256": "b76986439b01f6c9210148afe27fdda31562196e922e1d8eedafc135bf5aa82d",
-      "bytes": 25029,
+      "sha256": "c7b43ad414646e8a7e392c835f4f13abdb390e769d17ccb3f609b9ff6a75ef4e",
+      "bytes": 25992,
       "critical": true
     },
     {
@@ -572,8 +572,8 @@
         "services/api_auth.py"
       ],
       "resolved_path": "services/api_auth.py",
-      "sha256": "dc2a9fd24cad2ac1bcc0d470d48048627b9ee8647aa29ceba396db4a79b09e12",
-      "bytes": 10185,
+      "sha256": "7d172d3772c88b5e7ca2d8dedc7b33c33cf1305da6daa79b565e1dcdc18b8695",
+      "bytes": 10747,
       "critical": false
     },
     {
@@ -682,6 +682,18 @@
       "resolved_path": "services/config_keys.py",
       "sha256": "be5028bf67ae71dbb36f683474429e8c97a468895e60fc73bd27ec4df1efb7aa",
       "bytes": 6632,
+      "critical": false
+    },
+    {
+      "name": "coverage_sweep.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/coverage_sweep.py"
+      ],
+      "resolved_path": "services/coverage_sweep.py",
+      "sha256": "faaa584dc28ab569aeb171a840331ca69121f46d8e3afdf788b66722808cd0b2",
+      "bytes": 11632,
       "critical": false
     },
     {
@@ -913,6 +925,30 @@
       "critical": true
     },
     {
+      "name": "pilot_register.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/pilot_register.py"
+      ],
+      "resolved_path": "services/pilot_register.py",
+      "sha256": "2baa154047674f033dadedcbb310fc1e8b06a65ebcab6be162104c3c35581bef",
+      "bytes": 8593,
+      "critical": false
+    },
+    {
+      "name": "process_shutdown.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/process_shutdown.py"
+      ],
+      "resolved_path": "services/process_shutdown.py",
+      "sha256": "05ea923592e321d0df582adae796545620ba479646a876e696631aee55e4eb9f",
+      "bytes": 1312,
+      "critical": false
+    },
+    {
       "name": "qflex_vf_poller.py",
       "kind": "service_py",
       "url_path": null,
@@ -932,8 +968,8 @@
         "services/quant_risk_service.py"
       ],
       "resolved_path": "services/quant_risk_service.py",
-      "sha256": "271bf84a18944dfb96dcbe36e00d21107fab4ebccdf34590c8ab68c98acd6f0d",
-      "bytes": 14558,
+      "sha256": "372121b481d18b8ffaf36d9ee2c0ef026dbf955a204608d1d05d370c667b8456",
+      "bytes": 14566,
       "critical": true
     },
     {
@@ -1388,8 +1424,8 @@
         "services/vf_budget_allocator.py"
       ],
       "resolved_path": "services/vf_budget_allocator.py",
-      "sha256": "d76e704486404bcff0541c3afed3f82ab3b4b6da3f47d026aeeab7aea0d979b5",
-      "bytes": 22451,
+      "sha256": "4e1e4f93f045f6ff3a860e81110afc06c9f7bf8103a83d00a134c0f2f74976f6",
+      "bytes": 22453,
       "critical": false
     },
     {
@@ -1611,8 +1647,8 @@
     {
       "web": "web/js/balance_engine.js",
       "output": "output/js/balance_engine.js",
-      "web_sha256": "c0d0ed663fc4a924ecb2bf56398687d535e44222b9ec7efa7f9f99f832f2d81d",
-      "output_sha256": "c0d0ed663fc4a924ecb2bf56398687d535e44222b9ec7efa7f9f99f832f2d81d",
+      "web_sha256": "4d14809755b723fe73be7e219c60cc40c46f8ff4f1a08c4236364c4bcd8dd59c",
+      "output_sha256": "4d14809755b723fe73be7e219c60cc40c46f8ff4f1a08c4236364c4bcd8dd59c",
       "match": true
     },
     {
@@ -1765,8 +1801,8 @@
     {
       "web": "web/css/sentinel_hud.css",
       "output": "output/js/sentinel_hud.css",
-      "web_sha256": "b695d2ce544a20cd2842a332ce58d02fb34141a186b6855f9c7b8d9d83f5b941",
-      "output_sha256": "b695d2ce544a20cd2842a332ce58d02fb34141a186b6855f9c7b8d9d83f5b941",
+      "web_sha256": "d124ea1c36f3bc99f3c41676261cbd07cff0eb9920609ae8a8b50c0efcfd2a71",
+      "output_sha256": "d124ea1c36f3bc99f3c41676261cbd07cff0eb9920609ae8a8b50c0efcfd2a71",
       "match": true
     },
     {

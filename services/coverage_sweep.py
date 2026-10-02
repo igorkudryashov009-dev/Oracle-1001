@@ -338,10 +338,6 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
-
-
 def dry_run_report(
     vessels: list[dict[str, Any]],
     *,
@@ -353,3 +349,7 @@ def dry_run_report(
     b = plan_sweep(tiered, tier="B", used_today=used_today, now=now)
     a = plan_sweep(tiered, tier="A", used_today=used_today + b["planned"], now=now)
     return {"tier_b": b, "tier_a": a, "gfw_events_note": "events, not a position track"}
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
