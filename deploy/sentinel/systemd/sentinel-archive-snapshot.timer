@@ -4,6 +4,7 @@ Description=Sentinel daily archive snapshot (00:30 UTC)
 [Timer]
 OnCalendar=*-*-* 00:30:00 UTC
 Persistent=true
+RandomizedDelaySec=45
 Unit=sentinel-job@archive_snapshot.service
 
 [Install]

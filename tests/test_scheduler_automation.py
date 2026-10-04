@@ -107,6 +107,7 @@ def test_key_activation_skips_without_keys(monkeypatch: pytest.MonkeyPatch, tmp_
     monkeypatch.delenv("GFW_API_TOKEN", raising=False)
     monkeypatch.delenv("GFW_API_KEY", raising=False)
     monkeypatch.delenv("GLOBAL_FISHING_WATCH_TOKEN", raising=False)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     # Isolate from workstation runtime_env / .env secrets
     monkeypatch.setattr(
         "services.runtime_env.RUNTIME_ENV_PATH", tmp_path / "runtime_env.json"
@@ -149,6 +150,10 @@ def test_watchdog_triggers_on_lag_streak(
     monkeypatch.setattr(
         "services.key_activation.run_key_activation_cycle",
         lambda: {"vf": {"ok": False}, "gfw": {"ok": False}},
+    )
+    monkeypatch.setattr(
+        "services.disk_forecast.maybe_disk_forecast_alert",
+        lambda *args, **kwargs: {"alert": False},
     )
     # Two ticks with high lag
     wd.run_pipeline_watchdog()

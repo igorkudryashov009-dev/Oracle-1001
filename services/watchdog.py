@@ -99,8 +99,8 @@ def _disk_guard(disk_free_pct: float | None) -> dict[str, Any]:
         return out
     if disk_free_pct < 20.0:
         out["triggered"] = True
-        out["retention"] = run_retention(max_days=14)
-        out["tiles"] = _prune_tile_caches(max_age_sec=14 * 86400)
+        out["retention"] = run_retention(max_days=7)
+        out["tiles"] = _prune_tile_caches(max_age_sec=7 * 86400)
         emit_alert(
             "disk_guard",
             f"disk_free_pct={disk_free_pct:.1f} — retention + tile prune",
@@ -169,6 +169,13 @@ def run_pipeline_watchdog() -> dict[str, Any]:
     disk_act = _disk_guard(disk_free_f)
     if disk_act.get("triggered"):
         actions.append({"disk_guard": disk_act})
+    if disk_free_f is not None:
+        try:
+            from services.disk_forecast import maybe_disk_forecast_alert
+
+            actions.append({"disk_forecast": maybe_disk_forecast_alert(disk_free_f)})
+        except Exception:  # noqa: BLE001
+            pass
 
     # W3 replica age
     if age > REPLICA_WARN_SEC:

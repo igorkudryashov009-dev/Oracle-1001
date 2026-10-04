@@ -58,15 +58,8 @@ _GATE_KEYS = {
 }
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Public edge health is the slim contract from sanitize_health "
-        "(commit 95da5ff). api_server /api/v1/health returns GateStatus. "
-        "Key sets differ; this prompt does not unify the two handlers."
-    ),
-)
-def test_edge_and_microapi_health_key_sets_match() -> None:
+def test_edge_public_health_stays_slim() -> None:
+    """Public edge health is the slim contract. Gate fields stay off this payload."""
     doc = {
         "pipeline_health_status": "NOMINAL",
         "fleet_sample_status": "INSUFFICIENT",
@@ -74,6 +67,17 @@ def test_edge_and_microapi_health_key_sets_match() -> None:
         "acceptance": {"status": "DEGRADED", "fully_commissioned_at": "2026-09-25T11:40:20Z"},
         "active_node": "korolev",
         "contract_version": "1.8.0-ops-gis-sot",
+        "readiness_score": {"score": 40, "max": 100},
     }
     slim = sanitize_health(doc, tier="public")
-    assert set(slim) == _GATE_KEYS
+    assert set(slim) == {
+        "status",
+        "acceptance",
+        "commissioned",
+        "fully_commissioned_at",
+        "http",
+        "note",
+        "readiness_score",
+    }
+    assert slim["readiness_score"] == 40
+    assert _GATE_KEYS.isdisjoint(set(slim))

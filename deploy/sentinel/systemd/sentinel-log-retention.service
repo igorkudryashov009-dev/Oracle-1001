@@ -1,0 +1,8 @@
+[Unit]
+Description=Sentinel log retention 7 days (03:00 UTC)
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker exec sentinel-web python -m services.log_retention --days 7
+User=root

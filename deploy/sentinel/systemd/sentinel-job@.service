@@ -2,6 +2,7 @@
 Description=Sentinel automation job (%i)
 After=docker.service
 Requires=docker.service
+OnFailure=sentinel-job-failed@%i.service
 
 [Service]
 Type=oneshot

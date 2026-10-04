@@ -153,6 +153,54 @@ def log_job_finish(
             conn.close()
 
 
+DAILY_JOBS = frozenset(
+    {"archive_snapshot", "gfw_poll", "vf_allocator", "acceptance_check", "daily_brief"}
+)
+
+
+def slot_key(job_name: str, *, now: datetime | None = None) -> str:
+    """Idempotency key: UTC date for daily jobs, period bucket for interval jobs."""
+    now = now or _utc_now()
+    meta = JOB_SCHEDULE.get(job_name) or {}
+    every = meta.get("every_sec")
+    if every and job_name not in DAILY_JOBS:
+        bucket = int(now.timestamp()) // int(every)
+        return f"bucket:{int(every)}:{bucket}"
+    return now.strftime("%Y-%m-%d")
+
+
+def finished_in_slot(job_name: str, *, now: datetime | None = None) -> bool:
+    """True when this job already finished ok/skipped inside the current slot."""
+    now = now or _utc_now()
+    key = slot_key(job_name, now=now)
+    ensure_job_log_schema()
+    try:
+        conn = sqlite3.connect(f"file:{_db_path()}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return False
+    try:
+        rows = conn.execute(
+            """
+            SELECT started_at, status
+              FROM job_log
+             WHERE job_name=? AND status IN ('ok', 'skipped')
+             ORDER BY id DESC LIMIT 8
+            """,
+            (job_name,),
+        ).fetchall()
+    except sqlite3.Error:
+        return False
+    finally:
+        conn.close()
+    for started_at, _status in rows:
+        dt = _parse_iso(started_at)
+        if dt is None:
+            continue
+        if slot_key(job_name, now=dt) == key:
+            return True
+    return False
+
+
 def last_job_run(job_name: str) -> dict[str, Any] | None:
     ensure_job_log_schema()
     try:
@@ -260,6 +308,36 @@ def next_run_utc(
     return _utc_iso(candidate)
 
 
+def _overdue_gap_count(job_name: str, period_sec: int) -> int:
+    """How many consecutive-run gaps exceeded 2× the schedule. Zero when the log is empty."""
+    period = max(1, int(period_sec))
+    try:
+        conn = sqlite3.connect(f"file:{_db_path()}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return 0
+    try:
+        rows = conn.execute(
+            """
+            SELECT started_at FROM job_log
+             WHERE job_name=?
+             ORDER BY started_at ASC
+             LIMIT 40
+            """,
+            (job_name,),
+        ).fetchall()
+    except sqlite3.Error:
+        return 0
+    finally:
+        conn.close()
+    stamps = [_parse_iso(r[0]) for r in rows]
+    stamps = [t for t in stamps if t is not None]
+    gaps = 0
+    for prev, cur in zip(stamps, stamps[1:]):
+        if (cur - prev).total_seconds() > 2 * period:
+            gaps += 1
+    return gaps
+
+
 def scheduler_health_block() -> dict[str, Any]:
     """Public /api/v1/health.scheduler blob."""
     now = _utc_now()
@@ -280,13 +358,20 @@ def scheduler_health_block() -> dict[str, Any]:
             if age > 2 * period:
                 is_overdue = True
                 overdue.append(name)
+        started = _parse_iso((last or {}).get("started_at"))
+        finished = _parse_iso((last or {}).get("finished_at"))
+        duration_sec = None
+        if started is not None and finished is not None:
+            duration_sec = round(max(0.0, (finished - started).total_seconds()), 3)
         jobs[name] = {
             "last_run": last_run,
             "last_status": last_status,
+            "duration_sec": duration_sec,
             "next_run": next_run_utc(name, now=now, last=last),
             "period_sec": period,
             "description": meta.get("description"),
             "overdue": is_overdue,
+            "overdue_count": _overdue_gap_count(name, period),
         }
     return {
         "jobs": jobs,
@@ -297,11 +382,14 @@ def scheduler_health_block() -> dict[str, Any]:
 
 
 __all__ = (
+    "DAILY_JOBS",
     "JOB_SCHEDULE",
     "ensure_job_log_schema",
+    "finished_in_slot",
     "last_job_run",
     "log_job_finish",
     "log_job_start",
     "next_run_utc",
     "scheduler_health_block",
+    "slot_key",
 )

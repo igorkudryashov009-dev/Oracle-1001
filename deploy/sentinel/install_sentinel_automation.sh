@@ -31,6 +31,9 @@ sed -i 's/\r$//' "${DEST_RUNNER}"
 chmod +x "${DEST_RUNNER}"
 
 install -m 0644 "${SRC_DIR}/sentinel-job@.service" "${UNIT_DIR}/sentinel-job@.service"
+install -m 0644 "${SRC_DIR}/sentinel-job-failed@.service" "${UNIT_DIR}/sentinel-job-failed@.service"
+install -m 0644 "${SRC_DIR}/sentinel-log-retention.service" "${UNIT_DIR}/sentinel-log-retention.service"
+install -m 0644 "${SRC_DIR}/sentinel-sqlite-optimize.service" "${UNIT_DIR}/sentinel-sqlite-optimize.service"
 for t in \
   sentinel-archive-snapshot.timer \
   sentinel-gfw-poll.timer \
@@ -38,7 +41,9 @@ for t in \
   sentinel-watchdog.timer \
   sentinel-budget-sync.timer \
   sentinel-acceptance.timer \
-  sentinel-daily-brief.timer
+  sentinel-daily-brief.timer \
+  sentinel-log-retention.timer \
+  sentinel-sqlite-optimize.timer
 do
   install -m 0644 "${SRC_DIR}/${t}" "${UNIT_DIR}/${t}"
 done
@@ -51,7 +56,9 @@ for t in \
   sentinel-watchdog.timer \
   sentinel-budget-sync.timer \
   sentinel-acceptance.timer \
-  sentinel-daily-brief.timer
+  sentinel-daily-brief.timer \
+  sentinel-log-retention.timer \
+  sentinel-sqlite-optimize.timer
 do
   systemctl enable --now "${t}"
 done

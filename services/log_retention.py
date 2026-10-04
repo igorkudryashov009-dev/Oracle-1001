@@ -8,6 +8,7 @@ sentinel-core rollup or: python -m services.log_retention
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import time
 from datetime import datetime, timezone
@@ -211,13 +212,53 @@ def run_retention(
             )
 
     freed = sum(int(r.get("bytes_freed") or 0) for r in jsonl_reports + backup_reports)
+    log_prune = _prune_aged_logs(max_days=max_days)
+    try:
+        from services.alerts import rotate_alert_files
+
+        alerts_rotate = rotate_alert_files()
+    except Exception as exc:  # noqa: BLE001
+        alerts_rotate = {"ok": False, "error": type(exc).__name__}
+    ts_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    try:
+        stamp = ROOT / "data" / "archive" / "retention_state.json"
+        stamp.parent.mkdir(parents=True, exist_ok=True)
+        stamp.write_text(
+            json.dumps({"ts_utc": ts_utc, "max_days": int(max_days)}),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
     return {
         "ok": True,
-        "ts_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "ts_utc": ts_utc,
         "jsonl": jsonl_reports,
         "corrupt_backups": backup_reports,
-        "bytes_freed": freed,
+        "bytes_freed": freed + int(log_prune.get("bytes_freed") or 0),
+        "host_logs": log_prune,
+        "alerts_rotate": alerts_rotate,
     }
+
+
+def _prune_aged_logs(*, max_days: int) -> dict[str, Any]:
+    """Delete *.log older than max_days. Default daily retention is 7 days."""
+    cutoff = _utc_now() - max(1, int(max_days)) * 86400.0
+    removed = 0
+    freed = 0
+    roots = [ROOT / "logs", Path("/opt/oracle1001/logs"), Path("/app/logs")]
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for path in root.glob("*.log"):
+            try:
+                if path.stat().st_mtime >= cutoff:
+                    continue
+                freed += path.stat().st_size
+                path.unlink()
+                removed += 1
+            except OSError:
+                continue
+    return {"removed": removed, "bytes_freed": freed, "max_days": int(max_days)}
 
 
 def main() -> int:

@@ -236,6 +236,30 @@ def load_latest_ais(conn: sqlite3.Connection) -> dict[str, dict[str, Any]]:
     return by_imo
 
 
+def vf_raw_has_provenance(raw: str | None) -> bool:
+    """True only for a stored VesselFinder response envelope. A bare coordinate is not enough."""
+    if not raw or not str(raw).strip():
+        return False
+    try:
+        doc = json.loads(raw)
+    except (TypeError, json.JSONDecodeError):
+        return False
+    if not isinstance(doc, dict):
+        return False
+    if doc.get("source") != "vesselfinder":
+        return False
+    if not str(doc.get("imo") or "").strip():
+        return False
+    if not str(doc.get("fetched_at") or "").strip():
+        return False
+    endpoint = str(doc.get("endpoint") or "")
+    if "vesselfinder.com" not in endpoint and "vessels" not in endpoint:
+        return False
+    if any(k in doc for k in ("userkey", "api_key", "VESSELFINDER_API_KEY")):
+        return False
+    return True
+
+
 def load_vf_overlays(conn: sqlite3.Connection, snapshot_date: str) -> dict[str, dict[str, Any]]:
     """Optional VF verification rows written by allocator runner (same-day)."""
     try:
@@ -247,9 +271,11 @@ def load_vf_overlays(conn: sqlite3.Connection, snapshot_date: str) -> dict[str, 
         )
         if not cur.fetchone():
             return {}
+        cols = {str(r[1]) for r in conn.execute("PRAGMA table_info(vf_position_cache)")}
+        raw_sql = ", raw_json" if "raw_json" in cols else ""
         cur = conn.execute(
-            """
-            SELECT imo, lat, lon, sog, cog, nav_status, draught, fetched_at
+            f"""
+            SELECT imo, lat, lon, sog, cog, nav_status, draught, fetched_at{raw_sql}
             FROM vf_position_cache
             WHERE date(fetched_at) = ?
             """,
@@ -262,6 +288,8 @@ def load_vf_overlays(conn: sqlite3.Connection, snapshot_date: str) -> dict[str, 
         imo = str(row[0] or "").strip()
         if not imo:
             continue
+        raw = row[8] if len(row) > 8 else None
+        verified = 1 if vf_raw_has_provenance(raw) else 0
         out[imo] = {
             "lat": row[1],
             "lon": row[2],
@@ -271,7 +299,8 @@ def load_vf_overlays(conn: sqlite3.Connection, snapshot_date: str) -> dict[str, 
             "draft_m": row[6],
             "timestamp_utc": row[7],
             "source": "vf_api",
-            "vf_verified": 1,
+            "vf_verified": verified,
+            "raw_json": raw,
         }
     return out
 
@@ -404,7 +433,7 @@ def build_snapshot_rows(
         tags = str(rec.get("sanctions_tags") or "").upper()
         in_sts = 1 if "STS" in tags else 0
         spoof_flag = 1 if imo_key in spoofed else 0
-        vf_verified = 1 if (source == "vf_api" or int(vf.get("vf_verified") or 0) == 1) else 0
+        vf_verified = 1 if int(vf.get("vf_verified") or 0) == 1 else 0
 
         rows.append(
             (
@@ -450,7 +479,22 @@ def upsert_snapshot(conn: sqlite3.Connection, rows: list[tuple[Any, ...]]) -> in
         return 0
     placeholders = ",".join("?" for _ in ARCHIVE_COLUMNS)
     cols = ",".join(ARCHIVE_COLUMNS)
-    sql = f"INSERT OR REPLACE INTO vessel_daily_archive ({cols}) VALUES ({placeholders})"
+    # A later snapshot of the same day must not clear a flag the poll already wrote.
+    preserve = {"gfw_verified", "gfw_events_n"}
+    updates = []
+    for col in ARCHIVE_COLUMNS:
+        if col in ("snapshot_date", "imo"):
+            continue
+        if col in preserve:
+            updates.append(
+                f"{col}=MAX(COALESCE(vessel_daily_archive.{col},0), COALESCE(excluded.{col},0))"
+            )
+        else:
+            updates.append(f"{col}=excluded.{col}")
+    sql = (
+        f"INSERT INTO vessel_daily_archive ({cols}) VALUES ({placeholders}) "
+        f"ON CONFLICT(snapshot_date, imo) DO UPDATE SET {', '.join(updates)}"
+    )
     try:
         conn.execute("BEGIN IMMEDIATE")
         conn.executemany(sql, rows)

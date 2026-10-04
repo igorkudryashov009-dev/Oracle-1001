@@ -17,6 +17,7 @@ Usage (from repo root):
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import sys
 import tarfile
@@ -85,6 +86,12 @@ INTEL_ENV_KEYS = (
     "GFW_API_TOKEN",
     "GFW_API_KEY",
     "GLOBAL_FISHING_WATCH_TOKEN",
+    "VESSELFINDER_API_KEY",
+    "VESSEL_FINDER_USERKEY",
+    "SATELLITE_API_KEY",
+    "SAT_PROVIDER",
+    "SAT_BASE_URL",
+    "SAT_DAILY_CAP",
 )
 
 BAKE_INCLUDE_PREFIXES = (
@@ -317,6 +324,8 @@ def _should_exclude(rel: str) -> bool:
         return True
     if rel.endswith((".pyc", ".pyo", ".db", ".db-wal", ".db-shm")):
         return True
+    if rel == "secrets" or rel.startswith("secrets/") or "/secrets/" in f"/{rel}":
+        return True
     return False
 
 
@@ -355,9 +364,50 @@ def build_bake_tarball(dest: Path) -> Path:
     return dest
 
 
+def maybe_install_vessel_finder_key() -> bool:
+    """If secrets/vessel_finder.key exists and its sha256 changed, install it locally.
+
+    The following seed pushes the new .env line. The value is never printed.
+    """
+    key_path = REPO / "secrets" / "vessel_finder.key"
+    stamp = REPO / "data" / "archive" / "vessel_finder.key.sha256"
+    if not key_path.is_file():
+        print("[OK] secrets/vessel_finder.key absent — skip VF auto-install")
+        return False
+    from services.key_install import vessel_finder_autoinstall
+
+    action = vessel_finder_autoinstall(key_path, stamp, env_path=REPO / ".env")
+    if action == "skip":
+        digest = hashlib.sha256(key_path.read_bytes()).hexdigest()[:12]
+        print(f"[OK] vessel_finder.key sha256 unchanged ({digest}) — skip VF auto-install")
+        return False
+    if action == "refused":
+        print("[!] VF auto-install refused: invalid_vesselfinder_key_format")
+        return False
+    print("[OK] VF auto-install from secrets/vessel_finder.key (value not printed)")
+    return action == "installed"
+
+
+def push_runtime_overlay(ssh: paramiko.SSHClient) -> None:
+    """Copy the fresh runtime overlay so a probe does not keep the image env."""
+    local = REPO / "data" / "archive" / "runtime_env.json"
+    if not local.is_file():
+        return
+    remote_dir = f"{APP_A}/data/archive"
+    run(ssh, f"mkdir -p '{remote_dir}'")
+    sftp_put(ssh, local, f"{remote_dir}/runtime_env.json")
+    signal = REPO / "data" / "archive" / "key_install_signal"
+    if signal.is_file():
+        sftp_put(ssh, signal, f"{remote_dir}/key_install_signal")
+    print("[OK] runtime_env overlay synced (values not printed)")
+
+
 def bake_node_a(ssh: paramiko.SSHClient, *, no_cache: bool = True) -> None:
     print("[OK] Node A FULL IMAGE BAKE starting")
+    installed_vf = maybe_install_vessel_finder_key()
     seed_intel_env_from_local(ssh)
+    if installed_vf:
+        push_runtime_overlay(ssh)
     with tempfile.TemporaryDirectory(prefix="sentinel_bake_") as tmp:
         pack = Path(tmp) / "sentinel_deploy_bake.tgz"
         build_bake_tarball(pack)

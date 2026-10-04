@@ -552,6 +552,20 @@ def run_acceptance_check(*, trigger: str | None = None) -> dict[str, Any]:
     if blob.get("status") == "GREEN" and blob.get("transition") and "GREEN" in str(blob.get("transition")):
         out["commissioned"] = bool(blob.get("fully_commissioned_at"))
         out["rows"] = 1
+    try:
+        from services.ops_daily import write_ops_daily
+
+        path = write_ops_daily(acceptance=blob)
+        out["ops_daily"] = path.name
+    except Exception:  # noqa: BLE001
+        out["ops_daily"] = None
+    try:
+        from services.acceptance_history import append_acceptance_history, backfill_from_job_log
+
+        backfill_from_job_log()
+        out["acceptance_history"] = append_acceptance_history(blob)
+    except Exception:  # noqa: BLE001
+        out["acceptance_history"] = None
     return out
 
 

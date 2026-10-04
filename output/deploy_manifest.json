@@ -1,7 +1,7 @@
 {
   "manifest_version": "2.0.0-autodiscover",
   "discovery": "auto-glob",
-  "generated_at": "2026-10-02T15:53:09Z",
+  "generated_at": "2026-10-04T09:28:11Z",
   "contract_version": "1.7.0-autodiscover-oracle-sot",
   "node_a": {
     "host": "45.8.230.214",
@@ -229,9 +229,22 @@
         "web/js/sentinel_engine.js"
       ],
       "resolved_path": "output/js/sentinel_engine.js",
-      "sha256": "3a7c82ff8262eb068c55d61400c499f3e5f585ac2097eca4e08d48544bd5bb54",
-      "bytes": 51959,
+      "sha256": "9fc970f526fae11081d7cefecb5c7445898a2e125e2be06dcc79cb9d15f00397",
+      "bytes": 53344,
       "critical": true
+    },
+    {
+      "name": "sentinel_i18n.js",
+      "kind": "hud_js",
+      "url_path": "/output/js/sentinel_i18n.js",
+      "local_paths": [
+        "output/js/sentinel_i18n.js",
+        "web/js/sentinel_i18n.js"
+      ],
+      "resolved_path": "output/js/sentinel_i18n.js",
+      "sha256": "f76e47ab111ae3404934ad7beefb3d50186074742c0f506d2ad3311a03c799f5",
+      "bytes": 2864,
+      "critical": false
     },
     {
       "name": "top10_3d_viewer.js",
@@ -452,8 +465,20 @@
         "services/acceptance.py"
       ],
       "resolved_path": "services/acceptance.py",
-      "sha256": "de12c1561ea22adce332c81abe76f153aadca171b2b7d0086ec6364a6077924c",
-      "bytes": 24037,
+      "sha256": "06ad2f86eccfc9cad9dfc820836db8f122000b81a0c945ae7370b1f396180bdc",
+      "bytes": 24557,
+      "critical": false
+    },
+    {
+      "name": "acceptance_history.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/acceptance_history.py"
+      ],
+      "resolved_path": "services/acceptance_history.py",
+      "sha256": "953bb415d4714387908be5ddbd7d5e9efe79e24c2a63679c52c51cc4f388d69a",
+      "bytes": 5334,
       "critical": false
     },
     {
@@ -476,8 +501,8 @@
         "services/ais_health.py"
       ],
       "resolved_path": "services/ais_health.py",
-      "sha256": "c7b43ad414646e8a7e392c835f4f13abdb390e769d17ccb3f609b9ff6a75ef4e",
-      "bytes": 25992,
+      "sha256": "edfc566e1c302a1e7e58c4f29881731f5b453afda155df82ff8d313fbdd292b8",
+      "bytes": 27158,
       "critical": true
     },
     {
@@ -536,8 +561,8 @@
         "services/alerts.py"
       ],
       "resolved_path": "services/alerts.py",
-      "sha256": "98a2bec4ba6250e8efb48a7c7fb749dc0243763a671d88c1a7456d09e055f4ea",
-      "bytes": 9338,
+      "sha256": "eb1f8b7e64bda64e63a99f3aafeb874cf24774998de2790cb3eee3c7d3200a11",
+      "bytes": 11562,
       "critical": false
     },
     {
@@ -572,8 +597,8 @@
         "services/api_auth.py"
       ],
       "resolved_path": "services/api_auth.py",
-      "sha256": "7d172d3772c88b5e7ca2d8dedc7b33c33cf1305da6daa79b565e1dcdc18b8695",
-      "bytes": 10747,
+      "sha256": "ec646750b8b85fb8e171cd0d222e9b7319606ea5bb91ca3dda61941c8fb994d3",
+      "bytes": 11407,
       "critical": false
     },
     {
@@ -608,8 +633,8 @@
         "services/archive_snapshot_worker.py"
       ],
       "resolved_path": "services/archive_snapshot_worker.py",
-      "sha256": "4089528a580fcedc604dffaedf08d5aaef64c88b5ff27c8eef477185b487663d",
-      "bytes": 26249,
+      "sha256": "e3da1c4b509c24743d92cb63788537ec1db3a60c49959169b178e2b39111feb3",
+      "bytes": 27969,
       "critical": false
     },
     {
@@ -644,8 +669,8 @@
         "services/cache_swr.py"
       ],
       "resolved_path": "services/cache_swr.py",
-      "sha256": "913c83e54b1e1fc04b9cb6fffe6ba7ba14f0b0cebb8a262644d8b224fb397cb2",
-      "bytes": 4692,
+      "sha256": "dba14b21132eee36b0b386d16a0d5718a75e1ceba235071ad330e361853bc131",
+      "bytes": 5048,
       "critical": false
     },
     {
@@ -692,8 +717,32 @@
         "services/coverage_sweep.py"
       ],
       "resolved_path": "services/coverage_sweep.py",
-      "sha256": "d916dc71348ebc56c6bd40106a9f0125733a3507a830062add07909fde3e6706",
-      "bytes": 12114,
+      "sha256": "2666899ab14ef7ee2c76dc24d76e88acf5ba5f5b2f8c6876a7478386db576bf1",
+      "bytes": 12501,
+      "critical": false
+    },
+    {
+      "name": "db_backend.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/db_backend.py"
+      ],
+      "resolved_path": "services/db_backend.py",
+      "sha256": "7ea4995945ea7a81a4dff15b41012e7e3a0331ce5d684b5a3a8ad9fd4a1a4af2",
+      "bytes": 1073,
+      "critical": false
+    },
+    {
+      "name": "disk_forecast.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/disk_forecast.py"
+      ],
+      "resolved_path": "services/disk_forecast.py",
+      "sha256": "e450feeb9b59cac11c9e572a26b16172092459ffae3bf66a56eb3f6ec3c1d229",
+      "bytes": 5423,
       "critical": false
     },
     {
@@ -704,8 +753,8 @@
         "services/dual_gate.py"
       ],
       "resolved_path": "services/dual_gate.py",
-      "sha256": "af1f19e31b32d4d002695afb5300fab0eb78fd63b54883c7ef351d037e2f1c5f",
-      "bytes": 15365,
+      "sha256": "231121a803064fd58da44e28cb822af488fb060c3af173baad63aa95f2a8d8d7",
+      "bytes": 17640,
       "critical": true
     },
     {
@@ -764,8 +813,8 @@
         "services/gfw_events.py"
       ],
       "resolved_path": "services/gfw_events.py",
-      "sha256": "39969403a7c8248eea2777ba70c619d3187935395908cad6f11cb92a595295b1",
-      "bytes": 26234,
+      "sha256": "b9ad5a122f20c79362f9d7dcc6bbae6675aad05557ecf19ebe312dc73a39b3ce",
+      "bytes": 28912,
       "critical": false
     },
     {
@@ -781,6 +830,30 @@
       "critical": false
     },
     {
+      "name": "i18n_catalog.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/i18n_catalog.py"
+      ],
+      "resolved_path": "services/i18n_catalog.py",
+      "sha256": "2ba9088bbe9e3e0040fb6cd7ca72dd6a964fc75498652331ff04b0da0cee39f8",
+      "bytes": 1929,
+      "critical": false
+    },
+    {
+      "name": "job_lock.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/job_lock.py"
+      ],
+      "resolved_path": "services/job_lock.py",
+      "sha256": "4d8bc25cabdae30cd60ce16ff9df7fc866aa44a652f37c993d1b36e672f38fd5",
+      "bytes": 1400,
+      "critical": false
+    },
+    {
       "name": "job_log.py",
       "kind": "service_py",
       "url_path": null,
@@ -788,8 +861,8 @@
         "services/job_log.py"
       ],
       "resolved_path": "services/job_log.py",
-      "sha256": "3483ff4b41121c81af35be0fd4a1d5ccce34f6a32db2b5840cae472e2bd4f856",
-      "bytes": 9368,
+      "sha256": "f05a3b5f3a10cf71b5f597fa948050cb2e8bad0a7ff623de5127f4c0f8c57ddb",
+      "bytes": 12311,
       "critical": false
     },
     {
@@ -800,8 +873,8 @@
         "services/key_activation.py"
       ],
       "resolved_path": "services/key_activation.py",
-      "sha256": "e724623afcdb836d8d4c17968aea79501e10b90f07c901a12849f7f907044feb",
-      "bytes": 15732,
+      "sha256": "8f62bbded3db10256061ce8ad7d1dd921e898dcbe62af8439d63b0dcc47e22b5",
+      "bytes": 21881,
       "critical": false
     },
     {
@@ -824,8 +897,8 @@
         "services/llm_router.py"
       ],
       "resolved_path": "services/llm_router.py",
-      "sha256": "0179d0abb437050c1a60440c5eec6a302f5fb75b25b357ac06f0afd1b613017c",
-      "bytes": 10645,
+      "sha256": "6f66e74a037f2fdeb88bf364cec1c46e968c5d79e450bb73b6ee5a3aabc5070c",
+      "bytes": 31085,
       "critical": false
     },
     {
@@ -836,8 +909,8 @@
         "services/log_retention.py"
       ],
       "resolved_path": "services/log_retention.py",
-      "sha256": "e43a9e308933872ed7011d2daef49c6039cec3eec80db5bf4b8f7ed7c9444125",
-      "bytes": 7890,
+      "sha256": "e0e087239e3ecc042107fbf19b8011c1711fdabf2e595f3639e89c44a36c2005",
+      "bytes": 9364,
       "critical": false
     },
     {
@@ -872,8 +945,8 @@
         "services/market_data_service.py"
       ],
       "resolved_path": "services/market_data_service.py",
-      "sha256": "671436a011399c255b548ead0c412b08f85ff1669e20a9659dab3227656ec6df",
-      "bytes": 14513,
+      "sha256": "3302e08ad82853333e7944aba8661c0eba23267d139d1b1f2247be55876c0c05",
+      "bytes": 14968,
       "critical": false
     },
     {
@@ -913,6 +986,30 @@
       "critical": false
     },
     {
+      "name": "ops_contour.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ops_contour.py"
+      ],
+      "resolved_path": "services/ops_contour.py",
+      "sha256": "af9e95d56ddce437f56e39adefe51882f5b6e06462e4fc074d7623caf2eda49e",
+      "bytes": 11092,
+      "critical": false
+    },
+    {
+      "name": "ops_daily.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/ops_daily.py"
+      ],
+      "resolved_path": "services/ops_daily.py",
+      "sha256": "95a1b829e23e317d03067eb30ef77965fecf9af49ff9571f49c189bd18afa4aa",
+      "bytes": 2735,
+      "critical": false
+    },
+    {
       "name": "oracle_engine.py",
       "kind": "service_py",
       "url_path": null,
@@ -932,8 +1029,8 @@
         "services/pilot_register.py"
       ],
       "resolved_path": "services/pilot_register.py",
-      "sha256": "2baa154047674f033dadedcbb310fc1e8b06a65ebcab6be162104c3c35581bef",
-      "bytes": 8593,
+      "sha256": "d05f71f05c30accef552e37418fef0bc94b9d196f169ebf54d92aefe89f677bb",
+      "bytes": 13082,
       "critical": false
     },
     {
@@ -1009,6 +1106,18 @@
       "critical": false
     },
     {
+      "name": "satellite_adapter.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/satellite_adapter.py"
+      ],
+      "resolved_path": "services/satellite_adapter.py",
+      "sha256": "fdf2a9aefade05a4be24773f3a1c6d23f58d7e32bfc2f59db505ea3ec96c743f",
+      "bytes": 6697,
+      "critical": false
+    },
+    {
       "name": "satellite_ais_adapter.py",
       "kind": "service_py",
       "url_path": null,
@@ -1028,8 +1137,20 @@
         "services/scheduler.py"
       ],
       "resolved_path": "services/scheduler.py",
-      "sha256": "b37183e75d2b4dec2f15dc36e073d91c8956748afc858a545f0b533a343abe03",
-      "bytes": 8943,
+      "sha256": "07369ffd47c5580d840e1003701ea32760d27cbe4ea885da67d8edcde485ef4d",
+      "bytes": 12069,
+      "critical": false
+    },
+    {
+      "name": "secret_scan.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/secret_scan.py"
+      ],
+      "resolved_path": "services/secret_scan.py",
+      "sha256": "6d0cf58d97ec9e7e457c6da2548549c353d76a785efdf4b1f1c8059d3367f134",
+      "bytes": 1118,
       "critical": false
     },
     {
@@ -1057,6 +1178,18 @@
       "critical": false
     },
     {
+      "name": "sqlite_maintenance.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/sqlite_maintenance.py"
+      ],
+      "resolved_path": "services/sqlite_maintenance.py",
+      "sha256": "1cfb39db6166c28f174a98a5febaaf21199b3a62d4bddcc704bbbe5708835335",
+      "bytes": 1174,
+      "critical": false
+    },
+    {
       "name": "sqlite_retention.py",
       "kind": "service_py",
       "url_path": null,
@@ -1066,6 +1199,18 @@
       "resolved_path": "services/sqlite_retention.py",
       "sha256": "a3486dbd10a2a2b914d41a56cee08b57b00199404cd31fd2d21f6183c26b6bbe",
       "bytes": 14851,
+      "critical": false
+    },
+    {
+      "name": "sqlite_wal.py",
+      "kind": "service_py",
+      "url_path": null,
+      "local_paths": [
+        "services/sqlite_wal.py"
+      ],
+      "resolved_path": "services/sqlite_wal.py",
+      "sha256": "100ccc8e02b7763c4eb0e536e6f6b372c6c2344f110496ba859bfa28e4b1297a",
+      "bytes": 392,
       "critical": false
     },
     {
@@ -1112,8 +1257,8 @@
         "services/top10_vessels.py"
       ],
       "resolved_path": "services/top10_vessels.py",
-      "sha256": "336a47e90562e63cef53a33e5cea58825d88f10126fe4cf804e6edaeeaf02d85",
-      "bytes": 20727,
+      "sha256": "e5f98ee212b8bc53b218a7b3549d7686221264261d4a9d8dd0dcfba7d5e88093",
+      "bytes": 21168,
       "critical": false
     },
     {
@@ -1412,8 +1557,8 @@
         "services/vf_allocator_runner.py"
       ],
       "resolved_path": "services/vf_allocator_runner.py",
-      "sha256": "bc59564e5e87ae24f6464a02ad7e00cc3a1031f626e03c4878f29a23b58f2c61",
-      "bytes": 4925,
+      "sha256": "73965132cc10463a06bb37c8c2d1aee177ab7dc06d8e014e74876e4f7f5136f0",
+      "bytes": 5677,
       "critical": false
     },
     {
@@ -1424,8 +1569,8 @@
         "services/vf_budget_allocator.py"
       ],
       "resolved_path": "services/vf_budget_allocator.py",
-      "sha256": "4e1e4f93f045f6ff3a860e81110afc06c9f7bf8103a83d00a134c0f2f74976f6",
-      "bytes": 22453,
+      "sha256": "2445010bf8034d103545be099a6a9aa244a1af651e9855bf12be98c7fde39316",
+      "bytes": 23875,
       "critical": false
     },
     {
@@ -1436,8 +1581,8 @@
         "services/watchdog.py"
       ],
       "resolved_path": "services/watchdog.py",
-      "sha256": "606384cf6befacd017e25f34b9ab434e612e0abfd06872bfb16b978b8c2f12a4",
-      "bytes": 7319,
+      "sha256": "78476af726d0d9b185f72196a04da5f9ce1fce9435542817e1a8dafdc16f94e5",
+      "bytes": 7588,
       "critical": false
     },
     {
@@ -1717,8 +1862,15 @@
     {
       "web": "web/js/sentinel_engine.js",
       "output": "output/js/sentinel_engine.js",
-      "web_sha256": "3a7c82ff8262eb068c55d61400c499f3e5f585ac2097eca4e08d48544bd5bb54",
-      "output_sha256": "3a7c82ff8262eb068c55d61400c499f3e5f585ac2097eca4e08d48544bd5bb54",
+      "web_sha256": "9fc970f526fae11081d7cefecb5c7445898a2e125e2be06dcc79cb9d15f00397",
+      "output_sha256": "9fc970f526fae11081d7cefecb5c7445898a2e125e2be06dcc79cb9d15f00397",
+      "match": true
+    },
+    {
+      "web": "web/js/sentinel_i18n.js",
+      "output": "output/js/sentinel_i18n.js",
+      "web_sha256": "f76e47ab111ae3404934ad7beefb3d50186074742c0f506d2ad3311a03c799f5",
+      "output_sha256": "f76e47ab111ae3404934ad7beefb3d50186074742c0f506d2ad3311a03c799f5",
       "match": true
     },
     {

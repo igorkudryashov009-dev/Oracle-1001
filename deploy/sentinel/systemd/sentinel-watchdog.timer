@@ -5,6 +5,7 @@ Description=Sentinel pipeline watchdog every 15 minutes
 OnBootSec=3min
 OnUnitActiveSec=15min
 Persistent=true
+RandomizedDelaySec=30
 Unit=sentinel-job@pipeline_watchdog.service
 
 [Install]

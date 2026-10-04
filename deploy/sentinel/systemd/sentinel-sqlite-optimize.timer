@@ -1,0 +1,11 @@
+[Unit]
+Description=Sentinel archive ANALYZE daily 04:00 UTC
+
+[Timer]
+OnCalendar=*-*-* 04:00:00 UTC
+Persistent=true
+RandomizedDelaySec=55
+Unit=sentinel-sqlite-optimize.service
+
+[Install]
+WantedBy=timers.target

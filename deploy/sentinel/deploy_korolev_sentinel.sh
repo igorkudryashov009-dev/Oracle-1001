@@ -177,16 +177,47 @@ PY
 # Intel route smoke (must be 200 after bake — closes Sections II–V 404 drift).
 # Auth: empty API_KEYS_JSON = bootstrap open; with keys, legacy X-Contract-Version
 # grants readonly for 24h deprecation (HUD/smoke must not require X-API-Key).
+echo "==> wait until sentinel-web is healthy and live /api/v1/health is 200"
+live_ok=0
+for i in $(seq 1 30); do
+  web_h="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' sentinel-web 2>/dev/null || echo missing)"
+  if curl -fsS --max-time 5 "http://127.0.0.1:8765/api/v1/health" >/tmp/sentinel_live_health.json 2>/dev/null \
+    && [[ "${web_h}" == "healthy" ]]; then
+    echo "HEALTH_OK container=${web_h}"
+    live_ok=1
+    break
+  fi
+  sleep 2
+done
+if [[ "${live_ok}" != "1" ]]; then
+  echo "ERROR: refusing smoke/verify before container health" >&2
+  exit 1
+fi
+
+echo "==> manifest regen after health ok"
+if [[ -f scripts/write_deploy_manifest.py ]]; then
+  python3 scripts/write_deploy_manifest.py || echo "WARN: manifest regen skipped"
+fi
+
 echo "==> intel route smoke"
 for path in \
   /output/api/v1/news/latest \
   /output/api/v1/gis/firms/anomalies \
   /output/api/v1/market/summary
 do
-  code="$(curl -sS -o /tmp/intel_smoke.json -w '%{http_code}' --max-time 20 \
-    -H 'X-Contract-Version: 1.8.0-ops-gis-sot' \
-    "http://127.0.0.1:8765${path}" || echo 000)"
-  echo "  ${path} -> HTTP ${code}"
+  code="000"
+  for attempt in 1 2 3 4 5; do
+    code="$(curl -sS -o /tmp/intel_smoke.json -w '%{http_code}' --max-time 40 \
+      -H 'X-Contract-Version: 1.8.0-ops-gis-sot' \
+      "http://127.0.0.1:8765${path}" || true)"
+    code="${code//[^0-9]/}"
+    code="${code: -3}"
+    echo "  ${path} attempt ${attempt} -> HTTP ${code}"
+    if [[ "${code}" == "200" ]]; then
+      break
+    fi
+    sleep 3
+  done
   if [[ "${code}" != "200" ]]; then
     echo "ERROR: intel route ${path} expected 200 got ${code}" >&2
     head -c 400 /tmp/intel_smoke.json 2>/dev/null || true
@@ -204,11 +235,16 @@ if int(st.get("total") or 0) != 7:
     raise SystemExit("expected 7 registry keys")
 PY
 
-# Re-seed after BAKE_OK — core/web may rewrite top10_vessels_manifest.js during first boot.
+# Re-seed after BAKE_OK. rsync -a skips a destination whose mtime is newer,
+# so a Python LF rewrite of top10_vessels_manifest.js (write_js_manifest)
+# survives a later rsync of the host CRLF file. cp -a always pins host bytes.
 echo "==> re-seed output_artifacts after first-boot writers settle"
 sleep 5
 if [[ -n "${VOL_OUT}" && -d "${VOL_OUT}" && -d output/js ]]; then
-  rsync -a output/js/ "${VOL_OUT}/js/"
+  rsync -a --checksum output/js/ "${VOL_OUT}/js/"
+  if [[ -f output/js/top10_vessels_manifest.js ]]; then
+    cp -a output/js/top10_vessels_manifest.js "${VOL_OUT}/js/top10_vessels_manifest.js"
+  fi
   [[ -f output/sentinel_dashboard.html ]] && cp -a output/sentinel_dashboard.html "${VOL_OUT}/sentinel_dashboard.html"
   chown -R 10001:10001 "${VOL_OUT}/js" 2>/dev/null || true
   echo "RESEED_OUTPUT_VOLUME ok"
@@ -224,6 +260,33 @@ elif [[ -f deploy/sentinel/install_sentinel_automation.sh ]]; then
   bash deploy/sentinel/install_sentinel_automation.sh || true
 else
   echo "WARN: install_sentinel_automation.sh missing — timers not armed" >&2
+fi
+
+# Last step, after bootstrap (~20s) and timer install. A late LF rewrite
+# loses to this pin. Fail the deploy if the volume bytes are not the host file.
+echo "==> pin top10_vessels_manifest.js from host Sync-Tree"
+TOP10_SRC="output/js/top10_vessels_manifest.js"
+if [[ -f "${TOP10_SRC}" && -n "${VOL_OUT}" && -d "${VOL_OUT}/js" ]]; then
+  for _pin in 1 2 3; do
+    cp -a "${TOP10_SRC}" "${VOL_OUT}/js/top10_vessels_manifest.js"
+    chown 10001:10001 "${VOL_OUT}/js/top10_vessels_manifest.js" 2>/dev/null || true
+    sleep 8
+  done
+  cp -a "${TOP10_SRC}" "${VOL_OUT}/js/top10_vessels_manifest.js"
+  chown 10001:10001 "${VOL_OUT}/js/top10_vessels_manifest.js" 2>/dev/null || true
+  host_sha="$(sha256sum "${TOP10_SRC}" | awk '{print $1}')"
+  vol_sha="$(sha256sum "${VOL_OUT}/js/top10_vessels_manifest.js" | awk '{print $1}')"
+  if [[ "${host_sha}" != "${vol_sha}" ]]; then
+    echo "ERROR: top10 manifest pin mismatch host=${host_sha} volume=${vol_sha}" >&2
+    exit 1
+  fi
+  echo "TOP10_MANIFEST_PINNED ${host_sha}"
+  if [[ -f output/deploy_manifest.json ]]; then
+    cp -a output/deploy_manifest.json "${VOL_OUT}/deploy_manifest.json"
+    echo "DEPLOY_MANIFEST_PINNED $(sha256sum output/deploy_manifest.json | awk '{print $1}')"
+  fi
+else
+  echo "WARN: top10 manifest pin skipped (src or volume missing)" >&2
 fi
 
 echo "==> deploy_korolev_sentinel done (baked)"

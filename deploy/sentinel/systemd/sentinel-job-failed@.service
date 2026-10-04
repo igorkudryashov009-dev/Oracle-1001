@@ -1,0 +1,7 @@
+[Unit]
+Description=Alert when Sentinel job %i fails
+
+[Service]
+Type=oneshot
+ExecStart=/opt/oracle1001/sentinel/scripts/emit_alert.sh job_failed %i systemd oneshot failed
+User=root

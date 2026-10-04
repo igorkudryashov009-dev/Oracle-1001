@@ -5,6 +5,7 @@ Description=Sentinel budget sync every 60 minutes
 OnBootSec=5min
 OnUnitActiveSec=60min
 Persistent=true
+RandomizedDelaySec=30
 Unit=sentinel-job@budget_sync.service
 
 [Install]

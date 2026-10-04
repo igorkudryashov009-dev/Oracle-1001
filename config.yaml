@@ -97,6 +97,9 @@ budget:
   combined_cap_usd: 80
   ledger_report: features/budget_ledger.json
 
+# Live serving stays sqlite until docs/timescale_migration_runbook.md cutover.
+db_backend: sqlite
+
 gas_weekly:
   # Priority universe for paid weekly poll (risk tier → DWT desc)
   top_n_target: 500

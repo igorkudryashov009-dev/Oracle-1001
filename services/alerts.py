@@ -82,8 +82,96 @@ def _save_state(st: dict[str, Any]) -> None:
 def _append_jsonl(rec: dict[str, Any]) -> None:
     path = _path()
     path.parent.mkdir(parents=True, exist_ok=True)
+    line = json.dumps(rec, ensure_ascii=False) + "\n"
     with path.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        fh.write(line)
+    month = _utc_now().strftime("%Y-%m")
+    monthly = path.parent / f"alerts-{month}.jsonl"
+    if monthly.name != path.name:
+        with monthly.open("a", encoding="utf-8") as fh:
+            fh.write(line)
+
+
+WEBHOOK_BACKOFF_SEC = (60, 300, 900)
+DEAD_LETTER_PATH = ROOT / "data" / "archive" / "alerts_deadletter.jsonl"
+
+
+def deliver_webhook(
+    url: str,
+    payload: dict[str, Any],
+    *,
+    post: Any,
+    sleep: Any,
+) -> dict[str, Any]:
+    """Immediate POST, then 3 retries after 1, 5 and 15 minutes on 5xx or network errors."""
+    attempts: list[Any] = []
+    delays = (0,) + WEBHOOK_BACKOFF_SEC
+    for delay in delays:
+        if delay:
+            sleep(delay)
+        try:
+            resp = post(url, json=payload, timeout=8)
+            code = int(getattr(resp, "status_code", 0) or 0)
+            attempts.append(code)
+            if code and code < 500:
+                return {"ok": 200 <= code < 400, "attempts": attempts, "dead_letter": False}
+        except Exception as exc:  # noqa: BLE001
+            attempts.append(type(exc).__name__)
+    rec = {
+        "ts": _utc_iso(),
+        "kind": payload.get("kind"),
+        "attempts": attempts,
+        "dead_letter": True,
+    }
+    try:
+        DEAD_LETTER_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with DEAD_LETTER_PATH.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+    return {"ok": False, "attempts": attempts, "dead_letter": True}
+
+
+def time_sleep(seconds: float) -> None:
+    import time
+
+    time.sleep(seconds)
+
+
+def _start_webhook(url: str, payload: dict[str, Any]) -> None:
+    import threading
+
+    def _run() -> None:
+        import requests
+
+        deliver_webhook(url, payload, post=requests.post, sleep=time_sleep)
+
+    threading.Thread(target=_run, name="alert-webhook", daemon=True).start()
+
+
+def rotate_alert_files(active: Path | None = None, *, now: datetime | None = None) -> dict[str, Any]:
+    """One alerts-YYYY-MM.jsonl per month. Gzip copies older than two months."""
+    import gzip
+    import shutil
+
+    now = now or _utc_now()
+    active = active or _path()
+    active.parent.mkdir(parents=True, exist_ok=True)
+    month = now.strftime("%Y-%m")
+    current = active.parent / f"alerts-{month}.jsonl"
+    if active.is_file() and active.name != current.name and not current.exists():
+        shutil.copyfile(active, current)
+    cutoff_month = (now.replace(day=1) - timedelta(days=62)).strftime("%Y-%m")
+    gzipped = 0
+    for path in list(active.parent.glob("alerts-*.jsonl")):
+        stamp = path.stem.replace("alerts-", "")
+        if len(stamp) == 7 and stamp < cutoff_month:
+            gz = path.with_suffix(".jsonl.gz")
+            with path.open("rb") as src, gzip.open(gz, "wb") as dst:
+                shutil.copyfileobj(src, dst)
+            path.unlink()
+            gzipped += 1
+    return {"ok": True, "month": month, "gzipped": gzipped, "current": current.name}
 
 
 def _dedup_key(kind: str, detail: dict[str, Any] | None) -> str:
@@ -170,30 +258,7 @@ def emit_alert(
     except Exception:  # noqa: BLE001
         webhook = (os.getenv("ALERT_WEBHOOK_URL") or "").strip()
     if webhook:
-        try:
-            import requests
-
-            requests.post(webhook, json=rec, timeout=8)
-            try:
-                dlog = ROOT / "data" / "archive" / "alert_delivery_log.jsonl"
-                with dlog.open("a", encoding="utf-8") as fh:
-                    fh.write(
-                        json.dumps(
-                            {
-                                "ts": rec["ts"],
-                                "kind": rec["kind"],
-                                "severity": rec["severity"],
-                                "delivered": True,
-                                "webhook_configured": True,
-                            },
-                            ensure_ascii=False,
-                        )
-                        + "\n"
-                    )
-            except OSError:
-                pass
-        except Exception as exc:  # noqa: BLE001
-            LOG.warning("alert webhook failed: %s", type(exc).__name__)
+        _start_webhook(webhook, rec)
     return rec
 
 
@@ -266,6 +331,9 @@ def alerts_health_block() -> dict[str, Any]:
 __all__ = (
     "alerts_health_block",
     "clear_alert",
+    "DEAD_LETTER_PATH",
+    "deliver_webhook",
     "emit_alert",
     "resolve_alert",
+    "rotate_alert_files",
 )

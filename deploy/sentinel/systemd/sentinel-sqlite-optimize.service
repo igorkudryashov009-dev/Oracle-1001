@@ -1,0 +1,8 @@
+[Unit]
+Description=Sentinel SQLite ANALYZE and PRAGMA optimize (04:00 UTC)
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker exec sentinel-core python -m services.sqlite_maintenance
+User=root

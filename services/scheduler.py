@@ -132,8 +132,15 @@ def _job_acceptance_check() -> dict[str, Any]:
 
 
 def _job_daily_brief() -> dict[str, Any]:
-    from services.llm_router import run_daily_brief
+    from services.llm_router import llm_runner_mode, run_daily_brief
 
+    if llm_runner_mode() == "remote":
+        return {
+            "ok": True,
+            "skipped": True,
+            "reason": "llm_runner_remote",
+            "rows": 0,
+        }
     return run_daily_brief()
 
 
@@ -148,10 +155,19 @@ JOB_HANDLERS: dict[str, Callable[[], dict[str, Any]]] = {
 }
 
 
-def run_job(job_name: str) -> dict[str, Any]:
+def run_job(job_name: str, *, force: bool = False) -> dict[str, Any]:
     if job_name not in JOB_HANDLERS:
         raise ValueError(f"unknown job: {job_name}")
+    from services.job_log import finished_in_slot
+
     ensure_job_log_schema()
+    if not force and finished_in_slot(job_name):
+        return {
+            "job": job_name,
+            "status": "skipped",
+            "rows_affected": 0,
+            "detail": {"skipped": True, "reason": "already_finished_slot"},
+        }
     row_id = log_job_start(job_name)
     try:
         detail = JOB_HANDLERS[job_name]()
@@ -172,7 +188,14 @@ def run_job(job_name: str) -> dict[str, Any]:
 
             emit_alert(f"job_error_{job_name}", err, severity="WARN", detail={"job": job_name})
         else:
-            log_job_finish(row_id, status=status, rows_affected=rows, detail=detail)
+            skip_reason = str(detail.get("reason") or "") if skipped else ""
+            log_job_finish(
+                row_id,
+                status=status,
+                rows_affected=rows,
+                error=skip_reason or None,
+                detail=detail,
+            )
             # Overdue clear when job succeeds
             from services.alerts import clear_alert
 
@@ -191,6 +214,74 @@ def run_job(job_name: str) -> dict[str, Any]:
         return {"job": job_name, "status": "error", "error": err}
 
 
+def _remediation_path() -> Path:
+    return ROOT / "data" / "archive" / "remediation_state.json"
+
+
+def _load_remediation() -> dict[str, str]:
+    path = _remediation_path()
+    if not path.is_file():
+        return {}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return raw if isinstance(raw, dict) else {}
+
+
+def _mark_remediated(job_name: str, now: datetime) -> None:
+    path = _remediation_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    st = _load_remediation()
+    st[job_name] = now.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    path.write_text(json.dumps(st, indent=2), encoding="utf-8")
+
+
+def _recently_remediated(job_name: str, now: datetime) -> bool:
+    raw = _load_remediation().get(job_name)
+    if not raw:
+        return False
+    try:
+        dt = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    period = int((JOB_SCHEDULE.get(job_name) or {}).get("period_sec") or 86400)
+    return (now - dt.astimezone(timezone.utc)).total_seconds() < period
+
+
+def remediate_overdue(*, background: bool = True, now: datetime | None = None) -> list[str]:
+    """One background retry per overdue job per period. flock -n skips a busy job."""
+    import threading
+
+    from services.job_lock import release_lock, try_lock
+
+    now = now or datetime.now(timezone.utc)
+    block = scheduler_health_block()
+    launched: list[str] = []
+    for name in list(block.get("overdue_jobs") or []):
+        if _recently_remediated(name, now):
+            continue
+        lock = try_lock(f"job-{name}")
+        if lock is None:
+            continue
+        _mark_remediated(name, now)
+
+        def _work(job: str = name, held=lock) -> None:
+            try:
+                run_job(job, force=True)
+            finally:
+                release_lock(held)
+
+        if background:
+            threading.Thread(target=_work, name=f"remediate-{name}", daemon=True).start()
+        else:
+            _work()
+        launched.append(name)
+    return launched
+
+
 def check_overdue_alerts() -> dict[str, Any]:
     from services.alerts import clear_alert, emit_alert
 
@@ -201,10 +292,12 @@ def check_overdue_alerts() -> dict[str, Any]:
             "scheduler_overdue",
             f"overdue_jobs_n={n}: {block.get('overdue_jobs')}",
             severity="WARN",
-            detail={"overdue": block.get("overdue_jobs")},
+            detail={"overdue": block.get("overdue_jobs"), "provider": "scheduler"},
         )
+        block["remediation_started"] = remediate_overdue()
     else:
         clear_alert("scheduler_overdue")
+        block["remediation_started"] = []
     return block
 
 
