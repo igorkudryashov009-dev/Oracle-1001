@@ -573,6 +573,26 @@ def fetch_events_for_imo(
     return payload
 
 
+def collapse_duplicate_gfw_events(conn: sqlite3.Connection) -> int:
+    """Keep the oldest row for each (vessel_imo, event_type, start_utc)."""
+    ensure_gfw_schema(conn)
+    before = int(conn.execute("SELECT COUNT(*) FROM vessel_gfw_events").fetchone()[0] or 0)
+    conn.execute(
+        """
+        DELETE FROM vessel_gfw_events
+        WHERE start_utc IS NOT NULL AND TRIM(start_utc) != ''
+          AND id NOT IN (
+            SELECT MIN(id) FROM vessel_gfw_events
+            WHERE start_utc IS NOT NULL AND TRIM(start_utc) != ''
+            GROUP BY vessel_imo, event_type, start_utc
+          )
+        """
+    )
+    conn.commit()
+    after = int(conn.execute("SELECT COUNT(*) FROM vessel_gfw_events").fetchone()[0] or 0)
+    return before - after
+
+
 def persist_events(
     imo: str,
     events: list[dict[str, Any]],
@@ -590,11 +610,49 @@ def persist_events(
     conn = sqlite3.connect(str(db), timeout=30.0)
     try:
         ensure_gfw_schema(conn)
+        collapse_duplicate_gfw_events(conn)
         n = 0
         for ev in events:
             raw = ev.get("raw_json") or "{}"
             if not isinstance(raw, str):
                 raw = json.dumps(raw, ensure_ascii=False)
+            etype = str(ev.get("event_type") or "unknown")
+            start = ev.get("start_utc")
+            # Same vessel + type + start is one event, even when event_id is missing.
+            existing = None
+            if start:
+                existing = conn.execute(
+                    """
+                    SELECT id FROM vessel_gfw_events
+                    WHERE vessel_imo=? AND event_type=? AND start_utc=?
+                    ORDER BY id
+                    LIMIT 1
+                    """,
+                    (imo_i, etype, start),
+                ).fetchone()
+            if existing:
+                conn.execute(
+                    """
+                    UPDATE vessel_gfw_events
+                       SET event_id=COALESCE(?, event_id),
+                           end_utc=?,
+                           lat=?,
+                           lon=?,
+                           fetched_at=?,
+                           raw_json=?
+                     WHERE id=?
+                    """,
+                    (
+                        ev.get("event_id"),
+                        ev.get("end_utc"),
+                        ev.get("lat"),
+                        ev.get("lon"),
+                        fetched,
+                        raw,
+                        existing[0],
+                    ),
+                )
+                continue
             conn.execute(
                 """
                 INSERT INTO vessel_gfw_events
@@ -611,9 +669,9 @@ def persist_events(
                 """,
                 (
                     imo_i,
-                    ev.get("event_id") or f"anon-{n}-{fetched}",
-                    str(ev.get("event_type") or "unknown"),
-                    ev.get("start_utc"),
+                    ev.get("event_id") or f"anon-{imo_i}-{etype}-{start or n}",
+                    etype,
+                    start,
                     ev.get("end_utc"),
                     ev.get("lat"),
                     ev.get("lon"),
@@ -646,17 +704,30 @@ def load_gap48_imos(*, db_path: Path | None = None, limit: int = BATCH_DAILY_MAX
     if not db.is_file():
         return []
     day = (_utc_now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    cap = min(max(0, int(limit)), BATCH_DAILY_MAX)
     conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
+        already = conn.execute(
+            """
+            SELECT COUNT(*) FROM vessel_daily_archive
+            WHERE snapshot_date = ? AND COALESCE(gfw_verified, 0) = 1
+            """,
+            (day,),
+        ).fetchone()
+        flagged = int(already[0] if already else 0)
+        take = min(cap, max(0, BATCH_DAILY_MAX - flagged))
+        if take <= 0:
+            return []
         rows = conn.execute(
             """
             SELECT imo FROM vessel_daily_archive
             WHERE snapshot_date = ?
               AND gap_hours IS NOT NULL AND gap_hours > 48
+              AND COALESCE(gfw_verified, 0) = 0
             ORDER BY gap_hours DESC
             LIMIT ?
             """,
-            (day, int(limit)),
+            (day, take),
         ).fetchall()
         return [str(r[0]) for r in rows if r and r[0]]
     except sqlite3.Error:

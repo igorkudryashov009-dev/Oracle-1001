@@ -25,6 +25,10 @@ KNOWN_KEYS = (
     "VESSEL_FINDER_USERKEY",
     "ANTHROPIC_API_KEY",
     "ALERT_WEBHOOK_URL",
+    "SATELLITE_API_KEY",
+    "SAT_PROVIDER",
+    "SAT_BASE_URL",
+    "SAT_DAILY_CAP",
 )
 
 _LOCK = threading.RLock()

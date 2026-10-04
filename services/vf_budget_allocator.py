@@ -281,11 +281,40 @@ def save_state(state: dict[str, Any], path: Path | None = None) -> None:
 
 
 def _priority_sort_key(slot: VesselSlot, *, gap_threshold: float) -> tuple:
-    """Lower tuple = higher priority: P1 gap, P2 hotlist, P3 round-robin by oldest VF."""
+    """Lower tuple = higher priority. Largest gap_hours wins; ties keep P1/P2/RR."""
     p1 = 0 if slot.gap_hours >= gap_threshold else 1
     p2 = 0 if slot.in_hotlist else 1
     last = slot.last_vf_at or "1970-01-01T00:00:00Z"
-    return (p1, p2, last, -slot.dwt, slot.rank)
+    return (-float(slot.gap_hours), p1, p2, last, -slot.dwt, slot.rank)
+
+
+def load_gfw_closed_imos(*, day: str, db_path: Path | None = None) -> set[str]:
+    """IMOs GFW already verified on this snapshot date. VF must not spend on them."""
+    import sqlite3
+
+    from services.storage import DEFAULT_DB
+
+    db = Path(db_path or os.environ.get("SENTINEL_DB_PATH") or DEFAULT_DB)
+    if not db.is_file():
+        return set()
+    try:
+        conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+        try:
+            cols = {str(r[1]) for r in conn.execute("PRAGMA table_info(vessel_daily_archive)")}
+            if "gfw_verified" not in cols or "imo" not in cols:
+                return set()
+            rows = conn.execute(
+                """
+                SELECT imo FROM vessel_daily_archive
+                WHERE snapshot_date = ? AND COALESCE(gfw_verified, 0) = 1
+                """,
+                (day,),
+            ).fetchall()
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        return set()
+    return {str(r[0]) for r in rows if r[0] is not None}
 
 
 def _select_tier(
@@ -390,10 +419,14 @@ def plan_daily_allocation(
 
     gaps = {} if simulate else load_terrestrial_gaps(db_path=db_path, now=now)
     hot = set() if simulate else load_hotlist_imos()
+    closed = set() if simulate else load_gfw_closed_imos(day=day_s, db_path=db_path)
     for s in top_slots + rest_slots:
         s.gap_hours = float(gaps.get(s.imo, 1e9))
         if s.imo in hot:
             s.in_hotlist = True
+    # Credits only on gap vessels GFW has not already closed today.
+    top_slots = [s for s in top_slots if s.imo not in closed and s.gap_hours >= TOP_GAP_HOURS]
+    rest_slots = [s for s in rest_slots if s.imo not in closed and s.gap_hours >= REST_GAP_HOURS]
 
     tier_used = state.get("tier_used") or {"top": 0, "rest": 0}
     top_tier_left = max(0, TOP_TIER_BUDGET - int(tier_used.get("top") or 0))

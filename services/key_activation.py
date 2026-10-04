@@ -163,7 +163,6 @@ def _cooldown_blocks_probe(name: str) -> bool:
 def probe_vesselfinder(*, force: bool = False) -> dict[str, Any]:
     """One cheap AIS-only GET; never prints key."""
     import requests
-    from services.key_manager import mask_key
     from services.runtime_env import apply_runtime_env
     from services.vesselfinder_client import VESSELS_URL, resolve_userkey
 
@@ -200,24 +199,29 @@ def probe_vesselfinder(*, force: bool = False) -> dict[str, Any]:
         if isinstance(data, dict) and data.get("error"):
             err = str(data.get("error"))
         invalid = bool(err and "Invalid Userkey" in err) or resp.status_code in (401, 403)
+        masked = _mask_last4(key)
         if invalid:
-            record_provider_error("vesselfinder", err or f"http_{resp.status_code}")
+            record_provider_error("vesselfinder", "invalid_key")
+            _alert_vf_invalid_key(masked)
             return {
                 "ok": False,
                 "configured": True,
-                "error": err or "invalid_key",
+                "status": "invalid_key",
+                "error": "invalid_key",
                 "http_status": resp.status_code,
-                "key_masked": mask_key(key),
+                "key_masked": masked,
                 "new_key": new_key,
             }
         if resp.status_code == 200 and not err:
             record_provider_ok("vesselfinder")
             _set_provider("vesselfinder", key_fp=_fingerprint(key))
+            _clear_vf_invalid_alert()
             return {
                 "ok": True,
                 "configured": True,
+                "status": "active",
                 "http_status": 200,
-                "key_masked": mask_key(key),
+                "key_masked": masked,
                 "new_key": new_key,
             }
         record_provider_error("vesselfinder", err or f"http_{resp.status_code}")
@@ -284,6 +288,85 @@ def probe_gfw(*, force: bool = False) -> dict[str, Any]:
         return {"ok": False, "configured": True, "error": str(exc)[:160]}
 
 
+def _alert_vf_invalid_key(masked: str) -> None:
+    """Deduped alert. The message carries the mask only."""
+    from services.alerts import emit_alert
+
+    emit_alert(
+        "vf_invalid_key",
+        f"VesselFinder invalid_key {masked}",
+        severity="WARN",
+        detail={"provider": "vesselfinder", "status": "invalid_key", "key_masked": masked},
+    )
+
+
+def _clear_vf_invalid_alert() -> None:
+    from services.alerts import resolve_alert
+
+    resolve_alert("vf_invalid_key", reason="probe_ok")
+
+
+def vf_health_block() -> dict[str, Any]:
+    """Watcher-facing VF channel. No raw key."""
+    from services.vesselfinder_client import resolve_userkey
+
+    key = (resolve_userkey() or "").strip()
+    st = provider_state("vesselfinder")
+    err = str(st.get("last_error") or "")
+    if st.get("last_ok") is True and not st.get("paused"):
+        status = "active"
+    elif not key:
+        status = "parked"
+    elif err == "invalid_key" or "Invalid Userkey" in err:
+        status = "invalid_key"
+    elif st.get("paused"):
+        status = "paused"
+    else:
+        status = "parked"
+    masked = _mask_last4(key) if key else None
+    note = {
+        "active": "active",
+        "invalid_key": "Invalid Userkey",
+        "paused": "paused",
+    }.get(status, "awaiting new key — function covered by GFW")
+    return {
+        "status": status,
+        "configured": bool(key),
+        "paused": bool(st.get("paused")),
+        "last_ok": st.get("last_ok"),
+        "key_masked": masked,
+        "note": note,
+    }
+
+
+def _mask_last4(secret: str) -> str:
+    text = (secret or "").strip()
+    if len(text) < 4:
+        return "****"
+    return "****" + text[-4:]
+
+
+def probe_anthropic(*, force: bool = False) -> dict[str, Any]:
+    """HTTP probe against Anthropic. A stored string alone is not activation."""
+    from services.llm_router import anthropic_models_probe
+    from services.runtime_env import getenv_secret
+
+    key = getenv_secret("ANTHROPIC_API_KEY")
+    if not key:
+        return {"ok": False, "configured": False}
+    masked = _mask_last4(key)
+    needs = force or provider_state("anthropic").get("last_ok") is not True or _maybe_reset_for_new_key("anthropic", key)
+    if not needs:
+        return {"ok": True, "configured": True, "masked": masked, "llm_unlocked": True, "skipped": "already_ok"}
+    probed = anthropic_models_probe(key)
+    if not probed.get("ok"):
+        err = str(probed.get("error") or "invalid_key")
+        record_provider_error("anthropic", err)
+        return {"ok": False, "configured": True, "error": err, "masked": masked}
+    record_provider_ok("anthropic")
+    return {"ok": True, "configured": True, "masked": masked, "llm_unlocked": True}
+
+
 def _force_today_resnapshot() -> dict[str, Any]:
     from services.archive_snapshot_worker import take_daily_snapshot
 
@@ -295,6 +378,24 @@ def _force_today_resnapshot() -> dict[str, Any]:
         "overlay": r.get("live_ais_overlay"),
         "date": today,
     }
+
+
+def _log_anthropic_probe(probed: dict[str, Any]) -> None:
+    """Append-only probe failure. The key itself stays out of job_log."""
+    from services.job_log import log_job_finish, log_job_start
+
+    row_id = log_job_start("key_activation_anthropic")
+    log_job_finish(
+        row_id,
+        status="error",
+        rows_affected=0,
+        error=str(probed.get("error") or "probe_failed")[:120],
+        detail={
+            "provider": "anthropic",
+            "phase": "probe",
+            "masked": probed.get("masked"),
+        },
+    )
 
 
 def _immediate_first_run(provider: str) -> dict[str, Any]:
@@ -349,6 +450,47 @@ def _immediate_first_run(provider: str) -> dict[str, Any]:
                     }
         except Exception:  # noqa: BLE001
             pass
+    elif provider in {"anthropic", "anthropic_api_key"}:
+        from services.job_log import log_job_finish, log_job_start
+        from services.llm_router import run_daily_brief
+
+        row_id = log_job_start("key_activation_anthropic")
+        brief = run_daily_brief()
+        chars = int(brief.get("chars") or 0)
+        if not chars:
+            chars = len(str(brief.get("text") or brief.get("markdown") or ""))
+        out["daily_brief"] = {
+            "ok": bool(brief.get("ok")),
+            "status": brief.get("status"),
+            "configured": bool(brief.get("configured")),
+            "chars": chars,
+            "prompt_hash": brief.get("prompt_hash"),
+            "source_rows": brief.get("source_rows"),
+        }
+        out["llm_unlocked"] = True
+        out["resnapshot"] = _force_today_resnapshot()
+        log_job_finish(
+            row_id,
+            status="ok" if brief.get("ok") else "error",
+            rows_affected=1 if chars else 0,
+            detail={"provider": "anthropic", "masked": probe_anthropic().get("masked")},
+        )
+        if brief.get("ok") and chars:
+            try:
+                from services.acceptance import maybe_rerun_acceptance_after_verification
+
+                acc = maybe_rerun_acceptance_after_verification(
+                    channel="anthropic", verified_hint=1, job_detail={"verified_n": 1}
+                )
+                if acc:
+                    out["acceptance"] = {
+                        "status": acc.get("status"),
+                        "transition": acc.get("transition"),
+                        "fully_commissioned_at": acc.get("fully_commissioned_at"),
+                        "trigger": acc.get("trigger"),
+                    }
+            except Exception:  # noqa: BLE001
+                pass
     return out
 
 
@@ -366,10 +508,13 @@ def run_key_activation_cycle(*, force_providers: list[str] | None = None) -> dic
             forced.add("vesselfinder")
         if signal in {"gfw_api_token"}:
             forced.add("gfw")
+        if signal in {"satellite", "sat", "satellite_api_key"}:
+            forced.add("satellite")
 
     result: dict[str, Any] = {
         "vf": None,
         "gfw": None,
+        "anthropic": None,
         "signal": signal,
         "immediate_runs": [],
     }
@@ -413,14 +558,40 @@ def run_key_activation_cycle(*, force_providers: list[str] | None = None) -> dic
     else:
         result["gfw"] = {"ok": False, "paused": True, "cooldown": _cooldown_blocks_probe("gfw")}
 
+    anth_key = (os.getenv("ANTHROPIC_API_KEY") or "").strip()
+    anth_st = provider_state("anthropic")
+    force_anth = "anthropic" in forced or "anthropic_api_key" in forced
+    if anth_key and (force_anth or anth_st.get("last_ok") is not True or _maybe_reset_for_new_key("anthropic", anth_key)):
+        result["anthropic"] = probe_anthropic(force=force_anth)
+        if result["anthropic"].get("ok"):
+            result["immediate_runs"].append(_immediate_first_run("anthropic"))
+        else:
+            _log_anthropic_probe(result["anthropic"])
+    elif anth_key:
+        result["anthropic"] = {"ok": True, "skipped": "already_ok", "llm_unlocked": True, "masked": _mask_last4(anth_key)}
+    else:
+        result["anthropic"] = {"ok": False, "configured": False}
+
+    from services.satellite_adapter import armed, probe as probe_satellite
+
+    force_sat = "satellite" in forced
+    if armed() and (force_sat or provider_state("satellite").get("last_ok") is not True):
+        result["satellite"] = probe_satellite()
+        if result["satellite"].get("status") == "active":
+            record_provider_ok("satellite")
+    else:
+        result["satellite"] = {"status": "parked", "requests": 0}
+
     return result
 
 
 __all__ = (
     "is_provider_paused",
+    "probe_anthropic",
     "probe_gfw",
     "probe_vesselfinder",
     "provider_state",
+    "vf_health_block",
     "record_provider_error",
     "record_provider_ok",
     "run_key_activation_cycle",

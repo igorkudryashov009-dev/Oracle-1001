@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import sqlite3
 from datetime import datetime, timezone
@@ -65,10 +66,14 @@ def run_vf_allocator_live(*, dry_run: bool = False) -> dict[str, Any]:
             CREATE TABLE IF NOT EXISTS vf_position_cache (
                 imo TEXT PRIMARY KEY,
                 lat REAL, lon REAL, sog REAL, cog REAL,
-                nav_status TEXT, draught REAL, fetched_at TEXT
+                nav_status TEXT, draught REAL, fetched_at TEXT,
+                raw_json TEXT
             )
             """
         )
+        cols = {str(r[1]) for r in conn.execute("PRAGMA table_info(vf_position_cache)")}
+        if "raw_json" not in cols:
+            conn.execute("ALTER TABLE vf_position_cache ADD COLUMN raw_json TEXT")
         conn.commit()
     finally:
         conn.close()
@@ -89,17 +94,26 @@ def run_vf_allocator_live(*, dry_run: bool = False) -> dict[str, Any]:
                 result["failed"].append({"imo": imo, "error": "no_coords"})
                 continue
             fetched = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            provenance = {
+                "source": "vesselfinder",
+                "endpoint": str(out.get("endpoint") or "https://api.vesselfinder.com/vessels"),
+                "imo": str(imo),
+                "fetched_at": fetched,
+                "status_code": out.get("status_code"),
+                "billed": bool(out.get("billed")),
+            }
             conn = sqlite3.connect(str(db), timeout=30.0)
             try:
                 conn.execute(
                     """
                     INSERT INTO vf_position_cache
-                      (imo, lat, lon, sog, cog, nav_status, draught, fetched_at)
-                    VALUES (?,?,?,?,?,?,?,?)
+                      (imo, lat, lon, sog, cog, nav_status, draught, fetched_at, raw_json)
+                    VALUES (?,?,?,?,?,?,?,?,?)
                     ON CONFLICT(imo) DO UPDATE SET
                       lat=excluded.lat, lon=excluded.lon, sog=excluded.sog,
                       cog=excluded.cog, nav_status=excluded.nav_status,
-                      draught=excluded.draught, fetched_at=excluded.fetched_at
+                      draught=excluded.draught, fetched_at=excluded.fetched_at,
+                      raw_json=excluded.raw_json
                     """,
                     (
                         str(imo),
@@ -110,6 +124,7 @@ def run_vf_allocator_live(*, dry_run: bool = False) -> dict[str, Any]:
                         norm.get("nav_status"),
                         norm.get("current_draft_m") or norm.get("draft_m") or norm.get("draught"),
                         fetched,
+                        json.dumps(provenance, ensure_ascii=False),
                     ),
                 )
                 conn.commit()
