@@ -47,6 +47,7 @@ YAHOO_SPOT_TICKERS: dict[str, str] = {
     "wti":   "CL=F",
     "ttf":   "TTF=F",
     "natgas": "NG=F",
+    "gold": "GC=F",
 }
 YAHOO_HOSTS = (
     "https://query1.finance.yahoo.com",
@@ -218,6 +219,18 @@ def _fetch_yahoo_spot_commodities() -> dict[str, Any]:
         }
     else:
         errors.append("NG=F:failed")
+
+    # GC=F is COMEX gold continuous. LBMA/GOLD on Nasdaq Data Link 403s from this node.
+    gold_px = _yahoo_latest_close("GC=F")
+    if gold_px:
+        results["gold"] = {
+            "configured": True,
+            "provider": "yahoo_finance",
+            "ticker": "GC=F",
+            "latest": {"Settle": gold_px, "unit": "USD/oz", "fetched_at": _now_iso()},
+        }
+    else:
+        errors.append("GC=F:failed")
 
     if not results:
         raise RuntimeError("yahoo_spot_all_failed: " + "; ".join(errors))

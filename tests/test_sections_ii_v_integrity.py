@@ -163,6 +163,24 @@ def test_market_nasdaq_codes_include_ttf_brent_gold():
     assert "gold" in NASDAQ_CODES
 
 
+def test_yahoo_gold_fills_before_nasdaq(monkeypatch):
+    from services import market_data_service as mkt
+
+    calls: list[str] = []
+
+    def _close(ticker: str):
+        calls.append(ticker)
+        return {"BZ=F": 100.0, "CL=F": 90.0, "TTF=F": 30.0, "NG=F": 3.0, "GC=F": 2650.5}.get(ticker)
+
+    monkeypatch.setattr(mkt, "_yahoo_latest_close", _close)
+    monkeypatch.setattr(mkt, "_get_eur_usd_rate", lambda: 1.1)
+    out = mkt._fetch_yahoo_spot_commodities()
+    assert out["gold"]["latest"]["Settle"] == 2650.5
+    assert out["gold"]["provider"] == "yahoo_finance"
+    assert out["gold"]["ticker"] == "GC=F"
+    assert "GC=F" in calls
+
+
 def test_news_topic_filter():
     from services.news_service import TOPIC_TERMS, _matches_topics
 
@@ -197,10 +215,17 @@ def test_ais_tracker_is_g3_cache_first_not_second_ws():
 
 
 def test_hud_sentinel_engine_has_news_and_firms_layers():
-    hud = (ROOT_DIR / "web" / "sentinel_engine.js").read_text(encoding="utf-8")
-    assert "Термоточки FIRMS" in hud
-    assert "Новости" in hud
-    assert "/api/v1/gis/firms/anomalies" in hud
-    assert "/api/v1/news/latest" in hud
-    assert "sentinelNewsTicker" in hud
-    assert "startIntelPolls" in hud
+    hud = (ROOT_DIR / "web" / "js" / "sentinel_engine.js").read_text(encoding="utf-8")
+    mirror = (ROOT_DIR / "web" / "sentinel_engine.js").read_text(encoding="utf-8")
+    for src in (hud, mirror):
+        assert "Термоточки FIRMS" in src
+        assert "КС / коридоры" in src
+        assert "firmsLayer.addTo(map)" in src
+        assert "csLayer.addTo(map)" in src
+        assert "/api/v1/gis/compressor-stations" in src
+        assert "s.corridor" in src
+        assert "Новости" in src
+        assert "/api/v1/gis/firms/anomalies" in src
+        assert "/api/v1/news/latest" in src
+        assert "sentinelNewsTicker" in src
+        assert "startIntelPolls" in src

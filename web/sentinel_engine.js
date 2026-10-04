@@ -136,6 +136,7 @@
     if (heroSub) {
       heroSub.textContent =
         `Generated ${P.generated_at_utc || "—"} · Fleet DWT ${fmt(fs.total_dwt)} t · ${P.source_mode} · ${ops}`;
+      heroSub.setAttribute("data-i18n-live", "1");
     }
     const foot = document.getElementById("footMeta");
     if (foot) {
@@ -208,16 +209,48 @@
     });
     vesselLayer.addTo(map);
     const firmsLayer = L.layerGroup();
+    const csLayer = L.layerGroup();
     const newsLayer = L.layerGroup(); // reserved for future geo-tagged news pins
     const overlays = {
       "Суда (AIS)": vesselLayer,
+      "КС / коридоры": csLayer,
       "Термоточки FIRMS": firmsLayer,
       "Новости": newsLayer,
     };
     L.control.layers(null, overlays, { collapsed: true, position: "topright" }).addTo(map);
-    map.__sentinelLayers = { vesselLayer, firmsLayer, newsLayer };
+    csLayer.addTo(map);
+    firmsLayer.addTo(map);
+    map.__sentinelLayers = { vesselLayer, csLayer, firmsLayer, newsLayer };
+    const corridorColor = (name) => {
+      const palette = ["#38bdf8", "#a78bfa", "#34d399", "#fbbf24", "#f472b6", "#22d3ee", "#fb7185", "#c4b5fd"];
+      let h = 0;
+      const s = String(name || "");
+      for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+      return palette[h % palette.length];
+    };
+    const gisHeaders = { "X-Contract-Version": "1.8.0-ops-gis-sot" };
+    fetch("/api/v1/gis/compressor-stations", { cache: "no-store", headers: gisHeaders })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((doc) => {
+        const stations = doc && Array.isArray(doc.stations) ? doc.stations : [];
+        stations.forEach((s) => {
+          if (s.lat == null || s.lon == null) return;
+          const color = corridorColor(s.corridor);
+          const tip = [s.name || s.id || "CS", s.corridor || null, s.operator || null]
+            .filter(Boolean)
+            .join(" · ");
+          L.circleMarker([s.lat, s.lon], {
+            radius: 3,
+            color,
+            fillColor: color,
+            fillOpacity: 0.9,
+            weight: 1,
+          }).bindTooltip(tip, { direction: "top" }).addTo(csLayer);
+        });
+      })
+      .catch(() => { /* keep map usable offline */ });
     // Lazy-load FIRMS anomalies onto the thermal layer
-    fetch(`/api/v1/gis/firms/anomalies?days=1&max_distance_nm=50&nocache=${Date.now()}`, { cache: "no-store" })
+    fetch(`/api/v1/gis/firms/anomalies?days=1&max_distance_nm=50&nocache=${Date.now()}`, { cache: "no-store", headers: gisHeaders })
       .then((r) => (r.ok ? r.json() : null))
       .then((geo) => {
         if (!geo || !Array.isArray(geo.features)) return;

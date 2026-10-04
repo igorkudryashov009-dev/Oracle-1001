@@ -472,7 +472,16 @@ def sync_reference_assets(*, force: bool = True) -> dict[str, Any]:
 
 
 def write_js_manifest() -> Path:
-    """Emit ES module consumed by the TOP10 sheet."""
+    """Emit ES module consumed by the TOP10 sheet.
+
+    Inside the container the host-pinned file is the contract bytes (CRLF
+    hash). The TTF rollup calls this and would otherwise replace that file
+    with a Linux LF regen (different sha256). Keep the pinned file.
+    """
+    out_path = OUT_JS / "top10_vessels_manifest.js"
+    if Path("/.dockerenv").is_file() and out_path.is_file():
+        if _os.environ.get("SENTINEL_ALLOW_MANIFEST_REGEN") != "1":
+            return out_path
     catalog = build_catalog()
     # TOP10_REF_BASE is kept as a portable sentinel string — no hardcoded OS paths
     # in the browser bundle. HTTP assets are served via /assets/7000/ virtual mount.

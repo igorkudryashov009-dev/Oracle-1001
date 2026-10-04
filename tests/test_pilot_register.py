@@ -52,7 +52,7 @@ def test_pilot_register_happy_path(pilot_db: Path) -> None:
     row = find_by_email("pilot@archea.example", db_path=pilot_db)
     assert row is not None
     assert row["company"] == "Archea OSINT"
-    assert row["status"] == "active"
+    assert row["status"] == "registered"
     assert row["vessels"] == "[]"
     assert row["key_mask"].startswith("****")
     assert row["key_hash"] == hash_api_key(api_key)

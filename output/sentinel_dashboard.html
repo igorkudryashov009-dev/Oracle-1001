@@ -472,6 +472,15 @@ body.t10-modal-open{overflow:hidden}
   position:relative;z-index:40}
 .fleet-sample-banner.on{display:block}
 .fleet-sample-banner strong{color:#fbbf24;font-weight:700}
+html[dir="rtl"] .nav,
+html[dir="rtl"] .sheet-tabs,
+html[dir="rtl"] .hero,
+html[dir="rtl"] .fleet-sample-banner { direction: rtl; }
+html[dir="rtl"] .leaflet-control-container,
+html[dir="rtl"] .maplibregl-ctrl-top-right,
+html[dir="rtl"] .maplibregl-ctrl-top-left,
+html[dir="rtl"] .maplibregl-ctrl-bottom-right,
+html[dir="rtl"] .maplibregl-ctrl-bottom-left { direction: ltr; }
 .ttf-skel{min-height:220px;display:flex;align-items:center;justify-content:center;
   border:1px dashed rgba(248,113,113,.45);border-radius:12px;color:#fca5a5;
   font-family:var(--font-hud);font-size:11px;letter-spacing:.05em;text-align:center;padding:16px;
@@ -486,27 +495,27 @@ body.t10-modal-open{overflow:hidden}
   <a class="brand" href="mission_control.html">ORACLE-1001 · SENTINEL</a>
   <span id="opsStatus" class="ops-pill">OPS —</span>
   <div class="nav-links">
-    <a class="pill" href="dashboard.html">Fleet DB</a>
-    <a class="pill" href="top500_analytics.html">ТОП-500</a>
-    <a class="pill active" href="sentinel_dashboard.html">Sentinel 18</a>
-    <a class="pill" href="mission_control.html">Mission Control</a>
+    <a class="pill" href="dashboard.html" data-i18n="nav.fleet_db">Fleet DB</a>
+    <a class="pill" href="top500_analytics.html" data-i18n="nav.top500">ТОП-500</a>
+    <a class="pill active" href="sentinel_dashboard.html" data-i18n="nav.sentinel">Sentinel 18</a>
+    <a class="pill" href="mission_control.html" data-i18n="nav.mission">Mission Control</a>
   </div>
 </header>
 
 <section class="hero">
-  <h1 id="heroTitle">SENTINEL LIVE AIS · 18 INFOGRAPHICS</h1>
-  <p id="heroSub">Strategic fleet Alpha–Delta · AISStream ingestion · Real-time kinetics & pipeline health</p>
+  <h1 id="heroTitle" data-i18n="hero.title">SENTINEL LIVE AIS · 18 INFOGRAPHICS</h1>
+  <p id="heroSub" data-i18n="hero.sub">Strategic fleet Alpha–Delta · AISStream ingestion · Real-time kinetics & pipeline health</p>
 </section>
 
 <nav class="sheet-tabs" id="sheetTabs" role="tablist">
-  <button type="button" class="sheet-tab active" data-sheet="ais" role="tab" aria-selected="true">AIS · 18 CHARTS</button>
-  <button type="button" class="sheet-tab" data-sheet="ttf" role="tab" aria-selected="false">ПРОГНОЗ TTF / MARKET FORECAST</button>
-  <button type="button" class="sheet-tab" data-sheet="qflex" role="tab" aria-selected="false">Q-Flex</button>
-  <button type="button" class="sheet-tab" data-sheet="arctic" role="tab" aria-selected="false">ARCTIC</button>
-  <button type="button" class="sheet-tab" data-sheet="route" role="tab" aria-selected="false">МАРШРУТ</button>
-  <button type="button" class="sheet-tab" data-sheet="balance" role="tab" aria-selected="false">БАЛАНС / TOP-500 BALANCE</button>
-  <button type="button" class="sheet-tab" data-sheet="archive" role="tab" aria-selected="false">ARCHIVE · DAILY SNAPSHOTS</button>
-  <button type="button" class="sheet-tab" data-sheet="oracle" role="tab" aria-selected="false">Oracle Engine</button>
+  <button type="button" class="sheet-tab active" data-sheet="ais" role="tab" aria-selected="true" data-i18n="tab.ais">AIS · 18 CHARTS</button>
+  <button type="button" class="sheet-tab" data-sheet="ttf" role="tab" aria-selected="false" data-i18n="tab.ttf">ПРОГНОЗ TTF / MARKET FORECAST</button>
+  <button type="button" class="sheet-tab" data-sheet="qflex" role="tab" aria-selected="false" data-i18n="tab.qflex">Q-Flex</button>
+  <button type="button" class="sheet-tab" data-sheet="arctic" role="tab" aria-selected="false" data-i18n="tab.arctic">ARCTIC</button>
+  <button type="button" class="sheet-tab" data-sheet="route" role="tab" aria-selected="false" data-i18n="tab.route">МАРШРУТ</button>
+  <button type="button" class="sheet-tab" data-sheet="balance" role="tab" aria-selected="false" data-i18n="tab.balance">БАЛАНС / TOP-500 BALANCE</button>
+  <button type="button" class="sheet-tab" data-sheet="archive" role="tab" aria-selected="false" data-i18n="tab.archive">ARCHIVE · DAILY SNAPSHOTS</button>
+  <button type="button" class="sheet-tab" data-sheet="oracle" role="tab" aria-selected="false" data-i18n="tab.oracle">Oracle Engine</button>
 </nav>
 <script>
 (function () {
@@ -836,7 +845,7 @@ body.t10-modal-open{overflow:hidden}
     <div class="arch-demo-banner" id="arch-demo-banner">
       <div class="arch-demo-banner-title">
         <span class="icon">ℹ</span>
-        <span>ARCHIVE REGISTRY: SNAPSHOT / DEMO MODE · NOT LIVE VESSELFINDER REST · NOT SATELLITE</span>
+        <span data-i18n="archive.banner">ARCHIVE REGISTRY: SNAPSHOT / DEMO MODE · NOT LIVE VESSELFINDER REST · NOT SATELLITE</span>
       </div>
       <div class="arch-demo-banner-body">
         <span class="lbl">Known fleet registry:</span> <b id="arch-known-fleet-desc">1,253 known vessels (OSINT / VesselFinder hybrid snapshot)</b> &nbsp;|&nbsp;
@@ -962,8 +971,9 @@ window.__SENTINEL_MAP__ = window.__SENTINEL_MAP__ || {
    TOP10 card DOM is built synchronously from TOP10_VESSELS manifest (imported as ES module).
    AIS sheet KPI skeletons render on DOMContentLoaded — no DB latency blocking. */
 </script>
+<script src="js/sentinel_i18n.js?v=i18n-v2"></script>
 <script src="js/map_tiles.js?v=basemap-proxy-v1"></script>
-<script src="js/sentinel_engine.js?v=basemap-proxy-v1"></script>
+<script src="js/sentinel_engine.js?v=cs-corridors-v1"></script>
 <script src="js/hud_state.js?v=basemap-proxy-v1"></script>
 <script src="js/balance_engine.js?v=basemap-proxy-v1"></script>
 <script type="importmap">

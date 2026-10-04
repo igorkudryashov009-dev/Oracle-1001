@@ -40,7 +40,7 @@ WEB_JS = WEB_DIR / "js"
 WEB_CSS = WEB_DIR / "css"
 
 # Cache-bust for HUD JS (route/map modules). Bump when basemap / route logic changes.
-ASSET_V = os.environ.get("SENTINEL_ASSET_V", "basemap-proxy-v1")
+ASSET_V = os.environ.get("SENTINEL_ASSET_V", "cs-corridors-v1")
 # Default: same-origin tile proxy (server holds MAPTILES_PROVIDER_KEY; Esri fallback inside proxy).
 DEFAULT_TILE_URL = "/api/tiles/mapbox/{z}/{x}/{y}.png"
 DEFAULT_TILE_SUBDOMAINS = ""

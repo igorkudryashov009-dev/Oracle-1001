@@ -36,6 +36,9 @@ _EMAIL_RE = re.compile(
     r"(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$"
 )
 
+PILOT_STATUSES = ("registered", "contacted", "onboarded", "active", "paid", "churned")
+PILOT_KEY_STATUSES = ("registered", "contacted", "onboarded", "active", "paid")
+FUNNEL_STATUSES = ("contacted", "onboarded", "active", "paid")
 PILOT_DDL = """
 CREATE TABLE IF NOT EXISTS pilot_clients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,10 +47,20 @@ CREATE TABLE IF NOT EXISTS pilot_clients (
     key_hash TEXT NOT NULL,
     key_mask TEXT NOT NULL,
     vessels TEXT NOT NULL DEFAULT '[]',
-    status TEXT NOT NULL DEFAULT 'active',
+    status TEXT NOT NULL DEFAULT 'registered',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     UNIQUE(email)
+)
+"""
+PILOT_EVENT_DDL = """
+CREATE TABLE IF NOT EXISTS pilot_client_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL,
+    from_status TEXT,
+    to_status TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    at TEXT NOT NULL
 )
 """
 
@@ -84,10 +97,14 @@ def ensure_schema(db_path: Path | None = None) -> Path:
         conn = sqlite3.connect(str(path), timeout=30.0)
         try:
             conn.execute(PILOT_DDL)
+            conn.execute(PILOT_EVENT_DDL)
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_pilot_clients_key_hash "
                 "ON pilot_clients(key_hash)"
             )
+            cols = {str(r[1]) for r in conn.execute("PRAGMA table_info(pilot_clients)")}
+            if "lang" not in cols:
+                conn.execute("ALTER TABLE pilot_clients ADD COLUMN lang TEXT NOT NULL DEFAULT 'en'")
             conn.commit()
         finally:
             conn.close()
@@ -165,8 +182,9 @@ def lookup_pilot_by_api_key(api_key: str, *, db_path: Path | None = None) -> Opt
         conn.row_factory = sqlite3.Row
         try:
             row = conn.execute(
-                "SELECT id, company, email, key_mask, vessels, status "
-                "FROM pilot_clients WHERE key_hash = ? AND status = 'active'",
+                "SELECT id, company, email, key_mask, vessels, status, lang "
+                "FROM pilot_clients WHERE key_hash = ? AND status IN "
+                "('registered', 'contacted', 'onboarded', 'active', 'paid')",
                 (digest,),
             ).fetchone()
         finally:
@@ -174,6 +192,165 @@ def lookup_pilot_by_api_key(api_key: str, *, db_path: Path | None = None) -> Opt
     if row is None:
         return None
     return dict(row)
+
+
+def append_event(
+    email: str,
+    to_status: str,
+    reason: str,
+    *,
+    db_path: Path | None = None,
+) -> dict[str, Any]:
+    """Append-only transition. The status column is the projection of the last event."""
+    if to_status not in PILOT_STATUSES:
+        raise ValueError(f"unknown pilot status: {to_status}")
+    path = ensure_schema(db_path)
+    now = _utc_now()
+    with _LOCK:
+        conn = sqlite3.connect(str(path), timeout=30.0)
+        try:
+            row = conn.execute(
+                "SELECT status FROM pilot_clients WHERE email = ? COLLATE NOCASE",
+                (email.strip().lower(),),
+            ).fetchone()
+            if row is None:
+                raise ValueError("pilot client missing")
+            previous = row[0]
+            if previous == to_status:
+                return {"email": email, "from_status": previous, "to_status": to_status, "noop": True}
+            if previous == "churned":
+                raise ValueError("churned clients do not transition")
+            if to_status == "contacted" and previous != "registered":
+                raise ValueError("contacted requires registered")
+            if to_status == "paid" and previous != "active":
+                raise ValueError("paid requires active")
+            if to_status == "paid" and _event_exists(conn, email, "paid"):
+                return {"email": email, "from_status": previous, "to_status": to_status, "noop": True}
+            conn.execute(
+                "INSERT INTO pilot_client_events (email, from_status, to_status, reason, at) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (email.strip().lower(), previous, to_status, reason, now),
+            )
+            conn.execute(
+                "UPDATE pilot_clients SET status=?, updated_at=? WHERE email = ? COLLATE NOCASE",
+                (to_status, now, email.strip().lower()),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+    return {"email": email.strip().lower(), "from_status": previous, "to_status": to_status, "at": now}
+
+
+def count_clients(*, status: str = "active", db_path: Path | None = None) -> int:
+    path = Path(db_path) if db_path is not None else _default_db_path()
+    if not path.is_file():
+        return 0
+    with _LOCK:
+        conn = sqlite3.connect(str(path), timeout=30.0)
+        try:
+            row = conn.execute(
+                "SELECT COUNT(*) FROM pilot_clients WHERE status=?",
+                (status,),
+            ).fetchone()
+        finally:
+            conn.close()
+    return int(row[0] if row else 0)
+
+
+def _event_exists(conn: sqlite3.Connection, email: str, to_status: str) -> bool:
+    row = conn.execute(
+        "SELECT 1 FROM pilot_client_events WHERE email = ? COLLATE NOCASE AND to_status = ? LIMIT 1",
+        (email.strip().lower(), to_status),
+    ).fetchone()
+    return row is not None
+
+
+def has_event(email: str, to_status: str, *, db_path: Path | None = None) -> bool:
+    path = ensure_schema(db_path)
+    with _LOCK:
+        conn = sqlite3.connect(str(path), timeout=30.0)
+        try:
+            return _event_exists(conn, email, to_status)
+        finally:
+            conn.close()
+
+
+def record_paid(email: str, *, reason: str = "first_payment", db_path: Path | None = None) -> dict[str, Any]:
+    """Append the first paid event. A second call does not write another row."""
+    path = ensure_schema(db_path)
+    normalized = email.strip().lower()
+    with _LOCK:
+        conn = sqlite3.connect(str(path), timeout=30.0)
+        try:
+            if _event_exists(conn, normalized, "paid"):
+                return {"ok": False, "error": "already_paid", "email": normalized}
+            row = conn.execute(
+                "SELECT status FROM pilot_clients WHERE email = ? COLLATE NOCASE",
+                (normalized,),
+            ).fetchone()
+        finally:
+            conn.close()
+    if row is None:
+        return {"ok": False, "error": "missing_client", "email": normalized}
+    if row[0] != "active":
+        return {"ok": False, "error": "paid_requires_active", "status": row[0], "email": normalized}
+    event = append_event(normalized, "paid", reason, db_path=path)
+    event["ok"] = True
+    event["score_trigger"] = "first_paid"
+    return event
+
+
+def funnel_from_events(*, db_path: Path | None = None) -> dict[str, Any]:
+    """Count distinct emails per funnel stage from the append-only event log."""
+    counts = {name: 0 for name in FUNNEL_STATUSES}
+    path = Path(db_path) if db_path is not None else _default_db_path()
+    if not path.is_file():
+        return {
+            "contacted": 0,
+            "onboarded": 0,
+            "active": 0,
+            "paid": 0,
+            "source": "pilot_client_events",
+            "paid_score_trigger": False,
+        }
+    ensure_schema(path)
+    with _LOCK:
+        conn = sqlite3.connect(str(path), timeout=30.0)
+        try:
+            rows = conn.execute(
+                "SELECT to_status, COUNT(DISTINCT email) FROM pilot_client_events "
+                "WHERE to_status IN ('contacted', 'onboarded', 'active', 'paid') "
+                "GROUP BY to_status"
+            ).fetchall()
+        finally:
+            conn.close()
+    for status, n in rows:
+        if status in counts:
+            counts[str(status)] = int(n)
+    return {
+        **counts,
+        "source": "pilot_client_events",
+        "paid_score_trigger": counts["paid"] > 0,
+    }
+
+
+def note_first_use(api_key: str, *, db_path: Path | None = None) -> None:
+    """Advance one funnel step on an authenticated request. Further calls stay quiet.
+
+    registered or contacted → onboarded. onboarded → active.
+    paid and churned do not move.
+    """
+    found = lookup_pilot_by_api_key(api_key, db_path=db_path)
+    if not found:
+        return
+    status = found.get("status")
+    if status in {"active", "paid", "churned"}:
+        return
+    email = str(found["email"])
+    if status == "onboarded":
+        append_event(email, "active", "first_authenticated_request", db_path=db_path)
+    elif status in {"registered", "contacted"}:
+        append_event(email, "onboarded", "first_authenticated_request", db_path=db_path)
 
 
 def _insert_client(
@@ -191,12 +368,29 @@ def _insert_client(
             conn.execute(
                 "INSERT INTO pilot_clients "
                 "(company, email, key_hash, key_mask, vessels, status, created_at, updated_at) "
-                "VALUES (?, ?, ?, ?, ?, 'active', ?, ?)",
+                "VALUES (?, ?, ?, ?, ?, 'registered', ?, ?)",
                 (company, email, key_hash, key_mask, "[]", now, now),
+            )
+            conn.execute(
+                "INSERT INTO pilot_client_events (email, from_status, to_status, reason, at) "
+                "VALUES (?, NULL, 'registered', 'register', ?)",
+                (email, now),
             )
             conn.commit()
         finally:
             conn.close()
+
+
+def _welcome(lang: str, *, company: str) -> tuple[str, str]:
+    from services.i18n_catalog import catalog_for, negotiate_lang
+
+    chosen = negotiate_lang(query=lang)
+    cat = catalog_for(chosen)
+    strings = cat.get("strings") or {}
+    title = strings.get("welcome.title") or "Pilot"
+    body = strings.get("welcome.body") or ""
+    text = f"# {title}\n\n{company}\n\n{body}\n"
+    return chosen, text
 
 
 def handle_pilot_register(
@@ -259,6 +453,14 @@ def handle_pilot_register(
         # Race: concurrent register for same email
         return (200, {"ok": True, "existing": True}, headers)
 
+    lang_raw = ""
+    if isinstance(body, dict) and isinstance(body.get("lang"), str):
+        lang_raw = body.get("lang") or ""
+    lang, welcome = _welcome(lang_raw, company=normalized["company"])
+    base = (os.getenv("SENTINEL_PUBLIC_BASE") or "http://45.8.230.214:8765").rstrip("/")
+    hud_url = (
+        f"{base}/output/sentinel_dashboard.html?lang={lang}&key={api_key}"
+    )
     return (
         200,
         {
@@ -266,6 +468,11 @@ def handle_pilot_register(
             "api_key": api_key,
             "tier": PILOT_KEY_TIER,
             "rate_limit": PILOT_KEY_RATE_LIMIT_LABEL,
+            "status": "registered",
+            "lang": lang,
+            "welcome_md": welcome,
+            "hud_url": hud_url,
+            "key_mask": key_mask,
         },
         headers,
     )
@@ -277,7 +484,9 @@ __all__ = [
     "check_ip_rate_limit",
     "ensure_schema",
     "find_by_email",
+    "funnel_from_events",
     "handle_pilot_register",
+    "record_paid",
     "hash_api_key",
     "lookup_pilot_by_api_key",
     "mask_api_key",
