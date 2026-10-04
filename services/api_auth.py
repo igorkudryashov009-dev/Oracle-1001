@@ -30,11 +30,13 @@ _ADMIN_ONLY_TOP = frozenset(
         "gfw_budget_warn",
         "gfw_budget_warn_active",
         "vesselfinder_budget",
+        "vf_monthly_credits_used",
         "maptiles_budget",
         "maptiles_budget_remaining",
         "llm_budget",
         "oob",
         "scheduler_warn",
+        "pilot_funnel",
     }
 )
 _ADMIN_ONLY_NESTED = frozenset(
@@ -158,6 +160,12 @@ def resolve_auth(
             except Exception:  # noqa: BLE001
                 pilot = None
             if pilot:
+                try:
+                    from services.pilot_register import note_first_use
+
+                    note_first_use(key)
+                except Exception:  # noqa: BLE001
+                    pass
                 meta = {
                     "name": str(pilot.get("company") or pilot.get("email") or "pilot")[:64],
                     "tier": "readonly",
@@ -283,7 +291,7 @@ def sanitize_health(doc: dict[str, Any], *, tier: str) -> dict[str, Any]:
         return doc
     if tier == "public":
         acc = doc.get("acceptance") or {}
-        return {
+        public = {
             "status": doc.get("pipeline_health_status")
             or doc.get("operational_status")
             or doc.get("status")
@@ -294,6 +302,16 @@ def sanitize_health(doc: dict[str, Any], *, tier: str) -> dict[str, Any]:
             "http": "200",
             "note": "slim health — provide X-API-Key or X-Contract-Version for readonly+",
         }
+        ready = doc.get("readiness_score")
+        if isinstance(ready, dict) and "score" in ready:
+            slim_score = ready.get("score")
+        elif isinstance(ready, (int, float)) and not isinstance(ready, bool):
+            slim_score = int(ready)
+        else:
+            slim_score = None
+        if slim_score is not None:
+            public["readiness_score"] = int(slim_score)
+        return public
 
     # readonly
     out = dict(doc)

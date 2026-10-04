@@ -22,9 +22,11 @@ STALE_LAG_SEC = 600
 DEFAULT_COVERAGE_WINDOW_MIN = 9
 
 # Burst-collapse cache for /api/v1/health (stress 8×); Dual Gate fields stay live via short TTL.
+# A stale document is returned at once. One background rebuild refreshes it.
+# Callers never queue behind that rebuild. The formula in dual_gate is untouched.
 HEALTH_DOC_CACHE_TTL_SEC = 2.5
 _HEALTH_DOC_LOCK = threading.RLock()
-_HEALTH_DOC_CACHE: dict[str, Any] = {"doc": None, "ts": 0.0}
+_HEALTH_DOC_CACHE: dict[str, Any] = {"doc": None, "ts": 0.0, "refreshing": False}
 
 DB_CANDIDATES = [
     ROOT / "история1" / "sentinel_ais.db",
@@ -366,6 +368,38 @@ def compute_ais_freshness(
     }
 
 
+def reset_health_doc_cache() -> None:
+    with _HEALTH_DOC_LOCK:
+        _HEALTH_DOC_CACHE["doc"] = None
+        _HEALTH_DOC_CACHE["ts"] = 0.0
+        _HEALTH_DOC_CACHE["refreshing"] = False
+
+
+def _store_health_doc(doc: dict[str, Any]) -> None:
+    with _HEALTH_DOC_LOCK:
+        _HEALTH_DOC_CACHE["doc"] = dict(doc)
+        _HEALTH_DOC_CACHE["ts"] = time.monotonic()
+        _HEALTH_DOC_CACHE["refreshing"] = False
+
+
+def _refresh_health_doc() -> None:
+    try:
+        doc = _build_health_document_uncached()
+        _store_health_doc(doc)
+    except Exception:  # noqa: BLE001
+        with _HEALTH_DOC_LOCK:
+            _HEALTH_DOC_CACHE["refreshing"] = False
+
+
+def _schedule_health_refresh() -> None:
+    """Single-flight background rebuild. The caller already holds no request."""
+    with _HEALTH_DOC_LOCK:
+        if _HEALTH_DOC_CACHE.get("refreshing"):
+            return
+        _HEALTH_DOC_CACHE["refreshing"] = True
+    threading.Thread(target=_refresh_health_doc, name="health-swr", daemon=True).start()
+
+
 def build_health_document(
     *,
     freshness: dict[str, Any] | None = None,
@@ -375,28 +409,48 @@ def build_health_document(
 ) -> dict[str, Any]:
     """Truth-contract health payload for /output/api/v1/health (HTTP 200).
 
-    Short in-process TTL (HEALTH_DOC_CACHE_TTL_SEC) collapses burst stress without
-    stale Dual Gate semantics — fleet_archive has its own 3600s cache underneath.
+    Fresh hits return the cached document. After the TTL, callers still receive
+    the last document and one background thread rebuilds it. A cold process
+    builds once under the lock so a parallel burst shares that result.
+    Dual Gate math is not cached separately from the document that already
+    applied it. Component readers (ops contour, fleet archive) keep their own TTLs.
     """
-    global _HEALTH_DOC_CACHE
-    if not bypass_cache and freshness is None and source_mode is None and not extra:
-        now = time.monotonic()
-        with _HEALTH_DOC_LOCK:
-            hit = _HEALTH_DOC_CACHE.get("doc")
-            ts = float(_HEALTH_DOC_CACHE.get("ts") or 0.0)
-            if hit is not None and (now - ts) < HEALTH_DOC_CACHE_TTL_SEC:
-                out = dict(hit)
-                out["cache_hit"] = True
-                return out
-
-    doc = _build_health_document_uncached(
-        freshness=freshness, source_mode=source_mode, extra=extra
-    )
-    if not bypass_cache and freshness is None and source_mode is None and not extra:
-        with _HEALTH_DOC_LOCK:
-            _HEALTH_DOC_CACHE["doc"] = dict(doc)
-            _HEALTH_DOC_CACHE["ts"] = time.monotonic()
-    return doc
+    if bypass_cache or freshness is not None or source_mode is not None or extra:
+        return _build_health_document_uncached(
+            freshness=freshness, source_mode=source_mode, extra=extra
+        )
+    now = time.monotonic()
+    with _HEALTH_DOC_LOCK:
+        hit = _HEALTH_DOC_CACHE.get("doc")
+        ts = float(_HEALTH_DOC_CACHE.get("ts") or 0.0)
+        if isinstance(hit, dict) and (now - ts) < HEALTH_DOC_CACHE_TTL_SEC:
+            out = dict(hit)
+            out["cache_hit"] = True
+            return out
+        if isinstance(hit, dict):
+            out = dict(hit)
+            out["cache_hit"] = True
+            out["cache_stale"] = True
+            schedule = True
+        else:
+            out = None
+            schedule = False
+    if out is not None:
+        if schedule:
+            _schedule_health_refresh()
+        return out
+    with _HEALTH_DOC_LOCK:
+        hit = _HEALTH_DOC_CACHE.get("doc")
+        ts = float(_HEALTH_DOC_CACHE.get("ts") or 0.0)
+        if isinstance(hit, dict) and (time.monotonic() - ts) < HEALTH_DOC_CACHE_TTL_SEC:
+            cached = dict(hit)
+            cached["cache_hit"] = True
+            return cached
+        doc = _build_health_document_uncached()
+        _HEALTH_DOC_CACHE["doc"] = dict(doc)
+        _HEALTH_DOC_CACHE["ts"] = time.monotonic()
+        _HEALTH_DOC_CACHE["refreshing"] = False
+        return doc
 
 
 def _build_health_document_uncached(
@@ -610,40 +664,33 @@ def _build_health_document_uncached(
     except Exception:  # noqa: BLE001
         pass
 
-    # Satellite AIS — armed stub for pitch (not activated).
+    # Satellite AIS — parked until a key, provider, and SAT_BASE_URL exist.
     try:
-        from services.satellite_ais_adapter import SatelliteAISAdapter
+        from services.key_activation import provider_state
+        from services.runtime_env import apply_runtime_env
+        from services.satellite_adapter import public_status
 
-        stub = SatelliteAISAdapter()
-        cov = stub.coverage_report()
-        doc["satellite"] = {
-            "status": "not_activated",
-            "providers_ready": ["spire", "unseenlabs", "iceye"],
-            "note": "contract pending",
-            "adapter": cov.get("adapter"),
-            "credentials_present": bool(cov.get("credentials_present")),
-        }
+        apply_runtime_env()
+        sat = public_status()
+        if provider_state("satellite").get("last_ok") is True and sat.get("status") == "armed":
+            sat["status"] = "active"
+        sat["providers_ready"] = ["spire", "unseenlabs", "iceye"]
+        doc["satellite"] = sat
     except Exception:  # noqa: BLE001
         doc["satellite"] = {
-            "status": "not_activated",
+            "status": "parked",
             "providers_ready": ["spire", "unseenlabs", "iceye"],
-            "note": "contract pending",
+            "note": "not_activated",
         }
 
     # VesselFinder plane — paused until new key; GFW covers verification.
     try:
-        from services.key_activation import provider_state
-        from services.vesselfinder_client import resolve_userkey
+        from services.key_activation import vf_health_block
 
-        vf_st = provider_state("vesselfinder")
-        doc["vf"] = {
-            "configured": bool(resolve_userkey()),
-            "paused": bool(vf_st.get("paused")),
-            "last_ok": vf_st.get("last_ok"),
-            "note": "awaiting new key — function covered by GFW",
-        }
+        doc["vf"] = vf_health_block()
     except Exception:  # noqa: BLE001
         doc["vf"] = {
+            "status": "parked",
             "configured": False,
             "paused": True,
             "note": "awaiting new key — function covered by GFW",
@@ -669,6 +716,49 @@ def _build_health_document_uncached(
         doc.update(admin_coverage_fields())
     except Exception:  # noqa: BLE001
         pass
+
+    try:
+        from services.disk_forecast import disk_forecast_block
+
+        doc["disk_forecast"] = disk_forecast_block()
+    except Exception:  # noqa: BLE001
+        doc["disk_forecast"] = {"status": "unavailable"}
+
+    try:
+        from services.db_backend import active_backend, requested_backend
+        from services.dual_gate import compute_readiness_score
+        from services.ops_contour import ops_contour_block
+
+        ops = ops_contour_block()
+        facts = dict(ops.get("facts") or {})
+        facts["pipeline_health_status"] = doc.get("pipeline_health_status")
+        score = compute_readiness_score(facts)
+        disk_ops = dict(ops.get("disk") or {})
+        disk_ops["free_pct"] = doc.get("disk_free_pct")
+        doc["ops"] = {
+            "scheduler": ops.get("scheduler"),
+            "providers": ops.get("providers"),
+            "disk": disk_ops,
+            "archive": ops.get("archive"),
+            "i18n": ops.get("i18n"),
+        }
+        doc["readiness_score"] = score
+        doc["db_backend"] = {"requested": requested_backend(), "active": active_backend()}
+        try:
+            from services.pilot_register import funnel_from_events
+
+            doc["pilot_funnel"] = funnel_from_events()
+        except Exception:  # noqa: BLE001
+            doc["pilot_funnel"] = {
+                "contacted": 0,
+                "onboarded": 0,
+                "active": 0,
+                "paid": 0,
+                "source": "pilot_client_events",
+                "paid_score_trigger": False,
+            }
+    except Exception:  # noqa: BLE001
+        doc["readiness_score"] = {"score": 0, "max": 100, "source": "services.dual_gate", "components": {}}
 
     return doc
 

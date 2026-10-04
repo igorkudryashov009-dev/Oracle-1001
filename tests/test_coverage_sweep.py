@@ -71,6 +71,27 @@ def test_vf_gap_insurance_and_refund(tmp_path) -> None:
     assert refunded["credit_spent"] == 0 and refunded["result"] == "error_refunded"
 
 
+def test_full_coverage_spends_nothing() -> None:
+    from services.coverage_sweep import sweep_verdict
+
+    fresh = NOW.strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows = [{"imo": i, "dwt": 5000 - i, "last_record": fresh, "gap_hours": 1.0} for i in range(30)]
+    out = sweep_verdict(rows, used_today=0, now=NOW)
+    assert out["verdict"] == "no_spend_coverage_ok"
+    assert out["planned_requests"] == 0
+    assert out["gfw_daily_requests_used"] == 0
+
+
+def test_gaps_plan_a_spend_and_name_the_holes() -> None:
+    from services.coverage_sweep import sweep_verdict
+
+    stale = (NOW - timedelta(days=8)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows = [{"imo": i, "dwt": 5000 - i, "last_record": stale, "gap_hours": 200.0} for i in range(4)]
+    out = sweep_verdict(rows, used_today=0, now=NOW)
+    assert out["planned_requests"] == 4
+    assert out["verdict"] == "spent_closing_gaps: 4 requests, holes 4/0"
+
+
 def test_sweep_numbers_count_stale_tier_b() -> None:
     from services.coverage_sweep import sweep_numbers
 

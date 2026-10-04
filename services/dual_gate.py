@@ -432,3 +432,61 @@ def live_inference_confidence(
             "substituted by CV alone."
         ),
     }
+
+
+# Readiness weights. Caps are the anti-inflation lock: a channel cannot add
+# points beyond its weight, and a zero verified count adds zero.
+READINESS_BASE_NOMINAL = 40
+READINESS_TERRESTRIAL_MAX = 10
+READINESS_GFW_MAX = 10
+READINESS_VF_MAX = 10
+READINESS_LLM_MAX = 5
+READINESS_SATELLITE_MAX = 12  # inside the 10–15 satellite band
+READINESS_STABILITY_MAX = 8
+READINESS_PILOT_MAX = 5
+READINESS_STABILITY_DAYS = 7
+READINESS_PILOT_CLIENT_CAP = 5
+
+
+def compute_readiness_score(facts: dict[str, Any] | None) -> dict[str, Any]:
+    """Honest 0–100 score. Callers pass measured counters; this function only caps them.
+
+    Nothing in here reads the clock, the database, or a client-supplied total.
+    Satellite points appear only when satellite_verified_n > 0.
+    """
+    src = facts or {}
+
+    def _n(key: str) -> int:
+        try:
+            return max(0, int(src.get(key) or 0))
+        except (TypeError, ValueError):
+            return 0
+
+    pipeline = str(src.get("pipeline_health_status") or "").upper()
+    base = READINESS_BASE_NOMINAL if pipeline == "NOMINAL" else 0
+    terr_cap = max(1, int(FLEET_SAMPLE_LIMITED_MIN))
+    terrestrial = int(round(READINESS_TERRESTRIAL_MAX * min(_n("terrestrial_verified_n"), terr_cap) / terr_cap))
+    gfw = READINESS_GFW_MAX if _n("gfw_verified_n") > 0 else 0
+    vf = READINESS_VF_MAX if _n("vf_verified_n") > 0 else 0
+    llm = READINESS_LLM_MAX if _n("llm_verified_n") > 0 else 0
+    satellite = READINESS_SATELLITE_MAX if _n("satellite_verified_n") > 0 else 0
+    days = min(_n("green_streak_days"), READINESS_STABILITY_DAYS)
+    stability = int(round(READINESS_STABILITY_MAX * days / READINESS_STABILITY_DAYS))
+    clients = min(_n("pilot_active_n"), READINESS_PILOT_CLIENT_CAP)
+    pilot = int(round(READINESS_PILOT_MAX * clients / READINESS_PILOT_CLIENT_CAP))
+    score = base + terrestrial + gfw + vf + llm + satellite + stability + pilot
+    return {
+        "score": int(score),
+        "max": 100,
+        "source": "services.dual_gate",
+        "components": {
+            "base": base,
+            "terrestrial": terrestrial,
+            "gfw": gfw,
+            "vf": vf,
+            "llm": llm,
+            "satellite": satellite,
+            "stability": stability,
+            "pilot": pilot,
+        },
+    }

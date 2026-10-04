@@ -30,11 +30,15 @@ Asset resolution order for /assets/arctic:
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
+import logging
 import mimetypes
 import os
 import socket
 import sys
+import threading
+import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlparse
@@ -43,8 +47,78 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+LOG = logging.getLogger("sentinel.http")
+
+# Static files are immutable between mtime changes. Bytes stay in memory.
+# gzip is sent only when the client asks for it (browsers do).
+_FILE_CACHE: dict[tuple, tuple[bytes, bytes | None]] = {}
+_FILE_CACHE_LOCK = threading.Lock()
+_GZIP_SUFFIXES = {".html", ".js", ".mjs", ".css", ".json", ".svg", ".txt", ".md"}
+
+
+def _accepts_gzip(header: str | None) -> bool:
+    return "gzip" in (header or "").lower()
+
+
+def _cached_file_bytes(path: Path) -> tuple[bytes, bytes | None]:
+    st = path.stat()
+    key = (str(path.resolve()), int(st.st_mtime_ns), int(st.st_size))
+    with _FILE_CACHE_LOCK:
+        hit = _FILE_CACHE.get(key)
+    if hit is not None:
+        return hit
+    data = path.read_bytes()
+    packed: bytes | None = None
+    if path.suffix.lower() in _GZIP_SUFFIXES and len(data) >= 512:
+        gz = gzip.compress(data, compresslevel=6)
+        if len(gz) < len(data):
+            packed = gz
+    with _FILE_CACHE_LOCK:
+        stale = [k for k in _FILE_CACHE if k[0] == key[0] and k != key]
+        for old in stale:
+            _FILE_CACHE.pop(old, None)
+        _FILE_CACHE[key] = (data, packed)
+    return data, packed
+
+# Burst of parallel /health misses share one build. Short TTL so a wave that
+# arrives while the leader is still inside build_health_document() reuses that
+# document; the next wave after the TTL rebuilds. Dual Gate math is unchanged.
+_HEALTH_BUILD_LOCK = threading.Lock()
+_HEALTH_BUILD: dict[str, object] = {"at": 0.0, "doc": None}
+_HEALTH_SHARE_SEC = 1.0
+
 from services.web_assets_sync import ensure_file_synced, sync_web_assets  # noqa: E402
 from services.ais_health import build_health_document  # noqa: E402
+
+
+def shared_health_document() -> dict:
+    """One build_health_document() per in-flight wave (see _HEALTH_SHARE_SEC)."""
+    now = time.monotonic()
+    cached = _HEALTH_BUILD.get("doc")
+    if isinstance(cached, dict) and (now - float(_HEALTH_BUILD.get("at") or 0)) < _HEALTH_SHARE_SEC:
+        return cached
+    with _HEALTH_BUILD_LOCK:
+        now = time.monotonic()
+        cached = _HEALTH_BUILD.get("doc")
+        if isinstance(cached, dict) and (now - float(_HEALTH_BUILD.get("at") or 0)) < _HEALTH_SHARE_SEC:
+            return cached
+        doc = build_health_document()
+        _HEALTH_BUILD["doc"] = doc
+        _HEALTH_BUILD["at"] = time.monotonic()
+        return doc
+
+
+def api_v1_auth_exempt(path: str) -> bool:
+    """Routes that stay open without a key. Tile fetches and status only."""
+    if "/api/v1/gis/tiles/" in path or "/api/tiles/" in path:
+        return True
+    if "/api/v1/i18n/" in path:
+        return True
+    bare = path.rstrip("/")
+    return bare in (
+        "/api/v1/maptiles/status",
+        "/output/api/v1/maptiles/status",
+    )
 
 
 def _resolve_assets_dir() -> Path:
@@ -159,11 +233,31 @@ def _content_type_for(path: Path) -> str:
 
 
 class _ReuseHTTPServer(ThreadingHTTPServer):
+    # Default listen(5) drops the rest of a parallel burst. Linux retransmits
+    # the dropped SYN about 1s later, which is the p95 tail on warm handlers.
     allow_reuse_address = True
+    request_queue_size = 128
 
     def server_bind(self) -> None:
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         super().server_bind()
+
+    def service_actions(self) -> None:
+        """Accept every connection already queued, not one per select() wake."""
+        self.socket.setblocking(False)
+        try:
+            while True:
+                try:
+                    request, client_address = self.get_request()
+                except (BlockingIOError, OSError):
+                    break
+                try:
+                    self.process_request(request, client_address)
+                except Exception:
+                    self.handle_error(request, client_address)
+                    self.shutdown_request(request)
+        finally:
+            self.socket.setblocking(True)
 
 
 class DashboardHandler(SimpleHTTPRequestHandler):
@@ -195,26 +289,32 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             return
         ctype = _content_type_for(path)
         try:
-            data = path.read_bytes()
+            plain, packed = _cached_file_bytes(path)
         except OSError as exc:
             self.send_error(500, str(exc))
             return
+        data = plain
+        encoded = False
+        if packed is not None and _accepts_gzip(self.headers.get("Accept-Encoding")):
+            data = packed
+            encoded = True
         self.send_response(200)
         self.send_header("Content-Type", ctype)
+        if encoded:
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Vary", "Accept-Encoding")
         self.send_header("Content-Length", str(len(data)))
-        if no_store or path.suffix.lower() in {".js", ".mjs", ".css", ".glb", ".gltf", ".html", ".json"} or (
-            DEV_MODE and path.suffix.lower() in {".js", ".mjs", ".css"}
-        ):
+        # Invalidation is the file mtime inside the process cache.
+        # Browsers may reuse a baked HUD for two minutes.
+        if no_store or DEV_MODE:
             self.send_header(
                 "Cache-Control",
                 "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
             )
-            self.send_header("Pragma", "no-cache")
-            self.send_header("Expires", "0")
+        elif path.suffix.lower() in {".html", ".js", ".mjs", ".css", ".json"}:
+            self.send_header("Cache-Control", "public, max-age=120")
         else:
-            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0")
-            self.send_header("Pragma", "no-cache")
-            self.send_header("Expires", "0")
+            self.send_header("Cache-Control", "public, max-age=3600")
         self.end_headers()
         if self.command != "HEAD":
             self._write_body(data)
@@ -312,9 +412,13 @@ class DashboardHandler(SimpleHTTPRequestHandler):
 
     def _reject_auth(self, auth: dict) -> None:
         status = int(auth.get("status") or 401)
+        path = unquote(urlparse(self.path).path or "")
+        reason = auth.get("reason") or "unauthorized"
+        LOG.warning("api_v1_reject status=%s path=%s reason=%s", status, path, reason)
         payload = {
             "ok": False,
-            "error": auth.get("reason") or "unauthorized",
+            "error": reason,
+            "path": path,
             "hint": "Provide X-API-Key (admin|readonly) or legacy X-Contract-Version for readonly",
         }
         self.send_response(status)
@@ -332,8 +436,10 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         path = unquote(urlparse(self.path).path or "")
         if "/api/v1/" not in path:
             return False
-        # Tiles/static-ish GIS under /api/v1/gis/tiles stay open for map Never-Black
-        if "/api/v1/gis/tiles/" in path or "/api/tiles/" in path:
+        # Tiles stay open for map Never-Black. maptiles/status is the same
+        # public status document (key_preview is always null); tile bytes
+        # themselves still pass origin + 429 rate limit inside the handler.
+        if api_v1_auth_exempt(path):
             return False
         auth = self._auth_context()
         if not auth.get("ok"):
@@ -361,7 +467,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self._reject_auth(auth)
             return True
         try:
-            doc = build_health_document()
+            doc = shared_health_document()
             doc = sanitize_health(doc, tier=str(auth.get("tier") or "public"))
             raw = json.dumps(doc, indent=2, ensure_ascii=False).encode("utf-8")
         except Exception as exc:  # noqa: BLE001
@@ -438,6 +544,116 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self._json_response(200, key_status_public())
         except Exception as exc:  # noqa: BLE001
             self._json_response(500, {"ok": False, "error": str(exc)})
+        return True
+
+    def _serve_i18n_catalog(self) -> bool:
+        parsed = urlparse(self.path)
+        path = unquote(parsed.path or "")
+        if path not in ("/api/v1/i18n/catalog", "/api/v1/i18n/catalog/"):
+            return False
+        from urllib.parse import parse_qs
+
+        from services.i18n_catalog import catalog_body, negotiate_lang
+
+        qs = parse_qs(parsed.query or "")
+        query_lang = (qs.get("lang") or [""])[0]
+        chosen = negotiate_lang(
+            query=query_lang,
+            cookie=self.headers.get("Cookie"),
+            accept_language=self.headers.get("Accept-Language"),
+        )
+        plain, packed = catalog_body(chosen)
+        raw = plain
+        encoded = False
+        if _accepts_gzip(self.headers.get("Accept-Encoding")):
+            raw = packed
+            encoded = True
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        if encoded:
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Vary", "Accept-Encoding")
+        self.send_header("Content-Length", str(len(raw)))
+        self.send_header("Cache-Control", "public, max-age=3600")
+        if query_lang:
+            self.send_header(
+                "Set-Cookie",
+                f"sentinel_lang={chosen}; Path=/; Max-Age=31536000; SameSite=Lax",
+            )
+        self.end_headers()
+        if self.command != "HEAD":
+            self._write_body(raw)
+        return True
+
+    def _serve_llm_brief(self) -> bool:
+        """GET /api/v1/llm/brief/latest — readonly or admin key. No prompt, no secret."""
+        path = unquote(urlparse(self.path).path or "").rstrip("/")
+        if path in ("/api/v1/llm/digest", "/output/api/v1/llm/digest"):
+            auth = getattr(self, "_api_auth", None) or self._auth_context()
+            if auth.get("reason") != "api_key" or auth.get("tier") not in {"admin", "readonly"}:
+                self._json_response(401, {"ok": False, "error": "api_key_required", "path": path})
+                return True
+            from services.llm_router import digest_for_brief
+
+            try:
+                self._json_response(200, digest_for_brief())
+            except Exception as exc:  # noqa: BLE001
+                self._json_response(500, {"ok": False, "error": type(exc).__name__})
+            return True
+        if path not in ("/api/v1/llm/brief/latest", "/output/api/v1/llm/brief/latest"):
+            return False
+        auth = getattr(self, "_api_auth", None) or self._auth_context()
+        if auth.get("reason") != "api_key" or auth.get("tier") not in {"admin", "readonly"}:
+            self._json_response(401, {"ok": False, "error": "api_key_required", "path": path})
+            return True
+        from services.i18n_catalog import LANGS
+        from services.llm_router import brief_http_status, latest_brief, normalize_lang
+        from services.pilot_register import lookup_pilot_by_api_key
+
+        api_key = self.headers.get("X-API-Key") or self.headers.get("x-api-key") or ""
+        lang = "en"
+        try:
+            pilot = lookup_pilot_by_api_key(api_key)
+            if pilot and pilot.get("lang"):
+                lang = normalize_lang(str(pilot.get("lang")))
+        except Exception:  # noqa: BLE001
+            lang = "en"
+        if lang not in LANGS:
+            lang = "en"
+        try:
+            payload = latest_brief(lang=lang, generate=True)
+        except Exception as exc:  # noqa: BLE001
+            self._json_response(500, {"ok": False, "error": type(exc).__name__})
+            return True
+        self._json_response(brief_http_status(payload), payload)
+        return True
+
+    def _serve_ops_daily(self) -> bool:
+        parsed = urlparse(self.path)
+        path = unquote(parsed.path or "")
+        if path not in ("/api/v1/ops/daily", "/api/v1/ops/daily/"):
+            return False
+        auth = getattr(self, "_api_auth", None) or self._auth_context()
+        if auth.get("reason") != "api_key" or auth.get("tier") not in {"admin", "readonly"}:
+            self._json_response(401, {"ok": False, "error": "api_key_required"})
+            return True
+        from datetime import datetime, timezone
+        from pathlib import Path
+
+        day = datetime.now(timezone.utc).strftime("%Y%m%d")
+        dest = Path(__file__).resolve().parents[1] / "output" / f"ops_daily_{day}.md"
+        if not dest.is_file():
+            self._json_response(404, {"ok": False, "error": "ops_daily_not_written"})
+            return True
+        raw = dest.read_text(encoding="utf-8").encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/markdown; charset=utf-8")
+        self.send_header("Content-Length", str(len(raw)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Auth-Tier", str(auth.get("tier")))
+        self.end_headers()
+        if self.command != "HEAD":
+            self._write_body(raw)
         return True
 
     def _serve_quant_risk(self) -> bool:
@@ -539,9 +755,24 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         ):
             return False
         try:
-            from services.compressor_stations import build_gis_stations_payload
+            from services.compressor_stations import CONTRACT_VERSION, gis_stations_body
 
-            self._send_json(build_gis_stations_payload(), contract_header=True)
+            plain, packed = gis_stations_body()
+            raw = plain
+            extra = {"X-Contract-Version": CONTRACT_VERSION}
+            if _accepts_gzip(self.headers.get("Accept-Encoding")):
+                raw = packed
+                extra["Content-Encoding"] = "gzip"
+                extra["Vary"] = "Accept-Encoding"
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(raw)))
+            self.send_header("Cache-Control", "public, max-age=86400")
+            for hk, hv in extra.items():
+                self.send_header(hk, hv)
+            self.end_headers()
+            if self.command != "HEAD":
+                self._write_body(raw)
         except Exception as exc:  # noqa: BLE001
             self._send_json(
                 {"ok": False, "error": str(exc)[:400], "proximity_compressors": []},
@@ -651,6 +882,43 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         if self.command != "HEAD":
             self._write_body(raw)
+        return True
+
+    def _handle_llm_brief_post(self) -> bool:
+        """POST /api/v1/llm/brief — admin key pushes a brief generated off-node."""
+        path = unquote(urlparse(self.path).path or "").rstrip("/")
+        if path not in ("/api/v1/llm/brief", "/output/api/v1/llm/brief"):
+            return False
+        auth = getattr(self, "_api_auth", None) or self._auth_context()
+        if auth.get("reason") != "api_key" or auth.get("tier") != "admin":
+            self._json_response(403, {"ok": False, "error": "admin_required"})
+            return True
+        length = int(self.headers.get("Content-Length") or 0)
+        if length > 65536:
+            self._json_response(400, {"ok": False, "error": "body_too_large"})
+            return True
+        raw = self.rfile.read(length) if length > 0 else b"{}"
+        try:
+            body = json.loads(raw.decode("utf-8", errors="replace") or "{}")
+        except Exception:  # noqa: BLE001
+            body = None
+        if not isinstance(body, dict):
+            self._json_response(400, {"ok": False, "error": "invalid_json"})
+            return True
+        from services.llm_router import store_pushed_brief
+
+        try:
+            result = store_pushed_brief(
+                markdown=str(body.get("markdown") or ""),
+                lang=str(body.get("lang") or "en"),
+                day=str(body.get("brief_date") or "") or None,
+                source_rows=int(body.get("source_rows") or 0),
+                model=str(body.get("model") or "") or None,
+            )
+        except Exception as exc:  # noqa: BLE001
+            self._json_response(500, {"ok": False, "error": type(exc).__name__})
+            return True
+        self._json_response(200 if result.get("ok") else 400, result)
         return True
 
     def _handle_route_analytics_post(self) -> bool:
@@ -947,6 +1215,12 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             return
         if self._serve_live_health():
             return
+        if self._serve_ops_daily():
+            return
+        if self._serve_llm_brief():
+            return
+        if self._serve_i18n_catalog():
+            return
         if self._serve_quant_risk():
             return
         if self._serve_gis_compressor_stations():
@@ -979,6 +1253,8 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 return
             if self._handle_update_key():
                 return
+            if self._handle_llm_brief_post():
+                return
             self._send_json({"ok": False, "error": "Endpoint Not Found"}, status=404)
         except Exception as exc:  # noqa: BLE001
             try:
@@ -1004,6 +1280,12 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         if self._serve_desktop_7000():
             return
         if self._serve_live_health():
+            return
+        if self._serve_ops_daily():
+            return
+        if self._serve_llm_brief():
+            return
+        if self._serve_i18n_catalog():
             return
         if self._serve_quant_risk():
             return

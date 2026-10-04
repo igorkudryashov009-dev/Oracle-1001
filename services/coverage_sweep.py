@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -30,6 +32,9 @@ TIER_A_GAP_HOURS = 36.0
 VF_GAP_A = 48.0
 VF_GAP_B = 120.0
 COVERAGE_ALERT_PCT = 95.0
+_FIELDS_TTL_SEC = 60.0
+_FIELDS_LOCK = threading.Lock()
+_FIELDS_CACHE: dict[str, Any] = {"key": None, "ts": 0.0, "fields": None}
 
 Emit = Callable[..., Any]
 
@@ -213,6 +218,26 @@ def maybe_coverage_alert(metrics: dict[str, Any], emit: Emit) -> str | None:
 
 
 def admin_coverage_fields(db_path: Path | None = None) -> dict[str, Any]:
+    """60s snapshot of coverage fields. A health burst reuses it."""
+    key = str(db_path or "")
+    now = time.monotonic()
+    with _FIELDS_LOCK:
+        cached = _FIELDS_CACHE.get("fields")
+        if (
+            isinstance(cached, dict)
+            and _FIELDS_CACHE.get("key") == key
+            and (now - float(_FIELDS_CACHE.get("ts") or 0.0)) < _FIELDS_TTL_SEC
+        ):
+            return dict(cached)
+    fields = _admin_coverage_fields_uncached(db_path)
+    with _FIELDS_LOCK:
+        _FIELDS_CACHE["key"] = key
+        _FIELDS_CACHE["ts"] = time.monotonic()
+        _FIELDS_CACHE["fields"] = dict(fields)
+    return fields
+
+
+def _admin_coverage_fields_uncached(db_path: Path | None = None) -> dict[str, Any]:
     """Fields for the full health document. The public slim shape ignores them."""
     fields: dict[str, Any] = {
         "tierA_daily_coverage_pct": None,
@@ -220,17 +245,25 @@ def admin_coverage_fields(db_path: Path | None = None) -> dict[str, Any]:
         "tierA_gap_p95_hours": None,
         "gfw_daily_requests_used": 0,
         "vf_credits_remaining_month": None,
+        "vf_monthly_credits_used": 0,
     }
-    if BUDGET_PATH.is_file():
-        try:
-            raw = json.loads(BUDGET_PATH.read_text(encoding="utf-8"))
-            fields["gfw_daily_requests_used"] = int(raw.get("used") or 0)
-        except (OSError, json.JSONDecodeError, TypeError, ValueError):
-            pass
+    try:
+        from services.gfw_events import get_budget_status as gfw_events_budget
+
+        fields["gfw_daily_requests_used"] = int(gfw_events_budget().get("used") or 0)
+    except (OSError, TypeError, ValueError):
+        if BUDGET_PATH.is_file():
+            try:
+                raw = json.loads(BUDGET_PATH.read_text(encoding="utf-8"))
+                fields["gfw_daily_requests_used"] = int(raw.get("used") or 0)
+            except (OSError, json.JSONDecodeError, TypeError, ValueError):
+                pass
     try:
         from services.vesselfinder_budget import get_budget_status
 
-        fields["vf_credits_remaining_month"] = int(get_budget_status().get("remaining") or 0)
+        status = get_budget_status()
+        fields["vf_credits_remaining_month"] = int(status.get("remaining") or 0)
+        fields["vf_monthly_credits_used"] = int(status.get("used") or 0)
     except (OSError, TypeError, ValueError):
         pass
     if db_path is None:
@@ -348,10 +381,51 @@ def main(argv: list[str] | None = None) -> int:
         except (OSError, json.JSONDecodeError, TypeError, ValueError):
             used = 0
     numbers = sweep_numbers(vessels, used_today=used)
+    verdict = sweep_verdict(vessels, used_today=used)
+    numbers["sweep_verdict"] = verdict["verdict"]
+    try:
+        from services.job_log import log_job_finish, log_job_start
+
+        row_id = log_job_start("sweep_tiera" if args.tier == "A" else "sweep_tierb")
+        planned_key = "tier_a_planned_requests" if args.tier == "A" else "tier_b_planned_requests"
+        log_job_finish(
+            row_id,
+            status="ok",
+            rows_affected=int(numbers.get(planned_key) or 0),
+            detail={"verdict": verdict["verdict"], "tier": args.tier},
+        )
+    except Exception:  # noqa: BLE001
+        pass
     for key, value in numbers.items():
         print(f"{key}={value}")
     print("mode=dry-run")
     return 0
+
+
+def sweep_verdict(
+    vessels: list[dict[str, Any]],
+    *,
+    used_today: int = 0,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Spend is planned only for holes. Full coverage plans zero requests."""
+    now = now or _utc_now()
+    report = dry_run_report(vessels, used_today=used_today, now=now)
+    planned = int(report["tier_a"]["planned"]) + int(report["tier_b"]["planned"])
+    carried = int(report["tier_a"]["carried"]) + int(report["tier_b"]["carried"])
+    holes_before = planned + carried
+    holes_after = carried
+    if planned == 0:
+        verdict = "no_spend_coverage_ok"
+    else:
+        verdict = f"spent_closing_gaps: {planned} requests, holes {holes_before}/{holes_after}"
+    return {
+        "verdict": verdict,
+        "planned_requests": planned,
+        "holes_before": holes_before,
+        "holes_after": holes_after,
+        "gfw_daily_requests_used": int(used_today),
+    }
 
 
 def dry_run_report(

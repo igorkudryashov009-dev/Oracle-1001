@@ -111,8 +111,13 @@ def swr_fetch(
             threading.Thread(target=_bg_refresh, name=f"swr-{key}", daemon=True).start()
         return _mark(cached, cached_flag=True, swr=age >= revalidate_ttl_sec)
 
-    # Cold / too-stale: blocking fetch
+    # Cold / too-stale: one fetch. Waiters that arrive while it runs reuse
+    # the cache the leader just wrote, instead of each calling fresh_fetch.
     with _lock_for(key):
+        cached = load_json_cache(cache_path)
+        age = cache_age_sec(cached)
+        if cached is not None and age is not None and age <= stale_ttl_sec:
+            return _mark(cached, cached_flag=True, swr=age >= revalidate_ttl_sec)
         try:
             fresh = fresh_fetch()
             if isinstance(fresh, dict):

@@ -390,10 +390,26 @@ def find_nearest_stations(
     return results
 
 
+_GIS_PAYLOAD: dict[str, Any] | None = None
+_GIS_BYTES: bytes | None = None
+_GIS_GZIP: bytes | None = None
+_GIS_SOURCE: int | None = None
+
+
+def _gis_source_token() -> int:
+    """Invalidates only when the station tuple object is replaced."""
+    return id(ALL_COMPRESSOR_STATIONS)
+
+
 def build_gis_stations_payload() -> dict[str, Any]:
+    """Static registry. Built once per process until the source tuple changes."""
+    global _GIS_PAYLOAD, _GIS_SOURCE
+    token = _gis_source_token()
+    if _GIS_PAYLOAD is not None and _GIS_SOURCE == token:
+        return _GIS_PAYLOAD
     stations = get_all_stations()
     n = len(stations)
-    return {
+    _GIS_PAYLOAD = {
         "contract_version": CONTRACT_VERSION,
         "count": n,
         "total_count": n,  # alias for orchestrator health probes (Contract 1.8.0)
@@ -401,6 +417,31 @@ def build_gis_stations_payload() -> dict[str, Any]:
         "geometry": "point_centroid_of_bbox",
         "capacity_provenance": "corridor_class_notional_estimate",
     }
+    _GIS_SOURCE = token
+    return _GIS_PAYLOAD
+
+
+def gis_stations_body() -> tuple[bytes, bytes]:
+    """Compact JSON and its gzip form. Rebuilt only with the source tuple."""
+    global _GIS_BYTES, _GIS_GZIP, _GIS_SOURCE
+    import gzip
+    import json
+
+    token = _gis_source_token()
+    if _GIS_BYTES is not None and _GIS_GZIP is not None and _GIS_SOURCE == token and _GIS_PAYLOAD is not None:
+        return _GIS_BYTES, _GIS_GZIP
+    raw = json.dumps(build_gis_stations_payload(), ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    _GIS_BYTES = raw
+    _GIS_GZIP = gzip.compress(raw, compresslevel=6)
+    return _GIS_BYTES, _GIS_GZIP
+
+
+def reset_gis_cache() -> None:
+    global _GIS_PAYLOAD, _GIS_BYTES, _GIS_GZIP, _GIS_SOURCE
+    _GIS_PAYLOAD = None
+    _GIS_BYTES = None
+    _GIS_GZIP = None
+    _GIS_SOURCE = None
 
 
 def enrich_route_position_proximity(
