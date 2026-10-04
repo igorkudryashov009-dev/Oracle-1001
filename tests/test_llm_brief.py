@@ -405,3 +405,179 @@ def test_remote_runner_pushes_without_leaking_the_key() -> None:
     assert secret not in pushed["markdown"]
     assert secret not in json.dumps(out)
     assert "****" in pushed["markdown"]
+
+
+def test_probe_and_daily_brief_read_https_proxy_from_dotenv(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import urllib.request
+
+    from services import llm_router
+
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "HTTPS_PROXY=http://user:s3cret@127.0.0.1:9\nLLM_RUNNER=direct\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(llm_router, "_ENV_FILE", env_file)
+    monkeypatch.delenv("HTTPS_PROXY", raising=False)
+    monkeypatch.delenv("https_proxy", raising=False)
+    monkeypatch.delenv("LLM_RUNNER", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-exampleKEY1")
+    monkeypatch.setenv("SENTINEL_DB_PATH", str(tmp_path / "sentinel.db"))
+    monkeypatch.setattr(llm_router, "BUDGET_PATH", tmp_path / "llm_budget.json")
+    assert llm_router.HTTP_TIMEOUT_SEC == 30.0
+    assert llm_router.NETWORK_RETRIES == 2
+
+    seen: dict[str, object] = {}
+
+    class _Resp:
+        status = 200
+
+        def __init__(self, body: bytes) -> None:
+            self._body = body
+
+        def read(self) -> bytes:
+            return self._body
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args) -> bool:
+            return False
+
+    def _capture(self, req, timeout=None):
+        seen["timeout"] = timeout
+        proxies = [
+            h.proxies
+            for h in self.handlers
+            if isinstance(h, urllib.request.ProxyHandler) and h.proxies
+        ]
+        seen["proxies"] = proxies
+        path = str(getattr(req, "full_url", ""))
+        if path.endswith("/v1/messages") or "/v1/messages" in path:
+            body = (
+                b'{"content":[{"type":"text","text":"gap note"}],'
+                b'"usage":{"input_tokens":10,"output_tokens":5}}'
+            )
+        else:
+            body = b'{"data":[]}'
+        return _Resp(body)
+
+    monkeypatch.setattr(urllib.request.OpenerDirector, "open", _capture)
+    probe = llm_router.anthropic_models_probe("sk-ant-exampleKEY1")
+    assert probe == {"ok": True}
+    assert seen["timeout"] == 30.0
+    assert seen["proxies"] and "127.0.0.1:9" in seen["proxies"][0].get("https", "")
+    assert "s3cret" not in json.dumps(probe)
+
+    seen.clear()
+    brief = llm_router.run_daily_brief(day="2026-10-03", force=True, lang="en")
+    assert brief.get("ok") is True
+    assert seen["timeout"] == 30.0
+    assert seen["proxies"] and "127.0.0.1:9" in seen["proxies"][0].get("https", "")
+    assert "s3cret" not in json.dumps(brief)
+    assert "exampleKEY1" not in json.dumps(brief)
+
+
+def test_remote_runner_pushes_via_admin_api_and_health_ok_only_after_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    from services import llm_router
+
+    monkeypatch.setenv("LLM_RUNNER", "remote")
+    monkeypatch.setenv("SENTINEL_DB_PATH", str(tmp_path / "sentinel.db"))
+    monkeypatch.setattr(llm_router, "BUDGET_PATH", tmp_path / "llm_budget.json")
+    monkeypatch.setattr(llm_router, "_ENV_FILE", tmp_path / "missing.env")
+    waiting = llm_router.llm_health_block()
+    assert waiting["status"] == "degraded"
+    assert waiting["rows"] == 0
+
+    admin = "admin-test-key-9f3a"
+    secret = "sk-ant-supersecretKEY"
+
+    class _Handler(BaseHTTPRequestHandler):
+        def _json(self, code: int, payload: dict) -> None:
+            raw = json.dumps(payload).encode("utf-8")
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(raw)))
+            self.end_headers()
+            self.wfile.write(raw)
+
+        def _admin(self) -> bool:
+            return self.headers.get("X-API-Key") == admin
+
+        def do_GET(self) -> None:  # noqa: N802
+            if not self.path.startswith("/api/v1/llm/digest"):
+                self._json(404, {"ok": False})
+                return
+            if not self._admin():
+                self._json(403, {"ok": False, "error": "admin_required"})
+                return
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "digest": f"gaps include {secret}",
+                    "source_rows": 2,
+                    "day": "2026-10-03",
+                },
+            )
+
+        def do_POST(self) -> None:  # noqa: N802
+            if self.path.rstrip("/") != "/api/v1/llm/brief":
+                self._json(404, {"ok": False})
+                return
+            if not self._admin():
+                self._json(403, {"ok": False, "error": "admin_required"})
+                return
+            length = int(self.headers.get("Content-Length") or 0)
+            body = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
+            result = llm_router.store_pushed_brief(
+                markdown=str(body.get("markdown") or ""),
+                lang=str(body.get("lang") or "en"),
+                day=str(body.get("brief_date") or "") or None,
+                source_rows=int(body.get("source_rows") or 0),
+                model=str(body.get("model") or "") or None,
+            )
+            self._json(200 if result.get("ok") else 400, result)
+
+        def log_message(self, fmt: str, *args) -> None:
+            return
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+    port = server.server_address[1]
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        from scripts.llm_brief_runner import _request, run_remote
+
+        base = f"http://127.0.0.1:{port}"
+
+        def complete(text: str) -> dict:
+            assert secret not in text
+            return {"ok": True, "markdown": f"summary {secret}", "model": "claude-haiku-4-5-20251001"}
+
+        out = run_remote(
+            digest_get=lambda: _request("GET", f"{base}/api/v1/llm/digest", api_key=admin),
+            complete=complete,
+            push=lambda body: _request(
+                "POST", f"{base}/api/v1/llm/brief", api_key=admin, payload=body
+            ),
+        )
+        assert out["ok"] is True
+        assert secret not in json.dumps(out)
+        ready = llm_router.llm_health_block()
+        assert ready["status"] == "ok"
+        assert ready["rows"] == 1
+        assert ready["runner"] == "remote"
+        conn = sqlite3.connect(str(tmp_path / "sentinel.db"))
+        md = conn.execute("SELECT markdown FROM llm_daily_brief").fetchone()[0]
+        conn.close()
+        assert secret not in md
+        assert "****" in md
+    finally:
+        server.shutdown()
+        server.server_close()

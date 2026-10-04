@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 ROOT = Path(__file__).resolve().parents[1]
+_ENV_FILE = ROOT / ".env"
+_DOTENV_LLM_NAMES = ("HTTPS_PROXY", "https_proxy", "LLM_RUNNER")
 LOG = logging.getLogger("sentinel.llm_router")
 BUDGET_PATH = ROOT / "data" / "archive" / "llm_budget.json"
 MONTHLY_USD_CAP = 60.0
@@ -81,8 +83,32 @@ def resolve_anthropic_key() -> str:
     return (os.getenv("ANTHROPIC_API_KEY") or "").strip()
 
 
+def _apply_llm_dotenv() -> None:
+    """Fill HTTPS_PROXY and LLM_RUNNER from .env. Does not override the process."""
+    path = _ENV_FILE
+    if not path.is_file():
+        return
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return
+    found: dict[str, str] = {}
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, _, val = line.partition("=")
+        name = name.strip()
+        if name in _DOTENV_LLM_NAMES:
+            found[name] = val.strip().strip('"').strip("'")
+    for name in _DOTENV_LLM_NAMES:
+        if name in found and not (os.getenv(name) or "").strip():
+            os.environ[name] = found[name]
+
+
 def llm_runner_mode() -> str:
     """direct calls Anthropic from this process. remote skips the Korolev timer."""
+    _apply_llm_dotenv()
     raw = (os.getenv("LLM_RUNNER") or "").strip().lower()
     return "remote" if raw == "remote" else "direct"
 
@@ -103,9 +129,10 @@ def health_status_for_error(err: str) -> str:
 
 
 def _build_opener():
-    """Use HTTPS_PROXY when set. Otherwise open a direct connection."""
+    """Use HTTPS_PROXY from the process or from .env. Otherwise open direct."""
     import urllib.request
 
+    _apply_llm_dotenv()
     proxy = (os.getenv("HTTPS_PROXY") or os.getenv("https_proxy") or "").strip()
     if proxy:
         handler = urllib.request.ProxyHandler({"http": proxy, "https": proxy})

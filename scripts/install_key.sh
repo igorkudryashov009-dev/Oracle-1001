@@ -180,7 +180,11 @@ fi
 if [[ "${ENV_KEY}" == "GFW_API_TOKEN" ]]; then
   export INSTALL_KEY_VALUE="${KEY_VALUE}"
   KEY_VALUE="$(
-    ./venv/Scripts/python.exe - <<'PY' 2>/dev/null || python - <<'PY'
+    PYBIN="./venv/Scripts/python.exe"
+    if [[ ! -x "${PYBIN}" ]]; then
+      PYBIN="python"
+    fi
+    "${PYBIN}" - <<'PY'
 import os
 from services.gfw_events import sanitize_gfw_token
 print(sanitize_gfw_token(os.environ.get("INSTALL_KEY_VALUE") or ""), end="")
@@ -220,6 +224,36 @@ except ValueError as exc:
 PY
 fi
 
+LLM_RUNNER_VALUE=""
+HTTPS_PROXY_VALUE=""
+if [[ "${ENV_KEY}" == "ANTHROPIC_API_KEY" && -t 0 ]]; then
+  echo "LLM mode (Korolev Anthropic egress is geo-blocked):"
+  echo "  1) remote - MSI runs scripts/llm_brief_runner.py; health ok only after the brief row"
+  echo "  2) proxy  - HTTPS_PROXY for probe and daily_brief (retry 2, timeout 30s)"
+  echo -n "Choose 1 or 2: "
+  IFS= read -r LLM_CHOICE
+  LLM_CHOICE="$(printf '%s' "${LLM_CHOICE}" | tr -d '\r\n')"
+  case "${LLM_CHOICE}" in
+    1|remote)
+      LLM_RUNNER_VALUE="remote"
+      ;;
+    2|proxy)
+      echo -n "HTTPS_PROXY (input hidden): "
+      IFS= read -r -s HTTPS_PROXY_VALUE
+      echo
+      HTTPS_PROXY_VALUE="$(printf '%s' "${HTTPS_PROXY_VALUE}" | tr -d '\r\n')"
+      if [[ -z "${HTTPS_PROXY_VALUE}" ]]; then
+        echo "ERROR: empty HTTPS_PROXY" >&2
+        exit 3
+      fi
+      ;;
+    *)
+      echo "ERROR: choose 1 (remote) or 2 (proxy)" >&2
+      exit 3
+      ;;
+  esac
+fi
+
 MASKED="$(mask_last4 "${KEY_VALUE}")"
 echo "Installing ${ENV_KEY}=${MASKED}"
 
@@ -234,6 +268,12 @@ fi
 if [[ "${ENV_KEY}" == "SATELLITE_API_KEY" ]]; then
   upsert_env_file "${ROOT}/.env" "SAT_PROVIDER" "${SAT_PROVIDER}"
 fi
+if [[ -n "${LLM_RUNNER_VALUE}" ]]; then
+  upsert_env_file "${ROOT}/.env" "LLM_RUNNER" "${LLM_RUNNER_VALUE}"
+fi
+if [[ -n "${HTTPS_PROXY_VALUE}" ]]; then
+  upsert_env_file "${ROOT}/.env" "HTTPS_PROXY" "${HTTPS_PROXY_VALUE}"
+fi
 
 # 2) Local runtime overlay + signal (bind-mounted data/)
 mkdir -p "${ROOT}/data/archive"
@@ -242,7 +282,11 @@ export INSTALL_SIGNAL="${SIGNAL_PROVIDER}"
 export INSTALL_SAT_PROVIDER="${SAT_PROVIDER:-}"
 # Pass value via env to python — not argv
 export INSTALL_KEY_VALUE="${KEY_VALUE}"
-./venv/Scripts/python.exe - <<'PY' 2>/dev/null || python - <<'PY'
+PYBIN="./venv/Scripts/python.exe"
+if [[ ! -x "${PYBIN}" ]]; then
+  PYBIN="python"
+fi
+"${PYBIN}" - <<'PY'
 import os
 from services.runtime_env import write_runtime_key, write_install_signal
 write_runtime_key(os.environ["INSTALL_ENV_KEY"], os.environ["INSTALL_KEY_VALUE"])
@@ -261,9 +305,13 @@ RUNNER="${SENTINEL_RUNNER:-/opt/oracle1001/deploy/sentinel/run_sentinel_job.sh}"
 
 if ssh -o BatchMode=yes -o ConnectTimeout=10 -i "${SSH_IDENTITY}" "${HOST}" "true" 2>/dev/null; then
   B64="$(printf '%s' "${KEY_VALUE}" | base64 | tr -d '\n\r')"
+  PROXY_B64=""
+  if [[ -n "${HTTPS_PROXY_VALUE}" ]]; then
+    PROXY_B64="$(printf '%s' "${HTTPS_PROXY_VALUE}" | base64 | tr -d '\n\r')"
+  fi
   echo "Syncing to Korolev (masked=${MASKED}) ..."
   ssh -o BatchMode=yes -i "${SSH_IDENTITY}" "${HOST}" \
-    "B64='${B64}' ENV_KEY='${ENV_KEY}' SIGNAL='${SIGNAL_PROVIDER}' SAT_PROVIDER='${SAT_PROVIDER:-}' APP='${APP}' RUNNER='${RUNNER}' bash -s" <<'REMOTE'
+    "B64='${B64}' ENV_KEY='${ENV_KEY}' SIGNAL='${SIGNAL_PROVIDER}' SAT_PROVIDER='${SAT_PROVIDER:-}' LLM_RUNNER='${LLM_RUNNER_VALUE}' PROXY_B64='${PROXY_B64}' APP='${APP}' RUNNER='${RUNNER}' bash -s" <<'REMOTE'
 set -euo pipefail
 KEY_VALUE="$(printf '%s' "$B64" | base64 -d)"
 mkdir -p "$APP/data/archive"
@@ -287,6 +335,16 @@ case "$ENV_KEY" in
     printf 'SAT_PROVIDER=%s\n' "$SAT_PROVIDER" >>"$tmp"; mv "$tmp" "$APP/.env"; chmod 600 "$APP/.env"
     ;;
 esac
+if [[ -n "${LLM_RUNNER:-}" ]]; then
+  tmp=$(mktemp); grep -v '^LLM_RUNNER=' "$APP/.env" >"$tmp" || true
+  printf 'LLM_RUNNER=%s\n' "$LLM_RUNNER" >>"$tmp"; mv "$tmp" "$APP/.env"; chmod 600 "$APP/.env"
+fi
+if [[ -n "${PROXY_B64:-}" ]]; then
+  PROXY_VALUE="$(printf '%s' "$PROXY_B64" | base64 -d)"
+  tmp=$(mktemp); grep -v '^HTTPS_PROXY=' "$APP/.env" >"$tmp" || true
+  printf 'HTTPS_PROXY=%s\n' "$PROXY_VALUE" >>"$tmp"; mv "$tmp" "$APP/.env"; chmod 600 "$APP/.env"
+  unset PROXY_VALUE
+fi
 # Runtime overlay inside container (./data bind → /app/data)
 docker exec -e B64="$B64" -e ENV_KEY="$ENV_KEY" -e SIGNAL="$SIGNAL" -e SAT_PROVIDER="${SAT_PROVIDER:-}" sentinel-web \
   python -c 'import os,base64; from services.runtime_env import write_runtime_key, write_install_signal
@@ -315,5 +373,12 @@ if [[ "${ENV_KEY}" == "ALERT_WEBHOOK_URL" ]]; then
   echo "TIP: webhook receives JSON POST {at,kind,severity,message,detail,status} — see services/alerts.py"
 fi
 if [[ "${ENV_KEY}" == "ANTHROPIC_API_KEY" ]]; then
-  echo "TIP: daily_brief timer 02:30 UTC writes llm_daily_brief only (no scores/positions)"
+  if [[ "${LLM_RUNNER_VALUE}" == "remote" ]]; then
+    echo "TIP: mode=remote. On the MSI: python scripts/llm_brief_runner.py  (key stays local)"
+  elif [[ -n "${HTTPS_PROXY_VALUE}" ]]; then
+    echo "TIP: mode=proxy. probe and daily_brief read HTTPS_PROXY from .env"
+  else
+    echo "TIP: daily_brief timer 02:30 UTC writes llm_daily_brief only (no scores/positions)"
+  fi
 fi
+unset HTTPS_PROXY_VALUE PROXY_B64 LLM_RUNNER_VALUE || true
